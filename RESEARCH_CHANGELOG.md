@@ -65,3 +65,10 @@
 - Added four provisional dossiers: `0xTona/liquidator-bot` (C), `0xFantomMenace/Aave-Liquidation-Bot` (C, separately assesses HyperLend and Granary subprojects), `0xFantomMenace/Compound-Liquidation-Bot` (D), and `0xGusMcCrae/aave-liquidator-bot` (D).
 - Findings include gross-only profit gating and narrow borrower history in Tona; Granary callback authentication/unchecked router call versus better HyperLend callback checks; Compound array indexing/pool configuration/zero minimum output and inactive test file; Gus XOR allowance expression (257, not max), unauthenticated callback and unchecked low-level call.
 - All four dossiers are provisional and await independent review. Manual source inspection is separate from the automated 7,901-candidate queue, whose source-capture counter remains 0/7,901. No candidate code was executed.
+
+
+## 2026-11-14 — Twyne Morpho flash-loan liquidator inspected
+- Added a provisional B-grade dossier for `0xTwyne/twyne-liquidation-bot`, pinned to commit `568a6308adf82952a156b6374ae264643a0c4fc2` and tree `7a24b296c6c0947d95c2a6f54921a33fa4b5575f`.
+- Reviewed both Euler/Twyne and Aave-vault liquidators, Morpho callback authentication, explicit realized minimum-profit gate, approval reset, router-call error propagation and fork-based Foundry test sources.
+- Diligence notes cover public trigger/owner-directed proceeds, caller-provided router calldata under owner-configured router allowance, temporary max approvals and zero-debt branch semantics.
+- Five manual candidates now have source-pinned dossiers, all awaiting independent review. Automated 7,901-candidate queue source-capture counter remains 0/7,901. No candidate code executed.

@@ -3,8 +3,8 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_DETERMINISTIC_DISCOVERY",
-  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; CHECKPOINTED_DAG_AND_SOURCE_CAPTURE_ENGINE_IMPLEMENTED; FAKE_PROVIDER_SEMANTIC_PIPELINE_TESTED; NEW_7901_CANDIDATE_SOURCE_AUDIT_PIPELINE_NOT_YET_STARTED; REAL_LOCAL_MODEL_PENDING; PRIORITY_PACKET_0001_MANUAL_SOURCE_INSPECTION_4_COMPLETED; FOUR_PROVISIONAL_DOSSIERS_PENDING_INDEPENDENT_REVIEW",
-  "last_verified_at_utc": "2026-11-14T15:02:00Z",
+  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; CHECKPOINTED_DAG_AND_SOURCE_CAPTURE_ENGINE_IMPLEMENTED; FAKE_PROVIDER_SEMANTIC_PIPELINE_TESTED; NEW_7901_CANDIDATE_SOURCE_AUDIT_PIPELINE_NOT_YET_STARTED; REAL_LOCAL_MODEL_PENDING; PRIORITY_PACKET_0001_MANUAL_SOURCE_INSPECTION_4_COMPLETED; FOUR_PROVISIONAL_DOSSIERS_PENDING_INDEPENDENT_REVIEW; FIVE_MANUAL_PRIORITY_SOURCE_INSPECTIONS_COMPLETED; TWYNE_MORPHO_FLASHLOAN_DOSSIER_ADDED; INDEPENDENT_REVIEW_PENDING",
+  "last_verified_at_utc": "2026-11-14T15:10:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "dd08bcd2d7f0cf62fe96447c196007dd7a5e83ab",
   "latest_ci_run": {
@@ -84,10 +84,10 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Run the independent reviewer over the four new pinned-source dossiers and challenge every high-impact finding; then automate the same commit-pinned source capture over the remaining immutable batches with retries/checkpoints. Keep the manual sample distinct from the automated 7,901-candidate queue counters.",
+  "next_gate": "Obtain independent reviewer validation of the five manual priority dossiers; then build the automated commit-pinned source-capture worker with per-candidate status, bounded source files, retries and resumable checkpoints. Prioritize direct flash-loan liquidation candidates but preserve all taxonomy families.",
   "candidate_review_queue": {
     "total_discovered": 7901,
-    "audited": 9,
+    "audited": 10,
     "audits": [
       {
         "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
@@ -154,24 +154,33 @@
         "grade": "D",
         "classification": "Historical Aave flashLoanSimple prototype; XOR allowance expression, unauthenticated callback and unchecked low-level call",
         "audit_path": "research/candidate-audits/0xGusMcCrae__aave-liquidator-bot.md"
+      },
+      {
+        "repository": "0xTwyne/twyne-liquidation-bot",
+        "commit": "568a6308adf82952a156b6374ae264643a0c4fc2",
+        "tree": "7a24b296c6c0947d95c2a6f54921a33fa4b5575f",
+        "grade": "B",
+        "classification": "Twyne-specific Euler and Aave collateral-vault liquidators using Morpho Blue flash loans; explicit min-profit gates and authenticated callback",
+        "audit_path": "research/candidate-audits/0xTwyne__twyne-liquidation-bot.md"
       }
     ],
     "previously_recorded_findings": 8,
-    "new_source_findings_pending_independent_review": 20,
+    "new_source_findings_pending_independent_review": 21,
     "runtime_executions": 0,
     "metadata_imported": 7901,
     "prepared_audit_batches": 80,
     "source_capture_completed": 4,
     "source_audit_pending": 7901,
     "last_source_inspection": {
-      "status": "four_manual_commit_pinned_source_inspections_completed_from_priority_packet_0001",
+      "status": "five_manual_commit_pinned_source_inspections_completed_from_priority_packet_0001",
       "packet": "research_runs/audit-batches/43600488013/batch-0001.jsonl",
-      "inspected_repositories": 4,
+      "inspected_repositories": 5,
       "repositories": [
         "0xTona/liquidator-bot",
         "0xFantomMenace/Aave-Liquidation-Bot",
         "0xFantomMenace/Compound-Liquidation-Bot",
-        "0xGusMcCrae/aave-liquidator-bot"
+        "0xGusMcCrae/aave-liquidator-bot",
+        "0xTwyne/twyne-liquidation-bot"
       ],
       "candidate_code_executed": false,
       "independent_review_pending": true
@@ -213,7 +222,11 @@
     "0xFantomMenace/Aave-Liquidation-Bot: separated HyperLend Aave V3/Pyth implementation from Granary Optimism Aave V2 implementation; HyperLend callback checks pool and initiator; Granary callback lacks visible pool/initiator auth and ignores low-level swap-call result.",
     "0xFantomMenace/Compound-Liquidation-Bot: Compound V3 absorb + Uniswap V3 flash-funded collateral purchase; purchasableCollaterals array uses reserve index rather than compact output index, creating out-of-bounds/revert or zero-address slots; pool token ordering assumptions and zero swap minimum; checked-in Foundry test is commented out.",
     "0xGusMcCrae/aave-liquidator-bot: historical WIP; Solidity 2^256 - 1 is XOR and equals 257, not max allowance; flashloan callback lacks visible pool/initiator authentication; low-level call result ignored; README self-identifies as WIP and unsafe/uncompetitive on Arbitrum mainnet.",
-    "Four new dossiers are provisional source findings pending independent reviewer; no candidate build/test/code execution was performed."
+    "Four new dossiers are provisional source findings pending independent reviewer; no candidate build/test/code execution was performed.",
+    "Inspected 0xTwyne/twyne-liquidation-bot at commit 568a6308adf82952a156b6374ae264643a0c4fc2 and tree 7a24b296c6c0947d95c2a6f54921a33fa4b5575f.",
+    "Added a provisional B-grade dossier covering Euler/Twyne and Aave-vault liquidators using Morpho Blue flash loans, authenticated callback, explicit minimum-profit gates, allowance resets and active mainnet-fork test sources.",
+    "Recorded diligence points: permissionless trigger with owner-directed profit, caller-supplied calldata executed through owner-configured router, temporary max approval, and separate zero-debt external-liquidation path without the debt-bearing min-profit gate.",
+    "Five manual priority candidates are source-inspected; independent review pending; automated 7,901-candidate queue capture remains 0/7,901; no candidate code executed."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
