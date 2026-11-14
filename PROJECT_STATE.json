@@ -3,10 +3,10 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE",
-  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED_AND_PILOT_10_OF_10_SUCCESS; 10_REPOSITORIES_COMMIT_TREE_PINNED_182_SOURCE_REFERENCES_173_UNIQUE_BLOBS_SHA1_VERIFIED; 7891_CANDIDATES_SOURCE_CAPTURE_PENDING; WSL_PILOT_RESTORE_AND_RESUME_SCRIPT_MERGED; GITHUB_API_PRIMARY_SECONDARY_RATE_LIMIT_RECOVERY_MERGED; REAL_LOCAL_MODEL_PENDING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
-  "last_verified_at_utc": "2026-11-14T15:08:05.524Z",
+  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; AUTONOMOUS_GITHUB_HOSTED_SOURCE_CAPTURE_CHAIN_ACTIVE; 118_OF_7901_SOURCE_CAPTURED; 7783_PENDING; 0_LEASED; 0_FAILED; 86_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 32_WITH_COVERAGE_LIMITS; AGENT_FORM_SPECIALIST_RUNTIME_NOT_YET_CLOUD_BOOTSTRAPPED; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
+  "last_verified_at_utc": "2026-11-14T16:12:30Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "55cbc77da38e59a5cddcbfcdb2da3fa2a1ce6eae",
+  "latest_commit_at_checkpoint": "64c9feed3ebd9ad5f3146eaaa6374a74c572d89b",
   "latest_ci_run": {
     "run_id": 43608435180,
     "event": "push",
@@ -67,7 +67,8 @@
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
     "orchestration_phase_b": "LangGraph checkpointed graph and SQLite DAG implemented. Manifest-driven source-capture worker live-validated on 10 real candidates: 10/10 captured, 182 source references, 173 unique blobs, zero SHA mismatch. A verified WSL artifact restore/resume script and GitHub API rate-limit handling are merged. Original live queue: 10 captured, 7,891 pending. Real local-model inference, semantic purpose classification, independent review and full multi-stage autonomous completion remain pending.",
     "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; persistent local/WSL workers for source-capture queue and future local-model inference",
-    "n8n": "optional notifications/approval UI only"
+    "n8n": "optional notifications/approval UI only",
+    "schedule": "GitHub Actions for CI, 11-family discovery, and self-chaining bounded source capture; next phase must integrate Agent Form mission/task DAG with hosted loopback-only open-weight inference pilot."
   },
   "safety": {
     "wallet_access": false,
@@ -84,7 +85,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "The next action is to download artifact 14118419543 to the user's WSL environment, export a read-only GITHUB_TOKEN in that shell, and run scripts/resume_source_capture.sh from the canonical repo root. The helper must verify and restore the pilot into dedicated persistent DB/vault paths, then resume the same run ID with 10 captured and 7,891 pending. Continue bounded processing with progress monitoring; do not report full completion until the persistent queue reaches zero pending/leased and failed items are reconciled. Semantic specialist, evidence and independent-review stages remain separate.",
+  "next_gate": "Continue the self-chaining GitHub-hosted source-capture workflow from its latest verified artifact. Do not require WSL, user commands, artifact downloads or personal tokens. Latest verified checkpoint: workflow 43614195040, artifact 14121562264, 118 captured / 7,783 pending / 0 leased / 0 failed. Next engineering gate is to connect the Agent Form's validated mission/task DAG to the captured-report queue and bootstrap a strictly loopback local open-weight model on hosted runners (no cloud inference or paid fallback), first with a bounded quality pilot. Preserve the distinction between source capture, specialist analysis, evidence validation and independent review. Do not count any semantic audit until all gates pass.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -169,7 +170,7 @@
     "runtime_executions": 0,
     "metadata_imported": 7901,
     "prepared_audit_batches": 80,
-    "source_capture_completed": 10,
+    "source_capture_completed": 118,
     "source_audit_pending": 7901,
     "last_source_inspection": {
       "status": "five_manual_commit_pinned_source_inspections_completed_from_priority_packet_0001",
@@ -235,143 +236,41 @@
       }
     },
     "last_source_capture": {
-      "status": "bounded_real_source_capture_pilot_completed_successfully; WSL_restore_resume_helper_merged_but_not_yet_run_locally",
-      "workflow_run_id": 43607072905,
-      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905",
-      "artifact_id": 14118419543,
-      "artifact_name": "flashloan-source-capture-pilot-43607072905",
-      "artifact_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905/artifacts/14118419543",
-      "artifact_size_bytes": 1509274,
-      "artifact_sha256": "092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178",
-      "verification_path": "research_runs/source-capture-pilots/43607072905/verification.json",
-      "verification_commit": "0cc64139f0476bb372f4446fc45fc301cc9522e0",
-      "manifest": "research_runs/audit-batches/43600488013/manifest.json",
-      "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
-      "total_candidates": 7901,
-      "attempted": 10,
-      "captured": 10,
-      "failed": 0,
-      "pending": 7891,
-      "leased": 0,
-      "source_file_references": 182,
-      "unique_content_addressed_blobs": 173,
-      "git_blob_sha1_references_verified": 182,
-      "missing_or_mismatched_blobs": 0,
-      "tree_inventory_complete": 10,
-      "source_capture_complete_within_configured_scope": 6,
-      "source_cap_limited": 4,
-      "repositories_with_zero_eligible_source_files": 1,
-      "reports_written": 10,
+      "status": "autonomous_github_hosted_checkpoint_completed",
+      "workflow_run_id": 43614195040,
+      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614195040",
+      "artifact_id": 14121562264,
+      "artifact_name": "flashloan-source-capture-checkpoint",
+      "artifact_size_bytes": 3965756,
+      "restored_checkpoint": {
+        "captured": 106,
+        "pending": 7795,
+        "leased": 0,
+        "failed": 0,
+        "reports_verified": 106,
+        "git_blob_references_verified": 1343,
+        "unique_git_blobs_verified": 1261
+      },
+      "cycle": {
+        "attempted": 12,
+        "captured": 12,
+        "failed": 0
+      },
+      "queue": {
+        "total": 7901,
+        "captured": 118,
+        "pending": 7783,
+        "leased": 0,
+        "failed": 0,
+        "captured_complete_within_scope": 86,
+        "captured_with_coverage_limits": 32
+      },
       "candidate_code_executed": false,
       "semantic_audit_completed": false,
-      "independent_review_completed": false,
-      "pilot_candidates": [
-        {
-          "repository": "010100100100011101010100/overcollaterizedlending",
-          "candidate_index": 0,
-          "commit": "c9a50e0ed82a7c712d798a6ef02af7c1711841f9",
-          "tree": "f272c9b3d08c1c35d5239b78e0e6f1770c3ffe95",
-          "files": 30,
-          "files_available": 56,
-          "source_cap_hit": true,
-          "signals": 12
-        },
-        {
-          "repository": "04-Lpds/defi-liquidation-simulator",
-          "candidate_index": 1,
-          "commit": "6efc7868fefe65db863c4472762f7b3a7e24d5c5",
-          "tree": "fa848fe1476eed8d78663b753ffc565e7668a0b0",
-          "files": 11,
-          "files_available": 11,
-          "source_cap_hit": false,
-          "signals": 6
-        },
-        {
-          "repository": "0kage-eth/damn-vulnerable-defi-solutions",
-          "candidate_index": 3,
-          "commit": "425ce91eff3004ef410496cbfb800553b7189254",
-          "tree": "9fa3f0890db944240c3ee1ade87178efb42c6794",
-          "files": 30,
-          "files_available": 42,
-          "source_cap_hit": true,
-          "signals": 49
-        },
-        {
-          "repository": "0prob/rust_polygon_arbitrage_bot",
-          "candidate_index": 5,
-          "commit": "1ed8a507c03a3e4c47a983c7fb87b198535d9ff5",
-          "tree": "9910e5ebbf868bf7d341e98623330afad3d14894",
-          "files": 30,
-          "files_available": 166,
-          "source_cap_hit": true,
-          "signals": 34
-        },
-        {
-          "repository": "0prob/solidity_and_huff_evm_contract",
-          "candidate_index": 6,
-          "commit": "a7fa35907e9d6a41707b6e332fd23e72a3c2c75e",
-          "tree": "63bf78571a6783f1ab94ef2711d7267179d77d23",
-          "files": 15,
-          "files_available": 15,
-          "source_cap_hit": false,
-          "signals": 43
-        },
-        {
-          "repository": "0x-Shashi/WEB3-AUDIT-SKILLS",
-          "candidate_index": 7,
-          "commit": "4c0e3b9d17436fa2f7ae709ba1c78c075a20c301",
-          "tree": "76c7b020b8e37b63608eb7502cdd34fa01f2bcb9",
-          "files": 30,
-          "files_available": 32,
-          "source_cap_hit": true,
-          "signals": 6
-        },
-        {
-          "repository": "0x0Glitch/Aave-liquidations",
-          "candidate_index": 8,
-          "commit": "0b200ee6a1be47d2ea48c9d01cf612e9341271aa",
-          "tree": "363bafd26063f28726ff5f9de2663ea647a28e70",
-          "files": 24,
-          "files_available": 24,
-          "source_cap_hit": false,
-          "signals": 0
-        },
-        {
-          "repository": "0xAbhay/Flash-loans",
-          "candidate_index": 12,
-          "commit": "44819f93456b905466e3aa9b7437cc18b83847b4",
-          "tree": "38b253f6056ed98e11dec23ae8a490b9fed3f9f4",
-          "files": 5,
-          "files_available": 5,
-          "source_cap_hit": false,
-          "signals": 6
-        },
-        {
-          "repository": "0xAllan123/flash-loans",
-          "candidate_index": 19,
-          "commit": "39c4156e89b5c3862b8fa07106baa455d27f2193",
-          "tree": "a8947eee9b240b903dadbf546c1b64e75eadcd51",
-          "files": 7,
-          "files_available": 7,
-          "source_cap_hit": false,
-          "signals": 12
-        },
-        {
-          "repository": "0xAlmadenCapMgmt/Web3Behaviors",
-          "candidate_index": 20,
-          "commit": "d8590eb180e1007bed664227ecb624e92cc9dd16",
-          "tree": "1ce3a75bf0acab68ee2d1065feb8faa993b8a4ad",
-          "files": 0,
-          "files_available": 0,
-          "source_cap_hit": false,
-          "signals": 0
-        }
-      ],
-      "wsl_resume_script": "scripts/resume_source_capture.sh",
-      "wsl_resume_script_merge_commit": "fb162f46a6ae9f8c27f658c4ffbae82ca132b397",
-      "local_long_queue_run_verified": false
+      "independent_review_completed": false
     },
-    "source_capture_pending": 7891
+    "source_capture_pending": 7783,
+    "source_capture_status": "118 captured; 7,783 pending; 0 leased; 0 failed; 86 within configured scope; 32 with coverage limits"
   },
   "implementation_updates": [
     "GitHubClient.tree supports recursive and non-recursive requests.",
@@ -430,7 +329,10 @@
     "PR #9 merged at e8cf224c1fe674f92b31663b01d607da7be4cee3: respect X-RateLimit-Reset and Retry-After windows up to one hour; regression tests verify primary and secondary wait behavior.",
     "PR #10 merged at fb162f46a6ae9f8c27f658c4ffbae82ca132b397: add verified WSL restore/resume helper, README run instructions, bash -n CI validation, and per-cycle queue progress output.",
     "WSL resume helper validates exact pilot ZIP SHA-256, SQLite integrity, source manifest digest, 10 report identity/commit/tree pins and all 182 Git blob SHA-1 references before restoring into dedicated data/source-capture-pilot.sqlite3 and data/source-capture-pilot-vault paths.",
-    "Local WSL long-queue continuation has not yet been run. Pilot state remains 10 captured / 7891 pending; semantic audit and independent review remain pending."
+    "Local WSL long-queue continuation has not yet been run. Pilot state remains 10 captured / 7891 pending; semantic audit and independent review remain pending.",
+    "Added GitHub-hosted self-chaining source-capture workflow; latest verified run 43614195040 captured 12 additional repositories, bringing queue to 118/7,901. Checkpoint restore verified 106 prior reports and 1,343 Git blob references; current queue 7,783 pending, 0 leased, 0 failed.",
+    "Continuity correction: WSL/manual artifact restore is no longer the primary path. User-side commands and personal token are not required for the hosted deterministic source-capture chain.",
+    "Agent Form remains a local intake prototype with LangGraph/SQLite DAG and loopback-only model adapter. Hosted source capture is operational, but the Agent Form semantic pipeline has not yet been bootstrapped on GitHub runners; cloud-hosted loopback open-weight inference pilot is the next engineering gate."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
