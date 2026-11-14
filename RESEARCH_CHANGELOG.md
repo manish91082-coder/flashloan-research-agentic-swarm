@@ -1,5 +1,15 @@
 # Research Changelog
 
+## 2026-11-14 (source checkpoint 304; Agent Form pilot executing)
+
+- Verified source-capture workflow [43615383358](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615383358), artifact 14122475274 (8,510,984 bytes). Queue: 7,901 total / 304 captured / 7,595 pending / 0 leased / 2 failed. Source coverage: 226 complete within configured scope; 78 with limitations.
+- The source-capture chain remains active and self-dispatching. The two failures remain empty repositories (HTTP 409), not security findings.
+- Agent Form semantic pilot [43615341905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615341905) passed source checkpoint restore, Agent Form runtime installation, Ollama installation/model pull and task-DAG bootstrap. Specialist, evidence and independent-review execution was in progress at this checkpoint.
+- The pilot uses the preserved checkpoint 43615137961 / artifact 14121666814, model qwen2.5:3b, CPU-only local inference served on 127.0.0.1:11434, context limit five files / 18,000 characters and 600-second model timeout.
+- The pilot scope is exactly two high-priority candidates and requires two purpose tasks, six specialist roles per candidate, two evidence gates and two independent reviews. No candidate is counted semantically audited until its final artifact is inspected.
+- The source queue and semantic pilot run concurrently. Latest source checkpoint is 304 captured; no semantic audit count has been incremented.
+- No candidate code execution, wallet access, signing, deployment, live trading, cloud inference or paid model use.
+
 ## 2026-11-14 (Agent Form semantic pilot launched)
 
 - Latest inspected source-capture checkpoint: [43615137961](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615137961), artifact 14121666814. Queue: 7,901 total / 268 captured / 7,631 pending / 0 leased / 2 failed. Coverage: 203 complete within configured source scope; 65 with limitations.
