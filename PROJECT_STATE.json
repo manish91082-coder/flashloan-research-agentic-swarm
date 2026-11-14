@@ -3,17 +3,24 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "A_EVIDENCE_PIPELINE_MVP",
-  "status": "PHASE_A_BRANCH_PUSHED_PR_OPEN_REMOTE_CI_GREEN",
+  "status": "PHASE_A_MERGED_MAIN_CI_GREEN",
   "last_verified_at_utc": "2026-11-14",
-  "branch": "phase-a/foundation",
-  "branch_commit": "12ebd1279bb7932dc565d8c74a5226074a76c140",
-  "pull_request": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1",
+  "default_branch": "main",
+  "main_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b",
+  "feature_branch": "phase-a/foundation",
+  "pull_request": {
+    "number": 1,
+    "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1",
+    "state": "closed",
+    "merged": true,
+    "merge_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b"
+  },
   "remote_ci": {
     "workflow": "Research Engine CI",
-    "push_run_id": 43574634334,
-    "push_run_conclusion": "success",
-    "pull_request_run_id": 43574659684,
-    "pull_request_test_steps": "passed on Python 3.11, 3.12 and 3.13 at last inspection",
+    "main_push_run_id": 43575510516,
+    "main_push_conclusion": "success",
+    "python_matrix": ["3.11", "3.12", "3.13"],
+    "all_matrix_jobs": "success",
     "remote_test_scope": "four focused smoke tests plus compileall; not the full 26-test local suite"
   },
   "local_validation": {
@@ -43,7 +50,9 @@
     "github_connector": "admin/push/pull/maintain/triage verified",
     "ci_workflow_contents": "read",
     "discovery_workflow_contents": "write only",
-    "repository_access_scope": "Only select repositories; this repository selected"
+    "repository_access_scope": "Only select repositories; this repository selected",
+    "repository_secrets_added": false,
+    "branch_protection": "not configured; connector exposes no branch-protection mutation action in this session"
   },
-  "next_gate": "Complete all PR checks, merge only after successful CI, then dispatch discovery and verify a timestamped report commit."
+  "next_gate": "Observe first scheduled discovery run, verify the committed timestamped report, then implement full pagination, recovery and 26-test remote coverage."
 }
