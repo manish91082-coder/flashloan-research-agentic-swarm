@@ -1,0 +1,16 @@
+{
+  "all_batch_hashes_verified": true,
+  "all_candidate_identities_verified": true,
+  "all_candidate_indexes_contiguous": true,
+  "batch_count": 80,
+  "batch_size": 100,
+  "candidate_code_executed": false,
+  "candidate_count": 7901,
+  "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
+  "run_id": "43600488013",
+  "source_audit_status": "pending_not_yet_audited",
+  "source_report_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
+  "source_report_sha256": "d99ebcdcbd1739536ba987e51ffe2a5c06610094e24b4603c89d3f5f32db3002",
+  "unique_repository_ids_present": 7901,
+  "unique_repository_names": 7901
+}
