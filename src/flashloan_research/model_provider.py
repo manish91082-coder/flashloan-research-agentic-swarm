@@ -22,6 +22,11 @@ class ModelIdentity:
     prompt_template_version: str
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise ModelProviderError("model endpoint redirects are disabled")
+
+
 class LocalOpenAICompatibleProvider:
     """Strict local-only OpenAI-compatible chat-completions adapter.
 
@@ -83,7 +88,8 @@ class LocalOpenAICompatibleProvider:
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+            opener = urllib.request.build_opener(_NoRedirect())
+            with opener.open(request, timeout=self.timeout_seconds) as response:
                 raw = response.read(2_000_001)
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             raise ModelProviderError(f"local model request failed: {type(exc).__name__}: {exc}") from exc
