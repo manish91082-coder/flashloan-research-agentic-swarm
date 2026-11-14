@@ -53,6 +53,12 @@ Set `GITHUB_TOKEN` only as an environment variable when a higher authenticated A
 - Recursive tree truncation triggers bounded non-recursive directory recovery (50,000 entries / 10,000 directories); incomplete recovery, oversized source files and source-file caps remain explicit coverage limitations.
 - Weekly GitHub Actions discovery writes timestamped JSON records to `research_runs/`; no third-party repository code is executed.
 
+## Locked research mission and keyword taxonomy
+
+The full mission scope is documented in [Flash Loan & DeFi Public Repository Research Mission](research/FLASHLOAN_REPOSITORY_RESEARCH_MISSION.md). The single source of search terms, provider callback names, liquidation/arbitrage/MEV terms, purpose labels and audit dimensions is [keyword-taxonomy.json](research/keyword-taxonomy.json) v1.0.0. The mission explicitly includes flash-loan-powered liquidation and liquidation bots, not only arbitrage.
+
+The Mission Form records selected taxonomy families and pagination limits. Search coverage must be measured query-by-query, with API/indexing/search-cap limitations recorded as coverage debt. A first-page discovery snapshot is not exhaustive.
+
 ## Form-driven autonomous agentic system
 
 - [Research Mission Form prototype](ui/research-mission-form.html): configure a research mission and generate JSON.
@@ -60,7 +66,7 @@ Set `GITHUB_TOKEN` only as an environment variable when a higher authenticated A
 - [Project Constitution](PROJECT_CONSTITUTION.md): locked goal, safety boundaries and definition of done.
 - [Autonomous research lifecycle](docs/AUTONOMOUS_AGENTIC_RESEARCH.md): mission-to-agents-to-evidence-to-continuation architecture.
 
-**Current capability:** the form is connected to a local-only mission intake API and durable SQLite queue. It validates the mission and immutable safety rules, then returns a queued mission ID. Agent execution is not yet connected; LangGraph orchestration is the next implementation gate.
+**Current capability:** the form is connected to a local-only mission intake API and durable SQLite queue. It now includes the explicit repository-research objective and v1.0.0 taxonomy family selection, with pagination parameters. The autonomous DAG/worker execution is not yet connected; queue acceptance does not mean agents have started.
 
 Start the local form and queue:
 
