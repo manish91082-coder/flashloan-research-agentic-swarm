@@ -1,5 +1,13 @@
 # Research Changelog
 
+## 2026-11-14 (source checkpoint 316; semantic pilot still executing)
+
+- Verified source-capture workflow [43615449485](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615449485), artifact 14122085911. Queue: 7,901 total / 316 captured / 7,583 pending / 0 leased / 2 failed. Coverage: 236 complete within configured source scope; 80 with limitations.
+- Source-capture chain continues to self-dispatch; empty Git repository failures remain explicitly separated from security findings.
+- Agent Form local-model pilot [43615341905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615341905) completed checkpoint restoration, Agent Form runtime installation, Ollama model installation and mission DAG bootstrap. Specialist/evidence/reviewer inference remained in progress at this checkpoint.
+- The pilot remains restricted to two candidates using qwen2.5:3b via loopback-only Ollama. No semantic audit count is incremented until outputs and independent-review results are inspected.
+- No candidate code execution, wallet access, signing, deployment, live trading, cloud inference or paid model use.
+
 ## 2026-11-14 (source checkpoint 304; Agent Form pilot executing)
 
 - Verified source-capture workflow [43615383358](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615383358), artifact 14122475274 (8,510,984 bytes). Queue: 7,901 total / 304 captured / 7,595 pending / 0 leased / 2 failed. Source coverage: 226 complete within configured scope; 78 with limitations.
