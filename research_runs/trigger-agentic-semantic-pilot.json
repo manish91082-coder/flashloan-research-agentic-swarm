@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Rerun the bounded Agent Form local-model quality pilot after merging the strict JSON Schema output-contract repair; use the same preserved, verified 268-candidate seed checkpoint in a fresh mission database.",
+  "purpose": "Rerun the bounded Agent Form local-model quality pilot after merging the strict JSON Schema contract and rate-limit-aware artifact downloader; use the preserved immutable 268-candidate checkpoint.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "queue_checkpoint": {
@@ -30,6 +30,8 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "triggered_after_commit": "cc22f5e408927353d6f31991d34827efa8f476d0",
-  "updated_at_utc": "2026-11-14T18:27:00Z"
+  "triggered_after_commit": "84dc4e423d5884cb170500aec3961e22345d749f",
+  "updated_at_utc": "2026-11-14T18:42:00Z",
+  "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
+  "trigger_revision": "pilot-retry-3-json-schema-and-artifact-backoff"
 }
