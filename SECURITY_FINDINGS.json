@@ -212,6 +212,36 @@
       "line_range": "159-166",
       "summary": "Minimum output expression subtracts collateral-token raw balance from debt-token amount plus premium, mixing token units; may underflow or set a meaningless amountOutMin.",
       "status": "confirmed_source_level_arithmetic_design_defect"
+    },
+    {
+      "id": "POWER-FLASH-CALLBACK-001",
+      "candidate": "Power-Howdy/flashloan-bot-ArbitrageAndLiquidation",
+      "inspected_commit": "025eb602ddd96c3cc8479fb0fbd00cde13e198b6",
+      "source_path": "contracts/FlashLoan.sol",
+      "source_blob_sha": "6afc0efd259c24a71cec3354cc324a12c7cabb49",
+      "line_range": "8-41",
+      "summary": "Generic flashLoan call but no lender callback entrypoint or callback authorization; arbitrage/liquidation are attempted after provider call returns.",
+      "status": "confirmed_source_level_architecture_gap"
+    },
+    {
+      "id": "POWER-ARBITRAGE-002",
+      "candidate": "Power-Howdy/flashloan-bot-ArbitrageAndLiquidation",
+      "inspected_commit": "025eb602ddd96c3cc8479fb0fbd00cde13e198b6",
+      "source_path": "contracts/Arbitrage.sol",
+      "source_blob_sha": "64791930ad7949bae327d498a391169553fc34b8",
+      "line_range": "39-73",
+      "summary": "Both swap legs use address(0) placeholder token and amountOutMin=0; no net-profit or repayment invariant; flashloan wiring left as comments.",
+      "status": "confirmed_source_level_nonfunctional_placeholder"
+    },
+    {
+      "id": "POWER-LIQUIDATION-003",
+      "candidate": "Power-Howdy/flashloan-bot-ArbitrageAndLiquidation",
+      "inspected_commit": "025eb602ddd96c3cc8479fb0fbd00cde13e198b6",
+      "source_path": "contracts/FlashLoan.sol",
+      "source_blob_sha": "6afc0efd259c24a71cec3354cc324a12c7cabb49",
+      "line_range": "31-35",
+      "summary": "Liquidation path hardcodes borrower address(0); companion protocol adapter is generic and lacks verified protocol-specific implementation.",
+      "status": "confirmed_source_level_placeholder"
     }
   ],
   "acceptance_policy": "Accepted means the claim is supported by exact pinned source or repository metadata for research triage. It does not mean an external security audit, exploit reproduction, mainnet validation or profit proof. Candidate code is never executed by this pipeline."
