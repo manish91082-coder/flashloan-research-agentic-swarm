@@ -4,9 +4,14 @@ import base64
 import hashlib
 import tempfile
 import unittest
+from dataclasses import replace
+from email.message import Message
+from io import BytesIO
 from pathlib import Path
+from urllib.error import HTTPError
 
 from flashloan_research.analyzer import decode_blob, extract_signals, is_source_file
+from flashloan_research.config import SETTINGS
 from flashloan_research.github_api import GitHubClient
 from flashloan_research.models import EvidenceRecord, RepositoryCandidate
 from flashloan_research.storage import ContentAddressedVault, ResearchStore, git_blob_sha
@@ -80,6 +85,55 @@ class ExtendedRegressionTests(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             item.validate()
+
+
+    def test_github_client_waits_until_primary_rate_limit_reset(self):
+        calls = 0
+        sleeps = []
+
+        def opener(request, timeout):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                headers = Message()
+                headers["X-RateLimit-Remaining"] = "0"
+                headers["X-RateLimit-Reset"] = "2000"
+                raise HTTPError(
+                    request.full_url, 403, "API rate limit exceeded",
+                    headers, BytesIO(b"rate limited")
+                )
+            return BytesIO(b'{"ok": true}')
+
+        settings = replace(SETTINGS, max_retries=1)
+        client = GitHubClient(
+            settings=settings, opener=opener, sleep=sleeps.append,
+            clock=lambda: 1000.0,
+        )
+        self.assertEqual(client.get("/rate-limit"), {"ok": True})
+        self.assertEqual(calls, 2)
+        self.assertEqual(sleeps, [1001])
+
+    def test_github_client_respects_retry_after_above_sixty_seconds(self):
+        calls = 0
+        sleeps = []
+
+        def opener(request, timeout):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                headers = Message()
+                headers["Retry-After"] = "120"
+                raise HTTPError(
+                    request.full_url, 429, "secondary rate limit",
+                    headers, BytesIO(b"try later")
+                )
+            return BytesIO(b'{"ok": true}')
+
+        settings = replace(SETTINGS, max_retries=1)
+        client = GitHubClient(settings=settings, opener=opener, sleep=sleeps.append)
+        self.assertEqual(client.get("/secondary-limit"), {"ok": True})
+        self.assertEqual(calls, 2)
+        self.assertEqual(sleeps, [120])
 
     def test_github_client_rejects_external_absolute_path(self):
         client = GitHubClient()
