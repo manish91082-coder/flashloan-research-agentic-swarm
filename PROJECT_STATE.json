@@ -2,25 +2,25 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "B1_MISSION_FORM_LOCAL_INTAKE_AND_DURABLE_QUEUE",
-  "status": "MISSION_FORM_CONNECTED_TO_LOCAL_API; SQLITE_QUEUE_DURABLE; 29_TESTS_PASS; LANGGRAPH_RUNTIME_NEXT",
-  "last_verified_at_utc": "2026-11-14T11:08:00Z",
+  "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_DETERMINISTIC_DISCOVERY",
+  "status": "MISSION_FORM_AND_SQLITE_QUEUE_IMPLEMENTED; TAXONOMY_DRIVEN_PAGINATED_DISCOVERY_IMPLEMENTED; IDEMPOTENT_TASK_DAG_AND_LEASED_WORKER_IMPLEMENTED; LANGGRAPH_SQLITE_CHECKPOINT_GRAPH_IMPLEMENTED; COMMIT_PINNED_SOURCE_CAPTURE_IMPLEMENTED; SEMANTIC_SPECIALISTS_BLOCKED_PENDING_FREE_MODEL_ADAPTER",
+  "last_verified_at_utc": "2026-11-14T12:15:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "cd213d4be0ec511cbe5d773b66562b04c4f8d0be",
+  "latest_commit_at_checkpoint": "7e3853f4a95cf9ce2a8722de557b3dcee48dc502",
   "latest_ci_run": {
-    "run_id": 43588523113,
+    "run_id": 43592109714,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "cd213d4be0ec511cbe5d773b66562b04c4f8d0be",
+    "head_sha": "7e3853f4a95cf9ce2a8722de557b3dcee48dc502",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "29 tests passed on all versions; compileall passed"
+    "tests": "All repository unittest suite and compileall passed on all three Python versions."
   },
-  "phase_a_ci_history": "Prior commits and workflows repeatedly passed; latest evidence-register commit CI is pending at checkpoint.",
+  "phase_a_ci_history": "Latest main-head CI verified green at 7e3853f4a95cf9ce2a8722de557b3dcee48dc502.",
   "discovery": {
     "snapshot_path": "research_runs/manual/2026-11-14-discovery-1052Z.json",
     "snapshot_commit": "3758549668a384759061b12827135e8341ef713b",
@@ -48,7 +48,19 @@
         "returned": 6
       }
     ],
-    "capture_type": "manual read-only GitHub repository search persisted to repository; not a GitHub Actions workflow execution"
+    "capture_type": "manual read-only GitHub repository search persisted to repository; not a GitHub Actions workflow execution",
+    "taxonomy_version": "1.0.0",
+    "taxonomy_path": "research/keyword-taxonomy.json",
+    "query_families": 11,
+    "pagination_defaults": {
+      "per_page": 100,
+      "max_pages_per_query": 10
+    },
+    "runner": "src/flashloan_research/mission_discovery.py",
+    "cli_command": "flashloan-research discover-mission",
+    "workflow": ".github/workflows/research-discovery.yml",
+    "coverage_ledger": "per-query JSON manifest with cap/incomplete/error accounting",
+    "note": "Mission discovery runner implemented and tested; no new full 11-family live discovery run claimed in this checkpoint."
   },
   "candidate_review": {
     "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
@@ -62,11 +74,11 @@
     "assessment": "C+ reference only; source-level findings recorded; no runtime exploit reproduction, deployment validation or profit proof"
   },
   "architecture": {
-    "research_engine": "Python standard library",
-    "database": "SQLite",
-    "orchestration_phase_b": "LangGraph gated until evidence schemas, deterministic acceptance and regression tests are robust",
-    "scheduling": "GitHub Actions",
-    "n8n": "optional notifications and approval UI only"
+    "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
+    "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
+    "orchestration_phase_b": "LangGraph graph with SQLite checkpoint saver implemented; deterministic stages active; semantic model-driven specialists not yet executable",
+    "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; local/WSL mission worker for persistent queue processing",
+    "n8n": "optional notifications/approval UI only"
   },
   "safety": {
     "wallet_access": false,
@@ -83,7 +95,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Verify latest CI; continue commit-pinned candidate triage; then fix truncated-tree recovery and expand regression suite.",
+  "next_gate": "Implement free local inference provider adapter with strict schema/evidence gates, specialist node execution and independent reviewer; add mission task status/report endpoints and dashboard; implement resumable multi-batch continuation. Then run a real bounded mission and persist coverage ledger.",
   "candidate_review_queue": {
     "total_discovered": 38,
     "audited": 3,
@@ -125,26 +137,35 @@
   "product_direction": "FORM_DRIVEN_AUTONOMOUS_AGENTIC_RESEARCH_SWARM",
   "goal_lock": "Research Mission Form is the primary user interface; the orchestrator autonomously plans, dispatches, verifies, persists and continues research tasks.",
   "form_intake": {
-    "status": "connected_to_local_api_and_sqlite_queue",
+    "status": "connected_to_local_api_and_sqlite_queue; mission worker polls queued and running missions",
     "path": "ui/research-mission-form.html",
     "schema": "schemas/research-mission.schema.json",
     "api_module": "src/flashloan_research/mission_api.py",
     "queue_module": "src/flashloan_research/mission_queue.py",
     "endpoint": "POST /missions",
     "bind_address": "127.0.0.1:8765",
-    "live_agent_submission": false
+    "live_agent_submission": "form submissions are durably queued; worker runs discovery/source-capture graph when worker process is active"
   },
   "orchestration": {
     "framework": "LangGraph",
-    "status": "NOT_YET_IMPLEMENTED",
-    "next": "mission DAG + checkpointed LangGraph worker runtime + typed specialist nodes + independent review + automatic continuation"
+    "status": "DETERMINISTIC_GRAPH_AND_SQLITE_CHECKPOINTS_IMPLEMENTED; SEMANTIC_SPECIALIST_EXECUTION_BLOCKED",
+    "modules": [
+      "src/flashloan_research/mission_runtime.py",
+      "src/flashloan_research/mission_executor.py",
+      "src/flashloan_research/mission_graph.py",
+      "src/flashloan_research/mission_worker.py"
+    ],
+    "next": "Implement approved free local model adapter and typed specialist/reviewer nodes; add task/report API and UI; implement multi-batch continuation with coverage-debt reconciliation."
   },
   "constitution": "PROJECT_CONSTITUTION.md",
   "no_drift_guard": [
-    "Do not replace the agentic swarm objective with a scanner-only roadmap.",
-    "The form is the primary mission intake; users should not need to prompt individual agents.",
-    "Agents plan, research, cross-check, validate, persist and enqueue next tasks autonomously.",
-    "All agent outputs remain untrusted until deterministic evidence gates pass.",
-    "Research-only safety boundary remains immutable."
+    "Mission is to discover public GitHub repositories across flash loans, flash-loan liquidation, DeFi liquidators, lending protocols, arbitrage, MEV and adjacent infrastructure.",
+    "For each repository, determine actual purpose, what code does, completeness, correctness, security, economics, tests, dependencies and license from commit-pinned evidence.",
+    "Mission Form is the primary user interface; no manual prompting of individual agents as the normal workflow.",
+    "Taxonomy-driven discovery is one stage of the autonomous swarm, never the final product.",
+    "Do not claim all public repositories have been found; quantify search coverage and API/indexing limitations.",
+    "Candidate code is never executed; no wallets, keys, signing, deployment, broadcast or live trading.",
+    "No paid services or paid inference fallback; model-dependent work blocks explicitly if free local inference is unavailable.",
+    "All material findings require source provenance and independent review before accepted."
   ]
 }
