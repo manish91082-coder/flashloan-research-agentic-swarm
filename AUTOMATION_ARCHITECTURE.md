@@ -1,48 +1,66 @@
-# Automation Architecture
+# Autonomous Agentic Research Architecture
 
-## Product direction: form-driven autonomous research swarm
+## Product north star
 
-The primary product is a Research Mission Form connected to a durable autonomous agent orchestrator. It is not merely a GitHub scanner, a set of manually prompted agents or an n8n-only workflow.
+The product is a **form-driven autonomous research swarm** whose mission is to discover and deeply classify public GitHub repositories related to flash loans, DeFi liquidation, lending/borrowing, arbitrage, MEV and their supporting infrastructure. It must explain each repository's actual purpose, actual implementation, missing components, correctness, security posture, economic assumptions, tests, dependencies and research value.
+
+It is not merely a keyword scanner, a repository list, or a collection of manually prompted agents. The form is the user control plane; the orchestration system owns decomposition, dispatch, evidence validation, independent challenge, persistence and continuation.
+
+## Research scope contract
+
+Canonical scope and acceptance rules: `research/FLASHLOAN_REPOSITORY_RESEARCH_MISSION.md`.
+Canonical search terms and query families: `research/keyword-taxonomy.json` (version 1.0.0).
+
+The taxonomy covers 11 families: flash-loan core; provider APIs/callbacks; DeFi liquidation; flash-loan liquidation combinations; arbitrage; MEV/execution; lending protocols; DEX/liquidity; security/accounting; cross-chain systems; tooling/research examples.
+
+Discovery must paginate each query (100 results/page, up to 10 pages where configured), deduplicate stable repository identities, and persist coverage metadata. GitHub repository search can be incomplete because of indexing, ranking, API limits and the search result cap. Such limits are recorded as coverage debt. Never claim literal completeness beyond observed coverage.
+
+Each candidate is purpose-classified before quality grading. A README or repository name is not sufficient evidence of implemented behavior.
 
 ## Phase A: deterministic research foundation (implemented)
-Python standard-library engine performs bounded GitHub REST reads, candidate normalization, commit/tree pinning, source retrieval, Git blob SHA-1 verification, lexical signal extraction and SQLite storage. GitHub Actions runs CI and scheduled discovery. Tree truncation triggers bounded non-recursive recovery. Evidence defaults to pending and lexical matches are not accepted findings.
 
-## Phase B1: mission intake (prototype created)
-- `ui/research-mission-form.html`: browser form for research objective, domain, chain/protocol scope, depth, operating mode, specialist roles, limits and deliverables.
-- `schemas/research-mission.schema.json`: strict JSON Schema contract for mission payloads.
-- `PROJECT_CONSTITUTION.md`: locks the goal, scope and non-negotiable safety policy.
-- The current form generates/copies/downloads JSON locally. It does not yet submit a mission to a running agent service. Do not describe this prototype as a live agent launcher.
+Python standard-library engine provides bounded GitHub REST acquisition, candidate normalization, commit/tree pinning, source retrieval, Git blob SHA-1 verification, lexical signals and SQLite persistence. Candidate source code is never executed. Lexical matches remain low-confidence leads, not accepted security findings.
 
-## Phase B2: autonomous orchestration (next implementation gate)
-LangGraph is the selected orchestration engine. It will:
-1. validate and persist a mission;
-2. create a dependency-aware task DAG;
-3. dispatch only the relevant specialist nodes;
-4. run bounded parallel work where safe;
-5. validate structured outputs and evidence deterministically;
-6. send findings to an independent reviewer;
-7. synthesize and persist reports/checkpoints;
-8. enqueue the next eligible task automatically.
+## Phase B1: mission form and durable intake (implemented)
 
-Start with a compact graph: Research Director -> Discovery -> Protocol Triage -> parallel Security/Execution/Economics/Test/Dependency checks -> Evidence Validator -> Independent Reviewer -> Synthesis -> Continuation Queue. Do not launch all roles for every task.
+- `ui/research-mission-form.html`: mission form with flash-loan/liquidation objectives, query family selection, chain/protocol scope, depth, specialists and deliverables.
+- `schemas/research-mission.schema.json`: strict contract including taxonomy version and discovery pagination limits.
+- `mission_api.py` and `mission_queue.py`: local-only API and durable SQLite mission queue.
+- Intake validates fixed research-only safety invariants.
+
+A queued mission does not mean agent execution has started. The current API remains a local service, not a hosted public endpoint.
+
+## Phase B2: task DAG and worker runtime (next build gate)
+
+1. Research Director validates mission and generates an idempotent, dependency-aware task DAG.
+2. GitHub Discovery executes every selected query family with pagination, retry/rate-limit accounting and candidate deduplication.
+3. Candidate triage identifies actual purpose and fans out repository-specific work.
+4. Conditional specialists inspect protocol integration, liquidation logic, Solidity security, execution/MEV, profitability, tests/CI and dependencies/license.
+5. Evidence Auditor verifies commit/tree/blob provenance, file paths, line ranges and excerpt integrity.
+6. Independent Reviewer challenges high-impact findings and preserves disputes.
+7. Synthesis writes dossiers, candidate matrix, evidence register and coverage report.
+8. Continuation Queue enqueues the next unprocessed candidate/query batch and checkpoints all state.
+
+LangGraph remains the selected orchestration framework for checkpointed state and conditional parallel nodes. Keep deterministic contracts and worker interfaces framework-independent. If no approved free inference endpoint is configured, deterministic tasks continue while LLM-dependent tasks become explicitly blocked. No paid fallback.
 
 ## Phase B3: durable execution service
-A mission API/worker will receive JSON payloads, store mission/task/run state in SQLite initially, checkpoint LangGraph state, and expose status/results. GitHub Actions remains a scheduler and CI layer, not the long-running agent runtime. A local/self-hosted worker can run on the user's Windows/WSL machine or another approved free host. Hosted free-tier availability is not assumed.
 
-## Model policy
-Model inference is optional and provider-adapter based. Only explicitly approved free endpoints/models may be enabled. If unavailable, agentic LLM tasks pause or fall back to deterministic subtasks; no paid provider fallback is allowed. API keys, if ever needed, stay in environment secrets and are never committed or placed in prompts.
+A worker process claims ready tasks, records leases/attempts, saves outputs/checkpoints, recovers expired work and exposes mission/task status. SQLite is the initial durable store. GitHub Actions is used for CI and bounded scheduled/dispatch jobs, not as an assumed always-on agent host. Local Windows/WSL or another approved free host can run the long-lived worker.
 
-## Phase C: verification depth
-Add AST-aware extraction, protocol adapters, fork-test evidence ingestion (without executing untrusted candidate code), independent review, accounting invariants, reproducibility and regression suites.
+## Phase C: forensic research depth
 
-## Phase D: interface and notifications
-The Mission Form becomes the primary UI. A dashboard later shows mission state, active tasks, agent outputs, evidence coverage, unresolved disputes, CI, budgets and next actions. n8n is optional for notifications and approval UX only. It is not the source of truth. Temporal is deferred unless long-running workflow complexity warrants it.
+Add purpose-aware source maps, AST-aware static extraction, protocol-version adapters, fixture-backed accounting invariants, fork-test evidence ingestion without executing untrusted candidate code, coverage reports and independent audit regression tests.
 
-## Permissions and trust boundaries
-- CI workflow: contents: read only.
-- Discovery workflow only: contents: write to persist its own report.
-- Agent tools: allowlisted read-only source acquisition; narrowly scoped writes to this repository's research artifacts.
-- Candidate source, README, issues and workflows are untrusted data, never agent instructions.
-- No candidate code execution, wallet, signer, deployment, transaction execution or live trading.
-- No paid inference or paid service fallback.
-- Safety policy is immutable from the mission form and cannot be overridden by any agent.
+## Phase D: dashboard and reporting
+
+Mission dashboard: queue/run state, selected query families, pages and candidates searched, candidates by purpose/status, active specialist tasks, evidence confidence, unresolved disputes, review state, coverage debt and next batch. Produce Markdown/JSON/CSV reports and a final executive synthesis.
+
+## Safety and trust boundaries
+
+- Public read-only research only.
+- Candidate repositories, README, issues, workflows, and source text are untrusted data and never agent instructions.
+- No candidate repository execution, wallet/key/signer access, signing, deployment, transaction broadcast or live trading.
+- No paid API/model/service fallback.
+- Model outputs are untrusted until schema and source-evidence validation.
+- All writes are limited to this canonical research repository and generated research artifacts.
+- Stop on quota, budget, permission, confidence or safety boundaries; persist exact blockers.
