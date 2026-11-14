@@ -38,6 +38,11 @@ def build_parser() -> argparse.ArgumentParser:
     import_discovery.add_argument("--run-id", required=True, help="Stable discovery run identifier")
     import_discovery.add_argument("--batch-size", type=int, default=200)
     import_discovery.add_argument("--max-batches", type=int, default=None, help="Optional bounded invocation; rerun with same run-id to resume")
+    export_batches = sub.add_parser("export-discovery-batches", help="Export a completed discovery import as hashed JSONL batches")
+    export_batches.add_argument("--run-id", required=True)
+    export_batches.add_argument("--output-dir", required=True)
+    export_batches.add_argument("--batch-size", type=int, default=100)
+    export_batches.add_argument("--source-report", default=None)
     inspect = sub.add_parser("inspect", help="Pin default-branch commit and capture bounded source evidence")
     inspect.add_argument("repository", help="owner/name")
     status = sub.add_parser("status", help="Show local database counts")
@@ -105,6 +110,13 @@ def main() -> int:
             report = import_discovery_report(
                 Path(args.input), args.run_id, store,
                 batch_size=args.batch_size, max_batches=args.max_batches,
+            )
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+        elif args.command == "export-discovery-batches":
+            from .discovery_import import export_discovery_batches
+            report = export_discovery_batches(
+                store, args.run_id, Path(args.output_dir),
+                batch_size=args.batch_size, source_report_path=args.source_report,
             )
             print(json.dumps(report, ensure_ascii=False, indent=2))
         elif args.command == "inspect":

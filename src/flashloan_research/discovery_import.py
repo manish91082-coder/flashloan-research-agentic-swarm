@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS discovery_candidate_provenance (
  run_id TEXT NOT NULL,
  repository TEXT NOT NULL,
  repository_id INTEGER,
+ metadata_json TEXT NOT NULL,
  matched_families_json TEXT NOT NULL,
  discovered_by_json TEXT NOT NULL,
  candidate_index INTEGER NOT NULL,
@@ -174,6 +175,9 @@ def _candidate_from_report(item: dict[str, Any]) -> tuple[RepositoryCandidate, i
 
 def _ensure_schema(store: ResearchStore) -> None:
     store.connection.executescript(IMPORT_SCHEMA)
+    columns = {row[1] for row in store.connection.execute("PRAGMA table_info(discovery_candidate_provenance)")}
+    if "metadata_json" not in columns:
+        store.connection.execute("ALTER TABLE discovery_candidate_provenance ADD COLUMN metadata_json TEXT NOT NULL DEFAULT '{}'")
     store.connection.commit()
 
 
@@ -240,15 +244,16 @@ def import_discovery_report(path: Path, run_id: str, store: ResearchStore,
                       value["pushed_at"],int(value["archived"]),value["stars"],value["forks"],value["discovery_query"]))
                 connection.execute("""
                     INSERT INTO discovery_candidate_provenance
-                    (run_id,repository,repository_id,matched_families_json,discovered_by_json,candidate_index)
-                    VALUES (?,?,?,?,?,?)
+                    (run_id,repository,repository_id,metadata_json,matched_families_json,discovered_by_json,candidate_index)
+                    VALUES (?,?,?,?,?,?,?)
                     ON CONFLICT(run_id,repository) DO UPDATE SET
                       repository_id=excluded.repository_id,
+                      metadata_json=excluded.metadata_json,
                       matched_families_json=excluded.matched_families_json,
                       discovered_by_json=excluded.discovered_by_json,
                       candidate_index=excluded.candidate_index
-                """, (run_id,value["full_name"],repo_id,json.dumps(families,sort_keys=True),
-                      json.dumps(discovered_by,sort_keys=True),candidate_index))
+                """, (run_id,value["full_name"],repo_id,json.dumps(value,ensure_ascii=False,sort_keys=True),
+                      json.dumps(families,sort_keys=True),json.dumps(discovered_by,sort_keys=True),candidate_index))
             last = entries[-1][0]
             count = connection.execute("SELECT COUNT(*) FROM discovery_candidate_provenance WHERE run_id=?", (run_id,)).fetchone()[0]
             connection.execute("UPDATE discovery_import_runs SET last_candidate_index=?,imported_candidate_count=?,status='running',updated_at_utc=CURRENT_TIMESTAMP WHERE run_id=?",
@@ -296,3 +301,90 @@ def import_discovery_report(path: Path, run_id: str, store: ResearchStore,
                            (f"{type(exc).__name__}: {str(exc)}"[:2000],run_id))
         connection.commit()
         raise
+
+def export_discovery_batches(store: ResearchStore, run_id: str, output_dir: Path,
+                             batch_size: int = 100, source_report_path: str | None = None) -> dict[str, Any]:
+    """Export immutable per-run candidate metadata into hashed, bounded JSONL batches."""
+    if isinstance(batch_size, bool) or not isinstance(batch_size, int) or not 1 <= batch_size <= 1000:
+        raise DiscoveryImportError("batch_size must be between 1 and 1000")
+    _ensure_schema(store)
+    connection = store.connection
+    run = connection.execute("SELECT * FROM discovery_import_runs WHERE run_id=?", (run_id,)).fetchone()
+    if run is None:
+        raise DiscoveryImportError(f"unknown discovery import run: {run_id}")
+    if run["status"] != "completed":
+        raise DiscoveryImportError(f"discovery import must be completed before export; status={run['status']}")
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    cursor = connection.execute("""
+        SELECT repository,repository_id,metadata_json,matched_families_json,discovered_by_json,candidate_index
+        FROM discovery_candidate_provenance WHERE run_id=? ORDER BY candidate_index
+    """, (run_id,))
+    batches: list[dict[str, Any]] = []
+    total = 0
+    batch_number = 0
+    while True:
+        records = cursor.fetchmany(batch_size)
+        if not records:
+            break
+        batch_number += 1
+        filename = f"batch-{batch_number:04d}.jsonl"
+        target = output_dir / filename
+        with target.open("w", encoding="utf-8", newline="\n") as handle:
+            for row in records:
+                metadata = json.loads(row["metadata_json"])
+                if metadata.get("full_name") != row["repository"]:
+                    raise DiscoveryImportError(f"stored candidate metadata identity mismatch: {row['repository']}")
+                record = {
+                    "candidate_index": row["candidate_index"],
+                    "repository": row["repository"],
+                    "repository_id": row["repository_id"],
+                    "metadata": metadata,
+                    "matched_families": json.loads(row["matched_families_json"]),
+                    "discovered_by": json.loads(row["discovered_by_json"]),
+                    "audit_status": "pending_commit_pinned_source_capture",
+                }
+                handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+                total += 1
+        batch_sha = _sha256_file(target)
+        batches.append({
+            "batch_id": f"{run_id}-b{batch_number:04d}",
+            "path": str(target.as_posix()),
+            "sha256": batch_sha,
+            "candidate_count": len(records),
+            "first_candidate_index": records[0]["candidate_index"],
+            "last_candidate_index": records[-1]["candidate_index"],
+            "status": "pending",
+        })
+    if total != int(run["total_candidates"]) or total != int(run["imported_candidate_count"]):
+        raise DiscoveryImportError(
+            f"exported candidate count mismatch: exported={total}, report={run['total_candidates']}, imported={run['imported_candidate_count']}"
+        )
+    manifest = {
+        "schema_version": "1.0",
+        "record_type": "resumable_discovery_candidate_batch_manifest",
+        "run_id": run_id,
+        "source_report_path": source_report_path or run["report_path"],
+        "source_report_sha256": run["report_sha256"],
+        "taxonomy_version": run["taxonomy_version"],
+        "candidate_count": total,
+        "batch_size": batch_size,
+        "batch_count": len(batches),
+        "status": "candidate_metadata_imported_audit_pending",
+        "safety": {
+            "candidate_code_executed": False,
+            "wallet_or_transaction_access": False,
+            "source_audit_completed": False,
+        },
+        "batches": batches,
+    }
+    manifest_path = output_dir / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    return {
+        "run_id": run_id,
+        "status": manifest["status"],
+        "candidate_count": total,
+        "batch_count": batch_number,
+        "batch_size": batch_size,
+        "manifest": str(manifest_path.as_posix()),
+    }

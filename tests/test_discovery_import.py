@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from flashloan_research.discovery_import import DiscoveryImportError, import_discovery_report
+from flashloan_research.discovery_import import DiscoveryImportError, export_discovery_batches, import_discovery_report
 from flashloan_research.storage import ResearchStore
 
 
@@ -63,6 +63,18 @@ class DiscoveryImportTests(unittest.TestCase):
                     "SELECT COUNT(*) FROM discovery_candidate_provenance WHERE run_id='run-001'"
                 ).fetchone()[0]
                 self.assertEqual(provenance, 3)
+                # The run snapshot must not change when the global candidates table is updated later.
+                store.connection.execute("UPDATE candidates SET description='later-run metadata' WHERE full_name='org/one'")
+                store.connection.commit()
+                export_summary = export_discovery_batches(store, "run-001", root / "batches", batch_size=2, source_report_path="research_runs/discovery.json")
+                self.assertEqual(export_summary["candidate_count"], 3)
+                self.assertEqual(export_summary["batch_count"], 2)
+                manifest = json.loads((root / "batches" / "manifest.json").read_text(encoding="utf-8"))
+                self.assertEqual(manifest["status"], "candidate_metadata_imported_audit_pending")
+                batch1 = (root / "batches" / "batch-0001.jsonl").read_text(encoding="utf-8").splitlines()
+                first_record = json.loads(batch1[0])
+                self.assertEqual(first_record["metadata"]["description"], 'quoted "text" and path C:\\research\\repo')
+                self.assertEqual(first_record["audit_status"], "pending_commit_pinned_source_capture")
                 third = import_discovery_report(report_path, "run-001", store, batch_size=2)
                 self.assertEqual(third["status"], "completed")
                 self.assertEqual(store.counts()["candidates"], 3)
