@@ -15,21 +15,24 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 - Loopback-only OpenAI-compatible model adapter; cloud endpoints, redirects and paid fallback rejected.
 - Specialist role prompts, strict JSON contract, exact signal-to-source evidence matching and deterministic evidence provenance gate.
 - Independent reviewer task remains downstream of evidence validation.
-- Latest candidate commit: `278031dd0a88106bb7a38dff7425161ed1faa94a`; CI run `43593929471` queued at checkpoint. Previous runtime/provider commits passed on Python 3.11/3.12/3.13.
-- No live 11-family mission execution is claimed yet. Current semantic specialist path still needs end-to-end fake-provider tests and a bounded live mission.
+- Latest verified main commit: `f0fab8beafe01c1a8ce18c542c70a8372647052e`; CI run `43598988641` completed successfully on Python 3.11/3.12/3.13.
+- LangGraph now invokes the local semantic specialist/evidence/reviewer stage after source capture.
+- Specialists receive bounded line-numbered source excerpts loaded from the content-addressed vault only after Git blob SHA-1 verification; excerpt SHA-256 is recorded.
+- Evidence validation now checks the candidate-purpose report as well as specialist reports; independent review receives actual prior report content with role and commit provenance checks.
+- No full fake-provider mission lifecycle or live 11-family discovery run is claimed yet. No free local model has been configured for a real mission.
 
 ## Immediate next gates
 
-1. Verify CI for latest main and fix any failures before proceeding.
-2. Add fake local-model integration tests covering candidate-purpose classification -> specialist roles -> deterministic evidence validation -> independent reviewer.
-3. Harden provider failure handling, lease recovery and mission resume; distinguish retryable provider outages from permanent schema/evidence rejection.
-4. Make specialist context source-aware: retrieve bounded full source excerpts by exact path/line from pinned blobs, not just lexical signals. Keep excerpt size limits and hashes.
-5. Add deterministic liquidation/protocol accounting extractors and structured purpose taxonomy.
-6. Add mission task/report/coverage endpoints and dashboard progress view.
-7. Implement multi-batch candidate continuation with persisted cursor and dedup/fork reconciliation.
-8. Run a bounded live discovery mission across all 11 families; persist raw query coverage, candidate inventory and commit-pinned inspection reports.
-9. Expand candidate processing until inventory exhausted or coverage limits explicitly recorded.
-10. Produce repository-purpose dossiers, audit matrix, evidence register, security/economic findings, test/CI/license reports and synthesis.
+1. **End-to-end fake-provider verification:** candidate-purpose classification -> selected specialists -> purpose+specialist evidence gate -> reviewer reading actual reports -> checkpointed final status.
+2. Add tests for model timeout/invalid JSON, provider recovery, task lease expiry, graph resume and no false completion.
+3. Implement deterministic per-repository dossier generation and mission synthesis only from evidence-validated/reviewed reports.
+4. Implement true multi-batch continuation with a persisted cursor, completed-candidate set, fork/mirror reconciliation and retry-safe batch IDs.
+5. Add mission task/report/coverage status endpoints and a dashboard showing query-family coverage debt, candidates, audit queue and blockers.
+6. Trigger a bounded live discovery run across all 11 taxonomy families using the configured GitHub Actions workflow; persist raw query coverage and candidate inventory.
+7. Reconcile results against the prior 38-repository manual baseline, preserving historical pins and duplicate/fork relations.
+8. Process candidates in batches, generating purpose dossiers, source audits, evidence register, security/economic findings and independent review.
+9. Add deterministic liquidation/accounting extractors and structured purpose taxonomy; keep model claims subordinate to source facts.
+10. Produce the consolidated research synthesis only after coverage and evidence debt are explicitly reported.
 
 ## Specialist acceptance contract
 

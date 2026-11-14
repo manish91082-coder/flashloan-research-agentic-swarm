@@ -29,3 +29,12 @@
 - First API integration CI run exposed SQLite thread-affinity failure. Fixed by using a thread-safe connection with a lock around database operations.
 - Final GitHub Actions run 43588460762 passed on Python 3.11, 3.12 and 3.13: 29/29 tests passed and compileall passed.
 - Explicit status: form + validated durable queue are implemented; live LangGraph agent execution is not yet connected. Next gate is dependency-aware mission DAG, checkpointed worker runtime, specialist nodes, independent review and automatic continuation.
+
+
+## 2026-11-14 — autonomous graph and source-aware evidence hardening
+- Fixed the LangGraph control-flow graph so the worker invokes the configured local semantic specialist/evidence/reviewer stage after source capture. Added a graph regression test asserting ordered execution and persisted semantic-stage output.
+- Added bounded source-aware specialist context: source files are loaded from the content-addressed local vault, Git blob SHA-1 is recomputed before use, line-numbered excerpts are bounded, and excerpt SHA-256 is recorded.
+- Extended evidence validation to include the candidate-purpose report; it no longer skips purpose classification provenance.
+- Changed independent review context to include actual completed candidate-purpose/specialist report contents rather than only result paths. Report role and inspected commit provenance are checked.
+- CI run 43598988641 passed on Python 3.11, 3.12 and 3.13 at commit f0fab8beafe01c1a8ce18c542c70a8372647052e.
+- Still not claimed: full fake-provider mission lifecycle, live local-model run, complete 11-family live discovery, dossier/synthesis execution or multi-batch autonomous continuation.

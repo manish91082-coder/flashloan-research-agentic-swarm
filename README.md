@@ -66,7 +66,9 @@ The Mission Form records selected taxonomy families and pagination limits. Searc
 - [Project Constitution](PROJECT_CONSTITUTION.md): locked goal, safety boundaries and definition of done.
 - [Autonomous research lifecycle](docs/AUTONOMOUS_AGENTIC_RESEARCH.md): mission-to-agents-to-evidence-to-continuation architecture.
 
-**Current capability:** the form is connected to a local-only mission intake API and durable SQLite queue. It now includes the explicit repository-research objective and v1.0.0 taxonomy family selection, with pagination parameters. The autonomous DAG/worker execution is not yet connected; queue acceptance does not mean agents have started.
+**Current capability (verified at main `f0fab8b`):** the form connects to a local-only mission intake API and durable SQLite queue. A LangGraph SQLite-checkpointed worker plans and executes taxonomy-family discovery, candidate merging, task expansion and commit-pinned source capture. The graph then invokes a local-only semantic specialist/evidence/reviewer stage. Specialists read bounded excerpts from the local content-addressed vault only after the full Git blob SHA is verified; the independent reviewer receives the actual prior specialist report contents. The latest CI run `43598988641` passed on Python 3.11, 3.12 and 3.13.
+
+**Not yet verified:** a complete fake-provider end-to-end mission, a real locally hosted model mission, full 11-family live discovery, deterministic dossier/synthesis execution and multi-batch continuation. Without an explicitly configured loopback-only free local model endpoint and model name, AI-dependent tasks remain blocked. A queued mission is not proof of completed research.
 
 Start the local form and queue:
 
@@ -82,7 +84,7 @@ The service binds to `127.0.0.1` only. Missions are persisted in the configured 
 
 **Phase A:** Python deterministic engine + SQLite + GitHub Actions.
 
-**Phase B (gated):** LangGraph as one orchestrator coordinating bounded specialist roles after evidence schemas and deterministic acceptance gates stabilize. No agent receives arbitrary shell, secrets, write or signing tools.
+**Phase B:** LangGraph coordinates bounded specialist roles after deterministic source capture. The current local-only inference adapter accepts only loopback OpenAI-compatible endpoints; no cloud or paid fallback exists. Specialist claims remain provisional until evidence validation and independent review. No agent receives arbitrary shell, secrets, wallet, signing or deployment tools.
 
 **Optional:** n8n may later provide visual triggers, notifications and approval UX. It is not the source of truth and is not required for correctness. n8n Community uses a Sustainable Use License, so commercial embedding/use must be reviewed separately.
 

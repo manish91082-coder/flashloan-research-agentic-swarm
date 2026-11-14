@@ -3,22 +3,22 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_DETERMINISTIC_DISCOVERY",
-  "status": "MISSION_FORM_AND_SQLITE_QUEUE_IMPLEMENTED; TAXONOMY_DRIVEN_PAGINATED_DISCOVERY_IMPLEMENTED; IDEMPOTENT_TASK_DAG_AND_LEASED_WORKER_IMPLEMENTED; LANGGRAPH_SQLITE_CHECKPOINT_GRAPH_IMPLEMENTED; COMMIT_PINNED_SOURCE_CAPTURE_IMPLEMENTED; SEMANTIC_SPECIALISTS_BLOCKED_PENDING_FREE_MODEL_ADAPTER",
-  "last_verified_at_utc": "2026-11-14T12:20:00Z",
+  "status": "MISSION_FORM_AND_SQLITE_QUEUE_IMPLEMENTED; TAXONOMY_DRIVEN_PAGINATED_DISCOVERY_IMPLEMENTED; CHECKPOINTED_TASK_DAG_AND_WORKER_IMPLEMENTED; GRAPH_INVOCATION_OF_LOCAL_SPECIALIST_EVIDENCE_AND_REVIEW_STAGE_IMPLEMENTED; HASH_VERIFIED_BOUNDED_SOURCE_CONTEXT_IMPLEMENTED; FULL_FAKE_PROVIDER_END_TO_END_AND_LIVE_11_FAMILY_DISCOVERY_PENDING",
+  "last_verified_at_utc": "2026-11-14T13:20:35.865Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "278031dd0a88106bb7a38dff7425161ed1faa94a",
+  "latest_commit_at_checkpoint": "f0fab8beafe01c1a8ce18c542c70a8372647052e",
   "latest_ci_run": {
-    "run_id": 43593929471,
+    "run_id": 43598988641,
     "event": "push",
-    "status": "queued",
-    "conclusion": null,
-    "head_sha": "278031dd0a88106bb7a38dff7425161ed1faa94a",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "f0fab8beafe01c1a8ce18c542c70a8372647052e",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "Awaiting CI; previous main-head runtime and provider commits passed."
+    "tests": "All three Python matrix jobs completed successfully after graph and source-context changes."
   },
   "phase_a_ci_history": "Latest main-head CI verified green at 7e3853f4a95cf9ce2a8722de557b3dcee48dc502.",
   "discovery": {
@@ -76,7 +76,7 @@
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
-    "orchestration_phase_b": "LangGraph graph with SQLite checkpoints; deterministic discovery/source capture active; loopback-only OpenAI-compatible local inference adapter and specialist/evidence gate added; semantic reviewer integration pending end-to-end test",
+    "orchestration_phase_b": "LangGraph SQLite-checkpointed graph invokes deterministic discovery/source capture and a local-only semantic specialist/evidence/reviewer stage; specialist reports now receive hash-verified bounded source excerpts and reviewer receives prior specialist report content. Full fake-provider end-to-end and real local-model mission verification remain pending.",
     "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; local/WSL mission worker for persistent queue processing",
     "n8n": "optional notifications/approval UI only"
   },
@@ -95,7 +95,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Verify latest CI for specialist evidence gate; add fake-local-model end-to-end tests for specialist task completion, evidence validation and independent review; then execute a bounded live discovery mission and persist its coverage ledger.",
+  "next_gate": "Add a fake-local-provider integration test spanning candidate-purpose classification, all selected specialists, purpose+specialist evidence validation, actual independent reviewer context and checkpointed task states; then execute and persist a bounded live discovery mission across all 11 families.",
   "candidate_review_queue": {
     "total_discovered": 38,
     "audited": 3,
@@ -135,7 +135,12 @@
     "Added specialist role prompts and a provenance gate that accepts only exact source signals present in the pinned inspection report.",
     "Added deterministic specialist-report provenance validation before independent reviewer tasks.",
     "Integrated local semantic task stages into mission execution when both local endpoint and model name are explicitly configured.",
-    "Mission finalization now preserves failed and dependency-blocked task states instead of incorrectly marking the mission completed."
+    "Mission finalization now preserves failed and dependency-blocked task states instead of incorrectly marking the mission completed.",
+    "Main graph now invokes the local semantic specialist/evidence/reviewer stage after commit-pinned source capture; regression test asserts stage order and checkpoint output.",
+    "Specialist runner loads bounded source excerpts from the local content-addressed vault, verifies Git blob SHA-1 against the inspection manifest, and adds line-numbered excerpt SHA-256 provenance to model context.",
+    "Evidence validation includes candidate_purpose outputs as well as specialist forensics reports.",
+    "Independent reviewer now receives actual completed candidate-purpose and specialist report content, with role and inspected-commit provenance checks.",
+    "Latest CI run 43598988641 passed on Python 3.11, 3.12 and 3.13 at main commit f0fab8beafe01c1a8ce18c542c70a8372647052e."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
@@ -153,7 +158,7 @@
   },
   "orchestration": {
     "framework": "LangGraph",
-    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; DETERMINISTIC_DISCOVERY_AND_SOURCE_CAPTURE; LOCAL_ONLY_SPECIALIST_ADAPTER_AND_EVIDENCE_GATE_IMPLEMENTED; END_TO_END_SEMANTIC_REVIEW_PENDING_RUNTIME_VERIFICATION",
+    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; DETERMINISTIC_DISCOVERY_AND_COMMIT_PINNED_SOURCE_CAPTURE; LOCAL_ONLY_SPECIALIST_STAGE_IN_GRAPH; HASH_VERIFIED_BOUNDED_SOURCE_CONTEXT; PURPOSE_AND_SPECIALIST_EVIDENCE_VALIDATION; REVIEWER_RECEIVES_PRIOR_REPORTS; FULL_FAKE_PROVIDER_END_TO_END_PENDING",
     "modules": [
       "src/flashloan_research/mission_runtime.py",
       "src/flashloan_research/mission_executor.py",
