@@ -50,7 +50,7 @@ Set `GITHUB_TOKEN` only as an environment variable when a higher authenticated A
 - Content-addressed source vault under `data/snapshots/`, keyed by verified Git blob SHA.
 - Lexical indicators for flash-loan primitives, callbacks, min-profit variables, balance reads and reentrancy guards.
 - Evidence records are low-confidence and `pending` by default.
-- Tree truncation, oversized source files and source-file caps are surfaced as coverage limitations, not treated as complete scans.
+- Recursive tree truncation triggers bounded non-recursive directory recovery (50,000 entries / 10,000 directories); incomplete recovery, oversized source files and source-file caps remain explicit coverage limitations.
 - Weekly GitHub Actions discovery writes timestamped JSON records to `research_runs/`; no third-party repository code is executed.
 
 ## Automation architecture
