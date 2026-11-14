@@ -259,12 +259,19 @@ class MissionTaskStore:
     def create_plan(self, tasks: list[MissionTask]) -> dict[str, int]:
         if not tasks:
             raise MissionPlanError("cannot persist an empty task plan")
-        validate_acyclic(tasks)
+        if not tasks:
+            raise MissionPlanError("cannot persist an empty task plan")
         now = utc_now()
         inserted = 0
         with self._lock:
             self.connection.execute("BEGIN IMMEDIATE")
             try:
+                existing_rows = self.connection.execute(
+                    "SELECT task_id FROM mission_tasks WHERE mission_id=?",
+                    (tasks[0].mission_id,),
+                ).fetchall()
+                existing_ids = {row["task_id"] for row in existing_rows}
+                validate_acyclic(tasks, external_dependencies=existing_ids)
                 for task in tasks:
                     cur = self.connection.execute("""
                         INSERT OR IGNORE INTO mission_tasks
