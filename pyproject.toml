@@ -11,9 +11,16 @@ license = {text = "MIT"}
 authors = [{name = "Flash Loan Research Project"}]
 dependencies = []
 
+[project.optional-dependencies]
+agentic = [
+  "langgraph==1.2.22",
+  "langgraph-checkpoint-sqlite==3.1.3",
+]
+
 [project.scripts]
 flashloan-research = "flashloan_research.cli:main"
 flashloan-mission-api = "flashloan_research.mission_api:main"
+flashloan-mission-worker = "flashloan_research.mission_worker:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
