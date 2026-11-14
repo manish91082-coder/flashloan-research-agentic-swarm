@@ -115,8 +115,8 @@ def _manifest_candidates(manifest_path: Path, workspace_root: Path) -> tuple[dic
     run_id = manifest.get("run_id")
     batches = manifest.get("batches")
     total_expected = manifest.get("candidate_count")
-    if not isinstance(run_id, str) or not run_id or len(run_id) > 200:
-        raise SourceCaptureError("manifest run_id is invalid")
+    if not isinstance(run_id, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,99}", run_id):
+        raise SourceCaptureError("manifest run_id must be a safe 1..100 character identifier")
     if isinstance(total_expected, bool) or not isinstance(total_expected, int) or total_expected < 0:
         raise SourceCaptureError("manifest candidate_count is invalid")
     if not isinstance(batches, list) or manifest.get("batch_count") != len(batches):
