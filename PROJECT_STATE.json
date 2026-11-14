@@ -2,11 +2,11 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_RESUMABLE_SOURCE_CAPTURE",
-  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED_AND_LIVE_PILOT_10_OF_10_SUCCESS; 10_REPOSITORIES_COMMIT_TREE_PINNED_182_SOURCE_REFERENCES_173_UNIQUE_BLOBS_SHA1_VERIFIED; 7891_CANDIDATES_SOURCE_CAPTURE_PENDING; FOUR_PILOT_REPOSITORIES_HIT_30_FILE_CAP_ONE_HAD_ZERO_ELIGIBLE_SOURCE_FILES; REAL_LOCAL_MODEL_PENDING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
-  "last_verified_at_utc": "2026-11-14T14:55:37.127Z",
+  "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE",
+  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED_AND_PILOT_10_OF_10_SUCCESS; 10_REPOSITORIES_COMMIT_TREE_PINNED_182_SOURCE_REFERENCES_173_UNIQUE_BLOBS_SHA1_VERIFIED; 7891_CANDIDATES_SOURCE_CAPTURE_PENDING; WSL_PILOT_RESTORE_AND_RESUME_SCRIPT_MERGED; GITHUB_API_PRIMARY_SECONDARY_RATE_LIMIT_RECOVERY_MERGED; REAL_LOCAL_MODEL_PENDING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
+  "last_verified_at_utc": "2026-11-14T15:07:10.172Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "0cc64139f0476bb372f4446fc45fc301cc9522e0",
+  "latest_commit_at_checkpoint": "fb162f46a6ae9f8c27f658c4ffbae82ca132b397",
   "latest_ci_run": {
     "run_id": 43607072884,
     "event": "push",
@@ -65,7 +65,7 @@
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
-    "orchestration_phase_b": "LangGraph checkpointed graph and SQLite task DAG are implemented. The manifest-driven source-capture worker is live-validated on 10 real candidates: 10/10 captured, 182 source-file references, 173 unique verified blobs and no SHA mismatches. The live queue contains 7,901 candidates, 10 captured and 7,891 pending. Real local-model inference, semantic purpose classification, independent review and full multi-stage autonomous completion remain pending.",
+    "orchestration_phase_b": "LangGraph checkpointed graph and SQLite DAG implemented. Manifest-driven source-capture worker live-validated on 10 real candidates: 10/10 captured, 182 source references, 173 unique blobs, zero SHA mismatch. A verified WSL artifact restore/resume script and GitHub API rate-limit handling are merged. Original live queue: 10 captured, 7,891 pending. Real local-model inference, semantic purpose classification, independent review and full multi-stage autonomous completion remain pending.",
     "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; persistent local/WSL workers for source-capture queue and future local-model inference",
     "n8n": "optional notifications/approval UI only"
   },
@@ -84,7 +84,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Continue from the pilot's SQLite queue and content-addressed vault. Preserve its artifact state, process the next bounded source-capture tranche, verify report/blob hashes again, and increase batch size only after observing throughput and artifact growth. After source capture, run real free local-model semantic classification/specialists, evidence validation and independent review; do not equate source capture with audit.",
+  "next_gate": "The next action is to download artifact 14118419543 to the user's WSL environment, export a read-only GITHUB_TOKEN in that shell, and run scripts/resume_source_capture.sh from the canonical repo root. The helper must verify and restore the pilot into dedicated persistent DB/vault paths, then resume the same run ID with 10 captured and 7,891 pending. Continue bounded processing with progress monitoring; do not report full completion until the persistent queue reaches zero pending/leased and failed items are reconciled. Semantic specialist, evidence and independent-review stages remain separate.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -202,10 +202,38 @@
       "test_result": "success_python_3_11_3_12_3_13",
       "live_queue_execution_verified": true,
       "documentation_checkpoint_commit": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0",
-      "live_queue_execution_status": "first_real_pilot_10_of_7901_success; 7891_pending; full queue continuation not yet executed"
+      "live_queue_execution_status": "first_real_pilot_10_of_7901_success; 7891_pending; full queue continuation not yet executed",
+      "rate_limit_recovery": {
+        "status": "merged_pr_9",
+        "merge_commit": "e8cf224c1fe674f92b31663b01d607da7be4cee3",
+        "primary_reset_header": "X-RateLimit-Reset honored up to 3600 seconds",
+        "secondary_retry_after": "Retry-After honored up to 3600 seconds",
+        "tests": [
+          "primary reset wait",
+          "secondary retry-after wait"
+        ],
+        "ci_runs": [
+          43607588020,
+          43607599021
+        ]
+      },
+      "wsl_resume": {
+        "status": "merged_pr_10",
+        "merge_commit": "fb162f46a6ae9f8c27f658c4ffbae82ca132b397",
+        "script": "scripts/resume_source_capture.sh",
+        "shell_syntax_ci": true,
+        "dedicated_database": "data/source-capture-pilot.sqlite3",
+        "dedicated_vault": "data/source-capture-pilot-vault",
+        "preserves_existing_database_and_vault": true,
+        "revalidates_artifact_zip_sha256": true,
+        "revalidates_sqlite_manifest_report_and_blob_pins": true,
+        "progress_emitted_per_cycle": true,
+        "local_long_queue_resume_verified": false,
+        "required_environment": "GITHUB_TOKEN"
+      }
     },
     "last_source_capture": {
-      "status": "bounded_real_source_capture_pilot_completed_successfully",
+      "status": "bounded_real_source_capture_pilot_completed_successfully; WSL_restore_resume_helper_merged_but_not_yet_run_locally",
       "workflow_run_id": 43607072905,
       "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905",
       "artifact_id": 14118419543,
@@ -336,7 +364,10 @@
           "source_cap_hit": false,
           "signals": 0
         }
-      ]
+      ],
+      "wsl_resume_script": "scripts/resume_source_capture.sh",
+      "wsl_resume_script_merge_commit": "fb162f46a6ae9f8c27f658c4ffbae82ca132b397",
+      "local_long_queue_run_verified": false
     },
     "source_capture_pending": 7891
   },
@@ -392,7 +423,12 @@
     "Pilot captured 182 source-file references across 9 repositories and stored 173 unique content-addressed Git blobs; all 182 Git blob SHA-1 references independently re-verified against the downloaded artifact, with zero missing or mismatched blobs.",
     "All 10 repositories had full commit and tree pins and complete tree inventory; six reports were complete within configured source scope, four reached the 30-file cap, and one repository had zero eligible files in configured source extensions.",
     "Uploaded artifact 14118419543 (1,509,274 bytes; SHA-256 092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178) with SQLite queue, raw source vault and 10 inspection reports; 30-day retention.",
-    "Persisted sanitized pilot verification report at research_runs/source-capture-pilots/43607072905/verification.json. No candidate code was executed; semantic audit and independent review remain pending."
+    "Persisted sanitized pilot verification report at research_runs/source-capture-pilots/43607072905/verification.json. No candidate code was executed; semantic audit and independent review remain pending.",
+    "PR #8 merged at 789056aa65584522ad530fab17e0d504993962f3: exact flash_loan_liquidation_combo priority and complete taxonomy family mapping; tolerate null default_branch on empty GitHub repositories.",
+    "PR #9 merged at e8cf224c1fe674f92b31663b01d607da7be4cee3: respect X-RateLimit-Reset and Retry-After windows up to one hour; regression tests verify primary and secondary wait behavior.",
+    "PR #10 merged at fb162f46a6ae9f8c27f658c4ffbae82ca132b397: add verified WSL restore/resume helper, README run instructions, bash -n CI validation, and per-cycle queue progress output.",
+    "WSL resume helper validates exact pilot ZIP SHA-256, SQLite integrity, source manifest digest, 10 report identity/commit/tree pins and all 182 Git blob SHA-1 references before restoring into dedicated data/source-capture-pilot.sqlite3 and data/source-capture-pilot-vault paths.",
+    "Local WSL long-queue continuation has not yet been run. Pilot state remains 10 captured / 7891 pending; semantic audit and independent review remain pending."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
@@ -410,14 +446,14 @@
   },
   "orchestration": {
     "framework": "LangGraph",
-    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; LIVE_11_FAMILY_DISCOVERY_7901; 80_HASH_VERIFIED_BATCHES; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED; LIVE_PILOT_10_OF_10_CAPTURED_SHA1_VERIFIED; 7891_SOURCE_CAPTURE_PENDING; REAL_LOCAL_MODEL_PENDING; INDEPENDENT_REVIEW_PENDING",
+    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; LIVE_11_FAMILY_DISCOVERY_7901; 80_HASH_VERIFIED_BATCHES; SOURCE_CAPTURE_WORKER_MERGED; PILOT_10_OF_10_CAPTURED_SHA1_VERIFIED; RATE_LIMIT_RECOVERY_MERGED; WSL_RESTORE_RESUME_HELPER_MERGED; 7891_SOURCE_CAPTURE_PENDING; REAL_LOCAL_MODEL_PENDING; INDEPENDENT_REVIEW_PENDING",
     "modules": [
       "src/flashloan_research/mission_runtime.py",
       "src/flashloan_research/mission_executor.py",
       "src/flashloan_research/mission_graph.py",
       "src/flashloan_research/mission_worker.py"
     ],
-    "next": "Resume the same SQLite queue and content-addressed vault from pilot artifact 14118419543; process another bounded tranche, preserve artifact/queue continuity, and verify exact candidate status, commit/tree/blob pins before raising batch size."
+    "next": "Download pilot artifact 14118419543 in WSL and run scripts/resume_source_capture.sh using an exported read-only GITHUB_TOKEN; persist the same run ID in dedicated SQLite/vault paths, then continue with bounded source-capture cycles. Semantic specialist/evidence/reviewer execution comes after verified source acquisition."
   },
   "constitution": "PROJECT_CONSTITUTION.md",
   "no_drift_guard": [
