@@ -11,7 +11,7 @@ from flashloan_research.storage import git_blob_sha
 class SmokeTests(unittest.TestCase):
     def test_git_blob_hash_uses_git_object_framing(self):
         payload = b"flash-loan"
-        framed = b"blob " + str(len(payload)).encode() + b"\\0" + payload
+        framed = b"blob " + str(len(payload)).encode() + b"\0" + payload
         self.assertEqual(git_blob_sha(payload), hashlib.sha1(framed).hexdigest())
 
     def test_source_filter_excludes_vendor_and_docs(self):
@@ -20,7 +20,7 @@ class SmokeTests(unittest.TestCase):
         self.assertFalse(is_source_file("README.md"))
 
     def test_callback_signal_is_line_aware(self):
-        source = b"contract X {\\n function executeOperation() external {}\\n}"
+        source = b"contract X {\n function executeOperation() external {}\n}"
         matches = extract_signals("Executor.sol", source)
         callback = [item for item in matches if item["signal"] == "aave_execute_operation"]
         self.assertEqual(len(callback), 1)
