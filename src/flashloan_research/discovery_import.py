@@ -48,19 +48,21 @@ def _report_metadata(path: Path) -> tuple[str, int]:
     total_candidates: int | None = None
     found_array = False
     with path.open("r", encoding="utf-8") as handle:
+        # Discovery reports are written with sort_keys=True, so "candidates"
+        # sorts before "taxonomy_version" and "unique_candidate_count".
+        # Scan the file line-by-line and keep memory bounded; do not stop at
+        # the candidates key before the metadata keys have been observed.
         for line in handle:
-            stripped = line.strip()
-            if stripped.startswith('"taxonomy_version"'):
+            if line.startswith('  "taxonomy_version":'):
                 value = line.split(":", 1)[1].strip().rstrip(",")
                 taxonomy_version = json.loads(value)
-            elif stripped.startswith('"unique_candidate_count"'):
+            elif line.startswith('  "unique_candidate_count":'):
                 value = line.split(":", 1)[1].strip().rstrip(",")
                 total_candidates = json.loads(value)
-            elif stripped.startswith('"candidates"'):
+            elif line.startswith('  "candidates":'):
                 if "[" not in line:
                     raise DiscoveryImportError("candidates must be a JSON array on its key line")
                 found_array = True
-                break
     if not found_array:
         raise DiscoveryImportError("report is missing the top-level candidates array")
     if not isinstance(taxonomy_version, str) or not taxonomy_version:

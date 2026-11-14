@@ -45,7 +45,7 @@ class DiscoveryImportTests(unittest.TestCase):
                 ],
             }
             report["candidates"][0]["metadata"]["description"] = 'quoted "text" and path C:\\research\\repo'
-            report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+            report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
             store = ResearchStore(root / "research.sqlite3")
             try:
                 first = import_discovery_report(report_path, "run-001", store, batch_size=2, max_batches=1)
@@ -92,7 +92,7 @@ class DiscoveryImportTests(unittest.TestCase):
             path=root/"discovery.json"
             row=candidate("org/one",1,"flash_loan_core")
             row["metadata"]["full_name"]="org/other"
-            path.write_text(json.dumps({"taxonomy_version":"1.0.0","unique_candidate_count":1,"candidates":[row]},indent=2),encoding="utf-8")
+            path.write_text(json.dumps({"taxonomy_version":"1.0.0","unique_candidate_count":1,"candidates":[row]},indent=2,sort_keys=True),encoding="utf-8")
             store=ResearchStore(root/"research.sqlite3")
             try:
                 with self.assertRaises(DiscoveryImportError):
