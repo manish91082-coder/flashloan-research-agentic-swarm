@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .analyzer import ResearchPipeline
 from .config import SETTINGS
+from .mission_discovery import run_taxonomy_discovery
 from .storage import ResearchStore, export_evidence_csv, write_json
 
 
@@ -18,6 +19,14 @@ def build_parser() -> argparse.ArgumentParser:
     discover.add_argument("--per-page", type=int, default=30)
     discover.add_argument("--page", type=int, default=1)
     discover.add_argument("--output", default=None, help="Optional path for a portable JSON discovery record")
+    mission_discover = sub.add_parser("discover-mission", help="Run all selected flash-loan taxonomy searches with pagination and coverage ledger")
+    mission_discover.add_argument("--taxonomy", default="research/keyword-taxonomy.json")
+    mission_discover.add_argument("--families", default=None, help="Comma-separated taxonomy family IDs; defaults to all families")
+    mission_discover.add_argument("--per-page", type=int, default=100)
+    mission_discover.add_argument("--max-pages", type=int, default=10)
+    mission_discover.add_argument("--include-archived", action="store_true")
+    mission_discover.add_argument("--exclude-forks", action="store_true")
+    mission_discover.add_argument("--output", default=None)
     inspect = sub.add_parser("inspect", help="Pin default-branch commit and capture bounded source evidence")
     inspect.add_argument("repository", help="owner/name")
     status = sub.add_parser("status", help="Show local database counts")
@@ -51,6 +60,25 @@ def main() -> int:
             if args.output:
                 write_json(Path(args.output), payload)
             print(json.dumps({"discovered": len(candidates), "output": args.output, "repositories": [c.full_name for c in candidates]}, indent=2))
+        elif args.command == "discover-mission":
+            selected = [x.strip() for x in args.families.split(",") if x.strip()] if args.families else None
+            pipeline = ResearchPipeline()
+            report = run_taxonomy_discovery(
+                pipeline.client, store, Path(args.taxonomy), selected,
+                args.per_page, args.max_pages, args.include_archived, not args.exclude_forks,
+            )
+            output = Path(args.output) if args.output else Path("research_runs") / (
+                "mission-discovery-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + ".json"
+            )
+            write_json(output, report)
+            print(json.dumps({
+                "report": str(output),
+                "unique_candidates": report["unique_candidate_count"],
+                "queries": report["query_count"],
+                "complete_queries": report["complete_query_count"],
+                "incomplete_queries": report["incomplete_query_count"],
+                "coverage_complete": report["coverage_complete"],
+            }, indent=2))
         elif args.command == "inspect":
             pipeline = ResearchPipeline()
             result = pipeline.inspect(args.repository, store)
