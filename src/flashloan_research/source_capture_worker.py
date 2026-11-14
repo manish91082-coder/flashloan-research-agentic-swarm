@@ -90,8 +90,14 @@ def atomic_write_json(path: Path, value: Any) -> None:
 
 
 def _family_priority(families: list[str]) -> int:
-    direct = {"flash_loan_core", "flash_loan_provider_apis", "defi_liquidation"}
-    adjacent = {"arbitrage", "dex_and_liquidity", "mev_and_searchers", "lending_protocols"}
+    direct = {
+        "flash_loan_core", "flash_loan_provider_apis", "defi_liquidation",
+        "flash_loan_liquidation_combo",
+    }
+    adjacent = {
+        "arbitrage", "dex_and_liquidity", "mev_execution", "lending_protocols",
+        "security_accounting", "cross_chain_infrastructure", "tooling_and_research",
+    }
     if direct.intersection(families):
         return 0
     if adjacent.intersection(families):
@@ -164,8 +170,9 @@ def _manifest_candidates(manifest_path: Path, workspace_root: Path) -> tuple[dic
                     raise SourceCaptureError(f"candidate identity/index invalid at global index {next_index}")
                 if not isinstance(metadata, dict) or metadata.get("full_name") != repository:
                     raise SourceCaptureError(f"metadata identity mismatch for {repository}")
-                if not isinstance(metadata.get("default_branch"), str) or not metadata["default_branch"]:
-                    raise SourceCaptureError(f"default branch missing for {repository}")
+                # Discovery metadata can have a null default branch for an empty repository.
+                # ResearchPipeline.inspect refetches the live repository record before resolving
+                # its current default branch; do not reject it solely on stale discovery metadata.
                 if isinstance(repository_id, bool) or not isinstance(repository_id, int) or repository_id <= 0:
                     raise SourceCaptureError(f"GitHub repository ID invalid for {repository}")
                 if repository in seen_repositories or repository_id in seen_ids:
