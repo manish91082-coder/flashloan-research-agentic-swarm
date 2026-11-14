@@ -4,9 +4,9 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_DETERMINISTIC_DISCOVERY",
   "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; CHECKPOINTED_DAG_AND_SOURCE_CAPTURE_ENGINE_IMPLEMENTED; FAKE_PROVIDER_SEMANTIC_PIPELINE_TESTED; NEW_7901_CANDIDATE_SOURCE_AUDIT_PIPELINE_NOT_YET_STARTED; REAL_LOCAL_MODEL_PENDING; PRIORITY_PACKET_0001_MANUAL_SOURCE_INSPECTION_4_COMPLETED; FOUR_PROVISIONAL_DOSSIERS_PENDING_INDEPENDENT_REVIEW; FIVE_MANUAL_PRIORITY_SOURCE_INSPECTIONS_COMPLETED; TWYNE_MORPHO_FLASHLOAN_DOSSIER_ADDED; INDEPENDENT_REVIEW_PENDING",
-  "last_verified_at_utc": "2026-11-14T15:10:00Z",
+  "last_verified_at_utc": "2026-11-14T15:12:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "dd08bcd2d7f0cf62fe96447c196007dd7a5e83ab",
+  "latest_commit_at_checkpoint": "db8b1de3335ae4c14f8c4d639cefedcd3267f473",
   "latest_ci_run": {
     "run_id": 43603644293,
     "event": "push",
@@ -169,7 +169,7 @@
     "runtime_executions": 0,
     "metadata_imported": 7901,
     "prepared_audit_batches": 80,
-    "source_capture_completed": 4,
+    "source_capture_completed": 0,
     "source_audit_pending": 7901,
     "last_source_inspection": {
       "status": "five_manual_commit_pinned_source_inspections_completed_from_priority_packet_0001",
@@ -183,8 +183,10 @@
         "0xTwyne/twyne-liquidation-bot"
       ],
       "candidate_code_executed": false,
-      "independent_review_pending": true
-    }
+      "independent_review_pending": true,
+      "automated_queue_source_capture_count": 0
+    },
+    "manual_source_inspected": 5
   },
   "implementation_updates": [
     "GitHubClient.tree supports recursive and non-recursive requests.",
