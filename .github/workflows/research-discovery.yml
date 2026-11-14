@@ -44,7 +44,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Install project
-        run: pip install -e .
+        run: pip install -e '.[agentic]'
       - name: Verify research engine
         env:
           PYTHONPATH: src
