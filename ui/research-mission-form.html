@@ -15,7 +15,7 @@ button{border:0;border-radius:9px;padding:12px 16px;font-weight:750;cursor:point
 <body><main>
 <div class="tag">Phase B · Intake interface prototype</div>
 <h1>Autonomous Research Mission</h1>
-<p>Define the mission once. The future orchestrator will break it into specialist tasks, verify evidence, resolve conflicts and preserve the research trail. This prototype exports a validated-shape JSON mission; it does not yet launch agents.</p>
+<p>Define the mission once. The local intake service validates and durably queues the mission. The autonomous agent runtime is the next gated build stage; queue acceptance does not claim that agents have started.</p>
 <section class="panel">
 <form id="mission">
 <div class="grid">
@@ -46,11 +46,11 @@ button{border:0;border-radius:9px;padding:12px 16px;font-weight:750;cursor:point
 <div class="checks">
 <label><input type="checkbox" checked disabled> Research only</label><label><input type="checkbox" checked disabled> No candidate code execution</label><label><input type="checkbox" checked disabled> No wallet access</label><label><input type="checkbox" checked disabled> No transaction signing</label><label><input type="checkbox" checked disabled> No contract deployment</label><label><input type="checkbox" checked disabled> No live trading</label><label><input type="checkbox" checked disabled> No paid services</label>
 </div></div>
-<button type="submit">Generate research mission JSON</button><button type="button" class="secondary" id="download">Download JSON</button><button type="button" class="secondary" id="copy">Copy JSON</button>
+<button type="submit">Generate research mission JSON</button><button type="button" id="submitMission">Submit mission to local queue</button><button type="button" class="secondary" id="download">Download JSON</button><button type="button" class="secondary" id="copy">Copy JSON</button>
 <div class="status" id="status" aria-live="polite"></div>
 </form></section>
 <section class="panel"><h2>Mission payload</h2><pre id="output">Submit the form to generate a mission payload.</pre></section>
-<p class="note">Current status: mission-form prototype only. The next engineering gate is a validated mission queue and LangGraph worker orchestration. No agent launch is implied by generating this JSON.</p>
+<p class="note">Current status: local mission intake + durable queue. Agent execution is not connected yet.</p>
 </main>
 <script>
 let payload=null;
@@ -72,6 +72,16 @@ document.getElementById('mission').addEventListener('submit',e=>{
  };
  document.getElementById('output').textContent=JSON.stringify(payload,null,2);
  document.getElementById('status').textContent='Mission JSON generated. It has not been submitted to an agent runtime.';
+});
+document.getElementById('submitMission').addEventListener('click',async()=>{
+ if(!payload){document.getElementById('status').textContent='Generate the mission first.';return;}
+ document.getElementById('status').textContent='Submitting to local mission queue...';
+ try{
+  const response=await fetch('/missions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const result=await response.json();
+  if(!response.ok) throw new Error(result.error||('HTTP '+response.status));
+  document.getElementById('status').textContent='Mission queued: '+result.mission_id+' · status: '+result.status+'. Agent runtime is not connected yet.';
+ }catch(error){document.getElementById('status').textContent='Could not submit. Start the local service with: python -m flashloan_research.mission_api. Detail: '+error.message;}
 });
 document.getElementById('download').addEventListener('click',()=>{
  if(!payload){document.getElementById('status').textContent='Generate the mission first.';return;}
