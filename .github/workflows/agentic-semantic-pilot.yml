@@ -1,10 +1,10 @@
 name: Agent Form Local-Model Semantic Pilot
 
 on:
-  workflow_run:
-    workflows: ["Autonomous Flash Loan Source Capture Continuation"]
-    types: [completed]
+  push:
     branches: [main]
+    paths:
+      - 'research_runs/trigger-agentic-semantic-pilot.json'
 
 permissions:
   actions: read
@@ -16,7 +16,6 @@ concurrency:
 
 jobs:
   semantic-pilot:
-    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
@@ -46,19 +45,18 @@ jobs:
         run: |
           set -euo pipefail
           SEED_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json"))["seed_run_id"])')"
-          EVENT_RUN_ID="${{ github.event.workflow_run.id }}"
-          if [[ ! "$SEED_RUN_ID" =~ ^[0-9]+$ ]]; then
-            echo "Invalid Agent Form pilot seed run ID." >&2
+          TRIGGER_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_run_id"])')"
+          if [[ ! "$SEED_RUN_ID" =~ ^[0-9]+$ || ! "$TRIGGER_RUN_ID" =~ ^[0-9]+$ ]]; then
+            echo "Invalid Agent Form pilot checkpoint ID." >&2
             exit 1
           fi
-          if [[ "$SEED_RUN_ID" != "$EVENT_RUN_ID" ]]; then
-            echo "This completed capture run is not the designated Agent Form pilot seed; skipping."
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          if [[ "$SEED_RUN_ID" != "$TRIGGER_RUN_ID" ]]; then
+            echo "Trigger checkpoint does not match the preserved Agent Form pilot seed; refusing to run."
+            exit 1
           fi
           echo "should_run=true" >> "$GITHUB_OUTPUT"
-          echo "run_id=$EVENT_RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "Agent Form pilot seed checkpoint: $EVENT_RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+          echo "run_id=$TRIGGER_RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Agent Form pilot seed checkpoint: $TRIGGER_RUN_ID" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Download verified source-capture checkpoint
         if: steps.seed.outputs.should_run == 'true'
