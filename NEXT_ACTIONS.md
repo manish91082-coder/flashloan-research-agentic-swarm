@@ -1,50 +1,64 @@
-# Next Actions: Flash Loan & Liquidation Repository Research
+# Next Actions: Flash Loan & Liquidation Public Repository Research
 
 ## Locked mission
 
-Discover the broadest reproducible set of public GitHub repositories across all 11 families in `research/keyword-taxonomy.json`, with explicit emphasis on flash-loan-powered DeFi liquidation and related liquidator bots. For every candidate, explain actual purpose, implementation completeness, correctness, security, economics, tests, dependencies, license and research usefulness from commit-pinned evidence.
+Discover the broadest reproducible set of public GitHub repositories across all 11 families in `research/keyword-taxonomy.json`, emphasizing flash-loan-powered DeFi liquidation and liquidator bots. For every candidate, determine actual purpose and what its code does, classify completeness/correctness/security/economics, inspect tests/CI/dependencies/license/maintenance, and preserve commit-pinned evidence plus independent review. Never claim literal global completeness beyond observed coverage.
 
-## Completed checkpoint
+## Verified implementation checkpoint
 
-- Public canonical repository and main branch verified.
-- Mission Form, local API and SQLite queue exist.
-- Mission objective and taxonomy v1.0.0 are now explicit in the form and repository.
-- Intake schema accepts selected keyword families, taxonomy version, page size and page limit.
-- Fresh CI is required for the taxonomy and intake changes.
+- Mission Form -> local API -> durable SQLite mission queue.
+- Canonical keyword taxonomy v1.0.0 with 11 query families and family-specific GitHub search query templates.
+- Paginated discovery runner with deduplication, query provenance and coverage-debt reporting.
+- Mission DAG planner with stable task IDs, dependency validation, idempotent persistence, leases, retries and crash recovery.
+- LangGraph control-flow graph with SQLite checkpoints.
+- Deterministic discovery and commit-pinned source-capture stages.
+- Mission worker polls queued/running missions.
+- Latest main CI: `7e3853f4a95cf9ce2a8722de557b3dcee48dc502`, run `43592109714`, green on Python 3.11/3.12/3.13.
+- Semantic AI specialists and independent reviewer are not yet active. The current executor truthfully blocks those tasks until a free local inference adapter is implemented and configured.
+- No full 11-family live discovery run is claimed in this checkpoint.
 
-## Priority 0: make taxonomy drive discovery
+## Next build gates, in order
 
-1. Load `research/keyword-taxonomy.json` as the single source of query-family identifiers, terms and repository-search query templates.
-2. Implement an orchestrated query runner: 100 results/page, 10 pages/query by default, bounded retries, rate-limit reset handling and per-query completion metadata.
-3. Persist the coverage ledger: query, family, page, total_count, returned count, duplicate count, API status, truncation/cap and incomplete reason.
-4. Deduplicate by stable repository ID and canonical full name; distinguish forks/mirrors from independent implementations.
-5. Add tests for pagination, duplicate merging, API caps, rate limits, malformed payloads and resumability.
+### B2.1 Free local inference adapter
+1. Define provider-neutral adapter contract and structured request/response schemas.
+2. Support local OpenAI-compatible endpoints (e.g. Ollama-compatible local server) only when explicitly configured by the operator.
+3. No cloud model default, no paid fallback, no API key requirement.
+4. Add deterministic task budgets, timeout/retry ceilings, model identity, prompt-template version and output provenance.
+5. Validate every output against strict JSON schemas; model output is untrusted.
+6. If endpoint is absent/unavailable, mark only LLM-dependent tasks blocked; deterministic discovery and evidence work continue.
 
-## Priority 1: autonomous DAG and task persistence
+### B2.2 Specialist execution and review gates
+7. Implement purpose classification using commit-pinned source maps, not repository name/README alone.
+8. Run conditional specialist tasks: protocol/callback, Solidity security, liquidation math, execution/MEV, net economics, tests/CI, dependencies/license.
+9. Deterministic evidence auditor checks commit SHA, tree SHA, blob SHA, path, line ranges and excerpt hashes.
+10. Independent reviewer must challenge high-impact security/economic claims; disputed findings remain disputed.
+11. No finding is accepted from a model assertion without evidence.
 
-6. Build idempotent mission task DAG: director -> query-family discovery -> dedup -> candidate purpose triage -> candidate-specific specialist tasks -> evidence validation -> independent review -> synthesis -> continuation.
-7. Persist task status, dependency links, attempts, lease expiry, budgets, outputs, provenance and checkpoints in SQLite.
-8. Implement worker claiming, safe retries, crash recovery and automatic next-batch continuation.
-9. Add status/report endpoints and a mission progress dashboard.
+### B2.3 Task/report API and UI
+12. Add mission task list, progress summary, report manifest and coverage-debt endpoints.
+13. Show query family/page progress, unique candidates, audit queue, source-capture state, evidence/review confidence, blockers and next batch in the form dashboard.
 
-## Priority 2: specialist repository forensics
+### B2.4 Multi-batch autonomous continuation
+14. Process candidate inventory in bounded batches until exhausted or a clearly recorded external limit is reached.
+15. Persist cursor, batch ID, processed repository identities, retry state and next-batch task.
+16. Reconcile forks/mirrors and canonical repository renames without losing provenance.
+17. Automatically enqueue the next eligible batch; avoid reprocessing completed candidate tasks.
 
-10. Purpose classification for every candidate before quality grade.
-11. Protocol/callback audit, liquidation mechanics, repayment/premium accounting and balance-delta invariant.
-12. Execution/MEV and net economics: gas, DEX fees, slippage, liquidity, relay/builder costs and quote freshness.
-13. Tests, CI, dependency/license, provenance and maintenance assessment.
-14. Independent reviewer gate and evidence completeness validator.
+### Phase C forensic depth
+18. Purpose-aware source maps and static AST extraction for Solidity/Python/TypeScript.
+19. Protocol-specific liquidation eligibility, health-factor, close-factor, collateral seizure, debt/collateral decimals and oracle assumptions.
+20. Flash-loan invariant: callback pre-existing debt-token balance must not subsidize repayment/profit. Check `Bcb >= B0 + P + F + M`.
+21. Net economics includes flash premium, swap fees, gas, slippage, relay/builder costs and quote freshness.
+22. Candidate code remains unexecuted. Ingest existing test/CI evidence only; never run untrusted candidate workflows.
 
-## Priority 3: coverage completion and synthesis
+### Phase D synthesis
+23. Candidate matrix, per-repository purpose dossier, security findings, evidence register, protocol architecture map, test/CI and dependency/license report, coverage report and unresolved questions.
+24. Rank by research relevance and evidence quality, not stars alone.
 
-15. Process all discovered repositories in bounded batches until planned search families are exhausted or external limits are explicitly recorded.
-16. Produce candidate matrix, individual dossiers, security findings, evidence register, protocol architecture map, test/CI report, economic assumptions report and next research queue.
-17. Mark repository purpose/quality as unknown where evidence is insufficient; never infer correctness from names, stars or README claims.
+## Safety and trust invariants
 
-## Non-negotiable constraints
-
-- Mission Form remains the primary intake; no manual per-agent prompting as normal operation.
-- Agentic orchestration is the product; scanners are tools within the swarm.
-- Public read-only research; no candidate code execution, wallets, keys, signing, deployment, broadcast or live trading.
-- No paid services or paid inference fallback.
-- Claims require commit-pinned source evidence and independent review where security-critical.
+- Public read-only research only.
+- No candidate repository execution, wallet/key/signer access, signing, deployment, transaction broadcast or live trading.
+- No paid API/model/service fallback.
+- Repository content and model output are untrusted data.
+- Mission Form remains the primary control plane; swarm owns planning, dispatch, verification, persistence and continuation.
