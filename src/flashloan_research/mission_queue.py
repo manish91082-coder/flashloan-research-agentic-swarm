@@ -47,6 +47,12 @@ class MissionValidationError(ValueError):
 def validate_mission(payload: Any) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise MissionValidationError("mission payload must be a JSON object")
+    allowed = {"mission_id", "title", "objective", "domain", "scope",
+               "research_depth", "agent_policy", "safety_policy", "deliverables",
+               "acceptance_criteria", "created_at_utc"}
+    unknown = sorted(payload.keys() - allowed)
+    if unknown:
+        raise MissionValidationError(f"unknown mission fields: {', '.join(unknown)}")
     required = {"mission_id", "title", "objective", "domain", "scope",
                 "research_depth", "agent_policy", "safety_policy", "deliverables"}
     missing = sorted(required - payload.keys())
@@ -71,12 +77,21 @@ def validate_mission(payload: Any) -> dict[str, Any]:
         raise MissionValidationError("scope.chains must be an array of non-empty strings")
     if not isinstance(protocols, list) or not all(isinstance(x, str) and 0 < len(x) <= 120 for x in protocols):
         raise MissionValidationError("scope.protocols must be an array of non-empty strings")
+    allowed_scope = {"chains", "protocols", "repository_limit", "include_archived",
+                     "include_older_references", "date_cutoff"}
+    if set(scope) - allowed_scope:
+        raise MissionValidationError("scope contains unknown fields")
+    for flag in ("include_archived", "include_older_references"):
+        if flag in scope and not isinstance(scope[flag], bool):
+            raise MissionValidationError(f"scope.{flag} must be boolean")
     limit = scope.get("repository_limit", 100)
     if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 500:
         raise MissionValidationError("repository_limit must be an integer from 1 to 500")
 
     policy = payload["agent_policy"]
-    if not isinstance(policy, dict) or policy.get("mode") not in MODES:
+    if not isinstance(policy, dict) or set(policy) - {"mode", "independent_review", "max_parallel_agents", "max_iterations", "specialists"}:
+        raise MissionValidationError("agent_policy must be an object with supported fields only")
+    if policy.get("mode") not in MODES:
         raise MissionValidationError("agent_policy.mode is invalid")
     if policy.get("independent_review") is not True:
         raise MissionValidationError("independent review is mandatory")
@@ -93,6 +108,11 @@ def validate_mission(payload: Any) -> dict[str, Any]:
         raise MissionValidationError("independent_reviewer must be included")
 
     safety = payload["safety_policy"]
+    allowed_safety = {"research_only", "execute_candidate_code", "wallet_access",
+                      "sign_transactions", "deploy_contracts", "live_trading",
+                      "paid_services", "allow_free_model_inference"}
+    if not isinstance(safety, dict) or set(safety) - allowed_safety:
+        raise MissionValidationError("safety_policy contains unknown fields")
     locked_false = ("execute_candidate_code", "wallet_access", "sign_transactions",
                     "deploy_contracts", "live_trading", "paid_services")
     if not isinstance(safety, dict) or safety.get("research_only") is not True:
@@ -107,6 +127,10 @@ def validate_mission(payload: Any) -> dict[str, Any]:
     if any(x not in DELIVERABLES for x in deliverables):
         raise MissionValidationError("deliverables contains an unsupported value")
 
+    if "acceptance_criteria" in payload:
+        criteria = payload["acceptance_criteria"]
+        if not isinstance(criteria, list) or any(not isinstance(x, str) or len(x) > 500 for x in criteria):
+            raise MissionValidationError("acceptance_criteria must be an array of strings up to 500 characters")
     return payload
 
 
