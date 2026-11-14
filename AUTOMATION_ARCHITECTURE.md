@@ -30,7 +30,7 @@ Python standard-library engine provides bounded GitHub REST acquisition, candida
 
 A queued mission does not mean agent execution has started. The current API remains a local service, not a hosted public endpoint.
 
-## Phase B2: task DAG and worker runtime (next build gate)
+## Phase B2: task DAG, checkpointed graph and deterministic worker runtime (implemented foundation; semantic execution pending)
 
 1. Research Director validates mission and generates an idempotent, dependency-aware task DAG.
 2. GitHub Discovery executes every selected query family with pagination, retry/rate-limit accounting and candidate deduplication.
@@ -41,9 +41,9 @@ A queued mission does not mean agent execution has started. The current API rema
 7. Synthesis writes dossiers, candidate matrix, evidence register and coverage report.
 8. Continuation Queue enqueues the next unprocessed candidate/query batch and checkpoints all state.
 
-LangGraph remains the selected orchestration framework for checkpointed state and conditional parallel nodes. Keep deterministic contracts and worker interfaces framework-independent. If no approved free inference endpoint is configured, deterministic tasks continue while LLM-dependent tasks become explicitly blocked. No paid fallback.
+LangGraph is now pinned as an optional dependency and the mission control-flow graph uses SQLite checkpoints. The deterministic worker can plan missions, dispatch paginated discovery families in parallel, persist coverage reports, merge candidates, expand per-repository task DAGs and capture commit-pinned source. Semantic specialist and independent-review nodes remain pending until a free local inference adapter is implemented. Keep deterministic contracts and worker interfaces framework-independent. If no approved free inference endpoint is configured, deterministic tasks continue while LLM-dependent tasks become explicitly blocked. No paid fallback.
 
-## Phase B3: durable execution service
+## Phase B3: durable execution service (worker loop implemented; hardening and status API pending)
 
 A worker process claims ready tasks, records leases/attempts, saves outputs/checkpoints, recovers expired work and exposes mission/task status. SQLite is the initial durable store. GitHub Actions is used for CI and bounded scheduled/dispatch jobs, not as an assumed always-on agent host. Local Windows/WSL or another approved free host can run the long-lived worker.
 
