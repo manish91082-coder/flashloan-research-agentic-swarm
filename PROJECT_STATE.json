@@ -2,8 +2,8 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "A_DISCOVERY_AND_EVIDENCE_CAPTURE",
-  "status": "FIRST_MANUAL_DISCOVERY_SNAPSHOT_SAVED; FIRST_CANDIDATE_AUDIT_RECORDED; LATEST_CI_PENDING",
+  "phase": "A_DISCOVERY_AND_CANDIDATE_TRIAGE",
+  "status": "38_REPOS_DISCOVERED; 3_CANDIDATES_STATIC_AUDITED; LATEST_CI_PENDING",
   "last_verified_at_utc": "2026-11-14T10:52:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "5140c93011b4baf55104c9ec91016f4a9c9ecfb3",
@@ -20,10 +20,26 @@
     "snapshot_blob_sha": "551e82884750c60e0bfa2529448eb20e67edaf31",
     "unique_candidates": 38,
     "queries": [
-      {"query": "flash loan arbitrage", "page": 1, "returned": 20},
-      {"query": "flashloan liquidation bot", "page": 1, "returned": 13},
-      {"query": "Aave V3 flashLoanSimple arbitrage", "page": 1, "returned": 0},
-      {"query": "Morpho flash loan liquidation", "page": 1, "returned": 6}
+      {
+        "query": "flash loan arbitrage",
+        "page": 1,
+        "returned": 20
+      },
+      {
+        "query": "flashloan liquidation bot",
+        "page": 1,
+        "returned": 13
+      },
+      {
+        "query": "Aave V3 flashLoanSimple arbitrage",
+        "page": 1,
+        "returned": 0
+      },
+      {
+        "query": "Morpho flash loan liquidation",
+        "page": 1,
+        "returned": 6
+      }
     ],
     "capture_type": "manual read-only GitHub repository search persisted to repository; not a GitHub Actions workflow execution"
   },
@@ -60,5 +76,31 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Verify latest CI; audit remaining discovered candidates at current pinned HEAD; improve truncated-tree recovery and add tests before LangGraph."
+  "next_gate": "Verify latest CI; continue commit-pinned candidate triage; then fix truncated-tree recovery and expand regression suite.",
+  "candidate_review_queue": {
+    "total_discovered": 38,
+    "audited": 3,
+    "audits": [
+      {
+        "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
+        "commit": "74653447a0ff9014f2e022d6778b442182f9841a",
+        "grade": "C+",
+        "audit_path": "research/candidate-audits/MELD-labs__meld-flashloan-liquidation-bot-public.md"
+      },
+      {
+        "repository": "Power-Howdy/flashloan-bot-ArbitrageAndLiquidation",
+        "commit": "025eb602ddd96c3cc8479fb0fbd00cde13e198b6",
+        "grade": "D",
+        "audit_path": "research/candidate-audits/Power-Howdy__flashloan-bot-ArbitrageAndLiquidation.md"
+      },
+      {
+        "repository": "tundefund0-gif/morpho-liquidator",
+        "commit": "7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9",
+        "grade": "C",
+        "audit_path": "research/candidate-audits/tundefund0-gif__morpho-liquidator.md"
+      }
+    ],
+    "findings_recorded": 7,
+    "runtime_executions": 0
+  }
 }
