@@ -58,8 +58,6 @@ class MissionExecutor:
     def prepare(self, mission_id: str) -> dict[str, Any]:
         mission = self._load_mission(mission_id)
         taxonomy = json.loads(self.taxonomy_path.read_text(encoding="utf-8"))
-        with MissionTaskStore(self.database_path) as_unused:
-            pass
         tasks = build_mission_plan(mission, taxonomy)
         store = MissionTaskStore(self.database_path)
         try:
