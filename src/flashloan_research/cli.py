@@ -27,6 +27,12 @@ def build_parser() -> argparse.ArgumentParser:
     mission_discover.add_argument("--include-archived", action="store_true")
     mission_discover.add_argument("--exclude-forks", action="store_true")
     mission_discover.add_argument("--output", default=None)
+    run_mission = sub.add_parser("run-mission", help="Execute a form-submitted mission using the checkpointed agentic workflow")
+    run_mission.add_argument("--mission-id", required=True)
+    run_mission.add_argument("--database", default=str(SETTINGS.database_path))
+    run_mission.add_argument("--taxonomy", default="research/keyword-taxonomy.json")
+    run_mission.add_argument("--artifacts", default="research_runs/mission")
+    run_mission.add_argument("--checkpoints", default=None)
     inspect = sub.add_parser("inspect", help="Pin default-branch commit and capture bounded source evidence")
     inspect.add_argument("repository", help="owner/name")
     status = sub.add_parser("status", help="Show local database counts")
@@ -79,6 +85,16 @@ def main() -> int:
                 "incomplete_queries": report["incomplete_query_count"],
                 "coverage_complete": report["coverage_complete"],
             }, indent=2))
+        elif args.command == "run-mission":
+            from .mission_graph import run_mission_graph
+            result = run_mission_graph(
+                args.mission_id,
+                Path(args.database),
+                Path(args.taxonomy),
+                Path(args.artifacts),
+                Path(args.checkpoints) if args.checkpoints else None,
+            )
+            print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "inspect":
             pipeline = ResearchPipeline()
             result = pipeline.inspect(args.repository, store)
