@@ -139,10 +139,12 @@ class MissionExecutorTests(unittest.TestCase):
             tasks = MissionTaskStore(db)
             try:
                 rows = tasks.list_tasks("flashloan-executor-test")
-                inspection = next(x for x in rows if x["task_type"] == "candidate_purpose")
+                inspection = next(x for x in rows if x["task_type"] == "candidate_source_capture")
+                purpose = next(x for x in rows if x["task_type"] == "candidate_purpose")
                 security = next(x for x in rows if x["task_type"] == "security_forensics")
                 review = next(x for x in rows if x["task_type"] == "independent_review")
                 self.assertEqual(inspection["status"], "completed")
+                self.assertEqual(purpose["status"], "pending")
                 self.assertEqual(security["status"], "pending")
                 self.assertEqual(review["status"], "pending")
             finally:
