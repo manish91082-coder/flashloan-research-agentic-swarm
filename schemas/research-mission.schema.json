@@ -87,6 +87,61 @@
             "null"
           ],
           "format": "date"
+        },
+        "keyword_taxonomy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "default": "1.0.0"
+        },
+        "discovery_query_families": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "flash_loan_core",
+              "flash_loan_provider_apis",
+              "defi_liquidation",
+              "flash_loan_liquidation_combo",
+              "arbitrage",
+              "mev_execution",
+              "lending_protocols",
+              "dex_and_liquidity",
+              "security_accounting",
+              "cross_chain_infrastructure",
+              "tooling_and_research"
+            ]
+          },
+          "uniqueItems": true,
+          "default": [
+            "flash_loan_core",
+            "flash_loan_provider_apis",
+            "defi_liquidation",
+            "flash_loan_liquidation_combo",
+            "arbitrage",
+            "mev_execution",
+            "lending_protocols",
+            "dex_and_liquidity",
+            "security_accounting",
+            "cross_chain_infrastructure",
+            "tooling_and_research"
+          ]
+        },
+        "search_per_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 100
+        },
+        "max_pages_per_query": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 10
+        },
+        "include_forked": {
+          "type": "boolean",
+          "default": true
         }
       }
     },
