@@ -227,7 +227,7 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
 
 
 def run_evidence_validation_batch(mission_id: str, database_path: Path,
-                                 artifact_root: Path, limit: int = 20) -> dict[str, Any]:
+                                 artifact_root: Path, limit: int = 12) -> dict[str, Any]:
     store = MissionTaskStore(database_path)
     worker_id = f"evidence-auditor-{mission_id}"
     completed = []
