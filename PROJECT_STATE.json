@@ -4,23 +4,23 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_RESUMABLE_SOURCE_CAPTURE",
   "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; RESUMABLE_MANIFEST_DRIVEN_SOURCE_CAPTURE_WORKER_MERGED_PR7_CI_PASS; LIVE_7901_SOURCE_CAPTURE_NOT_YET_STARTED_0_OF_7901; FAKE_PROVIDER_SEMANTIC_PIPELINE_TESTED; REAL_LOCAL_MODEL_PENDING; FIVE_MANUAL_PRIORITY_SOURCE_INSPECTIONS_COMPLETED; FIVE_PROVISIONAL_DOSSIERS_PENDING_INDEPENDENT_REVIEW",
-  "last_verified_at_utc": "2026-11-14T14:45:01.435Z",
+  "last_verified_at_utc": "2026-11-14T14:46:36.919Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "089e215bac99a60ba2b2e2c7b33c8f9e370a21b3",
+  "latest_commit_at_checkpoint": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0",
   "latest_ci_run": {
-    "run_id": 43603644293,
+    "run_id": 43606565796,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "d596ae0d69bc625ad952e2f164ea8eb43e94044d",
+    "head_sha": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "Research Engine CI passed on all three Python versions for the batch-preparation workflow commit."
+    "tests": "Main CI passed on all three Python versions after the source-capture worker, next-actions checkpoint and changelog updates."
   },
-  "phase_a_ci_history": "Latest main-head CI verified green at 7e3853f4a95cf9ce2a8722de557b3dcee48dc502.",
+  "phase_a_ci_history": "Worker feature CI run 43606380880 and latest main CI run 43606565796 passed on Python 3.11, 3.12 and 3.13.",
   "discovery": {
     "snapshot_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
     "snapshot_commit": "231f47f0ada252a921a065da935720873f397bef",
@@ -200,7 +200,8 @@
       "lease_seconds": 3600,
       "test_run_id": 43606380880,
       "test_result": "success_python_3_11_3_12_3_13",
-      "live_queue_execution_verified": false
+      "live_queue_execution_verified": false,
+      "documentation_checkpoint_commit": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0"
     },
     "last_source_capture": {
       "status": "worker_implementation_merged_but_live_queue_not_yet_run",
