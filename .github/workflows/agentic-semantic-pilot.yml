@@ -139,8 +139,14 @@ jobs:
               raise SystemExit("Agent Form semantic pipeline did not complete its required stages.")
           if any(batch.get("failures") for batch in result.get("specialist_batches", [])):
               raise SystemExit("One or more specialist tasks failed; pilot is not a pass.")
+          if result.get("evidence_validation", {}).get("failures"):
+              raise SystemExit("Evidence validation task failed; pilot is not a pass.")
           if result.get("independent_review", {}).get("failures"):
               raise SystemExit("Independent reviewer task failed; pilot is not a pass.")
+          reviewed = len(result.get("independent_review", {}).get("completed", []))
+          validated = len(result.get("evidence_validation", {}).get("completed", []))
+          if reviewed != 2 or validated != 2:
+              raise SystemExit(f"Expected 2 evidence gates and 2 independent reviews; got {validated} and {reviewed}.")
           PY
 
       - name: Generate Agent Form pilot quality and task ledger
