@@ -23,18 +23,38 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 1. **Completed:** stream-imported all 7,901 candidate rows and persisted stable repository IDs, canonical names and query-family provenance.
 2. **Completed:** exported 80 immutable JSONL packets (100 candidates per packet) with source-report SHA-256, per-batch SHA-256, candidate-index continuity and identity verification. Audit status remains pending.
 3. **Manual priority sample completed:** four packet-0001 candidates source-inspected at exact commit/tree/blob pins and documented in four provisional dossiers; independent review pending. This does not change the automated queue source-capture counter (still 0/7,901).
-4. Implement a resumable source-capture worker with per-candidate status, attempt counts, leases/checkpoints and atomic result writes; preserve current default-branch commit, tree, blob and fork/parent/source identity.
-5. Prioritize candidates matched to flash-loan liquidation and DeFi liquidator families, then process all remaining taxonomy families without dropping them.
+4. **Completed and merged in PR #7:** implement the manifest-verified, resumable source-capture worker with SQLite per-candidate states, retry counts, leases, atomic reports and commit/tree/blob evidence. CI passed on Python 3.11/3.12/3.13. See `src/flashloan_research/source_capture_worker.py`.
+5. **Next runtime gate:** run `flashloan-source-capture-worker` in persistent local/WSL storage against `research_runs/audit-batches/43600488013/manifest.json`. First validate 10–20 real captures, verify repository ID, commit SHA, tree SHA, Git blob SHAs, vault contents, report paths and retry/checkpoint state. Then resume the remaining queue, keeping all 11 taxonomy families.
 6. Capture bounded source evidence and deterministic purpose hints; do not claim semantic purpose classification until source evidence and an approved reviewer support it.
 7. Build deterministic candidate dossiers and mission synthesis only from source-pinned, evidence-validated and independently reviewed outputs.
-8. Implement true multi-batch continuation with completed-candidate set, retry-safe IDs, lease recovery and explicit stop conditions.
+8. **Worker continuation implemented:** the standalone worker imports the immutable 80-batch manifest once, processes multiple bounded cycles, recovers expired leases and stops when the queue is drained or all retries are exhausted. Actual live run still pending.
 9. Investigate and rerun only the 10 incomplete discovery query templates; retain old snapshots and coverage debt.
 10. Add task/report/coverage endpoints and a dashboard for discovered/imported/source-inspected/audited queues, query debt, evidence confidence, reviewer status and next batch.
 11. Run real local-model inference only after a free loopback endpoint is explicitly configured; no paid/cloud fallback. Publish synthesis only with coverage and evidence limitations.
 
+## Latest merged source-capture worker checkpoint
+
+- PR [#7](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/7) merged to `main` at `089e215bac99a60ba2b2e2c7b33c8f9e370a21b3`.
+- Added `src/flashloan_research/source_capture_worker.py`, `tests/test_source_capture_worker.py`, and console command `flashloan-source-capture-worker`.
+- Before queue import, the worker verifies the manifest, all batch SHA-256 hashes, candidate index continuity, canonical repository names and unique GitHub repository IDs. SQLite stores an idempotent run and per-candidate states, bounded three-attempt retries, 60-minute leases and expired-lease recovery.
+- Direct flash-loan/provider/liquidation candidates are prioritized; all other taxonomy families remain in the queue. Each captured repository is inspected read-only at its current default-branch commit/tree; Git blob hashes are checked and source bytes go to the local content-addressed vault. Reports are written atomically. Default first pass is at most 30 source files per repository; coverage limits remain explicit.
+- Worker CI run [43606380880](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43606380880) passed compilation and tests on Python 3.11, 3.12 and 3.13. Regression tests cover hash tampering, priority order, idempotent resume, transient retry and lease recovery.
+- **Live execution is not yet performed:** automated source capture remains **0/7,901**. The five manual source inspections are a separate sample. Candidate code was not executed.
+- Worker command (run from repository root with persistent SQLite/vault storage):
+  ```bash
+  pip install -e .
+  flashloan-source-capture-worker \
+    --manifest research_runs/audit-batches/43600488013/manifest.json \
+    --database data/research.sqlite3 \
+    --snapshots data/snapshots \
+    --output reports/source-capture \
+    --max-candidates 4 --parallel 2 --continuous
+  ```
+- Do not start a 7,901-item run until the first 10–20 captures have been checked for correct commit/tree/blob pins, local vault persistence and checkpoint recovery.
+
 ## Latest verified batch-preparation checkpoint
 
-- Current main data commit: `8448711d734978d5c0e793793feccf08dad29747`.
+- Original discovery batch-data commit: `8448711d734978d5c0e793793feccf08dad29747`; worker implementation merge: `089e215bac99a60ba2b2e2c7b33c8f9e370a21b3`.
 - Preparation workflow run [43603644216](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43603644216) completed successfully; associated code CI run [43603644293](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43603644293) passed Python 3.11/3.12/3.13.
 - All 7,901 discovery rows were stream-imported and exported to `research_runs/audit-batches/43600488013/` as **80 JSONL batches**, maximum 100 records each.
 - Batch verification: 7,901 unique canonical repository names; 7,901 unique GitHub repository IDs; candidate indexes 0–7,900 contiguous; all 80 batch SHA-256 hashes verified.
