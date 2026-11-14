@@ -2,23 +2,23 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "B1_MISSION_FORM_AND_CONSTITUTION",
-  "status": "MISSION_FORM_PROTOTYPE_CREATED; LIVE_ORCHESTRATOR_NEXT",
-  "last_verified_at_utc": "2026-11-14T11:00:00Z",
+  "phase": "B1_MISSION_FORM_LOCAL_INTAKE_AND_DURABLE_QUEUE",
+  "status": "MISSION_FORM_CONNECTED_TO_LOCAL_API; SQLITE_QUEUE_DURABLE; 29_TESTS_PASS; LANGGRAPH_RUNTIME_NEXT",
+  "last_verified_at_utc": "2026-11-14T11:07:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
+  "latest_commit_at_checkpoint": "f7347f8f2139526656c10700b48ec7e12f207511",
   "latest_ci_run": {
-    "run_id": 43587812556,
+    "run_id": 43588460762,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
+    "head_sha": "f7347f8f2139526656c10700b48ec7e12f207511",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "7 tests passed on all versions; compileall passed; subsequent changes were documentation-only"
+    "tests": "29 tests passed on all versions; compileall passed"
   },
   "phase_a_ci_history": "Prior commits and workflows repeatedly passed; latest evidence-register commit CI is pending at checkpoint.",
   "discovery": {
@@ -114,22 +114,30 @@
     "GitHubClient.tree supports recursive and non-recursive requests.",
     "Truncated recursive trees trigger bounded directory traversal with max_tree_entries=50000 and max_tree_directories=10000.",
     "Reports distinguish recursive truncation, recovery attempted/completed, directories visited and entries seen.",
-    "Three new regression tests cover successful recovery, directory-cap incompleteness and truncated subtree incompleteness."
+    "Three new regression tests cover successful recovery, directory-cap incompleteness and truncated subtree incompleteness.",
+    "Research Mission Form now submits to local-only HTTP API and queues validated mission JSON in SQLite.",
+    "Mission validator enforces strict field allowlists, independent reviewer inclusion and immutable research-only safety policy.",
+    "Mission queue uses thread-safe SQLite access for concurrent HTTP worker threads.",
+    "Mission API end-to-end tests and safety rejection tests added."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
   "product_direction": "FORM_DRIVEN_AUTONOMOUS_AGENTIC_RESEARCH_SWARM",
   "goal_lock": "Research Mission Form is the primary user interface; the orchestrator autonomously plans, dispatches, verifies, persists and continues research tasks.",
   "form_intake": {
-    "status": "prototype_created_json_export_only",
+    "status": "connected_to_local_api_and_sqlite_queue",
     "path": "ui/research-mission-form.html",
     "schema": "schemas/research-mission.schema.json",
+    "api_module": "src/flashloan_research/mission_api.py",
+    "queue_module": "src/flashloan_research/mission_queue.py",
+    "endpoint": "POST /missions",
+    "bind_address": "127.0.0.1:8765",
     "live_agent_submission": false
   },
   "orchestration": {
     "framework": "LangGraph",
     "status": "NOT_YET_IMPLEMENTED",
-    "next": "mission API + durable task queue + bounded specialist graph + independent review + checkpointed continuation"
+    "next": "mission DAG + checkpointed LangGraph worker runtime + typed specialist nodes + independent review + automatic continuation"
   },
   "constitution": "PROJECT_CONSTITUTION.md",
   "no_drift_guard": [
