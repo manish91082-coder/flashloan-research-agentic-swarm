@@ -6,6 +6,20 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 
 ## Verified checkpoint
 
+## Current continuation checkpoint (2026-11-14; authoritative over older historical checkpoints)
+
+- **Locked mission is unchanged:** discover, inspect and classify all reachable public GitHub repositories related to flash loans, flash-loan-powered liquidations/liquidator bots and adjacent primitives; determine actual code purpose/behavior; compare implementation completeness, security, testing, dependencies/license and economics; retain commit/tree/blob-pinned evidence and independent challenge. Do not claim global completeness beyond measured search coverage.
+- Discovery: **7,901 candidates**, 38 configured queries across 11 taxonomy families; 28 query templates completed and 10 remain incomplete. Candidate metadata import is not source capture or audit.
+- Latest inspected autonomous source checkpoint: workflow [43626548828](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43626548828), artifact **14126596143**. Queue: **896 captured / 6,995 pending / 0 leased / 10 failed**. Captured scope: **656 complete within configured limits / 240 coverage-limited**. The latest 12-item cycle captured 12/12. Ten terminal failures are empty Git repositories returning HTTP 409; they are source-availability records, not security findings. Next chained workflow [43626648817](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43626648817) had restored its predecessor checkpoint and was processing the next 12 when last checked.
+- **Source capture != semantic audit.** Manual source-inspected candidate dossiers remain a separate sample. No 896/7,901 semantic-audit claim is permitted.
+- First Agent Form local-model pilot [43615341905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615341905) reached local qwen2.5:3b inference but both candidate-purpose tasks failed because seven required JSON report fields were missing; evidence validation and independent review did not execute. No semantic audit count increased.
+- PR [#11](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/11) merged strict JSON Schema output contract + prompt instructions + missing/extra-key fail-closed checks. CI [43626544380](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43626544380) passed Python 3.11/3.12/3.13.
+- Attempt [43626720183](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43626720183) did not reach inference: legacy artifact listing hit GitHub installation API rate limit (HTTP 403). PR [#12](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/12) merged direct pinned-artifact-ID retrieval, bounded Retry-After/X-RateLimit-Reset retry, ZIP CRC validation, safe path extraction and cross-host authorization stripping. CI [43627789274](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43627789274) passed Python 3.11/3.12/3.13.
+- Third bounded pilot [43627944086](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43627944086) is triggered from the same preserved seed run 43615137961 / artifact 14121666814, batch size 2, qwen2.5:3b on loopback-only Ollama. Last observed at the pinned artifact-download step; model-install/inference had not yet started. Its outcome is not yet known.
+- **Immediate execution order:** (1) complete artifact restore and audit the fresh pilot task ledger/model outputs, (2) verify exact source-signal evidence and both structural evidence gates, (3) inspect both independent-review reports and disagreements, (4) only after all gates pass implement the candidate dossier generator and disagreement reconciliation, (5) enqueue the next priority candidate batch in the existing persistent mission DAG, (6) continue source capture and semantic audit as separate self-chaining pipelines, (7) reconcile all 7,901 candidate statuses, incomplete discovery queries, empty repositories and retry debt, (8) produce final repository classification, architecture comparison, security findings and economic feasibility matrix.
+- Safety and compute boundary remains immutable: public read-only research; candidate code is never executed; no wallet/key/signer, transaction signing, deployment, live trading, paid inference or cloud inference. No user-side WSL/laptop work is required for the primary hosted path.
+
+
 - Mission Form -> local API -> durable SQLite queue is implemented.
 - Taxonomy v1.0.0 defines 11 query families and 38 configured query templates.
 - Live GitHub Actions run [43600488013](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43600488013) successfully executed all 11 families.
@@ -52,7 +66,7 @@ Discover the broadest reproducible set of public GitHub repositories across all 
   ```
 - Do not start a 7,901-item run until the first 10–20 captures have been checked for correct commit/tree/blob pins, local vault persistence and checkpoint recovery.
 
-## Latest live source-capture pilot and GitHub-hosted autonomous continuation
+## Historical live source-capture pilot and GitHub-hosted autonomous continuation (superseded by current continuation checkpoint above)
 
 - Immutable source-capture seed: bounded pilot [43607072905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905), artifact 14118419543, SHA-256 `092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178`.
 - Primary continuation is GitHub-hosted and self-chaining. WSL restore remains fallback only; no user-side command, artifact download or personal token is required.
