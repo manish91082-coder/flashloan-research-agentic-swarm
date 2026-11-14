@@ -87,6 +87,12 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
                         "test_verification", "economics_quant", "dependency_license",
                     ],
                 )
+                source_capture = store.claim_ready(
+                    mission_id, "test-capture", task_types={"candidate_source_capture"}
+                )[0]
+                store.complete_task(
+                    mission_id, source_capture["task_id"], "test-capture", {"captured": True}
+                )
             finally:
                 store.close()
 
@@ -139,6 +145,9 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             }), patch(
                 "flashloan_research.specialist_runner.LocalOpenAICompatibleProvider",
                 FakeLocalProvider,
+            ), patch(
+                "flashloan_research.specialist_runner.SETTINGS",
+                SimpleNamespace(snapshot_dir=vault, max_blob_bytes=250000),
             ):
                 result = executor.run_local_semantic_agents(mission_id)
 
