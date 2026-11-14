@@ -92,7 +92,7 @@ flashloan-source-capture-worker \
 
 The worker resumes from SQLite after interruption and retries failed candidates up to three attempts. Set `GITHUB_TOKEN` as an environment variable when higher authenticated GitHub API limits are needed. This stage performs source acquisition only: a captured candidate is **not** semantically classified, independently reviewed, or security-audited until the model/evidence/reviewer stages run. It never executes candidate code.
 
-**Still incomplete:** the new worker has not yet been run against the live 7,901-candidate queue (source-capture counter remains 0/7,901); semantic purpose classification, fork/parent reconciliation, independent review of provisional dossiers, real free local-model inference, and dossier/synthesis execution also remain pending. A worker implementation and retry-safe multi-batch continuation now exist, but actual queue processing must be verified separately. No paid/cloud fallback or candidate execution.
+**Still incomplete:** only the first 10 of 7,901 candidates have completed automated commit-pinned source capture; 7,891 remain pending. Semantic purpose classification, fork/parent reconciliation, independent review of provisional dossiers, real free local-model inference, and dossier/synthesis execution also remain pending. Source capture is not an audit. No paid/cloud fallback or candidate execution.
 
 Start the local form and queue:
 
@@ -103,6 +103,30 @@ flashloan-mission-api
 ```
 
 The service binds to `127.0.0.1` only. Missions are persisted in the configured SQLite database (`FLR_DATABASE`, default `data/research.sqlite3`).
+
+
+## Resume the verified 10-candidate pilot in Windows WSL
+
+The first real source-capture pilot completed successfully in GitHub Actions: 10/10 repositories captured, 0 failures, 182 source-file references and 173 unique Git blobs. All 182 Git blob SHA-1 references were re-verified against the artifact vault. Six repositories were complete within the configured source scope; four reached the 30-file cap. One of the six complete-scope records had zero eligible files in the configured source extensions, so it is **not** counted as source-code-bearing coverage. The automated queue is **10/7,901 captured; 7,891 pending**. This is source acquisition only, not semantic audit or independent review.
+
+Pilot run: [43607072905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905)
+
+Artifact: [download the SQLite queue, 10 reports and verified source vault](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905/artifacts/14118419543)
+
+Artifact SHA-256: `092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178`
+
+Download that ZIP from the artifact page to the WSL filesystem. Then, from the root of this repository, export a read-only GitHub token in the current shell and restore/resume:
+
+```bash
+export GITHUB_TOKEN='YOUR_READ_ONLY_GITHUB_TOKEN'
+bash scripts/resume_source_capture.sh ~/Downloads/flashloan-source-capture-pilot-43607072905.zip
+```
+
+The helper verifies the ZIP digest, SQLite integrity, manifest SHA-256, 10 report identities, commit/tree pins and every referenced Git blob SHA-1 before restoring anything. It restores the pilot queue into the dedicated `data/source-capture-pilot.sqlite3` database and the matching blobs into `data/source-capture-pilot-vault/`; it does **not** overwrite `data/research.sqlite3` or `data/snapshots/`. It then resumes the same run ID from the 10 completed rows, preserving all 7,891 pending candidates and printing queue progress after each processing cycle.
+
+Defaults are 12 candidates claimed per cycle and 2 concurrent read-only repository inspections. Set `SOURCE_CAPTURE_BATCH`, `SOURCE_CAPTURE_PARALLEL` and `SOURCE_CAPTURE_POLL_SECONDS` before running to adjust within worker limits. The full queue may span many API quota windows. On interruption, rerun the same command with the same ZIP and database; the worker recovers expired leases. Keep the laptop/WSL filesystem and process available for sustained execution, and retain the database and source vault between sessions.
+
+Do not paste tokens into chat or commit them. Candidate code is never executed. The worker only reads public GitHub metadata, trees and blobs. A completed source capture still requires the separate semantic specialist, evidence-validation and independent-review stages before any repository can be called audited.
 
 ## Automation architecture
 
