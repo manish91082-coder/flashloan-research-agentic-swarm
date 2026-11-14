@@ -20,16 +20,26 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 
 ## Immediate next gates
 
-1. Stream-import the 7,901 report rows into the durable candidate store without loading the entire artifact into unbounded memory.
-2. Persist stable repository IDs, canonical names, query-family provenance, fork/mirror links and a retry-safe batch cursor.
-3. Execute bounded commit-pinned source capture and purpose classification in candidate batches; discovery is not an audit.
-4. Build deterministic dossier and mission synthesis from evidence-validated and independently reviewed outputs.
-5. Implement true multi-batch continuation with completed-candidate set, retry-safe IDs, lease recovery and explicit stop conditions.
-6. Investigate and rerun only the 10 incomplete discovery query templates; retain old snapshots and coverage debt.
-7. Add task/report/coverage endpoints and a dashboard for discovered/audited queues, query debt, evidence confidence, reviewer status and next batch.
-8. Add timeout/invalid-JSON, provider recovery, lease-expiry, checkpoint-resume and no-false-completion tests.
-9. Run real local-model inference only after a free loopback endpoint is explicitly configured; no paid/cloud fallback.
-10. Publish synthesis only after coverage, review and evidence limitations are reported.
+1. **Completed:** stream-imported all 7,901 candidate rows and persisted stable repository IDs, canonical names and query-family provenance.
+2. **Completed:** exported 80 immutable JSONL packets (100 candidates per packet) with source-report SHA-256, per-batch SHA-256, candidate-index continuity and identity verification. Audit status remains pending.
+3. Implement a resumable source-capture worker with per-candidate status, attempt counts, leases/checkpoints and atomic result writes; preserve current default-branch commit, tree, blob and fork/parent/source identity.
+4. Prioritize candidates matched to flash-loan liquidation and DeFi liquidator families, then process all remaining taxonomy families without dropping them.
+5. Capture bounded source evidence and deterministic purpose hints; do not claim semantic purpose classification until source evidence and an approved reviewer support it.
+6. Build deterministic candidate dossiers and mission synthesis only from source-pinned, evidence-validated and independently reviewed outputs.
+7. Implement true multi-batch continuation with completed-candidate set, retry-safe IDs, lease recovery and explicit stop conditions.
+8. Investigate and rerun only the 10 incomplete discovery query templates; retain old snapshots and coverage debt.
+9. Add task/report/coverage endpoints and a dashboard for discovered/imported/source-inspected/audited queues, query debt, evidence confidence, reviewer status and next batch.
+10. Run real local-model inference only after a free loopback endpoint is explicitly configured; no paid/cloud fallback. Publish synthesis only with coverage and evidence limitations.
+
+## Latest verified batch-preparation checkpoint
+
+- Current main data commit: `8448711d734978d5c0e793793feccf08dad29747`.
+- Preparation workflow run [43603644216](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43603644216) completed successfully; associated code CI run [43603644293](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43603644293) passed Python 3.11/3.12/3.13.
+- All 7,901 discovery rows were stream-imported and exported to `research_runs/audit-batches/43600488013/` as **80 JSONL batches**, maximum 100 records each.
+- Batch verification: 7,901 unique canonical repository names; 7,901 unique GitHub repository IDs; candidate indexes 0–7,900 contiguous; all 80 batch SHA-256 hashes verified.
+- Manifest SHA-256: `45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd`; source report SHA-256: `d99ebcdcbd1739536ba987e51ffe2a5c06610094e24b4603c89d3f5f32db3002`.
+- This is metadata import and queue preparation only. Candidate source capture and audits from this 7,901-row queue remain **0/7,901**; existing five dossiers remain a separate prior audit sample. No candidate code was executed.
+- Future `research-discovery.yml` runs now perform import/export of their own discovery rows during the same workflow.
 
 ## Specialist acceptance contract
 

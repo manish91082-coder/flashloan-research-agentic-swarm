@@ -72,7 +72,9 @@ The Mission Form records selected taxonomy families and pagination limits. Searc
 
 **Candidate dossiers:** five source-pinned dossiers are tracked. New reviews: [Lumetra Labs Morpho liquidation](research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md), grade C and not flash-loan funded in the reviewed primary path; [0xnavarro Aave Liquiditor](research/candidate-audits/0xnavarro__Aave-Liquiditor.md), grade D with critical wiring and accounting gaps.
 
-**Still incomplete:** durable batched import and semantic processing of 7,901 candidates, independent review of the two new dossier finding sets, real free local-model inference, dossier/synthesis execution and retry-safe multi-batch continuation. No paid/cloud fallback or candidate execution.
+**Candidate queue preparation:** the 7,901 live-discovery candidates have been stream-imported and persisted as 80 hash-verified JSONL batches (up to 100 each) under `research_runs/audit-batches/43600488013/`. The preparation workflow verified 7,901 unique names, 7,901 unique GitHub repository IDs, contiguous candidate indexes and all batch SHA-256 hashes. Each row remains `pending_commit_pinned_source_capture`; import is not an audit.
+
+**Still incomplete:** source capture and purpose classification for the 7,901-row queue, fork/parent reconciliation during source inspection, independent review of the two new dossier finding sets, real free local-model inference, dossier/synthesis execution and retry-safe multi-batch continuation. No paid/cloud fallback or candidate execution.
 
 Start the local form and queue:
 

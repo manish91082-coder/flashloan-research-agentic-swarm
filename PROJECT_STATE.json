@@ -3,22 +3,22 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_DETERMINISTIC_DISCOVERY",
-  "status": "MISSION_FORM_AND_SQLITE_QUEUE_IMPLEMENTED; LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; CHECKPOINTED_DAG_WORKER_AND_SOURCE_CAPTURE_IMPLEMENTED; FAKE_PROVIDER_SPECIALIST_EVIDENCE_REVIEW_TESTED_58_TESTS; FIVE_CANDIDATE_DOSSIERS_TRACKED; REAL_LOCAL_MODEL_AND_MULTI_BATCH_CANDIDATE_PROCESSING_PENDING",
-  "last_verified_at_utc": "2026-11-14T13:55:37.758Z",
+  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; CHECKPOINTED_DAG_AND_SOURCE_CAPTURE_ENGINE_IMPLEMENTED; FAKE_PROVIDER_SEMANTIC_PIPELINE_TESTED; NEW_7901_CANDIDATE_SOURCE_AUDIT_PIPELINE_NOT_YET_STARTED; REAL_LOCAL_MODEL_PENDING",
+  "last_verified_at_utc": "2026-11-14T14:12:48Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "13bac458ce89c839e9f9603d973981f6f5d9952e",
+  "latest_commit_at_checkpoint": "8448711d734978d5c0e793793feccf08dad29747",
   "latest_ci_run": {
-    "run_id": 43601777341,
+    "run_id": 43603644293,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "13bac458ce89c839e9f9603d973981f6f5d9952e",
+    "head_sha": "d596ae0d69bc625ad952e2f164ea8eb43e94044d",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "Research Engine CI completed successfully on Python 3.11, 3.12 and 3.13 after the Aave audit merge."
+    "tests": "Research Engine CI passed on all three Python versions for the batch-preparation workflow commit."
   },
   "phase_a_ci_history": "Latest main-head CI verified green at 7e3853f4a95cf9ce2a8722de557b3dcee48dc502.",
   "discovery": {
@@ -65,7 +65,7 @@
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
-    "orchestration_phase_b": "LangGraph SQLite-checkpointed graph executes deterministic mission discovery/source capture and invokes a local-only semantic specialist/evidence/reviewer stage. Fake-provider end-to-end integration covers candidate purpose, six specialists, evidence gate and reviewer context. Real local-model inference, durable import/processing of 7,901 discovery candidates, deterministic synthesis and multi-batch continuation remain pending.",
+    "orchestration_phase_b": "LangGraph SQLite-checkpointed graph runs deterministic discovery/source capture and invokes local-only semantic specialists/evidence/reviewer. Fake-provider end-to-end covers candidate purpose, six specialists, evidence gate and reviewer context. The 7,901 live-discovery candidates are now stream-imported and persisted as 80 hash-verified JSONL audit batches with stable GitHub repository IDs and query provenance. Per-candidate commit-pinned source inspection across this queue, true multi-batch continuation, deterministic synthesis and real local-model inference remain pending.",
     "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; local/WSL mission worker for persistent queue processing",
     "n8n": "optional notifications/approval UI only"
   },
@@ -84,7 +84,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Stream-import the 7,901 discovery records into durable retry-safe bounded candidate batches; preserve repository IDs, query provenance and fork/mirror relationships; then run commit-pinned source capture, purpose classification, evidence validation, independent review and dossier synthesis. Revisit the 10 incomplete discovery queries as explicit coverage debt. Real local-model inference and full autonomous continuation remain pending.",
+  "next_gate": "Implement a resumable source-capture worker over the 80 immutable JSONL audit batches. Prioritize direct flash-loan liquidation and DeFi liquidator candidates while retaining every taxonomy family; capture exact current commit/tree/blob pins, fork/parent metadata, source files and explicit coverage limits; persist per-candidate status, attempts and checkpoint; then perform purpose classification, specialist review and dossier synthesis. Keep 10 incomplete discovery queries as separate coverage debt.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 5,
@@ -126,7 +126,11 @@
     ],
     "previously_recorded_findings": 8,
     "new_source_findings_pending_independent_review": 16,
-    "runtime_executions": 0
+    "runtime_executions": 0,
+    "metadata_imported": 7901,
+    "prepared_audit_batches": 80,
+    "source_capture_completed": 0,
+    "source_audit_pending": 7901
   },
   "implementation_updates": [
     "GitHubClient.tree supports recursive and non-recursive requests.",
@@ -152,7 +156,13 @@
     "Fake-provider end-to-end fixture covers candidate purpose, six specialist roles, evidence validation and independent reviewer; 58 tests pass on Python 3.11/3.12/3.13.",
     "Lumetra Labs Morpho liquidation audit merged: grade C; native Morpho liquidation callback in reviewed path, not flash-loan funded.",
     "0xnavarro Aave Liquiditor audit merged: grade D; Pool pointer, callback auth, missing swap, profit, collateral bitmap, base-currency, scanning and execution wiring issues documented.",
-    "Five candidate dossiers tracked; two new source-audit finding sets remain pending independent review; candidate code runtime executions remain zero."
+    "Five candidate dossiers tracked; two new source-audit finding sets remain pending independent review; candidate code runtime executions remain zero.",
+    "Added candidate-batch-preparation workflow and marker-triggered bootstrap for the existing discovery run; workflow run 43603644216 completed successfully.",
+    "Stream-imported the 7,901-candidate discovery JSON with stable repository IDs, immutable candidate metadata, family matches and query provenance.",
+    "Exported 80 immutable JSONL audit packets of up to 100 candidates each under research_runs/audit-batches/43600488013/.",
+    "Verified all batch SHA-256 hashes, canonical repository names, unique GitHub repository IDs and contiguous original candidate indexes 0-7900; verification file records source audit pending.",
+    "Updated the recurring research-discovery workflow so future discovery runs import and export their own hashed candidate batches in the same workflow execution.",
+    "Latest CI run 43603644293 passed on Python 3.11, 3.12 and 3.13 for workflow code commit d596ae0d69bc625ad952e2f164ea8eb43e94044d; batch-data commit 8448711d734978d5c0e793793feccf08dad29747 is the current main head."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
@@ -170,14 +180,14 @@
   },
   "orchestration": {
     "framework": "LangGraph",
-    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; DETERMINISTIC_DISCOVERY_AND_SOURCE_CAPTURE; LOCAL_ONLY_SPECIALIST_STAGE; HASH_VERIFIED_SOURCE_CONTEXT; PURPOSE_AND_SPECIALIST_EVIDENCE_VALIDATION; INDEPENDENT_REVIEW; FAKE_PROVIDER_END_TO_END_TEST_PASS; REAL_LOCAL_MODEL_AND_MULTI_BATCH_CONTINUATION_PENDING",
+    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; LOCAL_ONLY_SPECIALIST_STAGE; FAKE_PROVIDER_E2E_PASS; LIVE_11_FAMILY_DISCOVERY_7901; STREAM_IMPORT_PASS; 80_HASH_VERIFIED_JSONL_BATCHES_PERSISTED; SOURCE_CAPTURE_OVER_7901_QUEUE_PENDING; MULTI_BATCH_CONTINUATION_PENDING; REAL_LOCAL_MODEL_PENDING",
     "modules": [
       "src/flashloan_research/mission_runtime.py",
       "src/flashloan_research/mission_executor.py",
       "src/flashloan_research/mission_graph.py",
       "src/flashloan_research/mission_worker.py"
     ],
-    "next": "Stream-import the 7,901 live discovery candidates into bounded retry-safe batches; persist fork/mirror identity and source pins; then execute purpose/specialist/evidence/reviewer tasks and deterministic dossier synthesis."
+    "next": "Build and run the resumable commit-pinned candidate source-capture worker over the 80 persisted batches; start with the highest-priority direct flash-loan liquidation/liquidator leads and preserve per-candidate evidence and retry state."
   },
   "constitution": "PROJECT_CONSTITUTION.md",
   "no_drift_guard": [
@@ -190,6 +200,34 @@
     "No paid services or paid inference fallback; model-dependent work blocks explicitly if free local inference is unavailable.",
     "All material findings require source provenance and independent review before accepted.",
     "The 7,901 candidate count is discovery only, not 7,901 audited/working bots; 10 query templates remain incomplete.",
-    "Do not call the system end-to-end autonomous until bounded candidate import, dossier synthesis and retry-safe continuation are implemented and verified."
-  ]
+    "Do not call the system end-to-end autonomous until bounded candidate import, dossier synthesis and retry-safe continuation are implemented and verified.",
+    "The 7,901 discovery rows have been metadata-imported and exported as 80 hash-verified packets; none is thereby source-audited.",
+    "Candidate source capture, semantic purpose classification and independent review counts must be reported separately from discovery/import counts."
+  ],
+  "candidate_batch_preparation": {
+    "workflow": ".github/workflows/candidate-batch-preparation.yml",
+    "workflow_run_id": 43603644216,
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43603644216",
+    "workflow_head_sha": "d596ae0d69bc625ad952e2f164ea8eb43e94044d",
+    "status": "completed_success",
+    "source_report_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
+    "source_report_git_blob_sha": "3f126f4cfa4e163dbe95cb7ffb7f2528180254d5",
+    "source_report_sha256": "d99ebcdcbd1739536ba987e51ffe2a5c06610094e24b4603c89d3f5f32db3002",
+    "metadata_imported_candidates": 7901,
+    "unique_repository_names": 7901,
+    "unique_repository_ids": 7901,
+    "batch_size": 100,
+    "batch_count": 80,
+    "batches_path": "research_runs/audit-batches/43600488013/",
+    "manifest_path": "research_runs/audit-batches/43600488013/manifest.json",
+    "manifest_git_blob_sha": "e392123698e611a5f1ca1e6a9d00e1eee8b1031b",
+    "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
+    "verification_path": "research_runs/audit-batches/43600488013/verification.json",
+    "verification_git_blob_sha": "19868cff8a3d40736b7d7004d3ea9d34ef1eab25",
+    "all_batch_hashes_verified": true,
+    "all_candidate_indexes_contiguous": true,
+    "source_capture_started": false,
+    "source_audited_candidates": 0,
+    "candidate_code_executed": false
+  }
 }

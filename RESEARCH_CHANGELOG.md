@@ -49,3 +49,12 @@
 - Candidate dossier count is now five. New source findings are pending independent review; they have not been promoted to the accepted findings set.
 - Main CI run 43601777341 passed on Python 3.11, 3.12 and 3.13 after the Aave dossier merge.
 - Remaining: stream-import the 7,901 candidates into bounded durable batches; perform source capture, purpose classification, review and synthesis; run real local inference only through an explicitly configured free loopback endpoint.
+
+
+## 2026-11-14 — discovery queue import and hashed audit batches
+- Added `.github/workflows/candidate-batch-preparation.yml` for a bounded, retry-safe import/export job. It validates the source snapshot, runs the test suite, stream-imports the discovery report into SQLite, exports JSONL batches and verifies batch SHA-256, canonical identities, unique repository IDs and candidate-index continuity before committing the output.
+- Updated `research-discovery.yml` so future live discovery runs generate their own SQLite import and hashed audit batches within the same run.
+- Preparation workflow run 43603644216 completed successfully; CI run 43603644293 passed on Python 3.11, 3.12 and 3.13 at code commit d596ae0d69bc625ad952e2f164ea8eb43e94044d.
+- Pinned live report 43600488013 was imported: 7,901 candidates, 7,901 unique canonical names and IDs, and 80 JSONL packets of up to 100 candidates, persisted under `research_runs/audit-batches/43600488013/` in data commit 8448711d734978d5c0e793793feccf08dad29747.
+- All 80 batch SHA-256 hashes and indexes 0–7,900 were verified. Manifest SHA-256 `45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd`; source report SHA-256 `d99ebcdcbd1739536ba987e51ffe2a5c06610094e24b4603c89d3f5f32db3002`.
+- Import is not audit: all 7,901 rows remain pending commit-pinned source capture. Existing five source dossiers remain a separate prior sample. No candidate code was executed.
