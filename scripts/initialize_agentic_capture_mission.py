@@ -42,9 +42,25 @@ def load_reports(report_dir: Path, vault: Path, limit: int) -> list[dict[str, An
             if git_blob_sha(candidate.read_bytes()) != blob_sha:
                 raise SystemExit(f"Git blob SHA mismatch: {path}:{rel}")
         reports.append(report)
-    reports.sort(key=lambda x: (int(x["candidate_index"]), x["repository"]))
     if not reports:
         raise SystemExit("No verified source-capture reports found.")
+
+    # Prioritize direct flash-loan/liquidation intersections first. Family and
+    # lexical-signal counts are scheduling hints only, never audit conclusions.
+    def priority(report: dict[str, Any]) -> tuple[int, ...]:
+        families = set(report.get("matched_families", []))
+        return (
+            int("flash_loan_liquidation_combo" in families),
+            int("flash_loan_core" in families),
+            int("defi_liquidation" in families),
+            int("flash_loan_provider_apis" in families),
+            int("lending_protocols" in families),
+            int("security_accounting" in families),
+            min(len(report.get("signals", [])), 100),
+            -int(report["candidate_index"]),
+        )
+
+    reports.sort(key=priority, reverse=True)
     return reports[:limit]
 
 
