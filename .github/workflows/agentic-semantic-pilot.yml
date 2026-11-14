@@ -26,6 +26,9 @@ jobs:
       FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
       FLR_MODEL_NAME: qwen2.5:3b
+      FLR_MODEL_TIMEOUT_SECONDS: '600'
+      FLR_MODEL_MAX_FILES: '5'
+      FLR_MODEL_MAX_CONTEXT_CHARS: '18000'
       PYTHONUNBUFFERED: '1'
     steps:
       - name: Checkout canonical research project
@@ -141,7 +144,7 @@ jobs:
           PY
 
       - name: Generate Agent Form pilot quality and task ledger
-        if: always()
+        if: always() && steps.seed.outputs.should_run == 'true'
         run: |
           python - <<'PY'
           import json, os, sqlite3
@@ -171,7 +174,7 @@ jobs:
           PY
 
       - name: Upload Agent Form semantic pilot evidence
-        if: always()
+        if: always() && steps.seed.outputs.should_run == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: flashloan-agent-form-semantic-pilot
