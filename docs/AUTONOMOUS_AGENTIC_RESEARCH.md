@@ -54,12 +54,12 @@ Free model inference is optional. If no approved free model endpoint is configur
 
 - Phase A deterministic GitHub acquisition, commit/tree/blob pinning, SQLite and evidence capture: implemented.
 - Bounded tree truncation recovery: implemented and covered by tests.
-- Research Mission Form HTML prototype: created as an intake/payload composer. It exports JSON but does not yet submit to a live agent runtime.
+- Research Mission Form HTML prototype is connected to the local-only mission intake API and durable SQLite mission queue.
 - Mission schema and lifecycle contract: defined.
 - LangGraph runtime, SQLite task DAG/leases and checkpointed worker are implemented; the graph executes deterministic discovery/source capture and invokes a local-only semantic specialist/evidence/reviewer stage.
 - The local model adapter rejects non-loopback/cloud endpoints and paid fallback. Specialists receive hash-verified bounded source excerpts; the evidence gate checks purpose and specialist outputs; the independent reviewer receives prior report contents.
-- Full fake-provider end-to-end lifecycle, actual local-model mission, dossier/synthesis execution, 11-family live coverage and multi-batch continuation remain unverified or incomplete.
-- Therefore the current project is an advancing, checkpointed research runtime, but it must not yet be described as a fully autonomous, end-to-end completed research swarm.
+- Fake-provider end-to-end integration is tested for candidate purpose, six specialist roles, evidence validation and independent review. The live 11-family discovery workflow has completed one run (7,901 candidates; 28/38 queries complete; 10 incomplete). Actual local-model inference, candidate batch import/processing, dossier/synthesis and multi-batch continuation remain incomplete or unverified.
+- Therefore the project is an advancing checkpointed research runtime with verified live discovery and fake-provider semantic integration, but it must not yet be described as a fully autonomous end-to-end completed research swarm.
 
 ## Acceptance gate before calling it autonomous
 

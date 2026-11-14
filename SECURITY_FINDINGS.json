@@ -272,6 +272,134 @@
       "line_range": "liq_fl around 390-405",
       "summary": "DEX quote exception is caught and min_out is set to 1; execution path continues instead of failing closed.",
       "status": "confirmed_source_level_fail_open_quote_fallback"
+    },
+    {
+      "id": "MORPHO-INDEX-001",
+      "candidate": "Lumetra-Labs/morpho-liquidation-bot",
+      "inspected_commit": "471c7adac62aaf58e5046a395ba96338dc82278a",
+      "summary": "Shared top-level lastBlock cursor can skip historical borrowers when a market is added later.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md"
+    },
+    {
+      "id": "MORPHO-INDEX-002",
+      "candidate": "Lumetra-Labs/morpho-liquidation-bot",
+      "inspected_commit": "471c7adac62aaf58e5046a395ba96338dc82278a",
+      "summary": "Borrower scan failure is caught and execution continues with previously persisted borrower data.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md"
+    },
+    {
+      "id": "MORPHO-ECON-003",
+      "candidate": "Lumetra-Labs/morpho-liquidation-bot",
+      "inspected_commit": "471c7adac62aaf58e5046a395ba96338dc82278a",
+      "summary": "Reported gain uses liquidation incentive arithmetic and omits quoted swap output and complete execution costs.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md"
+    },
+    {
+      "id": "MORPHO-EXEC-004",
+      "candidate": "Lumetra-Labs/morpho-liquidation-bot",
+      "inspected_commit": "471c7adac62aaf58e5046a395ba96338dc82278a",
+      "summary": "Candidate loop ignores atomicLiquidation transaction outcome and returns prepared candidates.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md"
+    },
+    {
+      "id": "MORPHO-CUSTODY-005",
+      "candidate": "Lumetra-Labs/morpho-liquidation-bot",
+      "inspected_commit": "471c7adac62aaf58e5046a395ba96338dc82278a",
+      "summary": "Liquidation entrypoint transfers full current balances of selected tokens rather than operation deltas.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md"
+    },
+    {
+      "id": "AAVE-POOL-001",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "PoolAddressesProvider address is cast directly to IPool for Pool calls.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-CALLBACK-002",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "executeOperation does not authenticate Pool caller or initiator.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-FLOW-003",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Callback has no collateral-to-debt swap before debt-token repayment check.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-ACCOUNTING-004",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Absolute balance check has no pre-loan B0 baseline or positive minimum-profit invariant.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-MONITOR-005",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Collateral discovery checks the borrowing bit rather than Aave's collateral bit.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-MONITOR-006",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Monitor profit expression does not subtract returned debt principal.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-MONITOR-007",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Aave base-currency totals are formatted as 18-decimal ETH and priced with a hard-coded ETH/USD number.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-MONITOR-008",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Address discovery is limited to one 10,000-transaction page and uses tx.from as the user.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-CONFIG-009",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Monitor variable AAVE_LENDING_POOL mismatches example AAVE_POOL_ADDRESS.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-WIRING-010",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Monitor prints opportunities and does not invoke FlashLiquidator.executeLiquidation.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
+    },
+    {
+      "id": "AAVE-CONFIG-011",
+      "candidate": "0xnavarro/Aave-Liquiditor",
+      "inspected_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "summary": "Health-factor threshold semantics differ between code default and example env and are not exact HF < 1.",
+      "status": "new_source_audit_pending_independent_review",
+      "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
     }
   ],
   "acceptance_policy": "Accepted means the claim is supported by exact pinned source or repository metadata for research triage. It does not mean an external security audit, exploit reproduction, mainnet validation or profit proof. Candidate code is never executed by this pipeline."

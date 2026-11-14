@@ -38,3 +38,14 @@
 - Changed independent review context to include actual completed candidate-purpose/specialist report contents rather than only result paths. Report role and inspected commit provenance are checked.
 - CI run 43598988641 passed on Python 3.11, 3.12 and 3.13 at commit f0fab8beafe01c1a8ce18c542c70a8372647052e.
 - Still not claimed: full fake-provider mission lifecycle, live local-model run, complete 11-family live discovery, dossier/synthesis execution or multi-batch autonomous continuation.
+
+
+## 2026-11-14 — live 11-family discovery and candidate audits
+- GitHub Actions run 43600488013 completed successfully with all 11 taxonomy families and 38 configured query templates.
+- Discovery summary: 7,901 unique candidates; 28 queries complete; 10 incomplete; `coverage_complete=false`. No global completeness claim is made.
+- Report: `research_runs/mission/2026-11-14/discovery-43600488013-1.json`; artifact commit `231f47f0ada252a921a065da935720873f397bef`; blob SHA `3f126f4cfa4e163dbe95cb7ffb7f2528180254d5`.
+- Merged source-pinned audit of `Lumetra-Labs/morpho-liquidation-bot` at `471c7adac62aaf58e5046a395ba96338dc82278a` (tree `20487e3b1e7621525f0521b4832c4a3dc75b4c3c`), grade C. Reviewed primary path is Morpho native liquidation callback plus 1inch swap, not flash-loan-funded. Source findings cover shared borrower cursor, stale-index fallback, theoretical P&L, ignored transaction result and full selected-token balance transfer. No candidate execution.
+- Merged source-pinned audit of `0xnavarro/Aave-Liquiditor` at `9197ee3002d7d9b35e9c2da324128a38f7569038` (tree `14de2312e96c369bcc52c9bae96215051aea22b4`), grade D. Findings cover wrong Pool/Provider pointer, missing callback authentication, missing collateral-to-debt swap, missing B0 profit floor, wrong collateral bitmap bit, faulty profit arithmetic/base-unit assumptions, capped tx-origin scanning, environment mismatch and absent monitor-to-executor wiring. Official Aave references are linked in the dossier. No candidate execution.
+- Candidate dossier count is now five. New source findings are pending independent review; they have not been promoted to the accepted findings set.
+- Main CI run 43601777341 passed on Python 3.11, 3.12 and 3.13 after the Aave dossier merge.
+- Remaining: stream-import the 7,901 candidates into bounded durable batches; perform source capture, purpose classification, review and synthesis; run real local inference only through an explicitly configured free loopback endpoint.

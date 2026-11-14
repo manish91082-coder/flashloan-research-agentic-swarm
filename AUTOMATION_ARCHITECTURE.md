@@ -41,7 +41,7 @@ A queued mission does not mean agent execution has started. The current API rema
 7. Synthesis writes dossiers, candidate matrix, evidence register and coverage report.
 8. Continuation Queue enqueues the next unprocessed candidate/query batch and checkpoints all state.
 
-LangGraph is pinned as an optional dependency and the mission control-flow graph uses SQLite checkpoints. The worker can plan missions, dispatch paginated discovery families in parallel, persist coverage reports, merge candidates, expand per-repository task DAGs and capture commit-pinned source. The graph invokes a local-only semantic stage after source capture. Specialists receive bounded line-numbered excerpts read from the content-addressed vault only after Git blob SHA-1 verification; excerpts carry SHA-256 hashes. Evidence validation covers candidate-purpose and specialist outputs. The independent reviewer receives actual prior report contents with role/commit provenance checks. Full fake-provider end-to-end mission verification remains pending. If no approved free inference endpoint is configured, LLM-dependent tasks remain blocked. No paid fallback.
+LangGraph is pinned as an optional dependency and the mission control-flow graph uses SQLite checkpoints. The worker can plan missions, dispatch paginated discovery families in parallel, persist coverage reports, merge candidates, expand per-repository task DAGs and capture commit-pinned source. The graph invokes a local-only semantic stage after source capture. Specialists receive bounded line-numbered excerpts read from the content-addressed vault only after Git blob SHA-1 verification; excerpts carry SHA-256 hashes. Evidence validation covers candidate-purpose and specialist outputs. The independent reviewer receives actual prior report contents with role/commit provenance checks. Fake-provider end-to-end integration now passes: candidate purpose, six specialist roles, evidence validation and independent review. Real local-model inference remains pending. If no approved free inference endpoint is configured, LLM-dependent tasks remain blocked. No paid fallback.
 
 ## Phase B3: durable execution service (worker loop implemented; hardening and status API pending)
 
@@ -49,7 +49,7 @@ A worker process claims ready tasks, records leases/attempts, saves outputs/chec
 
 ## Phase B2.5: local specialist inference and evidence gates (initial implementation)
 
-A loopback-only OpenAI-compatible adapter supports an explicitly configured local model endpoint and model name. It rejects non-loopback hosts, redirects and malformed/non-JSON outputs. Specialist role prompts cover purpose, protocol, security, execution, tests, economics, dependencies/license and independent review. A deterministic gate accepts only evidence references that exactly match captured signals in the commit-pinned inspection report, then stamps commit/tree and excerpt hash. This proves provenance of the excerpt only, not the specialist's semantic interpretation. Full source-context retrieval and end-to-end fake-provider verification remain required.
+A loopback-only OpenAI-compatible adapter supports an explicitly configured local model endpoint and model name. It rejects non-loopback hosts, redirects and malformed/non-JSON outputs. Specialist role prompts cover purpose, protocol, security, execution, tests, economics, dependencies/license and independent review. A deterministic gate accepts only evidence references that exactly match captured signals in the commit-pinned inspection report, then stamps commit/tree and excerpt hash. This proves provenance of the excerpt only, not the specialist's semantic interpretation. Bounded source-context retrieval is implemented from the content-addressed vault after Git blob verification; end-to-end fake-provider integration passes. Real local-model execution remains pending.
 
 ## Phase C: forensic research depth
 
@@ -68,3 +68,10 @@ Mission dashboard: queue/run state, selected query families, pages and candidate
 - Model outputs are untrusted until schema and source-evidence validation.
 - All writes are limited to this canonical research repository and generated research artifacts.
 - Stop on quota, budget, permission, confidence or safety boundaries; persist exact blockers.
+
+
+## Live discovery checkpoint (2026-11-14)
+
+GitHub Actions run [43600488013](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43600488013) executed all 38 configured query templates across 11 taxonomy families. It returned 7,901 unique repository candidates: 28 queries completed and 10 remained incomplete. Coverage is not complete. The report is pinned at `research_runs/mission/2026-11-14/discovery-43600488013-1.json` (blob SHA `3f126f4cfa4e163dbe95cb7ffb7f2528180254d5`).
+
+The next gate is streaming import into durable bounded candidate batches. Discovery is not semantic audit. Commit-pinned source capture, purpose classification, independent review, deterministic dossier synthesis and retry-safe continuation remain outstanding.

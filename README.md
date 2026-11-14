@@ -66,9 +66,13 @@ The Mission Form records selected taxonomy families and pagination limits. Searc
 - [Project Constitution](PROJECT_CONSTITUTION.md): locked goal, safety boundaries and definition of done.
 - [Autonomous research lifecycle](docs/AUTONOMOUS_AGENTIC_RESEARCH.md): mission-to-agents-to-evidence-to-continuation architecture.
 
-**Current capability (verified at main `f0fab8b`):** the form connects to a local-only mission intake API and durable SQLite queue. A LangGraph SQLite-checkpointed worker plans and executes taxonomy-family discovery, candidate merging, task expansion and commit-pinned source capture. The graph then invokes a local-only semantic specialist/evidence/reviewer stage. Specialists read bounded excerpts from the local content-addressed vault only after the full Git blob SHA is verified; the independent reviewer receives the actual prior specialist report contents. The latest CI run `43598988641` passed on Python 3.11, 3.12 and 3.13.
+**Verified capability at current main:** the form connects to a local-only API and durable SQLite queue. LangGraph runs checkpointed deterministic discovery/source capture and invokes a local-only semantic specialist/evidence/reviewer stage. Specialists receive bounded line-numbered excerpts from the content-addressed vault after Git blob SHA-1 verification; independent review receives the actual prior reports. A fake-provider end-to-end fixture covers candidate purpose, six specialists, evidence validation and independent review. The 58-test suite passed on Python 3.11/3.12/3.13 in CI run `43601777341`.
 
-**Not yet verified:** a complete fake-provider end-to-end mission, a real locally hosted model mission, full 11-family live discovery, deterministic dossier/synthesis execution and multi-batch continuation. Without an explicitly configured loopback-only free local model endpoint and model name, AI-dependent tasks remain blocked. A queued mission is not proof of completed research.
+**Live discovery:** GitHub Actions run [43600488013](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43600488013) executed all 11 taxonomy families and 38 query templates: 7,901 unique candidates, 28 complete and 10 incomplete queries. Overall coverage is incomplete. The report is saved at `research_runs/mission/2026-11-14/discovery-43600488013-1.json`.
+
+**Candidate dossiers:** five source-pinned dossiers are tracked. New reviews: [Lumetra Labs Morpho liquidation](research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md), grade C and not flash-loan funded in the reviewed primary path; [0xnavarro Aave Liquiditor](research/candidate-audits/0xnavarro__Aave-Liquiditor.md), grade D with critical wiring and accounting gaps.
+
+**Still incomplete:** durable batched import and semantic processing of 7,901 candidates, independent review of the two new dossier finding sets, real free local-model inference, dossier/synthesis execution and retry-safe multi-batch continuation. No paid/cloud fallback or candidate execution.
 
 Start the local form and queue:
 

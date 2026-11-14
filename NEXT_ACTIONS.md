@@ -4,35 +4,32 @@
 
 Discover the broadest reproducible set of public GitHub repositories across all 11 taxonomy families, emphasizing flash-loan-powered DeFi liquidation and liquidator bots. For each candidate, determine actual purpose and code behavior, classify completeness/correctness/security/economics, inspect tests/CI/dependencies/license/maintenance, and preserve commit-pinned evidence plus independent review. Never claim literal global completeness beyond measured coverage.
 
-## Implemented checkpoint
+## Verified checkpoint
 
-- Mission Form -> local API -> durable SQLite queue.
-- Taxonomy v1.0.0 with 11 query families and family-specific search templates.
-- Paginated GitHub discovery, candidate deduplication, query provenance and coverage-debt manifest.
-- Idempotent dependency-aware mission DAG, SQLite task persistence, leases, retries and checkpoint recovery.
-- LangGraph control-flow graph with SQLite checkpoint saver and mission worker.
-- Parallel discovery and commit-pinned repository source capture.
-- Loopback-only OpenAI-compatible model adapter; cloud endpoints, redirects and paid fallback rejected.
-- Specialist role prompts, strict JSON contract, exact signal-to-source evidence matching and deterministic evidence provenance gate.
-- Independent reviewer task remains downstream of evidence validation.
-- Latest verified main commit: `f0fab8beafe01c1a8ce18c542c70a8372647052e`; CI run `43598988641` completed successfully on Python 3.11/3.12/3.13.
-- LangGraph now invokes the local semantic specialist/evidence/reviewer stage after source capture.
-- Specialists receive bounded line-numbered source excerpts loaded from the content-addressed vault only after Git blob SHA-1 verification; excerpt SHA-256 is recorded.
-- Evidence validation now checks the candidate-purpose report as well as specialist reports; independent review receives actual prior report content with role and commit provenance checks.
-- No full fake-provider mission lifecycle or live 11-family discovery run is claimed yet. No free local model has been configured for a real mission.
+- Mission Form -> local API -> durable SQLite queue is implemented.
+- Taxonomy v1.0.0 defines 11 query families and 38 configured query templates.
+- Live GitHub Actions run [43600488013](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43600488013) successfully executed all 11 families.
+- Discovery summary: **7,901 unique repository candidates; 38 queries; 28 complete; 10 incomplete; coverage_complete=false**. These are discovery candidates, not verified working bots.
+- Raw report: `research_runs/mission/2026-11-14/discovery-43600488013-1.json`; artifact commit `231f47f0ada252a921a065da935720873f397bef`; blob SHA `3f126f4cfa4e163dbe95cb7ffb7f2528180254d5`.
+- Earlier manual 1,833-name representative sample remains a separate non-exhaustive baseline, not the project-runner result.
+- LangGraph, SQLite task DAG/leases/checkpoints, deterministic discovery/source capture and local-only semantic specialist/evidence/reviewer stage are implemented.
+- Specialist context uses bounded line-numbered excerpts from the content-addressed vault after Git blob SHA-1 verification; evidence validation covers purpose and specialist outputs; independent reviewer receives prior report content.
+- Fake-provider end-to-end fixture covers candidate purpose, six specialist roles, evidence validation and independent review. **58 tests pass** on Python 3.11/3.12/3.13; latest main CI run `43601777341` succeeded.
+- Five candidate dossiers are tracked. Lumetra Labs Morpho bot grade C (native Morpho liquidation callback in reviewed path, not flash-loan funded); 0xnavarro Aave Liquiditor grade D (critical wiring/accounting gaps). New findings are pending independent review.
+- No real local-model mission, candidate-code execution, deployment or transaction has occurred.
 
 ## Immediate next gates
 
-1. **End-to-end fake-provider verification:** candidate-purpose classification -> selected specialists -> purpose+specialist evidence gate -> reviewer reading actual reports -> checkpointed final status.
-2. Add tests for model timeout/invalid JSON, provider recovery, task lease expiry, graph resume and no false completion.
-3. Implement deterministic per-repository dossier generation and mission synthesis only from evidence-validated/reviewed reports.
-4. Implement true multi-batch continuation with a persisted cursor, completed-candidate set, fork/mirror reconciliation and retry-safe batch IDs.
-5. Add mission task/report/coverage status endpoints and a dashboard showing query-family coverage debt, candidates, audit queue and blockers.
-6. Trigger a bounded live discovery run across all 11 taxonomy families using the configured GitHub Actions workflow; persist raw query coverage and candidate inventory.
-7. Reconcile results against the prior 38-repository manual baseline, preserving historical pins and duplicate/fork relations.
-8. Process candidates in batches, generating purpose dossiers, source audits, evidence register, security/economic findings and independent review.
-9. Add deterministic liquidation/accounting extractors and structured purpose taxonomy; keep model claims subordinate to source facts.
-10. Produce the consolidated research synthesis only after coverage and evidence debt are explicitly reported.
+1. Stream-import the 7,901 report rows into the durable candidate store without loading the entire artifact into unbounded memory.
+2. Persist stable repository IDs, canonical names, query-family provenance, fork/mirror links and a retry-safe batch cursor.
+3. Execute bounded commit-pinned source capture and purpose classification in candidate batches; discovery is not an audit.
+4. Build deterministic dossier and mission synthesis from evidence-validated and independently reviewed outputs.
+5. Implement true multi-batch continuation with completed-candidate set, retry-safe IDs, lease recovery and explicit stop conditions.
+6. Investigate and rerun only the 10 incomplete discovery query templates; retain old snapshots and coverage debt.
+7. Add task/report/coverage endpoints and a dashboard for discovered/audited queues, query debt, evidence confidence, reviewer status and next batch.
+8. Add timeout/invalid-JSON, provider recovery, lease-expiry, checkpoint-resume and no-false-completion tests.
+9. Run real local-model inference only after a free loopback endpoint is explicitly configured; no paid/cloud fallback.
+10. Publish synthesis only after coverage, review and evidence limitations are reported.
 
 ## Specialist acceptance contract
 

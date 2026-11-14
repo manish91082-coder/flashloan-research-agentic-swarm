@@ -186,3 +186,22 @@ Historical, blocked reference only. Do not use as a callback or accounting templ
 4. **Negative/legacy security reference:** MELD Labs, with unauthenticated flash-loan callback source.
 
 No candidate has been shown in this pass to deliver repeatable realized net profit after flash fee, protocol/DEX fee, gas, slippage, relay/builder cost and other execution costs. No live transaction, wallet interaction, or candidate-code execution was performed.
+
+
+## Supplemental source audits added after the initial four-candidate pass
+
+### Lumetra-Labs/morpho-liquidation-bot — grade C
+
+- Exact HEAD: `471c7adac62aaf58e5046a395ba96338dc82278a`; tree `20487e3b1e7621525f0521b4832c4a3dc75b4c3c`.
+- Classification: Morpho Blue native liquidation callback plus 1inch swap; no flash-loan funding was identified in the reviewed primary path.
+- Audit: [Lumetra-Labs__morpho-liquidation-bot.md](candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md).
+- Findings: shared global borrower cursor, stale-index fallback after scan failure, incentive-only theoretical P&L, ignored transaction outcome, and full selected-token balance transfer.
+- Static source review only; no code, RPC, transaction or external audit.
+
+### 0xnavarro/Aave-Liquiditor — grade D
+
+- Exact HEAD: `9197ee3002d7d9b35e9c2da324128a38f7569038`; tree `14de2312e96c369bcc52c9bae96215051aea22b4`.
+- Classification: Aave V3 flash-loan liquidation prototype.
+- Audit: [0xnavarro__Aave-Liquiditor.md](candidate-audits/0xnavarro__Aave-Liquiditor.md).
+- Findings: wrong PoolAddressesProvider/IPool pointer; missing callback caller/initiator authentication; missing collateral-to-debt swap; no B0 profit baseline; wrong collateral bitmap bit; principal-free profit formula; base-currency unit assumptions; capped tx-origin address discovery; env mismatch; monitor/executor disconnection; health-factor threshold mismatch.
+- Official Aave interface references are included in the dossier. Static source review only; no candidate execution.

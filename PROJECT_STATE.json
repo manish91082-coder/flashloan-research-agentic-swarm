@@ -3,80 +3,69 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_DETERMINISTIC_DISCOVERY",
-  "status": "MISSION_FORM_AND_SQLITE_QUEUE_IMPLEMENTED; TAXONOMY_DRIVEN_PAGINATED_DISCOVERY_IMPLEMENTED; CHECKPOINTED_TASK_DAG_AND_WORKER_IMPLEMENTED; GRAPH_INVOCATION_OF_LOCAL_SPECIALIST_EVIDENCE_AND_REVIEW_STAGE_IMPLEMENTED; HASH_VERIFIED_BOUNDED_SOURCE_CONTEXT_IMPLEMENTED; FULL_FAKE_PROVIDER_END_TO_END_AND_LIVE_11_FAMILY_DISCOVERY_PENDING",
-  "last_verified_at_utc": "2026-11-14T13:20:35.865Z",
+  "status": "MISSION_FORM_AND_SQLITE_QUEUE_IMPLEMENTED; LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; CHECKPOINTED_DAG_WORKER_AND_SOURCE_CAPTURE_IMPLEMENTED; FAKE_PROVIDER_SPECIALIST_EVIDENCE_REVIEW_TESTED_58_TESTS; FIVE_CANDIDATE_DOSSIERS_TRACKED; REAL_LOCAL_MODEL_AND_MULTI_BATCH_CANDIDATE_PROCESSING_PENDING",
+  "last_verified_at_utc": "2026-11-14T13:55:37.758Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "f0fab8beafe01c1a8ce18c542c70a8372647052e",
+  "latest_commit_at_checkpoint": "13bac458ce89c839e9f9603d973981f6f5d9952e",
   "latest_ci_run": {
-    "run_id": 43598988641,
+    "run_id": 43601777341,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "f0fab8beafe01c1a8ce18c542c70a8372647052e",
+    "head_sha": "13bac458ce89c839e9f9603d973981f6f5d9952e",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "All three Python matrix jobs completed successfully after graph and source-context changes."
+    "tests": "Research Engine CI completed successfully on Python 3.11, 3.12 and 3.13 after the Aave audit merge."
   },
   "phase_a_ci_history": "Latest main-head CI verified green at 7e3853f4a95cf9ce2a8722de557b3dcee48dc502.",
   "discovery": {
-    "snapshot_path": "research_runs/manual/2026-11-14-discovery-1052Z.json",
-    "snapshot_commit": "3758549668a384759061b12827135e8341ef713b",
-    "snapshot_blob_sha": "551e82884750c60e0bfa2529448eb20e67edaf31",
-    "unique_candidates": 38,
-    "queries": [
-      {
-        "query": "flash loan arbitrage",
-        "page": 1,
-        "returned": 20
-      },
-      {
-        "query": "flashloan liquidation bot",
-        "page": 1,
-        "returned": 13
-      },
-      {
-        "query": "Aave V3 flashLoanSimple arbitrage",
-        "page": 1,
-        "returned": 0
-      },
-      {
-        "query": "Morpho flash loan liquidation",
-        "page": 1,
-        "returned": 6
-      }
-    ],
-    "capture_type": "manual read-only GitHub repository search persisted to repository; not a GitHub Actions workflow execution",
-    "taxonomy_version": "1.0.0",
-    "taxonomy_path": "research/keyword-taxonomy.json",
+    "snapshot_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
+    "snapshot_commit": "231f47f0ada252a921a065da935720873f397bef",
+    "snapshot_blob_sha": "3f126f4cfa4e163dbe95cb7ffb7f2528180254d5",
+    "unique_candidates": 7901,
+    "queries": 38,
+    "complete_queries": 28,
+    "incomplete_queries": 10,
+    "coverage_complete": false,
     "query_families": 11,
-    "pagination_defaults": {
-      "per_page": 100,
-      "max_pages_per_query": 10
-    },
+    "taxonomy_version": "1.0.0",
+    "per_page": 100,
+    "max_pages_per_query": 10,
+    "run_id": 43600488013,
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43600488013",
+    "capture_type": "GitHub Actions discovery workflow; all 11 taxonomy families selected; report committed to canonical main",
     "runner": "src/flashloan_research/mission_discovery.py",
     "cli_command": "flashloan-research discover-mission",
     "workflow": ".github/workflows/research-discovery.yml",
     "coverage_ledger": "per-query JSON manifest with cap/incomplete/error accounting",
-    "note": "Mission discovery runner implemented and tested; no new full 11-family live discovery run claimed in this checkpoint."
+    "coverage_debt": "10 of 38 query templates remain incomplete; no global completeness claim",
+    "manual_baseline": {
+      "snapshot_path": "research_runs/manual/2026-11-14-connector-discovery-11-families.json",
+      "unique_candidates": 1833,
+      "classification": "manual representative sample across 11 families, pages 1-2; not the runner and not exhaustive"
+    },
+    "historical_baseline": {
+      "snapshot_path": "research_runs/manual/2026-11-14-discovery-1052Z.json",
+      "unique_candidates": 38,
+      "classification": "earlier four-query manual baseline"
+    }
   },
   "candidate_review": {
-    "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
+    "repository": "0xnavarro/Aave-Liquiditor",
     "branch": "main",
-    "commit": "74653447a0ff9014f2e022d6778b442182f9841a",
-    "audit_path": "research/candidate-audits/MELD-labs__meld-flashloan-liquidation-bot-public.md",
-    "findings": [
-      "MELD-CALLBACK-AUTH-001",
-      "MELD-ACCOUNTING-002"
-    ],
-    "assessment": "C+ reference only; source-level findings recorded; no runtime exploit reproduction, deployment validation or profit proof"
+    "commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+    "tree": "14de2312e96c369bcc52c9bae96215051aea22b4",
+    "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md",
+    "grade": "D",
+    "assessment": "Aave V3 flash-loan liquidation prototype, but wrong Pool pointer, missing callback authentication and swap, faulty monitor accounting and no monitor-to-executor wiring; static review only."
   },
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
-    "orchestration_phase_b": "LangGraph SQLite-checkpointed graph invokes deterministic discovery/source capture and a local-only semantic specialist/evidence/reviewer stage; specialist reports now receive hash-verified bounded source excerpts and reviewer receives prior specialist report content. Full fake-provider end-to-end and real local-model mission verification remain pending.",
+    "orchestration_phase_b": "LangGraph SQLite-checkpointed graph executes deterministic mission discovery/source capture and invokes a local-only semantic specialist/evidence/reviewer stage. Fake-provider end-to-end integration covers candidate purpose, six specialists, evidence gate and reviewer context. Real local-model inference, durable import/processing of 7,901 discovery candidates, deterministic synthesis and multi-batch continuation remain pending.",
     "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; local/WSL mission worker for persistent queue processing",
     "n8n": "optional notifications/approval UI only"
   },
@@ -95,10 +84,10 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Add a fake-local-provider integration test spanning candidate-purpose classification, all selected specialists, purpose+specialist evidence validation, actual independent reviewer context and checkpointed task states; then execute and persist a bounded live discovery mission across all 11 families.",
+  "next_gate": "Stream-import the 7,901 discovery records into durable retry-safe bounded candidate batches; preserve repository IDs, query provenance and fork/mirror relationships; then run commit-pinned source capture, purpose classification, evidence validation, independent review and dossier synthesis. Revisit the 10 incomplete discovery queries as explicit coverage debt. Real local-model inference and full autonomous continuation remain pending.",
   "candidate_review_queue": {
-    "total_discovered": 38,
-    "audited": 3,
+    "total_discovered": 7901,
+    "audited": 5,
     "audits": [
       {
         "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
@@ -117,9 +106,26 @@
         "commit": "7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9",
         "grade": "C",
         "audit_path": "research/candidate-audits/tundefund0-gif__morpho-liquidator.md"
+      },
+      {
+        "repository": "Lumetra-Labs/morpho-liquidation-bot",
+        "commit": "471c7adac62aaf58e5046a395ba96338dc82278a",
+        "tree": "20487e3b1e7621525f0521b4832c4a3dc75b4c3c",
+        "grade": "C",
+        "classification": "Morpho native liquidation callback, not flash-loan funded in reviewed path",
+        "audit_path": "research/candidate-audits/Lumetra-Labs__morpho-liquidation-bot.md"
+      },
+      {
+        "repository": "0xnavarro/Aave-Liquiditor",
+        "commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+        "tree": "14de2312e96c369bcc52c9bae96215051aea22b4",
+        "grade": "D",
+        "classification": "Aave V3 flash-loan liquidation prototype with critical wiring gaps",
+        "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md"
       }
     ],
-    "findings_recorded": 8,
+    "previously_recorded_findings": 8,
+    "new_source_findings_pending_independent_review": 16,
     "runtime_executions": 0
   },
   "implementation_updates": [
@@ -140,7 +146,13 @@
     "Specialist runner loads bounded source excerpts from the local content-addressed vault, verifies Git blob SHA-1 against the inspection manifest, and adds line-numbered excerpt SHA-256 provenance to model context.",
     "Evidence validation includes candidate_purpose outputs as well as specialist forensics reports.",
     "Independent reviewer now receives actual completed candidate-purpose and specialist report content, with role and inspected-commit provenance checks.",
-    "Latest CI run 43598988641 passed on Python 3.11, 3.12 and 3.13 at main commit f0fab8beafe01c1a8ce18c542c70a8372647052e."
+    "Latest CI run 43598988641 passed on Python 3.11, 3.12 and 3.13 at main commit f0fab8beafe01c1a8ce18c542c70a8372647052e.",
+    "Live GitHub Actions discovery run 43600488013 completed with all 11 families: 38 queries, 28 complete, 10 incomplete, 7,901 unique candidates; coverage_complete=false.",
+    "Discovery report is pinned at research_runs/mission/2026-11-14/discovery-43600488013-1.json, commit 231f47f0ada252a921a065da935720873f397bef, blob 3f126f4cfa4e163dbe95cb7ffb7f2528180254d5.",
+    "Fake-provider end-to-end fixture covers candidate purpose, six specialist roles, evidence validation and independent reviewer; 58 tests pass on Python 3.11/3.12/3.13.",
+    "Lumetra Labs Morpho liquidation audit merged: grade C; native Morpho liquidation callback in reviewed path, not flash-loan funded.",
+    "0xnavarro Aave Liquiditor audit merged: grade D; Pool pointer, callback auth, missing swap, profit, collateral bitmap, base-currency, scanning and execution wiring issues documented.",
+    "Five candidate dossiers tracked; two new source-audit finding sets remain pending independent review; candidate code runtime executions remain zero."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
@@ -158,14 +170,14 @@
   },
   "orchestration": {
     "framework": "LangGraph",
-    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; DETERMINISTIC_DISCOVERY_AND_COMMIT_PINNED_SOURCE_CAPTURE; LOCAL_ONLY_SPECIALIST_STAGE_IN_GRAPH; HASH_VERIFIED_BOUNDED_SOURCE_CONTEXT; PURPOSE_AND_SPECIALIST_EVIDENCE_VALIDATION; REVIEWER_RECEIVES_PRIOR_REPORTS; FULL_FAKE_PROVIDER_END_TO_END_PENDING",
+    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; DETERMINISTIC_DISCOVERY_AND_SOURCE_CAPTURE; LOCAL_ONLY_SPECIALIST_STAGE; HASH_VERIFIED_SOURCE_CONTEXT; PURPOSE_AND_SPECIALIST_EVIDENCE_VALIDATION; INDEPENDENT_REVIEW; FAKE_PROVIDER_END_TO_END_TEST_PASS; REAL_LOCAL_MODEL_AND_MULTI_BATCH_CONTINUATION_PENDING",
     "modules": [
       "src/flashloan_research/mission_runtime.py",
       "src/flashloan_research/mission_executor.py",
       "src/flashloan_research/mission_graph.py",
       "src/flashloan_research/mission_worker.py"
     ],
-    "next": "Verify current CI; test end-to-end specialist -> deterministic evidence gate -> independent reviewer with fake local endpoint; add provider/runtime failure recovery; then run bounded live mission."
+    "next": "Stream-import the 7,901 live discovery candidates into bounded retry-safe batches; persist fork/mirror identity and source pins; then execute purpose/specialist/evidence/reviewer tasks and deterministic dossier synthesis."
   },
   "constitution": "PROJECT_CONSTITUTION.md",
   "no_drift_guard": [
@@ -176,6 +188,8 @@
     "Do not claim all public repositories have been found; quantify search coverage and API/indexing limitations.",
     "Candidate code is never executed; no wallets, keys, signing, deployment, broadcast or live trading.",
     "No paid services or paid inference fallback; model-dependent work blocks explicitly if free local inference is unavailable.",
-    "All material findings require source provenance and independent review before accepted."
+    "All material findings require source provenance and independent review before accepted.",
+    "The 7,901 candidate count is discovery only, not 7,901 audited/working bots; 10 query templates remain incomplete.",
+    "Do not call the system end-to-end autonomous until bounded candidate import, dossier synthesis and retry-safe continuation are implemented and verified."
   ]
 }
