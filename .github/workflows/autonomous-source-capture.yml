@@ -159,7 +159,14 @@ jobs:
           # Preserve the original 10-candidate pilot as the immutable baseline.
           # Every later parent checkpoint is deleted only after this run has
           # uploaded its replacement artifact and passed the SQLite check.
-          if [[ "$RESUME_RUN_ID" != "43607072905" ]]; then
+          PILOT_SEED_RUN_ID=""
+          if [[ -f research_runs/agentic-pilot-seed.json ]]; then
+            PILOT_SEED_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json")).get("seed_run_id", ""))')"
+          fi
+
+          if [[ "$RESUME_RUN_ID" == "$PILOT_SEED_RUN_ID" ]]; then
+            echo "Preserving checkpoint $RESUME_RUN_ID as the designated Agent Form semantic-pilot seed."
+          elif [[ "$RESUME_RUN_ID" != "43607072905" ]]; then
             ARTIFACT_ID="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RESUME_RUN_ID/artifacts" \
               --jq '.artifacts[] | select(.name == "flashloan-source-capture-checkpoint" and .expired == false) | .id' \
               | head -n 1)"
