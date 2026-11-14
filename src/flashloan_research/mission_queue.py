@@ -188,6 +188,33 @@ class MissionQueue:
             raise MissionValidationError("mission_id already exists; use a new mission_id") from exc
         return {"mission_id": mission["mission_id"], "status": "queued", "created_at_utc": now}
 
+    def set_status(self, mission_id: str, status: str, reason: str | None = None) -> None:
+        allowed = {"queued", "running", "blocked", "needs_approval", "completed", "failed"}
+        if status not in allowed:
+            raise MissionValidationError(f"unsupported mission status: {status}")
+        now = datetime.now(timezone.utc).isoformat()
+        with self._lock:
+            cur = self.connection.execute(
+                """UPDATE research_missions SET status=?,rejection_reason=?,updated_at_utc=?
+                   WHERE mission_id=?""",
+                (status, reason[:2000] if reason else None, now, mission_id),
+            )
+            self.connection.commit()
+        if cur.rowcount != 1:
+            raise MissionValidationError(f"mission not found: {mission_id}")
+
+    def list_by_status(self, status: str, limit: int = 20) -> list[dict[str, Any]]:
+        allowed = {"queued", "running", "blocked", "needs_approval", "completed", "failed"}
+        if status not in allowed:
+            raise MissionValidationError(f"unsupported mission status: {status}")
+        with self._lock:
+            rows = self.connection.execute(
+                """SELECT mission_id,title,status,created_at_utc,updated_at_utc
+                   FROM research_missions WHERE status=? ORDER BY created_at_utc LIMIT ?""",
+                (status, min(max(limit, 1), 100)),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
     def get(self, mission_id: str) -> dict[str, Any] | None:
         with self._lock:
             row = self.connection.execute(
