@@ -1,18 +1,14 @@
 # Research Changelog
 
 ## 2026-11-14
-
-- Created the dedicated public repository and verified GitHub connector push/admin access.
-- Added Python standard-library research engine, GitHub REST client, SQLite persistence, commit/tree pinning, bounded source retrieval, Git object SHA-1 verification and lexical signal extraction.
-- Added read-only CI and separately permissioned scheduled/manual public GitHub discovery workflow.
-- Pinned external GitHub Actions by full commit SHA.
-- Added governance docs, ten logical research roles, decision log, project state, accounting invariants and evidence schemas.
-- Saved a bounded manual GitHub search snapshot: 38 deduplicated leads across four queries; page 1 only, explicitly non-exhaustive.
-- PR #1 merged Phase A foundation into main: f42f93623e970a24beb0d3a5f395e03051f3893b.
-- PR #2 merged regression expansion and schemas into main: a1621f16f29debe99feec14d41cbd3d3b3acd314.
-- PR #3 merged four pinned candidate forensic reviews, candidate registry updates, seven source-based research findings and nine evidence records into main: 6a0a395699e0bc6479ad493b4c33d8ca06818a11.
-- PR #3 CI run 43584553897 passed on Python 3.11, 3.12 and 3.13. Post-merge main push run 43584589907 was queued at the last checkpoint and still requires confirmation.
-- Remote CI has 18 tests (4 baseline smoke + 14 extended) plus compileall. Original 26-test baseline passed locally; eight test cases remain to restore to remote CI.
-- Four newly pinned candidates: Aquafr (multi-protocol liquidation; B0/dust accounting issue and non-WETH floor boundary), Cluby (Morpho liquidation with oracle floor but no B0 baseline/net profit floor), Argus (native Morpho callback, not flash loan; strong B0/session design but incomplete runtime), MELD (legacy Aave flashloan callback lacks caller/initiator authentication).
-- Candidate source is read as untrusted data and was never executed. No wallet, signer, deployment, live trading or transaction execution.
-- First scheduled discovery report remains pending. Schedule: Mondays at 02:17 UTC.
+- Created the dedicated repository and verified GitHub connector admin/push access.
+- Phase A deterministic Python engine, SQLite evidence store, GitHub acquisition, commit/tree pinning, bounded source capture, Git blob verification and lexical signal extraction are merged to main.
+- CI workflow is read-only; discovery workflow has contents: write only to persist its own generated report. External Actions are pinned by full commit SHA.
+- Local Phase A validation previously recorded: compileall PASS; 26/26 local tests PASS; workflow YAML parsed; CLI help/status PASS. Remote CI matrix passed on Python 3.11, 3.12 and 3.13 on prior main commits.
+- Saved first manual read-only GitHub discovery snapshot at research_runs/manual/2026-11-14-discovery-1052Z.json. Four queries returned 39 raw results and 38 unique repositories. This was performed through the connected GitHub search action and persisted directly; it was not a scheduled Actions execution.
+- Search metadata exposed by the connector did not include descriptions, pushed_at, stars, language or license; the snapshot leaves those fields unasserted.
+- Pinned MELD Labs candidate at commit 74653447a0ff9014f2e022d6778b442182f9841a. Added source audit at research/candidate-audits/MELD-labs__meld-flashloan-liquidation-bot-public.md.
+- Recorded two source-level findings: MELD-CALLBACK-AUTH-001 (callback caller/initiator not authenticated) and MELD-ACCOUNTING-002 (minimum-output expression mixes collateral-token and debt-token raw units).
+- Added both findings to SECURITY_FINDINGS.json and EVIDENCE_REGISTER.csv with exact source blob SHA and line ranges.
+- Findings are not claims of a reproduced live exploit. No candidate code was executed; no wallet, signer, deployment or live trading used.
+- Latest evidence-register commit CI run 43587464686 was queued at the last checkpoint; verify before declaring the latest main state green.
