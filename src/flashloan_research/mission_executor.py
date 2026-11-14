@@ -387,6 +387,8 @@ class MissionExecutor:
                 task["role"] for task in tasks
                 if task["status"] in {"pending", "leased"} and task["role"] not in {"research_director"}
             })
+            failed_tasks = [task for task in tasks if task["status"] == "failed"]
+            blocked_tasks = [task for task in tasks if task["status"] == "blocked"]
         finally:
             store.close()
         endpoint = os.getenv("FLR_MODEL_BASE_URL", "").strip()
@@ -403,13 +405,15 @@ class MissionExecutor:
         reason = None if not pending_roles else (
             "Deterministic discovery and commit-pinned source capture ran. " + blocker_text
         )
-        final_status = "blocked" if pending_roles else "completed"
+        final_status = "failed" if failed_tasks else ("blocked" if pending_roles or blocked_tasks else "completed")
         self._set_mission_status(mission_id, final_status, reason)
         return {
             "mission_id": mission_id,
             "mission_status": final_status,
             "task_status_counts": counts,
             "pending_roles": pending_roles,
+            "failed_task_ids": [task["task_id"] for task in failed_tasks],
+            "blocked_task_ids": [task["task_id"] for task in blocked_tasks],
             "model_runtime_status": model_status,
             "blocker": reason,
             "research_only": True,
