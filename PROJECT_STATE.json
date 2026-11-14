@@ -3,54 +3,67 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "A_EVIDENCE_PIPELINE_MVP",
-  "status": "PHASE_A_MERGED_MAIN_CI_GREEN_REGRESSION_EXPANDED",
+  "status": "PHASE_A_MERGED_CANDIDATE_FORENSICS_COMMITTED_MAIN_CI_PENDING",
   "last_verified_at_utc": "2026-11-14",
   "default_branch": "main",
-  "main_commit": "a1621f16f29debe99feec14d41cbd3d3b3acd314",
+  "main_commit": "6a0a395699e0bc6479ad493b4c33d8ca06818a11",
   "pull_requests": [
-    {
-      "number": 1,
-      "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1",
-      "merged": true,
-      "merge_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b"
-    },
-    {
-      "number": 2,
-      "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/2",
-      "merged": true,
-      "merge_commit": "a1621f16f29debe99feec14d41cbd3d3b3acd314"
-    }
+    {"number": 1, "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1", "merged": true, "merge_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b"},
+    {"number": 2, "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/2", "merged": true, "merge_commit": "a1621f16f29debe99feec14d41cbd3d3b3acd314"},
+    {"number": 3, "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/3", "merged": true, "merge_commit": "6a0a395699e0bc6479ad493b4c33d8ca06818a11"}
   ],
-  "remote_ci": {
+  "latest_remote_ci": {
     "workflow": "Research Engine CI",
-    "main_push_run_id": 43583006127,
-    "main_push_conclusion": "success",
+    "pr_run_id": 43584553897,
+    "pr_run_conclusion": "success",
+    "main_push_run_id": 43584589907,
+    "main_push_status_at_checkpoint": "queued",
     "python_matrix": ["3.11", "3.12", "3.13"],
-    "all_matrix_jobs": "success",
-    "remote_test_scope": "4 baseline smoke tests plus 14 extended regression tests = 18 remote tests; compileall also passed"
+    "pr_matrix_all_jobs": "success",
+    "remote_test_scope": "4 baseline smoke tests + 14 extended regression tests = 18; compileall also passed"
   },
   "local_validation": {
-    "compileall": "PASS",
-    "full_baseline_unittest": "26/26 PASS locally in the isolated work container",
+    "full_baseline_unittest": "26/26 PASS in isolated work container",
+    "remote_vs_local_distinction": "Only 18 tests currently run in remote CI; the full local 26-test suite is not claimed as remotely executed",
     "workflow_yaml_parse": "PASS for both workflows",
     "cli_help_and_status": "PASS",
-    "editable_install": "PASS with --no-build-isolation --no-deps using local build tooling",
-    "network_note": "direct outbound internet from local execution environment unavailable; GitHub API and Actions used for remote repository operations and CI"
+    "editable_install": "PASS with --no-build-isolation --no-deps using local build tooling"
+  },
+  "discovery": {
+    "manual_snapshot": "research_runs/2026-11-14/manual-discovery-baseline-01.json",
+    "deduplicated_candidates": 38,
+    "queries": 4,
+    "coverage": "page 1 only per query; explicitly bounded and non-exhaustive",
+    "scheduled_run": "Mondays 02:17 UTC",
+    "first_scheduled_run": "pending"
+  },
+  "candidate_forensics": {
+    "report": "research/CANDIDATE_FORENSICS_2026-11-14.md",
+    "current_pinned_candidates": [
+      "Aquafr198/liquidator",
+      "clubytech/cluby-liquidator",
+      "litmajor/argus-evm",
+      "MELD-labs/meld-flashloan-liquidation-bot-public"
+    ],
+    "source_evidence_records": 9,
+    "accepted_for_research_findings": 7,
+    "important_classification": "litmajor/argus-evm is a native Morpho liquidation callback reference, not a flash-loan bot",
+    "scope_note": "Research acceptance is not an external audit, exploit reproduction, live-chain verification or profitability proof"
   },
   "repository_contents": {
-    "phase_a_test_report": "docs/PHASE_A_TEST_REPORT.md",
-    "remote_regression_tests": ["tests/test_smoke.py", "tests/test_extended.py"],
+    "test_report": "docs/PHASE_A_TEST_REPORT.md",
+    "remote_tests": ["tests/test_smoke.py", "tests/test_extended.py"],
     "schemas": ["schemas/evidence-record.schema.json", "schemas/repository-candidate.schema.json"],
-    "manual_discovery_snapshot": "research_runs/2026-11-14/manual-discovery-baseline-01.json",
-    "seeded_candidate_matrix": "research/SEEDED_CANDIDATE_MATRIX.md",
+    "candidate_registry": "CANDIDATE_REPOSITORIES.json",
+    "security_findings": "SECURITY_FINDINGS.json",
     "evidence_register": "EVIDENCE_REGISTER.csv",
-    "security_findings": "SECURITY_FINDINGS.json"
+    "seeded_matrix": "research/SEEDED_CANDIDATE_MATRIX.md"
   },
   "architecture": {
     "research_engine": "Python standard library",
     "database": "SQLite",
-    "orchestration_phase_b": "LangGraph, gated until deterministic evidence controls stabilize",
-    "scheduling": "GitHub Actions",
+    "scheduler": "GitHub Actions",
+    "phase_b_orchestration": "LangGraph, gated until deterministic evidence/acceptance controls stabilize",
     "n8n": "optional notifications and approval UI only"
   },
   "safety": {
@@ -69,5 +82,5 @@
     "repository_secrets_added": false,
     "branch_protection": "not configured; connector exposes no branch-protection mutation action in this session"
   },
-  "next_gate": "Complete current-HEAD candidate forensic review, expand remaining local regression tests to remote suite, add pagination/truncated-tree recovery, and verify first scheduled discovery run."
+  "next_gate": "Verify post-merge main CI; build the missing eight regression tests and deterministic B0/delta-profit invariant harness; then add pagination and recursive-tree truncation recovery."
 }
