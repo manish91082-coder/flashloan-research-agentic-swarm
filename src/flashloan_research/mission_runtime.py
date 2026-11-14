@@ -259,8 +259,6 @@ class MissionTaskStore:
     def create_plan(self, tasks: list[MissionTask]) -> dict[str, int]:
         if not tasks:
             raise MissionPlanError("cannot persist an empty task plan")
-        if not tasks:
-            raise MissionPlanError("cannot persist an empty task plan")
         now = utc_now()
         inserted = 0
         with self._lock:
@@ -317,7 +315,7 @@ class MissionTaskStore:
         return item
 
     def claim_ready(self, mission_id: str, worker_id: str, limit: int = 1,
-                    lease_seconds: int = 300) -> list[dict[str, Any]]:
+                    lease_seconds: int = 300, task_types: set[str] | None = None) -> list[dict[str, Any]]:
         if not worker_id or not 1 <= limit <= 12 or not 10 <= lease_seconds <= 3600:
             raise ValueError("invalid worker_id, limit or lease_seconds")
         now_dt = datetime.now(timezone.utc)
@@ -343,6 +341,8 @@ class MissionTaskStore:
                     ORDER BY priority,created_at_utc,task_id
                 """, (mission_id,)).fetchall()
                 for row in pending:
+                    if task_types is not None and row["task_type"] not in task_types:
+                        continue
                     deps = json.loads(row["depends_on_json"])
                     if deps:
                         placeholders = ",".join("?" for _ in deps)
