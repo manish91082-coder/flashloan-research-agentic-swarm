@@ -2,9 +2,9 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "A_DISCOVERY_EVIDENCE_AND_TREE_RECOVERY",
-  "status": "TREE_TRUNCATION_RECOVERY_IMPLEMENTED; 7_REMOTE_TESTS_PASS; 3_CANDIDATE_AUDITS",
-  "last_verified_at_utc": "2026-11-14T10:57:00Z",
+  "phase": "B1_MISSION_FORM_AND_CONSTITUTION",
+  "status": "MISSION_FORM_PROTOTYPE_CREATED; LIVE_ORCHESTRATOR_NEXT",
+  "last_verified_at_utc": "2026-11-14T11:00:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "latest_ci_run": {
@@ -117,5 +117,26 @@
     "Three new regression tests cover successful recovery, directory-cap incompleteness and truncated subtree incompleteness."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
-  "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d"
+  "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
+  "product_direction": "FORM_DRIVEN_AUTONOMOUS_AGENTIC_RESEARCH_SWARM",
+  "goal_lock": "Research Mission Form is the primary user interface; the orchestrator autonomously plans, dispatches, verifies, persists and continues research tasks.",
+  "form_intake": {
+    "status": "prototype_created_json_export_only",
+    "path": "ui/research-mission-form.html",
+    "schema": "schemas/research-mission.schema.json",
+    "live_agent_submission": false
+  },
+  "orchestration": {
+    "framework": "LangGraph",
+    "status": "NOT_YET_IMPLEMENTED",
+    "next": "mission API + durable task queue + bounded specialist graph + independent review + checkpointed continuation"
+  },
+  "constitution": "PROJECT_CONSTITUTION.md",
+  "no_drift_guard": [
+    "Do not replace the agentic swarm objective with a scanner-only roadmap.",
+    "The form is the primary mission intake; users should not need to prompt individual agents.",
+    "Agents plan, research, cross-check, validate, persist and enqueue next tasks autonomously.",
+    "All agent outputs remain untrusted until deterministic evidence gates pass.",
+    "Research-only safety boundary remains immutable."
+  ]
 }
