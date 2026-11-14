@@ -109,8 +109,21 @@ class MissionDiscoveryTests(unittest.TestCase):
             store = ResearchStore(root / "research.sqlite3")
             try:
                 report = run_taxonomy_discovery(
-                    FakeClient(fail_queries=["q-flash"]), store, self.write_taxonomy(root),
-                    selected_families=["flash_loan_core"], per_page=2, max_pages=2
+                    FakeClient(
+                        responses={
+                            ("q-provider", 1): {
+                                "total_count": 0,
+                                "incomplete_results": False,
+                                "items": [],
+                            }
+                        },
+                        fail_queries=["q-flash"],
+                    ),
+                    store,
+                    self.write_taxonomy(root),
+                    selected_families=["flash_loan_core"],
+                    per_page=2,
+                    max_pages=2,
                 )
                 self.assertFalse(report["coverage_complete"])
                 self.assertEqual(report["incomplete_query_count"], 1)
