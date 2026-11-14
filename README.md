@@ -53,6 +53,15 @@ Set `GITHUB_TOKEN` only as an environment variable when a higher authenticated A
 - Recursive tree truncation triggers bounded non-recursive directory recovery (50,000 entries / 10,000 directories); incomplete recovery, oversized source files and source-file caps remain explicit coverage limitations.
 - Weekly GitHub Actions discovery writes timestamped JSON records to `research_runs/`; no third-party repository code is executed.
 
+## Form-driven autonomous agentic system
+
+- [Research Mission Form prototype](ui/research-mission-form.html): configure a research mission and generate JSON.
+- [Mission schema](schemas/research-mission.schema.json): machine-readable intake contract.
+- [Project Constitution](PROJECT_CONSTITUTION.md): locked goal, safety boundaries and definition of done.
+- [Autonomous research lifecycle](docs/AUTONOMOUS_AGENTIC_RESEARCH.md): mission-to-agents-to-evidence-to-continuation architecture.
+
+**Important:** the current form is an intake/payload prototype. It does not yet launch a live agent swarm. The next build phase connects it to a validated mission API, durable task queue and LangGraph runtime.
+
 ## Automation architecture
 
 **Phase A:** Python deterministic engine + SQLite + GitHub Actions.
