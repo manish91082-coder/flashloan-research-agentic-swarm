@@ -26,7 +26,7 @@ button{border:0;border-radius:9px;padding:12px 16px;font-weight:750;cursor:point
 <div class="grid">
 <div><label for="depth">Research depth</label><select id="depth"><option value="screening">Screening</option><option value="standard">Standard</option><option value="deep_forensic" selected>Deep forensic</option><option value="full_audit">Full audit</option></select></div>
 <div><label for="mode">Agent operating mode</label><select id="mode"><option value="autonomous" selected>Autonomous within fixed safety policy</option><option value="approval_gated">Approval-gated</option><option value="supervised">Supervised</option></select></div>
-<div><label for="limit">Repository limit</label><input id="limit" type="number" min="1" max="500" value="100"></div>
+<div><label for="limit">Repositories in first forensic batch</label><input id="limit" type="number" min="1" max="500" value="100"><p class="note">All discovered candidates are retained in the inventory. This controls how many repositories receive source-inspection tasks in the first batch; the remainder stays in the continuation backlog.</p></div>
 <div><label for="parallel">Maximum parallel agents</label><input id="parallel" type="number" min="1" max="12" value="5"></div>
 <div><label for="iterations">Maximum research iterations</label><input id="iterations" type="number" min="1" max="20" value="5"></div>
 <div><label for="protocols">Protocols (comma separated)</label><input id="protocols" value="Aave V3, Morpho Blue, Balancer, Uniswap V2/V3/V4"></div>
@@ -64,7 +64,7 @@ button{border:0;border-radius:9px;padding:12px 16px;font-weight:750;cursor:point
 <div class="status" id="status" aria-live="polite"></div>
 </form></section>
 <section class="panel"><h2>Mission payload</h2><pre id="output">Submit the form to generate a mission payload.</pre></section>
-<p class="note">Current status: local mission intake + durable queue. Agent execution is not connected yet. The canonical search taxonomy is research/keyword-taxonomy.json.</p>
+<p class="note">Current status: form + SQLite task DAG + checkpointed LangGraph worker are connected. Submitting a mission starts paginated discovery and commit-pinned source capture automatically when the optional agentic runtime is installed. Semantic specialist and independent-review tasks remain blocked until an approved free local model endpoint is configured.</p>
 </main>
 <script>
 let payload=null;
@@ -94,8 +94,8 @@ document.getElementById('submitMission').addEventListener('click',async()=>{
   const response=await fetch('/missions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const result=await response.json();
   if(!response.ok) throw new Error(result.error||('HTTP '+response.status));
-  document.getElementById('status').textContent='Mission queued: '+result.mission_id+' · status: '+result.status+'. Agent runtime is not connected yet.';
- }catch(error){document.getElementById('status').textContent='Could not submit. Start the local service with: python -m flashloan_research.mission_api. Detail: '+error.message;}
+  document.getElementById('status').textContent='Mission queued: '+result.mission_id+' · status: '+result.status+'. The local worker will begin discovery. Progress: /missions/'+result.mission_id+'/tasks';
+ }catch(error){document.getElementById('status').textContent='Could not submit. Install and start: pip install -e .[agentic] && flashloan-mission-api. Detail: '+error.message;}
 });
 document.getElementById('download').addEventListener('click',()=>{
  if(!payload){document.getElementById('status').textContent='Generate the mission first.';return;}
