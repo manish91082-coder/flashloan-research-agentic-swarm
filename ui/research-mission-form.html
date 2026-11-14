@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autonomous Research Mission Composer</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#131b30;--line:#293653;--text:#e8eefc;--muted:#aab8d2;--accent:#7dd3fc;--good:#86efac}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#1b3150 0,transparent 40%),var(--bg);color:var(--text);font:15px/1.55 system-ui,sans-serif}
+main{max-width:980px;margin:32px auto;padding:0 18px 60px}h1{font-size:clamp(28px,4vw,42px);line-height:1.12;margin:8px 0}p{color:var(--muted)}.tag{color:var(--good);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.panel{background:rgba(19,27,48,.94);border:1px solid var(--line);border-radius:16px;padding:22px;margin:18px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}@media(max-width:650px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:650;margin:8px 0 5px}input,select,textarea{width:100%;background:#0b1326;color:var(--text);border:1px solid #354563;border-radius:9px;padding:11px;font:inherit}textarea{min-height:110px;resize:vertical}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.checks label{font-weight:450;display:flex;gap:9px;align-items:center;margin:4px 0}.checks input{width:auto}
+button{border:0;border-radius:9px;padding:12px 16px;font-weight:750;cursor:pointer;margin:5px 8px 5px 0;background:var(--accent);color:#07111f}button.secondary{background:#263650;color:var(--text)}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#08101e;border:1px solid var(--line);border-radius:10px;padding:15px;max-height:440px;overflow:auto}.note{font-size:13px;color:var(--muted)}.status{color:var(--good);min-height:24px}
+</style></head>
+<body><main>
+<div class="tag">Phase B · Intake interface prototype</div>
+<h1>Autonomous Research Mission</h1>
+<p>Define the mission once. The future orchestrator will break it into specialist tasks, verify evidence, resolve conflicts and preserve the research trail. This prototype exports a validated-shape JSON mission; it does not yet launch agents.</p>
+<section class="panel">
+<form id="mission">
+<div class="grid">
+<div><label for="title">Mission title</label><input id="title" required minlength="5" value="Flash Loan & DeFi Autonomous Research"></div>
+<div><label for="domain">Research domain</label><select id="domain"><option value="flash_loan_arbitrage">Flash-loan arbitrage</option><option value="defi_liquidation">DeFi liquidation</option><option value="protocol_security">Protocol security</option><option value="mev_and_execution">MEV and execution</option><option value="cross_protocol_research">Cross-protocol research</option><option value="general_defi_research">General DeFi research</option></select></div>
+</div>
+<label for="objective">Mission objective</label><textarea id="objective" required minlength="20">Discover, classify and deeply audit public flash-loan arbitrage and liquidation implementations. Verify callback security, repayment accounting, profitability assumptions, tests, CI, dependencies and evidence. Produce a ranked, reproducible research dossier.</textarea>
+<div class="grid">
+<div><label for="depth">Research depth</label><select id="depth"><option value="screening">Screening</option><option value="standard">Standard</option><option value="deep_forensic" selected>Deep forensic</option><option value="full_audit">Full audit</option></select></div>
+<div><label for="mode">Agent operating mode</label><select id="mode"><option value="autonomous" selected>Autonomous within fixed safety policy</option><option value="approval_gated">Approval-gated</option><option value="supervised">Supervised</option></select></div>
+<div><label for="limit">Repository limit</label><input id="limit" type="number" min="1" max="500" value="100"></div>
+<div><label for="parallel">Maximum parallel agents</label><input id="parallel" type="number" min="1" max="12" value="5"></div>
+<div><label for="iterations">Maximum research iterations</label><input id="iterations" type="number" min="1" max="20" value="5"></div>
+<div><label for="protocols">Protocols (comma separated)</label><input id="protocols" value="Aave V3, Morpho Blue, Balancer, Uniswap V2/V3/V4"></div>
+</div>
+<label>Chains</label><div class="checks" id="chains">
+<label><input type="checkbox" value="Ethereum" checked> Ethereum</label><label><input type="checkbox" value="Polygon" checked> Polygon</label><label><input type="checkbox" value="Arbitrum" checked> Arbitrum</label><label><input type="checkbox" value="Base" checked> Base</label><label><input type="checkbox" value="Optimism"> Optimism</label><label><input type="checkbox" value="BNB Chain"> BNB Chain</label>
+</div>
+<label>Specialist agents</label><div class="checks" id="agents">
+<label><input type="checkbox" value="research_director" checked> Research Director</label><label><input type="checkbox" value="github_discovery" checked> GitHub Discovery</label><label><input type="checkbox" value="protocol_specialist" checked> Protocol Specialist</label><label><input type="checkbox" value="solidity_security" checked> Solidity Security</label><label><input type="checkbox" value="execution_engineer" checked> Execution Engineer</label><label><input type="checkbox" value="test_verification" checked> Test & Verification</label><label><input type="checkbox" value="economics_quant" checked> Economics & Quant</label><label><input type="checkbox" value="dependency_license" checked> Dependency & License</label><label><input type="checkbox" value="evidence_auditor" checked> Evidence Auditor</label><label><input type="checkbox" value="independent_reviewer" checked> Independent Reviewer</label><label><input type="checkbox" value="continuity_documentation" checked> Continuity & Documentation</label>
+</div>
+<label>Required deliverables</label><div class="checks" id="deliverables">
+<label><input type="checkbox" value="candidate_matrix" checked> Candidate matrix</label><label><input type="checkbox" value="protocol_architecture" checked> Protocol architecture</label><label><input type="checkbox" value="source_audits" checked> Source audits</label><label><input type="checkbox" value="security_findings" checked> Security findings</label><label><input type="checkbox" value="test_and_ci_evidence" checked> Test & CI evidence</label><label><input type="checkbox" value="profitability_model" checked> Profitability model</label><label><input type="checkbox" value="dependency_license_report" checked> Dependency & license report</label><label><input type="checkbox" value="evidence_register" checked> Evidence register</label><label><input type="checkbox" value="executive_summary" checked> Executive summary</label><label><input type="checkbox" value="next_research_queue" checked> Next research queue</label>
+</div>
+<div class="panel" style="margin-top:18px">
+<strong>Non-negotiable safety policy</strong>
+<p class="note">The following are locked by project constitution and cannot be enabled through this form.</p>
+<div class="checks">
+<label><input type="checkbox" checked disabled> Research only</label><label><input type="checkbox" checked disabled> No candidate code execution</label><label><input type="checkbox" checked disabled> No wallet access</label><label><input type="checkbox" checked disabled> No transaction signing</label><label><input type="checkbox" checked disabled> No contract deployment</label><label><input type="checkbox" checked disabled> No live trading</label><label><input type="checkbox" checked disabled> No paid services</label>
+</div></div>
+<button type="submit">Generate research mission JSON</button><button type="button" class="secondary" id="download">Download JSON</button><button type="button" class="secondary" id="copy">Copy JSON</button>
+<div class="status" id="status" aria-live="polite"></div>
+</form></section>
+<section class="panel"><h2>Mission payload</h2><pre id="output">Submit the form to generate a mission payload.</pre></section>
+<p class="note">Current status: mission-form prototype only. The next engineering gate is a validated mission queue and LangGraph worker orchestration. No agent launch is implied by generating this JSON.</p>
+</main>
+<script>
+let payload=null;
+const checked=id=>Array.from(document.querySelectorAll('#'+id+' input:checked')).map(x=>x.value);
+document.getElementById('mission').addEventListener('submit',e=>{
+ e.preventDefault();
+ const title=document.getElementById('title').value.trim(),objective=document.getElementById('objective').value.trim();
+ if(title.length<5||objective.length<20){document.getElementById('status').textContent='Title/objective is too short.';return;}
+ payload={
+  mission_id:'flashloan-research-'+new Date().toISOString().slice(0,10),
+  title,objective,domain:document.getElementById('domain').value,
+  scope:{chains:checked('chains'),protocols:document.getElementById('protocols').value.split(',').map(x=>x.trim()).filter(Boolean),repository_limit:Number(document.getElementById('limit').value),include_archived:false,include_older_references:true},
+  research_depth:document.getElementById('depth').value,
+  agent_policy:{mode:document.getElementById('mode').value,independent_review:true,max_parallel_agents:Number(document.getElementById('parallel').value),max_iterations:Number(document.getElementById('iterations').value),specialists:checked('agents')},
+  safety_policy:{research_only:true,execute_candidate_code:false,wallet_access:false,sign_transactions:false,deploy_contracts:false,live_trading:false,paid_services:false,allow_free_model_inference:true},
+  deliverables:checked('deliverables'),
+  acceptance_criteria:['Every material claim has commit-pinned source evidence.','Source blob SHA and line range are recorded.','Static signals are not promoted to findings without validation.','Independent review is required for security-critical findings.','Unknown costs, missing quotes and incomplete scans fail closed.'],
+  created_at_utc:new Date().toISOString()
+ };
+ document.getElementById('output').textContent=JSON.stringify(payload,null,2);
+ document.getElementById('status').textContent='Mission JSON generated. It has not been submitted to an agent runtime.';
+});
+document.getElementById('download').addEventListener('click',()=>{
+ if(!payload){document.getElementById('status').textContent='Generate the mission first.';return;}
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=payload.mission_id+'.json';a.click();URL.revokeObjectURL(url);
+});
+document.getElementById('copy').addEventListener('click',async()=>{
+ if(!payload){document.getElementById('status').textContent='Generate the mission first.';return;}
+ try{await navigator.clipboard.writeText(JSON.stringify(payload,null,2));document.getElementById('status').textContent='Mission JSON copied.';}catch(e){document.getElementById('status').textContent='Clipboard unavailable. Select and copy the JSON below.';}
+});
+</script></body></html>
