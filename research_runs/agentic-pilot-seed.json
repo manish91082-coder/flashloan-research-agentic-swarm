@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "purpose": "One-time Agent Form semantic quality pilot using a verified source-capture checkpoint.",
+  "seed_run_id": 43614998279,
+  "batch_limit": 2,
+  "model_runtime": "Ollama local CPU",
+  "model": "qwen2.5:3b",
+  "endpoint_policy": "http://127.0.0.1:11434 only; loopback-only; no cloud inference",
+  "acceptance_gates": [
+    "restore checkpoint and verify all pinned source evidence",
+    "validate Agent Form mission payload and task DAG",
+    "complete two candidate purpose analyses and six specialist roles per candidate",
+    "run structural evidence gate",
+    "run independent reviewer on both candidates",
+    "record structured-output validity, accepted/rejected evidence, task failures, reviewer disagreement, model digest and elapsed time",
+    "do not scale until pilot quality is manually and programmatically assessed"
+  ],
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  }
+}
