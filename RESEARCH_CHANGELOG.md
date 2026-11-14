@@ -58,3 +58,10 @@
 - Pinned live report 43600488013 was imported: 7,901 candidates, 7,901 unique canonical names and IDs, and 80 JSONL packets of up to 100 candidates, persisted under `research_runs/audit-batches/43600488013/` in data commit 8448711d734978d5c0e793793feccf08dad29747.
 - All 80 batch SHA-256 hashes and indexes 0–7,900 were verified. Manifest SHA-256 `45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd`; source report SHA-256 `d99ebcdcbd1739536ba987e51ffe2a5c06610094e24b4603c89d3f5f32db3002`.
 - Import is not audit: all 7,901 rows remain pending commit-pinned source capture. Existing five source dossiers remain a separate prior sample. No candidate code was executed.
+
+
+## 2026-11-14 — four priority packet candidates source-inspected
+- Pinned exact repository commits, trees and inspected file blobs for four candidates in immutable packet 0001.
+- Added four provisional dossiers: `0xTona/liquidator-bot` (C), `0xFantomMenace/Aave-Liquidation-Bot` (C, separately assesses HyperLend and Granary subprojects), `0xFantomMenace/Compound-Liquidation-Bot` (D), and `0xGusMcCrae/aave-liquidator-bot` (D).
+- Findings include gross-only profit gating and narrow borrower history in Tona; Granary callback authentication/unchecked router call versus better HyperLend callback checks; Compound array indexing/pool configuration/zero minimum output and inactive test file; Gus XOR allowance expression (257, not max), unauthenticated callback and unchecked low-level call.
+- All four dossiers are provisional and await independent review. Manual source inspection is separate from the automated 7,901-candidate queue, whose source-capture counter remains 0/7,901. No candidate code was executed.

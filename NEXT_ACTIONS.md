@@ -22,14 +22,15 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 
 1. **Completed:** stream-imported all 7,901 candidate rows and persisted stable repository IDs, canonical names and query-family provenance.
 2. **Completed:** exported 80 immutable JSONL packets (100 candidates per packet) with source-report SHA-256, per-batch SHA-256, candidate-index continuity and identity verification. Audit status remains pending.
-3. Implement a resumable source-capture worker with per-candidate status, attempt counts, leases/checkpoints and atomic result writes; preserve current default-branch commit, tree, blob and fork/parent/source identity.
-4. Prioritize candidates matched to flash-loan liquidation and DeFi liquidator families, then process all remaining taxonomy families without dropping them.
-5. Capture bounded source evidence and deterministic purpose hints; do not claim semantic purpose classification until source evidence and an approved reviewer support it.
-6. Build deterministic candidate dossiers and mission synthesis only from source-pinned, evidence-validated and independently reviewed outputs.
-7. Implement true multi-batch continuation with completed-candidate set, retry-safe IDs, lease recovery and explicit stop conditions.
-8. Investigate and rerun only the 10 incomplete discovery query templates; retain old snapshots and coverage debt.
-9. Add task/report/coverage endpoints and a dashboard for discovered/imported/source-inspected/audited queues, query debt, evidence confidence, reviewer status and next batch.
-10. Run real local-model inference only after a free loopback endpoint is explicitly configured; no paid/cloud fallback. Publish synthesis only with coverage and evidence limitations.
+3. **Manual priority sample completed:** four packet-0001 candidates source-inspected at exact commit/tree/blob pins and documented in four provisional dossiers; independent review pending. This does not change the automated queue source-capture counter (still 0/7,901).
+4. Implement a resumable source-capture worker with per-candidate status, attempt counts, leases/checkpoints and atomic result writes; preserve current default-branch commit, tree, blob and fork/parent/source identity.
+5. Prioritize candidates matched to flash-loan liquidation and DeFi liquidator families, then process all remaining taxonomy families without dropping them.
+6. Capture bounded source evidence and deterministic purpose hints; do not claim semantic purpose classification until source evidence and an approved reviewer support it.
+7. Build deterministic candidate dossiers and mission synthesis only from source-pinned, evidence-validated and independently reviewed outputs.
+8. Implement true multi-batch continuation with completed-candidate set, retry-safe IDs, lease recovery and explicit stop conditions.
+9. Investigate and rerun only the 10 incomplete discovery query templates; retain old snapshots and coverage debt.
+10. Add task/report/coverage endpoints and a dashboard for discovered/imported/source-inspected/audited queues, query debt, evidence confidence, reviewer status and next batch.
+11. Run real local-model inference only after a free loopback endpoint is explicitly configured; no paid/cloud fallback. Publish synthesis only with coverage and evidence limitations.
 
 ## Latest verified batch-preparation checkpoint
 
@@ -40,6 +41,13 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 - Manifest SHA-256: `45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd`; source report SHA-256: `d99ebcdcbd1739536ba987e51ffe2a5c06610094e24b4603c89d3f5f32db3002`.
 - This is metadata import and queue preparation only. Candidate source capture and audits from this 7,901-row queue remain **0/7,901**; existing five dossiers remain a separate prior audit sample. No candidate code was executed.
 - Future `research-discovery.yml` runs now perform import/export of their own discovery rows during the same workflow.
+
+## Latest priority source-inspection checkpoint
+
+- Four candidates from immutable packet `research_runs/audit-batches/43600488013/batch-0001.jsonl` were inspected at exact default-branch commit/tree/blob pins: `0xTona/liquidator-bot`, `0xFantomMenace/Aave-Liquidation-Bot`, `0xFantomMenace/Compound-Liquidation-Bot`, and `0xGusMcCrae/aave-liquidator-bot`.
+- Four provisional dossiers were added under `research/candidate-audits/`. Grades: C, C, D, D respectively; all are pending independent reviewer validation.
+- Notable findings: Tona does not deduct gas from its positive-gross-profit gate; FantomMenace's HyperLend and Granary subprojects have different callback security; Compound liquidator has a reserve-index/purchasable-array construction defect and zero swap minimum; Gus uses Solidity XOR `2^256 - 1` (257, not max allowance) and exposes an unauthenticated callback.
+- These are four manually source-inspected candidates, not yet automated source-capture completion. The 7,901-row batch queue's automated source-capture counter remains 0/7,901. Candidate code was not built, tested or executed. Independent review is pending.
 
 ## Specialist acceptance contract
 
