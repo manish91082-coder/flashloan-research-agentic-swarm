@@ -72,12 +72,13 @@ def _task(mission_id: str, task_type: str, role: str, key: str = "",
     )
 
 
-def validate_acyclic(tasks: list[MissionTask]) -> None:
+def validate_acyclic(tasks: list[MissionTask], external_dependencies: set[str] | None = None) -> None:
     by_id = {task.task_id: task for task in tasks}
+    allowed_external = external_dependencies or set()
     if len(by_id) != len(tasks):
         raise MissionPlanError("duplicate task IDs in plan")
     for task in tasks:
-        missing = sorted(set(task.depends_on) - set(by_id))
+        missing = sorted(set(task.depends_on) - set(by_id) - allowed_external)
         if missing:
             raise MissionPlanError(f"task {task.task_id} has unknown dependencies: {missing}")
     visiting: set[str] = set()
@@ -208,7 +209,7 @@ def build_candidate_tasks(mission_id: str, repository: str, expansion_task_id: s
         priority=85, budget_units=2,
     )
     tasks.extend([evidence, reviewer, dossier])
-    validate_acyclic(tasks)
+    validate_acyclic(tasks, external_dependencies={expansion_task_id})
     return tasks
 
 
