@@ -38,3 +38,7 @@ A candidate cannot be promoted based on README claims or lexical matches. Revali
 7. Known limitations, missing proof, contradictory evidence and operational trust boundaries.
 
 Grades describe strength of available evidence for the stated scope, not probability of profit or production readiness.
+
+| MELD-labs/meld-flashloan-liquidation-bot-public | 74653447a0ff9014f2e022d6778b442182f9841a | C+ reference only | External callback lacks lending-pool/initiator authentication; minAmountOut mixes collateral-token and debt-token units. Static review, no runtime reproduction. Full audit: research/candidate-audits/MELD-labs__meld-flashloan-liquidation-bot-public.md |
+| Power-Howdy/flashloan-bot-ArbitrageAndLiquidation | 025eb602ddd96c3cc8479fb0fbd00cde13e198b6 | D prototype | No borrower callback implementation; zero-address token/borrower placeholders; amountOutMin=0; flash-loan/repayment logic left as comments. Full audit: research/candidate-audits/Power-Howdy__flashloan-bot-ArbitrageAndLiquidation.md |
+| tundefund0-gif/morpho-liquidator | 7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9 | C research reference, unsafe to run without remediation | Script can sign/broadcast transactions and auto-deploy embedded bytecode; embedded flash callback does not enforce profit above pre-loan balance; failed quote falls back to minOut=1. Full audit: research/candidate-audits/tundefund0-gif__morpho-liquidator.md |
