@@ -6,12 +6,16 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import patch
 
-from flashloan_research.model_provider import LocalOpenAICompatibleProvider, ModelProviderError
+from flashloan_research.model_provider import (
+    LocalOpenAICompatibleProvider,
+    ModelProviderError,
+)
 
 
 class Handler(BaseHTTPRequestHandler):
     body = None
     response_content = '{"purpose":"liquidation bot","confidence":"low"}'
+
     def do_POST(self):
         length = int(self.headers.get("Content-Length", "0"))
         Handler.body = json.loads(self.rfile.read(length))
@@ -22,6 +26,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()
         self.wfile.write(raw)
+
     def log_message(self, *_):
         pass
 
@@ -40,7 +45,7 @@ class LocalModelProviderTests(unittest.TestCase):
         self.server.server_close()
         self.thread.join(timeout=2)
 
-    def test_local_provider_sends_json_mode_and_returns_structured_object(self):
+    def test_local_provider_sends_required_json_schema_and_returns_object(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         result = provider.generate_json(
             "Classify the repository purpose using evidence only.",
@@ -49,20 +54,49 @@ class LocalModelProviderTests(unittest.TestCase):
         )
         self.assertEqual(result["purpose"], "liquidation bot")
         self.assertEqual(provider.identity.provider, "local_openai_compatible")
-        self.assertEqual(Handler.body["response_format"], {"type": "json_object"})
+        response_format = Handler.body["response_format"]
+        self.assertEqual(response_format["type"], "json_schema")
+        self.assertEqual(
+            response_format["json_schema"]["schema"]["required"],
+            ["confidence", "purpose"],
+        )
+        self.assertIn("OUTPUT CONTRACT", Handler.body["messages"][0]["content"])
+        self.assertIn('"purpose"', Handler.body["messages"][0]["content"])
         self.assertEqual(Handler.body["temperature"], 0)
 
     def test_rejects_non_loopback_model_hosts(self):
-        with patch("flashloan_research.model_provider.socket.getaddrinfo",
-                   return_value=[(2, 1, 6, "", ("203.0.113.10", 80))]):
+        with patch(
+            "flashloan_research.model_provider.socket.getaddrinfo",
+            return_value=[(2, 1, 6, "", ("203.0.113.10", 80))],
+        ):
             with self.assertRaises(ModelProviderError):
                 LocalOpenAICompatibleProvider("http://model.example:11434", "model")
 
     def test_rejects_missing_required_keys(self):
         Handler.response_content = '{"purpose":"unknown"}'
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
-        with self.assertRaises(ModelProviderError):
-            provider.generate_json("Classify.", {"repo": "org/repo"}, {"purpose", "confidence"})
+        with self.assertRaisesRegex(ModelProviderError, "missing required keys"):
+            provider.generate_json(
+                "Classify.",
+                {"repo": "org/repo"},
+                {"purpose", "confidence"},
+            )
+
+    def test_rejects_unexpected_top_level_keys(self):
+        Handler.response_content = '{"purpose":"unknown","confidence":"low","extra":"not allowed"}'
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        with self.assertRaisesRegex(ModelProviderError, "unexpected top-level keys"):
+            provider.generate_json(
+                "Classify.",
+                {"repo": "org/repo"},
+                {"purpose", "confidence"},
+            )
+
+    def test_rejects_unsupported_schema_key_before_network_call(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        with self.assertRaisesRegex(ModelProviderError, "no output schema"):
+            provider.generate_json("Classify.", {"repo": "org/repo"}, {"unsupported"})
+        self.assertIsNone(Handler.body)
 
     def test_rejects_non_json_model_content(self):
         Handler.response_content = "not json"
