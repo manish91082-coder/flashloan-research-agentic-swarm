@@ -1,0 +1,464 @@
+{
+  "schema_version": "1.0",
+  "record_type": "manual_public_github_discovery_snapshot",
+  "project": "Flash Loan Research Agentic Swarm",
+  "canonical_repository": "manish91082-coder/flashloan-research-agentic-swarm",
+  "captured_at_utc": "2026-11-14T10:52:00Z",
+  "capture_method": "Connected GitHub repository-search action, read-only",
+  "query_scope": [
+    {
+      "query": "flash loan arbitrage",
+      "page": 1,
+      "per_page": 20,
+      "returned": 20
+    },
+    {
+      "query": "flashloan liquidation bot",
+      "page": 1,
+      "per_page": 20,
+      "returned": 13
+    },
+    {
+      "query": "Aave V3 flashLoanSimple arbitrage",
+      "page": 1,
+      "per_page": 20,
+      "returned": 0
+    },
+    {
+      "query": "Morpho flash loan liquidation",
+      "page": 1,
+      "per_page": 20,
+      "returned": 6
+    }
+  ],
+  "unique_candidate_count": 38,
+  "candidates": [
+    {
+      "repository": "Abelhubprog/uniswap-v3-mev-bot",
+      "repository_url": "https://github.com/Abelhubprog/uniswap-v3-mev-bot",
+      "github_repository_id": "1061716255",
+      "default_branch": "contracts/history",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "AleRapchan/flash-swap-arbitrage-bot",
+      "repository_url": "https://github.com/AleRapchan/flash-swap-arbitrage-bot",
+      "github_repository_id": "393555536",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "Anish-Agnihotri/punk-nftx-meebit-arb",
+      "repository_url": "https://github.com/Anish-Agnihotri/punk-nftx-meebit-arb",
+      "github_repository_id": "364130308",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "Aquafr198/liquidator",
+      "repository_url": "https://github.com/Aquafr198/liquidator",
+      "github_repository_id": "1244020691",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot",
+        "Morpho flash loan liquidation"
+      ]
+    },
+    {
+      "repository": "cjthoma1/flash-loan-bot",
+      "repository_url": "https://github.com/cjthoma1/flash-loan-bot",
+      "github_repository_id": "341015785",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "clubytech/cluby",
+      "repository_url": "https://github.com/clubytech/cluby",
+      "github_repository_id": "1359579148",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "Morpho flash loan liquidation"
+      ]
+    },
+    {
+      "repository": "clubytech/cluby-liquidator",
+      "repository_url": "https://github.com/clubytech/cluby-liquidator",
+      "github_repository_id": "1360070632",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "Morpho flash loan liquidation"
+      ]
+    },
+    {
+      "repository": "crypto-trading-master/FlashLoanBSC",
+      "repository_url": "https://github.com/crypto-trading-master/FlashLoanBSC",
+      "github_repository_id": "385364489",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "CryptoWizardsNet/flash-loan-arbitrage-triangular",
+      "repository_url": "https://github.com/CryptoWizardsNet/flash-loan-arbitrage-triangular",
+      "github_repository_id": "589650603",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "epureandrei98/uniswap-v3-mev-bot",
+      "repository_url": "https://github.com/epureandrei98/uniswap-v3-mev-bot",
+      "github_repository_id": "1044296145",
+      "default_branch": "contracts/history",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "gebob19/uniswap-v3-flashswap",
+      "repository_url": "https://github.com/gebob19/uniswap-v3-flashswap",
+      "github_repository_id": "445348657",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "haddockdao/FlashLoan-Liquidation-DYDX",
+      "repository_url": "https://github.com/haddockdao/FlashLoan-Liquidation-DYDX",
+      "github_repository_id": "455596584",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "hey-research-lab/cluby",
+      "repository_url": "https://github.com/hey-research-lab/cluby",
+      "github_repository_id": "1433218877",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "Morpho flash loan liquidation"
+      ]
+    },
+    {
+      "repository": "IBQ-SUP/Solana-Flash-loan-bot",
+      "repository_url": "https://github.com/IBQ-SUP/Solana-Flash-loan-bot",
+      "github_repository_id": "1002787314",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "joebb10/Flash-Loan-Arbitrage",
+      "repository_url": "https://github.com/joebb10/Flash-Loan-Arbitrage",
+      "github_repository_id": "690896834",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "johngrantuk/aaveFlashLoan",
+      "repository_url": "https://github.com/johngrantuk/aaveFlashLoan",
+      "github_repository_id": "220460323",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "jspruance/aave-flash-loan-tutorial",
+      "repository_url": "https://github.com/jspruance/aave-flash-loan-tutorial",
+      "github_repository_id": "544592024",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "Just-Code-Builder/Alpharouting",
+      "repository_url": "https://github.com/Just-Code-Builder/Alpharouting",
+      "github_repository_id": "1259145592",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "KenatSF/Flash_Loans_V3",
+      "repository_url": "https://github.com/KenatSF/Flash_Loans_V3",
+      "github_repository_id": "456795877",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "litmajor/argus-evm",
+      "repository_url": "https://github.com/litmajor/argus-evm",
+      "github_repository_id": "1455462548",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "Morpho flash loan liquidation"
+      ]
+    },
+    {
+      "repository": "manuelinfosec/flash-arb-bot",
+      "repository_url": "https://github.com/manuelinfosec/flash-arb-bot",
+      "github_repository_id": "519664950",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "mdelaguera/trading-uniswap-v3-mev-bot",
+      "repository_url": "https://github.com/mdelaguera/trading-uniswap-v3-mev-bot",
+      "github_repository_id": "1045156446",
+      "default_branch": "contracts/history",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
+      "repository_url": "https://github.com/MELD-labs/meld-flashloan-liquidation-bot-public",
+      "github_repository_id": "817747471",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "moshthepitt/flm-jupiter-arb",
+      "repository_url": "https://github.com/moshthepitt/flm-jupiter-arb",
+      "github_repository_id": "592199412",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "Muhindo-Galien/Aave-Flash-Loan-Arbitrage",
+      "repository_url": "https://github.com/Muhindo-Galien/Aave-Flash-Loan-Arbitrage",
+      "github_repository_id": "682143509",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "n0name-sw3/flash-arbitrage-watcher",
+      "repository_url": "https://github.com/n0name-sw3/flash-arbitrage-watcher",
+      "github_repository_id": "239695127",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "Nachoxt17/Arbitrage-Bot-between-UniSwap-and-SushiSwap-with-FlashLoans",
+      "repository_url": "https://github.com/Nachoxt17/Arbitrage-Bot-between-UniSwap-and-SushiSwap-with-FlashLoans",
+      "github_repository_id": "375884027",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "niccoloCastelli/defiarb",
+      "repository_url": "https://github.com/niccoloCastelli/defiarb",
+      "github_repository_id": "401141758",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "NishithPat/flashLoanArbitrage",
+      "repository_url": "https://github.com/NishithPat/flashLoanArbitrage",
+      "github_repository_id": "418513983",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "pedrobergamini/flashloaner-contract",
+      "repository_url": "https://github.com/pedrobergamini/flashloaner-contract",
+      "github_repository_id": "297181907",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "poecoin/Flashloan-liquidation-bot",
+      "repository_url": "https://github.com/poecoin/Flashloan-liquidation-bot",
+      "github_repository_id": "1206549957",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "Power-Howdy/flashloan-bot-ArbitrageAndLiquidation",
+      "repository_url": "https://github.com/Power-Howdy/flashloan-bot-ArbitrageAndLiquidation",
+      "github_repository_id": "914378300",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "r1vEr3lectRic/Arbitrage_Mev_BOT",
+      "repository_url": "https://github.com/r1vEr3lectRic/Arbitrage_Mev_BOT",
+      "github_repository_id": "1178066142",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "shubham-rathod1/Flash-Liquidate",
+      "repository_url": "https://github.com/shubham-rathod1/Flash-Liquidate",
+      "github_repository_id": "718462051",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "skellet0r/arbie",
+      "repository_url": "https://github.com/skellet0r/arbie",
+      "github_repository_id": "372145067",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flash loan arbitrage"
+      ]
+    },
+    {
+      "repository": "TeJPatel18/FlashLoanWithCompound.finance",
+      "repository_url": "https://github.com/TeJPatel18/FlashLoanWithCompound.finance",
+      "github_repository_id": "1220622099",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    },
+    {
+      "repository": "tundefund0-gif/morpho-liquidator",
+      "repository_url": "https://github.com/tundefund0-gif/morpho-liquidator",
+      "github_repository_id": "1315554210",
+      "default_branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "Morpho flash loan liquidation"
+      ]
+    },
+    {
+      "repository": "Witchdokta/FlashLoan-Liquidation-Bot",
+      "repository_url": "https://github.com/Witchdokta/FlashLoan-Liquidation-Bot",
+      "github_repository_id": "933159120",
+      "default_branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "matched_queries": [
+        "flashloan liquidation bot"
+      ]
+    }
+  ],
+  "limitations": [
+    "One page per query, maximum 20 results per query; this is a bounded discovery snapshot, not exhaustive search.",
+    "The connected search response did not expose description, pushed_at, stars, language or license fields; these were not inferred.",
+    "GitHub search ranking and indexing may omit relevant repositories.",
+    "A repository name or search hit does not establish flash-loan implementation, security, test validity or profitability.",
+    "All candidates are untrusted data. No candidate code, scripts, workflows or binaries were executed.",
+    "Each candidate requires metadata, current default-branch commit/tree pinning and Git blob verification before substantive review."
+  ]
+}
