@@ -1,5 +1,23 @@
 # Research Changelog
 
+## 2026-11-14 (Agent Form pilot failure audit and structured-output repair)
+
+- Inspected the complete evidence artifact for semantic-pilot run [43615341905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615341905), including the task ledger and pinned source inspection reports for both pilot candidates.
+- The run completed checkpoint restore, Agent Form runtime installation, Ollama installation/model pull and mission-DAG bootstrap. The semantic job failed: both `candidate_purpose` tasks rejected the model reply because the seven required report keys were absent. Evidence validation claimed 0 tasks; independent review claimed 0 tasks; both remain uncompleted.
+- Root cause in the local provider contract: it requested JSON mode but did not transmit the required field schema or explain the required key contract to the model. The failure is a structured-output contract failure, not a source-capture failure.
+- Repair branch `fix/agent-form-json-output-contract` adds a strict JSON Schema response format, places the same schema and mandatory field rules in the system prompt, rejects unexpected top-level keys, and adds regression tests. The repair remains unaccepted until CI and a fresh live local-model pilot pass.
+- No semantic audit count has been incremented. Source capture, semantic specialist output, evidence validation, independent review and dossier completion remain separate counters.
+- No candidate code execution, wallet access, signing, deployment, live trading, cloud inference or paid model use.
+
+## 2026-11-14 (source checkpoint 316; semantic pilot result pending audit)
+
+- Verified source-capture workflow [43615449485](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615449485), artifact 14122085911. Queue: 7,901 total / 316 captured / 7,583 pending / 0 leased / 2 failed. Coverage: 236 complete within configured source scope; 80 with limitations.
+- Source-capture chain continues to self-dispatch; empty Git repository failures remain explicitly separated from security findings.
+- Agent Form local-model pilot [43615341905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615341905) completed checkpoint restoration, Agent Form runtime installation, Ollama model installation and mission DAG bootstrap. Specialist/evidence/reviewer execution was later found to have failed; see the audit entry above.
+- The pilot remains restricted to two candidates using qwen2.5:3b via loopback-only Ollama. No semantic audit count is incremented until outputs and independent-review results are inspected.
+- No candidate code execution, wallet access, signing, deployment, live trading, cloud inference or paid model use.
+
+
 ## 2026-11-14 (source checkpoint 316; semantic pilot still executing)
 
 - Verified source-capture workflow [43615449485](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615449485), artifact 14122085911. Queue: 7,901 total / 316 captured / 7,583 pending / 0 leased / 2 failed. Coverage: 236 complete within configured source scope; 80 with limitations.
