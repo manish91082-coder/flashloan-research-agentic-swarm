@@ -1,6 +1,11 @@
 name: Autonomous Flash Loan Repository Discovery
 
 on:
+  # One-shot, no-browser trigger: only a change to the dedicated marker file starts discovery.
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-discovery.json'
   workflow_dispatch:
     inputs:
       families:

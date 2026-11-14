@@ -1,0 +1,8 @@
+{
+  "request_id": "flashloan-all-11-families-2026-11-14",
+  "taxonomy_version": "1.0.0",
+  "selected_families": "all",
+  "per_page": 100,
+  "max_pages_per_query": 10,
+  "purpose": "One-time push-path marker for the dedicated read-only public GitHub discovery workflow. Workflow defaults run all 11 taxonomy families."
+}
