@@ -60,7 +60,17 @@ Set `GITHUB_TOKEN` only as an environment variable when a higher authenticated A
 - [Project Constitution](PROJECT_CONSTITUTION.md): locked goal, safety boundaries and definition of done.
 - [Autonomous research lifecycle](docs/AUTONOMOUS_AGENTIC_RESEARCH.md): mission-to-agents-to-evidence-to-continuation architecture.
 
-**Important:** the current form is an intake/payload prototype. It does not yet launch a live agent swarm. The next build phase connects it to a validated mission API, durable task queue and LangGraph runtime.
+**Current capability:** the form is connected to a local-only mission intake API and durable SQLite queue. It validates the mission and immutable safety rules, then returns a queued mission ID. Agent execution is not yet connected; LangGraph orchestration is the next implementation gate.
+
+Start the local form and queue:
+
+```bash
+pip install -e .
+flashloan-mission-api
+# Open http://127.0.0.1:8765/ in your browser
+```
+
+The service binds to `127.0.0.1` only. Missions are persisted in the configured SQLite database (`FLR_DATABASE`, default `data/research.sqlite3`).
 
 ## Automation architecture
 
