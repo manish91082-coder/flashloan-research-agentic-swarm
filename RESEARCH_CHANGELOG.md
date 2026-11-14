@@ -1,5 +1,16 @@
 # Research Changelog
 
+## 2026-11-14 (Agent Form structured-output repair, artifact restore hardening and 896-source checkpoint)
+
+- PR [#11](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/11) merged the strict specialist JSON Schema contract. The local provider now transmits the exact required schema and prompt contract, rejects missing or unexpected top-level keys, and retains the loopback-only/no-cloud policy. Its regression matrix passed Python 3.11/3.12/3.13 (CI run 43626544380; merge commit cc22f5e408927353d6f31991d34827efa8f476d0).
+- The next pilot attempt [43626720183](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43626720183) did not reach inference: `gh run download` hit GitHub installation API rate limit HTTP 403 while listing the preserved seed checkpoint artifact.
+- PR [#12](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/12) merged direct retrieval by immutable artifact ID, bounded retry honoring Retry-After/X-RateLimit-Reset, ZIP CRC checking, safe extraction and cross-host Authorization stripping. CI passed Python 3.11/3.12/3.13 (run 43627789274; merge commit 84dc4e423d5884cb170500aec3961e22345d749f).
+- Third bounded pilot [43627944086](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43627944086) was triggered from preserved seed run 43615137961 / artifact 14121666814. At the last check it remained in the checkpoint-download step; model installation and semantic inference had not yet started. No semantic audit count is added from this attempt until final artifacts are inspected.
+- Latest inspected source capture [43626548828](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43626548828), artifact 14126596143: 896/7,901 captured; 6,995 pending; 0 leased; 10 terminal empty-Git-repository HTTP 409 failures. Of captured repositories, 656 are complete within configured source scope and 240 have explicit coverage limitations. Latest 12-repository cycle captured 12/12.
+- Source capture, semantic specialist reports, structural evidence validation, independent reviewer acceptance and final candidate dossier remain separate state dimensions. The 10 empty-repository failures are source-availability records, not security findings. Candidate code execution, wallet access, signing, deployment, live trading, paid inference and cloud inference remain disabled.
+- README.md and NEXT_ACTIONS.md were synchronized to this checkpoint. The primary source-capture path remains GitHub-hosted and self-chaining; WSL/local restore is fallback only.
+
+
 ## 2026-11-14 (Agent Form pilot failure audit and structured-output repair)
 
 - Inspected the complete evidence artifact for semantic-pilot run [43615341905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615341905), including the task ledger and pinned source inspection reports for both pilot candidates.
