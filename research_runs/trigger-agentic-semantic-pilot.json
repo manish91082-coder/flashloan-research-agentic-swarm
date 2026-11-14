@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Start the one-time Agent Form local open-weight semantic quality pilot from the verified 268-candidate checkpoint.",
+  "purpose": "Rerun the bounded Agent Form local-model quality pilot after merging the strict JSON Schema output-contract repair; use the same preserved, verified 268-candidate seed checkpoint in a fresh mission database.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "queue_checkpoint": {
@@ -13,7 +13,14 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
-  "acceptance": "two candidate purpose analyses, six specialist roles per candidate, evidence validation for both, independent reviewer for both",
+  "acceptance": [
+    "restore checkpoint and verify pinned source evidence",
+    "validate Agent Form mission payload and task DAG",
+    "complete two candidate purpose analyses and six specialist roles per candidate",
+    "run structural evidence gate for both candidates",
+    "run independent reviewer for both candidates",
+    "inspect artifact for valid schema outputs, accepted/rejected evidence, task ledger and review reports"
+  ],
   "safety": {
     "candidate_code_execution": false,
     "wallet_access": false,
@@ -22,5 +29,7 @@
     "live_trading": false,
     "paid_inference": false,
     "cloud_inference": false
-  }
+  },
+  "triggered_after_commit": "cc22f5e408927353d6f31991d34827efa8f476d0",
+  "updated_at_utc": "2026-11-14T18:27:00Z"
 }
