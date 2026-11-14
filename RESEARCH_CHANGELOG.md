@@ -86,3 +86,29 @@
 - CI run [43606380880](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43606380880) passed compile and test jobs on Python 3.11, 3.12 and 3.13.
 - **Execution distinction:** the worker implementation is merged, but it has not yet been run against the live 7,901-candidate manifest. Automated source capture remains **0/7,901** until a real persistent local/WSL run records captures. The five manual source-inspected dossiers remain a separate sample awaiting independent review.
 - No candidate repository code was executed; no wallet, transaction signing, deployment or live trading was used.
+
+
+## 2026-11-14 — 10-repository real source-capture pilot verified
+
+- Added bounded Actions workflow `.github/workflows/source-capture-pilot.yml` with a hard cap of 10 candidates, parallelism <=2 and `contents: read` permissions. Marker-triggered run [43607072905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905) completed successfully.
+- **Real queue result:** 10 attempted, 10 captured, zero failed; 7,891 pending and zero leased out of the original 7,901.
+- Ten repositories were pinned to current default-branch commit and tree SHAs, with full tree inventory and one atomic inspection report per candidate. 182 source-file references were captured across nine repositories; 173 unique Git blobs were persisted in the content-addressed vault and all 182 blob SHA-1 references independently verified, with zero missing or mismatched blobs.
+- Scope limitations: four repositories hit the 30-source-file cap; one repository had zero eligible source files under the source-extension allowlist. Six report flags say complete within configured scope, but only five of those six contain source files. Signal counts are lexical leads, not semantic findings.
+- Artifact [14118419543](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905/artifacts/14118419543), 1,509,274 bytes, SHA-256 `092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178`, contains the pilot SQLite state, 10 reports and verified source vault.
+- Persisted sanitized verification: `research_runs/source-capture-pilots/43607072905/verification.json`; commit `0cc64139f0476bb372f4446fc45fc301cc9522e0`.
+- Updated `PROJECT_STATE.json` to 10 automated source captures, 7,891 pending. Semantic audit remains 0/7,901. The five manually inspected candidates remain separate.
+
+## 2026-11-14 — source-capture priority and API quota hardening
+
+- PR [#8](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/8) merged: exact taxonomy family `flash_loan_liquidation_combo` now receives highest priority; taxonomy ID mapping covers all eleven configured families; empty repositories with null discovery-time default branch metadata are not rejected before live metadata refetch.
+- PR [#9](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/9) merged: primary GitHub API quota handling waits through `X-RateLimit-Reset`; secondary limits respect `Retry-After` up to one hour. Fake-opener regression tests cover 1,001-second primary reset and 120-second secondary wait.
+- Both PRs passed CI on Python 3.11/3.12/3.13. These fixes protect the multi-hour/multi-day read-only source-capture run from repeatedly exhausting per-candidate retries before API quota reset.
+
+## 2026-11-14 — persistent WSL restore/resume path merged
+
+- PR [#10](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/10) merged with `scripts/resume_source_capture.sh`, README instructions and JSON progress output after every worker cycle.
+- Restore helper verifies exact pilot ZIP SHA-256, SQLite integrity, canonical manifest SHA-256, ten report identity/commit/tree pins and each of 182 Git blob SHA-1 references before restore.
+- Pilot state restores to dedicated `data/source-capture-pilot.sqlite3` and `data/source-capture-pilot-vault/`; it never overwrites existing `data/research.sqlite3` or `data/snapshots/`. It resumes the same run ID with 10 completed and 7,891 pending.
+- GitHub CI validates the Bash helper syntax, compiles source and runs tests on Python 3.11/3.12/3.13. The long queue has **not** yet been resumed locally; no claim is made that 7,891 candidates have completed.
+- Required WSL operation: download artifact 14118419543 and run `bash scripts/resume_source_capture.sh <pilot-zip-path>` from the repository root with a read-only GitHub token exported in the shell.
+- No candidate code was executed. Semantic specialist analysis, evidence acceptance, independent review and dossier synthesis remain pending.
