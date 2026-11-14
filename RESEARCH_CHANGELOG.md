@@ -22,3 +22,10 @@
 - Added tree-recovery metadata to inspection results and explicit coverage limitations.
 - Added tests for successful recovery, directory limit and truncated subtree handling.
 - GitHub Actions run 43587812556 passed on Python 3.11, 3.12 and 3.13. All 7 repository tests and compileall passed.
+
+- Added a form-driven Research Mission interface, JSON Schema, product constitution and autonomous research lifecycle contract. The form is now the primary mission intake, not a secondary utility.
+- Implemented local-only mission intake API and durable SQLite queue. `POST /missions` validates and stores missions; the form can submit to the local service. The API binds to 127.0.0.1:8765.
+- Mission validation rejects attempts to enable candidate-code execution, wallet access, transaction signing, deployment, live trading or paid services. Independent review is mandatory.
+- First API integration CI run exposed SQLite thread-affinity failure. Fixed by using a thread-safe connection with a lock around database operations.
+- Final GitHub Actions run 43588460762 passed on Python 3.11, 3.12 and 3.13: 29/29 tests passed and compileall passed.
+- Explicit status: form + validated durable queue are implemented; live LangGraph agent execution is not yet connected. Next gate is dependency-aware mission DAG, checkpointed worker runtime, specialist nodes, independent review and automatic continuation.
