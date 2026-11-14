@@ -159,6 +159,31 @@ class SourceCaptureWorkerTests(unittest.TestCase):
             self.assertEqual(second["queue"]["captured"], 1)
             self.assertEqual(attempts["sample-lab/direct-liquidator"], 2)
 
+
+    def test_expired_lease_is_reclaimed_after_worker_interruption(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = write_manifest(root)
+            queue = SourceCaptureQueue(root / "state.sqlite3")
+            try:
+                queue.import_manifest(manifest, root)
+                first = queue.claim_ready("test-run", "worker-that-crashed", 1, lease_seconds=60)
+                self.assertEqual(len(first), 1)
+                repository = first[0]["repository"]
+                queue.connection.execute(
+                    "UPDATE source_capture_items SET lease_expires_at='2000-01-01T00:00:00+00:00' WHERE run_id=? AND repository=?",
+                    ("test-run", repository),
+                )
+                queue.connection.commit()
+
+                resumed = queue.claim_ready("test-run", "replacement-worker", 1, lease_seconds=60)
+                self.assertEqual(len(resumed), 1)
+                self.assertEqual(resumed[0]["repository"], repository)
+                self.assertEqual(resumed[0]["attempts"], 2)
+                self.assertEqual(resumed[0]["lease_owner"], "replacement-worker")
+            finally:
+                queue.close()
+
     def test_batch_hash_mismatch_is_rejected_before_queue_import(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
