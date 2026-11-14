@@ -1,0 +1,198 @@
+name: Prepare Discovery Audit Batches
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/candidate-batch-preparation.yml"
+      - "research_runs/trigger-import.json"
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Stable source discovery run ID
+        required: false
+        default: "43600488013"
+      source_report:
+        description: Commit-pinned discovery report path in this repository
+        required: false
+        default: "research_runs/mission/2026-11-14/discovery-43600488013-1.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: flashloan-candidate-batch-preparation
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Resolve and validate source snapshot
+        env:
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+          INPUT_SOURCE_REPORT: ${{ inputs.source_report }}
+        run: |
+          set -euo pipefail
+          RUN_ID="${INPUT_RUN_ID:-43600488013}"
+          SOURCE_REPORT="${INPUT_SOURCE_REPORT:-research_runs/mission/2026-11-14/discovery-43600488013-1.json}"
+          if [[ ! "$RUN_ID" =~ ^[A-Za-z0-9._-]{1,200}$ ]]; then
+            echo "Invalid run ID." >&2
+            exit 1
+          fi
+          case "$SOURCE_REPORT" in
+            research_runs/mission/*.json) ;;
+            *) echo "Source report must be a committed mission-discovery JSON under research_runs/mission/." >&2; exit 1 ;;
+          esac
+          test -s "$SOURCE_REPORT"
+          echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "SOURCE_REPORT=$SOURCE_REPORT" >> "$GITHUB_ENV"
+          echo "AUDIT_BATCH_DIR=research_runs/audit-batches/$RUN_ID" >> "$GITHUB_ENV"
+          echo "Source report: $SOURCE_REPORT" >> "$GITHUB_STEP_SUMMARY"
+          echo "Stable import run: $RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install research engine
+        run: pip install -e '.[agentic]'
+
+      - name: Verify source and importer test suite
+        env:
+          PYTHONPATH: src
+          FLR_DATABASE: /tmp/flashloan-import-tests.sqlite3
+        run: |
+          set -euo pipefail
+          python -m compileall -q src tests
+          python -m unittest discover -s tests -v
+
+      - name: Stream-import the discovery report into SQLite
+        env:
+          PYTHONPATH: src
+          FLR_DATABASE: /tmp/flashloan-import.sqlite3
+        run: |
+          set -euo pipefail
+          python -m flashloan_research.cli import-discovery \
+            --input "$SOURCE_REPORT" \
+            --run-id "$RUN_ID" \
+            --batch-size 200
+          python -m flashloan_research.cli export-discovery-batches \
+            --run-id "$RUN_ID" \
+            --output-dir "$AUDIT_BATCH_DIR" \
+            --batch-size 100 \
+            --source-report "$SOURCE_REPORT"
+
+      - name: Verify batch hashes, identities and index continuity
+        env:
+          AUDIT_BATCH_DIR: ${{ env.AUDIT_BATCH_DIR }}
+          SOURCE_REPORT: ${{ env.SOURCE_REPORT }}
+          RUN_ID: ${{ env.RUN_ID }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import math
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["AUDIT_BATCH_DIR"])
+          manifest_path = root / "manifest.json"
+          manifest_bytes = manifest_path.read_bytes()
+          manifest = json.loads(manifest_bytes)
+          assert manifest["record_type"] == "resumable_discovery_candidate_batch_manifest"
+          assert manifest["run_id"] == os.environ["RUN_ID"]
+          assert manifest["source_report_path"] == os.environ["SOURCE_REPORT"]
+          assert manifest["status"] == "candidate_metadata_imported_audit_pending"
+
+          expected = int(manifest["candidate_count"])
+          batch_size = int(manifest["batch_size"])
+          batches = manifest["batches"]
+          assert len(batches) == math.ceil(expected / batch_size), "batch count mismatch"
+
+          seen_names = set()
+          seen_ids = set()
+          next_index = 0
+          total = 0
+          for batch in batches:
+              path = Path(batch["path"])
+              raw = path.read_bytes()
+              assert hashlib.sha256(raw).hexdigest() == batch["sha256"], f"SHA-256 mismatch: {path}"
+              rows = [json.loads(line) for line in raw.decode("utf-8").splitlines() if line]
+              assert len(rows) == int(batch["candidate_count"]), f"row count mismatch: {path}"
+              assert rows, f"empty batch: {path}"
+              assert rows[0]["candidate_index"] == batch["first_candidate_index"]
+              assert rows[-1]["candidate_index"] == batch["last_candidate_index"]
+              for row in rows:
+                  assert row["candidate_index"] == next_index, "candidate index gap or reorder"
+                  assert row["repository"] == row["metadata"]["full_name"], "canonical identity mismatch"
+                  assert row["repository"].count("/") == 1
+                  assert row["audit_status"] == "pending_commit_pinned_source_capture"
+                  assert isinstance(row["matched_families"], list)
+                  assert isinstance(row["discovered_by"], list)
+                  assert row["discovered_by"], "candidate has no discovery-query provenance"
+                  assert row["repository"] not in seen_names, "duplicate canonical repository"
+                  seen_names.add(row["repository"])
+                  repository_id = row["repository_id"]
+                  if repository_id is not None:
+                      assert repository_id not in seen_ids, "duplicate stable GitHub repository ID"
+                      seen_ids.add(repository_id)
+                  next_index += 1
+                  total += 1
+
+          assert total == expected
+          assert next_index == expected
+          verification = {
+              "run_id": manifest["run_id"],
+              "source_report_path": manifest["source_report_path"],
+              "source_report_sha256": manifest["source_report_sha256"],
+              "candidate_count": total,
+              "unique_repository_names": len(seen_names),
+              "unique_repository_ids_present": len(seen_ids),
+              "batch_count": len(batches),
+              "batch_size": batch_size,
+              "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+              "all_batch_hashes_verified": True,
+              "all_candidate_indexes_contiguous": True,
+              "all_candidate_identities_verified": True,
+              "source_audit_status": "pending_not_yet_audited",
+              "candidate_code_executed": False
+          }
+          (root / "verification.json").write_text(
+              json.dumps(verification, ensure_ascii=False, indent=2, sort_keys=True) + chr(10),
+              encoding="utf-8"
+          )
+          summary = chr(10).join([
+              "## Discovery audit-batch preparation",
+              f"- Source run: `{manifest['run_id']}`",
+              f"- Candidates: **{total:,}**",
+              f"- Batches: **{len(batches)}** × up to {batch_size}",
+              f"- SHA-256 verified: **all batches**",
+              "- Canonical names and repository IDs: **verified unique**",
+              "- Query provenance: **preserved**",
+              "- Source audit: **pending** (no candidate code executed)"
+          ])
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary + chr(10))
+          PY
+
+      - name: Persist immutable audit batches
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$AUDIT_BATCH_DIR"
+          if ! git diff --cached --quiet; then
+            git commit -m "data: persist hashed audit batches for discovery $RUN_ID"
+            git push origin "HEAD:main"
+          else
+            echo "Audit batches are already persisted; no repository changes." >> "$GITHUB_STEP_SUMMARY"
+          fi

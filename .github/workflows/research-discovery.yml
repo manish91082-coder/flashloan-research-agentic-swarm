@@ -71,12 +71,56 @@ jobs:
             ARGS+=(--families "$SEARCH_FAMILIES")
           fi
           python -m flashloan_research.cli "${ARGS[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+          # Convert each live discovery snapshot into immutable audit packets.
+          IMPORT_RUN_ID="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          BATCH_DIR="research_runs/audit-batches/${IMPORT_RUN_ID}"
+          python -m flashloan_research.cli import-discovery \
+            --input "$OUTPUT" \
+            --run-id "$IMPORT_RUN_ID" \
+            --batch-size 200 | tee -a "$GITHUB_STEP_SUMMARY"
+          python -m flashloan_research.cli export-discovery-batches \
+            --run-id "$IMPORT_RUN_ID" \
+            --output-dir "$BATCH_DIR" \
+            --batch-size 100 \
+            --source-report "$OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+
+          python - <<'PY'
+          import hashlib, json, math, os
+          from pathlib import Path
+          root = Path("research_runs/audit-batches") / (os.environ["GITHUB_RUN_ID"] + "-" + os.environ["GITHUB_RUN_ATTEMPT"])
+          manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+          assert manifest["status"] == "candidate_metadata_imported_audit_pending"
+          assert len(manifest["batches"]) == math.ceil(manifest["candidate_count"] / manifest["batch_size"])
+          total = 0
+          names = set()
+          index = 0
+          for batch in manifest["batches"]:
+              path = Path(batch["path"])
+              raw = path.read_bytes()
+              assert hashlib.sha256(raw).hexdigest() == batch["sha256"]
+              for line in raw.decode("utf-8").splitlines():
+                  if not line:
+                      continue
+                  row = json.loads(line)
+                  assert row["candidate_index"] == index
+                  assert row["repository"] == row["metadata"]["full_name"]
+                  assert row["audit_status"] == "pending_commit_pinned_source_capture"
+                  assert row["repository"] not in names
+                  names.add(row["repository"])
+                  index += 1
+                  total += 1
+          assert total == manifest["candidate_count"]
+          print(json.dumps({"run_id": manifest["run_id"], "candidate_count": total,
+                            "batch_count": manifest["batch_count"], "all_hashes_verified": True}))
+          PY
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$OUTPUT"
+          git add "$OUTPUT" "$BATCH_DIR"
           if ! git diff --cached --quiet; then
-            git commit -m "data: persist taxonomy discovery run ${GITHUB_RUN_ID}"
+            git commit -m "data: persist discovery ${GITHUB_RUN_ID} and hashed audit batches"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           else
-            echo "No discovery report changes to persist." >> "$GITHUB_STEP_SUMMARY"
+            echo "Discovery and audit-batch artifacts are already persisted." >> "$GITHUB_STEP_SUMMARY"
           fi

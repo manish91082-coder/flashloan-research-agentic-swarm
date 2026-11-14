@@ -1,0 +1,10 @@
+{
+  "operation": "prepare_resumable_discovery_audit_batches",
+  "run_id": "43600488013",
+  "source_report": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
+  "taxonomy_version": "1.0.0",
+  "expected_candidate_count": 7901,
+  "expected_query_count": 38,
+  "coverage_complete": false,
+  "note": "Metadata import and hash-verified batch export only. Every candidate remains pending commit-pinned source capture; this marker does not represent an audit."
+}
