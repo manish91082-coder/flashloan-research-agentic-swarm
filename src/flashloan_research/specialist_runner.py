@@ -112,6 +112,77 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
     return result
 
 
+
+def run_evidence_validation_batch(mission_id: str, database_path: Path,
+                                 artifact_root: Path, limit: int = 20) -> dict[str, Any]:
+    store = MissionTaskStore(database_path)
+    worker_id = f"evidence-auditor-{mission_id}"
+    completed = []
+    failures = []
+    try:
+        claims = store.claim_ready(
+            mission_id, worker_id, limit=limit, lease_seconds=300,
+            task_types={"evidence_validation"},
+        )
+        for task in claims:
+            repository = task["payload"]["repository"]
+            try:
+                inspection = _inspection_for(artifact_root, mission_id, repository)
+                reports = []
+                for item in store.list_tasks(mission_id):
+                    if item["payload"].get("repository") != repository:
+                        continue
+                    if not item["task_type"].endswith("_forensics"):
+                        continue
+                    result = item.get("result") or {}
+                    report_path = result.get("report")
+                    if not report_path:
+                        raise SpecialistTaskError(
+                            f"completed specialist task has no report path: {item['task_id']}"
+                        )
+                    report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+                    if report.get("agent_metadata", {}).get("role") != item["role"]:
+                        raise SpecialistTaskError("specialist report role provenance mismatch")
+                    if report.get("evidence_validation", {}).get("inspection_commit_sha") != inspection["commit_sha"]:
+                        raise SpecialistTaskError("specialist report commit provenance mismatch")
+                    reports.append({
+                        "role": item["role"],
+                        "report": report_path,
+                        "accepted_evidence": len(report.get("evidence", [])),
+                        "rejected_evidence": len(report.get("rejected_evidence", [])),
+                    })
+                summary = {
+                    "repository": repository,
+                    "inspection_commit_sha": inspection["commit_sha"],
+                    "specialist_reports_checked": reports,
+                    "evidence_gate": "structural_provenance_pass_only",
+                    "limitations": [
+                        "This gate checks report structure and pinned inspection provenance.",
+                        "It does not independently prove semantic correctness or exploitability.",
+                        "The independent reviewer remains a separate mandatory task.",
+                    ],
+                }
+                path = artifact_root / mission_id / "evidence-validation" / (
+                    repository.replace("/", "__") + ".json"
+                )
+                path.parent.mkdir(parents=True, exist_ok=True)
+                write_json(path, summary)
+                store.complete_task(mission_id, task["task_id"], worker_id, {
+                    "report": str(path),
+                    "specialist_reports_checked": len(reports),
+                    "evidence_gate": summary["evidence_gate"],
+                })
+                completed.append({"repository": repository, "report": str(path)})
+            except Exception as exc:
+                status = store.fail_task(
+                    mission_id, task["task_id"], worker_id,
+                    f"{type(exc).__name__}: {str(exc)}", retryable=False,
+                )
+                failures.append({"repository": repository, "status": status, "error": str(exc)[:500]})
+        return {"claimed": len(claims), "completed": completed, "failures": failures}
+    finally:
+        store.close()
+
 def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Path,
                          limit: int = 4) -> dict[str, Any]:
     provider = LocalOpenAICompatibleProvider()
