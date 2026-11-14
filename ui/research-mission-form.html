@@ -60,7 +60,7 @@ document.getElementById('mission').addEventListener('submit',e=>{
  const title=document.getElementById('title').value.trim(),objective=document.getElementById('objective').value.trim();
  if(title.length<5||objective.length<20){document.getElementById('status').textContent='Title/objective is too short.';return;}
  payload={
-  mission_id:'flashloan-research-'+new Date().toISOString().slice(0,10),
+  mission_id:'flashloan-research-'+new Date().toISOString().replace(/[-:.TZ]/g,'').slice(0,14),
   title,objective,domain:document.getElementById('domain').value,
   scope:{chains:checked('chains'),protocols:document.getElementById('protocols').value.split(',').map(x=>x.trim()).filter(Boolean),repository_limit:Number(document.getElementById('limit').value),include_archived:false,include_older_references:true},
   research_depth:document.getElementById('depth').value,
