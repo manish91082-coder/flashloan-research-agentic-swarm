@@ -47,6 +47,10 @@ LangGraph is now pinned as an optional dependency and the mission control-flow g
 
 A worker process claims ready tasks, records leases/attempts, saves outputs/checkpoints, recovers expired work and exposes mission/task status. SQLite is the initial durable store. GitHub Actions is used for CI and bounded scheduled/dispatch jobs, not as an assumed always-on agent host. Local Windows/WSL or another approved free host can run the long-lived worker.
 
+## Phase B2.5: local specialist inference and evidence gates (initial implementation)
+
+A loopback-only OpenAI-compatible adapter supports an explicitly configured local model endpoint and model name. It rejects non-loopback hosts, redirects and malformed/non-JSON outputs. Specialist role prompts cover purpose, protocol, security, execution, tests, economics, dependencies/license and independent review. A deterministic gate accepts only evidence references that exactly match captured signals in the commit-pinned inspection report, then stamps commit/tree and excerpt hash. This proves provenance of the excerpt only, not the specialist's semantic interpretation. Full source-context retrieval and end-to-end fake-provider verification remain required.
+
 ## Phase C: forensic research depth
 
 Add purpose-aware source maps, AST-aware static extraction, protocol-version adapters, fixture-backed accounting invariants, fork-test evidence ingestion without executing untrusted candidate code, coverage reports and independent audit regression tests.
