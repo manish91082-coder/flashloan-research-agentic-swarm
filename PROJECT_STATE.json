@@ -18,7 +18,7 @@
       "3.12",
       "3.13"
     ],
-    "tests": "all 7 repository tests passed; compileall passed"
+    "tests": "7 tests passed on all versions; compileall passed; subsequent changes were documentation-only"
   },
   "phase_a_ci_history": "Prior commits and workflows repeatedly passed; latest evidence-register commit CI is pending at checkpoint.",
   "discovery": {
@@ -115,5 +115,7 @@
     "Truncated recursive trees trigger bounded directory traversal with max_tree_entries=50000 and max_tree_directories=10000.",
     "Reports distinguish recursive truncation, recovery attempted/completed, directories visited and entries seen.",
     "Three new regression tests cover successful recovery, directory-cap incompleteness and truncated subtree incompleteness."
-  ]
+  ],
+  "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
+  "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d"
 }
