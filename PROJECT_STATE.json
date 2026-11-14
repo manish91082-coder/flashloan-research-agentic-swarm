@@ -4,23 +4,23 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_LOCAL_MODEL_PILOT_REPAIR_AND_RETRY",
   "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_GITHUB_HOSTED_SOURCE_CAPTURE_ACTIVE; 896_OF_7901_SOURCE_CAPTURED; 6995_PENDING; 0_LEASED; 10_EMPTY_GIT_REPOSITORY_HTTP_409_FAILURES; 656_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 240_WITH_COVERAGE_LIMITS; AGENT_FORM_JSON_SCHEMA_REPAIR_MERGED; FRESH_PILOT_43627944086_IN_PROGRESS_AT_PINNED_ARTIFACT_DOWNLOAD; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_NOT_YET_VERIFIED",
-  "last_verified_at_utc": "2026-11-14T18:41:00Z",
+  "last_verified_at_utc": "2026-11-14T18:55:06Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "da5f8fc9c4caee48364a6d533e3871c6c9e8e0dd",
+  "latest_commit_at_checkpoint": "2715252c2b9dae61db0b0c056021c6fa441d0ad0",
   "latest_ci_run": {
-    "run_id": 43627872542,
+    "run_id": 43628972986,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "84dc4e423d5884cb170500aec3961e22345d749f",
+    "head_sha": "2715252c2b9dae61db0b0c056021c6fa441d0ad0",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "PR #12 merge commit passed compileall, WSL helper shell syntax and the complete standard-library test suite on Python 3.11/3.12/3.13."
+    "tests": "Main CI passed after README/NEXT_ACTIONS/changelog synchronization on Python 3.11/3.12/3.13; standard-library tests, compileall and WSL helper syntax checks passed."
   },
-  "phase_a_ci_history": "PR #11 JSON-schema contract repair CI passed on Python 3.11/3.12/3.13 (run 43626544380). PR #12 rate-limit-aware pinned artifact downloader CI passed on Python 3.11/3.12/3.13 (run 43627789274); merge commit main CI run 43627872542 also passed.",
+  "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on Python 3.11/3.12/3.13 (run 43626544380). PR #12 artifact downloader CI passed on Python 3.11/3.12/3.13 (run 43627789274). Main CI after source checkpoint state update passed (43628233338); README synchronization passed (43628649229); NEXT_ACTIONS synchronization passed (43628775394); changelog synchronization passed (43628972986).",
   "discovery": {
     "snapshot_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
     "snapshot_commit": "231f47f0ada252a921a065da935720873f397bef",
@@ -85,7 +85,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Continue the autonomous source-capture chain. Latest inspected durable source checkpoint: workflow 43626548828 / artifact 14126596143; 896 captured / 6,995 pending / 0 leased / 10 terminal empty-Git-repository HTTP 409 failures; 656 complete within configured source scope and 240 limited. Fresh Agent Form pilot run 43627944086 uses the preserved immutable seed checkpoint run 43615137961 / artifact 14121666814. It is currently at the pinned artifact-ID download stage using bounded rate-limit-aware retry. After restore, require two candidate-purpose tasks, six specialist roles per candidate, two evidence gates, two independent reviews, and full artifact inspection before any semantic audit count increases. Next implementation after pilot acceptance: candidate dossier generation and reviewer-disagreement reconciliation. Do not scale inference before measured quality/latency/evidence results are accepted.",
+  "next_gate": "The locked mission and screenshot execution order remain unchanged. Fresh Agent Form pilot workflow 43627944086 is still on the download of preserved seed artifact 14121666814 (seed run 43615137961); model install and inference steps have not started. The downloader now uses immutable artifact ID and bounded rate-limit-aware retries, so keep the semantic audit counter unchanged until run artifact is inspected. Source-capture continuation workflow 43626648817 has restored its previous checkpoint successfully and remains in capture batch step; latest durable checkpoint is run 43626548828 / artifact 14126596143 with 896 captured, 6995 pending, 0 leased, 10 terminal empty repository 409 failures, 656 complete within configured source scope and 240 coverage-limited. Next tasks after live pilot passes: inspect specialist reports and reviewer disagreements, then implement candidate dossier generator/reconciliation in existing mission DAG, enqueue next priority batch, continue separate autonomous source-capture and semantic-audit pipelines, reconcile all candidate debt, and prepare final repository classification/architecture/security/economic feasibility matrix. No WSL dependency, candidate execution, wallet/signing/deployment/live trading, paid/cloud inference.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -336,7 +336,8 @@
     "Source-capture automation advanced to 316 verified candidates; latest checkpoint 43615449485 / artifact 14122085911, 7,583 pending, 0 leased and 2 empty-repository terminal failures.",
     "Agent Form semantic pilot 43615341905 remained active in the specialist/evidence/reviewer execution stage after successfully restoring the 268-candidate checkpoint, installing Ollama qwen2.5:3b and bootstrapping a two-candidate mission DAG. Outputs remain unverified and semantic audit count remains unchanged.",
     "PR #11 merged: local specialist model output now receives a strict JSON Schema and explicit required-key/no-extra-key prompt contract; regression tests cover required schema transmission and missing/extra keys.",
-    "PR #12 merged: Agent Form checkpoint restore downloads the pinned artifact ID directly, retries explicit GitHub API rate limits, validates ZIP CRC, safely extracts paths and strips bearer authorization on cross-host redirects; tests cover retry and path traversal."
+    "PR #12 merged: Agent Form checkpoint restore downloads the pinned artifact ID directly, retries explicit GitHub API rate limits, validates ZIP CRC, safely extracts paths and strips bearer authorization on cross-host redirects; tests cover retry and path traversal.",
+    "README.md, NEXT_ACTIONS.md and RESEARCH_CHANGELOG.md synchronized to source checkpoint 896 and current Agent Form repair/retry evidence; main CI passed on Python 3.11/3.12/3.13 in run 43628972986."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
