@@ -3,10 +3,10 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE",
-  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; AUTONOMOUS_GITHUB_HOSTED_SOURCE_CAPTURE_CHAIN_ACTIVE; 118_OF_7901_SOURCE_CAPTURED; 7783_PENDING; 0_LEASED; 0_FAILED; 86_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 32_WITH_COVERAGE_LIMITS; AGENT_FORM_SPECIALIST_RUNTIME_NOT_YET_CLOUD_BOOTSTRAPPED; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
-  "last_verified_at_utc": "2026-11-14T16:12:30Z",
+  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_GITHUB_HOSTED_SOURCE_CAPTURE_CHAIN_ACTIVE; 196_OF_7901_SOURCE_CAPTURED; 7703_PENDING; 0_LEASED; 2_TERMINAL_EMPTY_REPOSITORIES; 148_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 48_WITH_COVERAGE_LIMITS; AGENT_FORM_BRIDGE_IMPLEMENTED_AND_CI_GREEN; HOSTED_LOOPBACK_MODEL_PILOT_PENDING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
+  "last_verified_at_utc": "2026-11-14T16:16:30Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "64c9feed3ebd9ad5f3146eaaa6374a74c572d89b",
+  "latest_commit_at_checkpoint": "5fd07ab1aa7df5d5a65e922eead5503e9c8974b9",
   "latest_ci_run": {
     "run_id": 43608435180,
     "event": "push",
@@ -85,7 +85,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Continue the self-chaining GitHub-hosted source-capture workflow from its latest verified artifact. Do not require WSL, user commands, artifact downloads or personal tokens. Latest verified checkpoint: workflow 43614195040, artifact 14121562264, 118 captured / 7,783 pending / 0 leased / 0 failed. Next engineering gate is to connect the Agent Form's validated mission/task DAG to the captured-report queue and bootstrap a strictly loopback local open-weight model on hosted runners (no cloud inference or paid fallback), first with a bounded quality pilot. Preserve the distinction between source capture, specialist analysis, evidence validation and independent review. Do not count any semantic audit until all gates pass.",
+  "next_gate": "Continue the self-chaining GitHub-hosted source-capture workflow from its latest verified artifact. No WSL, user commands, artifact downloads or personal tokens are required. Latest verified checkpoint: workflow 43614692895, artifact 14121229184, 196 captured / 7,703 pending / 0 leased / 2 terminal failures. The two failures are repositories with empty Git repositories (HTTP 409), not source-code vulnerabilities. The Agent Form bridge script and priority-based batch selection are implemented and CI-tested. Next gate: add a hosted loopback-only open-weight model pilot to the Agent Form workflow, bootstrap the validated mission DAG from verified capture reports, run a tiny bounded batch, and assess output quality/evidence rejection/reviewer disagreement before scaling. No cloud model endpoint or paid fallback.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -170,7 +170,7 @@
     "runtime_executions": 0,
     "metadata_imported": 7901,
     "prepared_audit_batches": 80,
-    "source_capture_completed": 118,
+    "source_capture_completed": 196,
     "source_audit_pending": 7901,
     "last_source_inspection": {
       "status": "five_manual_commit_pinned_source_inspections_completed_from_priority_packet_0001",
@@ -237,19 +237,16 @@
     },
     "last_source_capture": {
       "status": "autonomous_github_hosted_checkpoint_completed",
-      "workflow_run_id": 43614195040,
-      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614195040",
-      "artifact_id": 14121562264,
+      "workflow_run_id": 43614692895,
+      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614692895",
+      "artifact_id": 14121229184,
       "artifact_name": "flashloan-source-capture-checkpoint",
-      "artifact_size_bytes": 3965756,
+      "artifact_size_bytes": 5731513,
       "restored_checkpoint": {
-        "captured": 106,
-        "pending": 7795,
+        "captured": 184,
+        "pending": 7715,
         "leased": 0,
-        "failed": 0,
-        "reports_verified": 106,
-        "git_blob_references_verified": 1343,
-        "unique_git_blobs_verified": 1261
+        "failed": 2
       },
       "cycle": {
         "attempted": 12,
@@ -258,19 +255,19 @@
       },
       "queue": {
         "total": 7901,
-        "captured": 118,
-        "pending": 7783,
+        "captured": 196,
+        "pending": 7703,
         "leased": 0,
-        "failed": 0,
-        "captured_complete_within_scope": 86,
-        "captured_with_coverage_limits": 32
+        "failed": 2,
+        "captured_complete_within_scope": 148,
+        "captured_with_coverage_limits": 48
       },
       "candidate_code_executed": false,
       "semantic_audit_completed": false,
       "independent_review_completed": false
     },
-    "source_capture_pending": 7783,
-    "source_capture_status": "118 captured; 7,783 pending; 0 leased; 0 failed; 86 within configured scope; 32 with coverage limits"
+    "source_capture_pending": 7703,
+    "source_capture_status": "196 captured; 7,703 pending; 0 leased; 2 terminal failures due empty Git repositories; 148 within configured scope; 48 with coverage limits"
   },
   "implementation_updates": [
     "GitHubClient.tree supports recursive and non-recursive requests.",
@@ -332,7 +329,11 @@
     "Local WSL long-queue continuation has not yet been run. Pilot state remains 10 captured / 7891 pending; semantic audit and independent review remain pending.",
     "Added GitHub-hosted self-chaining source-capture workflow; latest verified run 43614195040 captured 12 additional repositories, bringing queue to 118/7,901. Checkpoint restore verified 106 prior reports and 1,343 Git blob references; current queue 7,783 pending, 0 leased, 0 failed.",
     "Continuity correction: WSL/manual artifact restore is no longer the primary path. User-side commands and personal token are not required for the hosted deterministic source-capture chain.",
-    "Agent Form remains a local intake prototype with LangGraph/SQLite DAG and loopback-only model adapter. Hosted source capture is operational, but the Agent Form semantic pipeline has not yet been bootstrapped on GitHub runners; cloud-hosted loopback open-weight inference pilot is the next engineering gate."
+    "Agent Form remains a local intake prototype with LangGraph/SQLite DAG and loopback-only model adapter. Hosted source capture is operational, but the Agent Form semantic pipeline has not yet been bootstrapped on GitHub runners; cloud-hosted loopback open-weight inference pilot is the next engineering gate.",
+    "Added scripts/initialize_agentic_capture_mission.py to bridge hash-verified source-capture reports into the Agent Form's validated mission payload, SQLite mission queue and dependency-aware task DAG. It verifies every source blob, reuses pinned inspection reports, and creates a bounded forensic batch.",
+    "Agent Form bridge now prioritizes direct flash-loan/liquidation intersections ahead of adjacent taxonomy matches. Taxonomy-family and lexical-signal counts are scheduling hints only, never audit conclusions.",
+    "Added terminal classification for GitHub HTTP 409 empty repositories to avoid wasting retry attempts. Existing checkpoint has two terminal empty-repository failures: ADMac/flashloan and Alejo1156/FLASHLOAN.",
+    "CI run 43614709576 passed on Python 3.11/3.12/3.13 after the empty-repository retry fix. Agent Form bridge tests passed on CI run 43614586467 and later all-version CI run 43614561997."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
