@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
-  "record_status": "historical_leads_revalidation_required",
-  "warning": "These are carried-forward research leads. Reinspect current default-branch HEAD and exact source blobs before making present-tense claims.",
+  "schema_version": "1.1",
+  "record_status": "mixed_historical_and_currently_pinned_leads",
+  "warning": "Repository and source pins identify what was inspected at a specific commit. They do not prove runtime behavior, security, audit quality or profit.",
   "candidates": [
     {"repository":"manuelinfosec/flash-arb-bot","prior_grade":"B","prior_status":"BLOCKED_CONFIG","prior_commit":"dd89d1ccfefb4a7ec34d993ec3ee7fa27ac865f5","revalidation_required":true},
     {"repository":"babylonlabs-io/aave-v4-bots","prior_grade":"A_tested_custom_integration_not_external_audit","prior_status":"swapDatas_router_trust_boundary_review","prior_commit":"5a28358f9f5c123faff099bd502f688716383933","revalidation_required":true},
@@ -13,5 +13,80 @@
     {"repository":"tsmluky/Morpho-Blue-Liquidator-Bot","prior_grade":"B_minus_C_plus","prior_status":"balance_dust_and_limited_test_coverage","prior_commit":"1bc416a0dab923c53d4e1086d9c7de7cfc446d96","revalidation_required":true},
     {"repository":"cobibean/aave-liquidator-bot","prior_grade":"B_minus","prior_status":"router_configuration_mismatch_no_CI_evidence_at_snapshot","prior_commit":"3159c15f4dcfb0df215b4c3024f47753a1133b84","revalidation_required":true},
     {"repository":"alexpetrache-dev/aave-liquidator-base","prior_grade":"C_prototype","prior_status":"Uniswap_V3_flash_swap_not_Aave_flash_loan_no_tests","prior_commit":"fda5ff2a68a8803e40e7c6ea1ec6d22889fc8f","revalidation_required":true}
+  ],
+  "current_pins": [
+    {
+      "repository": "Aquafr198/liquidator",
+      "url": "https://github.com/Aquafr198/liquidator",
+      "default_branch": "master",
+      "commit_sha": "c0970909d4fa0cbbc36a2aed3dbb7857b809e29c",
+      "tree_sha": "23574a8038440af780799565ba675419b44d13f4",
+      "source_pins": {
+        "contracts/src/Liquidator.sol": "99481fabca717e7f0a7e3b4a42887d6ce2c0c2b8",
+        "contracts/src/AaveLiquidator.sol": "e97c7527daf3732f69847c8599570fa4e3c2b2aa",
+        "contracts/src/AaveLiquidatorL2.sol": "f971e03a18cb2dbb288640f16ec838ab3d897ffe",
+        "contracts/src/EulerLiquidator.sol": "39e3802bb588dd20715618bacea29e0484844110",
+        "contracts/src/SiloLiquidator.sol": "24036a954a55e0c64fe398b2bf7b3e45fd90578d",
+        "contracts/test/Liquidator.fork.t.sol": "2551522b68497b348b07332cc6beae3991881565"
+      },
+      "classification": "multi_protocol_liquidation_with_morpho_flashloan_and_aave_l2_native_flashloan",
+      "assessment": "B_minus_C_plus_research_candidate",
+      "verified_properties": ["pinned_multi_protocol_contract_tree","callback_authentication_in_protocol_adapters","Aave_L2_pool_and_initiator_authentication","65_named_Foundry_test_functions_in_six_test_files"],
+      "open_findings": ["pre_loan_balance_baseline_missing","non_WETH_onchain_min_profit_floor_absent","fork_test_fixture_is_placeholder_and_returns_without_fork","persistent_max_allowance_hygiene_acknowledged_open"],
+      "verification_limits": ["GitHub Actions API returned zero runs","README production and total-test badges are not deployment or CI proof","no_candidate_code_executed"],
+      "revalidation_required": false
+    },
+    {
+      "repository": "clubytech/cluby-liquidator",
+      "url": "https://github.com/clubytech/cluby-liquidator",
+      "default_branch": "main",
+      "commit_sha": "46a7d56e061db6e46389f5b731783a4183d2cb53",
+      "tree_sha": "c8c975a320403b92e79e487445387450bde45847",
+      "source_pins": {
+        "src/periphery/FlashLiquidator.sol": "e268c10d4f6e3c882f71c1e3b92caf293ad83937",
+        "test/unit/FlashLiquidator.t.sol": "32fb71cff1d3295f30b3e75584ea2f5516f6446e",
+        ".github/workflows/ci.yml": "48cc97b21a1448778afc8440e1d679bd30e0de52"
+      },
+      "classification": "morpho_blue_flashloan_liquidator_uniswap_v3",
+      "assessment": "C_plus_focused_reference",
+      "verified_properties": ["Morpho_callback_caller_check","oracle_relative_output_floor","repaid_amount_checked_against_swap_receipt","four_unit_tests_in_inspected_test_file","one_successful_GitHub_Actions_run_on_exact_HEAD"],
+      "open_findings": ["pre_loan_balance_baseline_missing","zero_profit_equality_is_allowed","no_explicit_net_profit_or_gas_floor"],
+      "verification_limits": ["one_initial_CI_run_only","no_mainnet_realized_profit_evidence","no_candidate_code_executed"],
+      "revalidation_required": false
+    },
+    {
+      "repository": "litmajor/argus-evm",
+      "url": "https://github.com/litmajor/argus-evm",
+      "default_branch": "main",
+      "commit_sha": "fd1a1161a62b10a431079b60812d64ba10b820bd",
+      "tree_sha": "8763e087efa0960b2a08a995d8f9299d9822a918",
+      "source_pins": {
+        "contracts/src/VaultLiquidator.sol": "64f83719b00155771f9fc52b43baedc496eaf7ae",
+        "README.md": "27b124cd5ef770a610b69d38ef1cbf2dbce9a542"
+      },
+      "classification": "native_morpho_liquidation_callback_not_flashloan",
+      "assessment": "B_plus_callback_accounting_reference_not_flashloan_candidate",
+      "verified_properties": ["loan_balance_baseline","collateral_balance_baseline","nonzero_min_net_profit","session_nonce_and_payload_hash","single_use_authenticated_morpho_callback"],
+      "open_findings": ["runtime_not_wired_with_protocol_addresses_or_markets_per_its_README","executor_marked_unsafe_for_documented_dry_run_as_wired"],
+      "verification_limits": ["repository_created_2026_11_12","zero_GitHub_Actions_runs","no_flashloan_implementation","no_candidate_code_executed"],
+      "revalidation_required": false
+    },
+    {
+      "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
+      "url": "https://github.com/MELD-labs/meld-flashloan-liquidation-bot-public",
+      "default_branch": "main",
+      "commit_sha": "74653447a0ff9014f2e022d6778b442182f9841a",
+      "tree_sha": "ddf5f95679d1a13fd7c45a775eaa4c56fca244a6",
+      "source_pins": {
+        "contracts/LiquidateLoan.sol": "ec704736adb1ce3547bbbe4809c14ab345b134fc",
+        "contracts/FlashLoanReceiverBase.sol": "bd38930b28085b88e0acd19541f225a57392ef95"
+      },
+      "classification": "legacy_aave_v3_flashloan_liquidation_prototype",
+      "assessment": "C_blocked_historical_reference",
+      "verified_properties": [],
+      "open_findings": ["executeOperation_missing_pool_and_initiator_authentication","absolute_balance_profit_accounting","collateral_balance_subtracted_from_debt_asset_minimum_without_unit_conversion"],
+      "verification_limits": ["last_pushed_2024_10_10","no_test_files_or_GitHub_Actions_runs_in_inspected_tree","no_exploit_executed"],
+      "revalidation_required": false
+    }
   ]
 }

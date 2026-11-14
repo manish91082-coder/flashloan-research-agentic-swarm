@@ -1,6 +1,115 @@
 {
-  "schema_version": "1.0",
-  "accepted_findings": [],
+  "schema_version": "1.1",
+  "accepted_findings": [
+    {
+      "id": "AQUA-DUST-ACCOUNTING-001",
+      "candidate": "Aquafr198/liquidator",
+      "inspected_commit": "c0970909d4fa0cbbc36a2aed3dbb7857b809e29c",
+      "claim_type": "inference_from_verified_source",
+      "summary": "The Morpho-backed adapters calculate surplus from the absolute post-operation debt-token balance and flash amount/repayment, with no pre-operation B0 snapshot. Pre-existing token dust can therefore be counted as trade surplus/min-profit.",
+      "evidence": [
+        {"path":"contracts/src/Liquidator.sol","blob_sha":"99481fabca717e7f0a7e3b4a42887d6ce2c0c2b8","lines":"172-202"},
+        {"path":"contracts/src/AaveLiquidator.sol","blob_sha":"e97c7527daf3732f69847c8599570fa4e3c2b2aa","lines":"207-226"},
+        {"path":"contracts/src/EulerLiquidator.sol","blob_sha":"39e3802bb588dd20715618bacea29e0484844110","lines":"189-208"},
+        {"path":"contracts/src/SiloLiquidator.sol","blob_sha":"24036a954a55e0c64fe398b2bf7b3e45fd90578d","lines":"204-223"},
+        {"path":"contracts/src/AaveLiquidatorL2.sol","blob_sha":"f971e03a18cb2dbb288640f16ec838ab3d897ffe","lines":"192-215"}
+      ],
+      "confidence": "high",
+      "severity": "accounting_correctness_high_priority",
+      "limitations": "No candidate tests or code were executed; this is a deterministic source-level accounting inference, not a demonstrated third-party theft exploit.",
+      "status": "accepted_for_research"
+    },
+    {
+      "id": "AQUA-NONWETH-PROFIT-FLOOR-001",
+      "candidate": "Aquafr198/liquidator",
+      "inspected_commit": "c0970909d4fa0cbbc36a2aed3dbb7857b809e29c",
+      "claim_type": "observed_design_boundary",
+      "summary": "The contracts document and implement on-chain minProfitWei enforcement only for WETH-denominated loans. Non-WETH loan-token surplus is returned after builder/gas settlement without the same on-chain loan-token minimum; the Python atomic bundle simulator supplies a separate off-chain coinbaseDiff gate on the inspected Euler path.",
+      "evidence": [
+        {"path":"contracts/src/Liquidator.sol","blob_sha":"99481fabca717e7f0a7e3b4a42887d6ce2c0c2b8","lines":"68-73, 218-263"},
+        {"path":"contracts/src/AaveLiquidatorL2.sol","blob_sha":"f971e03a18cb2dbb288640f16ec838ab3d897ffe","lines":"228-268"},
+        {"path":"README.md","blob_sha":"fb376f258078361aee989e16ee5356df34265b6c","lines":"112-113"},
+        {"path":"ops/atomic_deploy.py","blob_sha":"4392c5378edda7b1e465228672b1504885238db5","lines":"approximately 1120-1200 and 1507-1522"}
+      ],
+      "confidence": "high",
+      "severity": "execution_control_boundary",
+      "limitations": "The off-chain private-bundle simulation path is intended to gate submissions; this finding does not assert an externally callable public loss path. Full per-adapter execution tests remain unverified.",
+      "status": "accepted_for_research"
+    },
+    {
+      "id": "AQUA-FORK-FIXTURE-001",
+      "candidate": "Aquafr198/liquidator",
+      "inspected_commit": "c0970909d4fa0cbbc36a2aed3dbb7857b809e29c",
+      "claim_type": "observed_fact",
+      "summary": "The only named fork replay test has commented fixture constants and returns before creating a fork or performing assertions, even when MAINNET_RPC_URL is set.",
+      "evidence": [
+        {"path":"contracts/test/Liquidator.fork.t.sol","blob_sha":"2551522b68497b348b07332cc6beae3991881565","lines":"5-17, 64-87"}
+      ],
+      "confidence": "high",
+      "severity": "verification_gap",
+      "limitations": "Other unit-test source exists; this finding is limited to the fork replay test and does not claim all 65 Foundry tests are placeholders.",
+      "status": "accepted_for_research"
+    },
+    {
+      "id": "CLUBY-DUST-ACCOUNTING-001",
+      "candidate": "clubytech/cluby-liquidator",
+      "inspected_commit": "46a7d56e061db6e46389f5b731783a4183d2cb53",
+      "claim_type": "inference_from_verified_source",
+      "summary": "The contract reports profit as current loan-token balance minus flash-loan assets without a pre-operation balance snapshot. Any pre-existing loan-token balance is counted in reported profit.",
+      "evidence": [
+        {"path":"src/periphery/FlashLiquidator.sol","blob_sha":"e268c10d4f6e3c882f71c1e3b92caf293ad83937","lines":"107-123, 151-163"},
+        {"path":"test/unit/FlashLiquidator.t.sol","blob_sha":"32fb71cff1d3295f30b3e75584ea2f5516f6446e","lines":"59-80"}
+      ],
+      "confidence": "high",
+      "severity": "accounting_correctness_high_priority",
+      "limitations": "The inspected happy-path test starts with zero loan-token balance; no dust case was tested in this review. No candidate code was executed.",
+      "status": "accepted_for_research"
+    },
+    {
+      "id": "CLUBY-NET-PROFIT-FLOOR-001",
+      "candidate": "clubytech/cluby-liquidator",
+      "inspected_commit": "46a7d56e061db6e46389f5b731783a4183d2cb53",
+      "claim_type": "observed_fact",
+      "summary": "The contract rejects received < repaid but permits equality; there is no strictly-positive minimum-net-profit or gas-cost gate in the inspected contract.",
+      "evidence": [
+        {"path":"src/periphery/FlashLiquidator.sol","blob_sha":"e268c10d4f6e3c882f71c1e3b92caf293ad83937","lines":"143-161"},
+        {"path":"test/unit/FlashLiquidator.t.sol","blob_sha":"32fb71cff1d3295f30b3e75584ea2f5516f6446e","lines":"59-100"}
+      ],
+      "confidence": "high",
+      "severity": "profitability_gate_missing",
+      "limitations": "Oracle-relative output floor protects sale price, but it is not itself a gas-adjusted net-profit calculation.",
+      "status": "accepted_for_research"
+    },
+    {
+      "id": "MELD-CALLBACK-AUTH-001",
+      "candidate": "MELD-labs/meld-flashloan-liquidation-bot-public",
+      "inspected_commit": "74653447a0ff9014f2e022d6778b442182f9841a",
+      "claim_type": "observed_source_defect",
+      "summary": "executeOperation is externally callable but does not authenticate msg.sender as the Aave LendingPool and ignores the callback initiator parameter before continuing into liquidation and token approvals.",
+      "evidence": [
+        {"path":"contracts/LiquidateLoan.sol","blob_sha":"ec704736adb1ce3547bbbe4809c14ab345b134fc","lines":"130-156"},
+        {"path":"contracts/FlashLoanReceiverBase.sol","blob_sha":"bd38930b28085b88e0acd19541f225a57392ef95","lines":"1-40"}
+      ],
+      "confidence": "high",
+      "severity": "high_priority_authorization_defect",
+      "limitations": "The source-level callback authentication defect is confirmed; no exploit was constructed or executed, and concrete impact depends on token balances, pool state and callable paths.",
+      "status": "accepted_for_research"
+    },
+    {
+      "id": "MELD-MINOUT-UNIT-MISMATCH-001",
+      "candidate": "MELD-labs/meld-flashloan-liquidation-bot-public",
+      "inspected_commit": "74653447a0ff9014f2e022d6778b442182f9841a",
+      "claim_type": "inference_from_verified_source",
+      "summary": "The minimum swap output calculation subtracts the collateral-token balance from a quantity expressed in borrowed-asset units without a price or decimal conversion in that expression.",
+      "evidence": [
+        {"path":"contracts/LiquidateLoan.sol","blob_sha":"ec704736adb1ce3547bbbe4809c14ab345b134fc","lines":"158-166"}
+      ],
+      "confidence": "high",
+      "severity": "unit_consistency_defect",
+      "limitations": "This identifies a dimensional inconsistency in the expression; no token-specific runtime scenario was executed.",
+      "status": "accepted_for_research"
+    }
+  ],
   "revalidation_queue": [
     {
       "id": "ARKSENU-REENTRANCY-CALLBACK-001",
@@ -17,5 +126,5 @@
       "status": "historical_source_review_requires_current_HEAD_revalidation"
     }
   ],
-  "acceptance_policy": "No finding is accepted without a current exact commit SHA, source path, Git blob SHA, supporting excerpt or line range, claim type, confidence, limitations, reproducible test where applicable, and review status. Historical leads are not accepted findings."
+  "acceptance_policy": "Accepted means the claim is supported by exact pinned source or repository metadata for research triage. It does not mean an external security audit, exploit reproduction, mainnet validation or profit proof. Candidate code is never executed by this pipeline."
 }
