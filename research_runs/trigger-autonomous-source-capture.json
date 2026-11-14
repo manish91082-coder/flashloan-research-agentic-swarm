@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "mission": "flashloan-public-repository-research",
+  "canonical_manifest": "research_runs/audit-batches/43600488013/manifest.json",
+  "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
+  "discovery_run_id": "43600488013",
+  "resume_from_workflow_run_id": 43607072905,
+  "candidate_count": 7901,
+  "batch_size": 12,
+  "parallel_read_only_inspections": 2,
+  "policy": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_services": false
+  },
+  "goal": "Capture immutable commit/tree-pinned source evidence for the entire discovered public repository queue, then continue into semantic specialist analysis, evidence validation, independent review and candidate dossiers."
+}
