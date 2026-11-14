@@ -3,15 +3,22 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "A_DISCOVERY_AND_CANDIDATE_TRIAGE",
-  "status": "38_REPOS_DISCOVERED; 3_CANDIDATES_STATIC_AUDITED; LATEST_CI_PENDING",
-  "last_verified_at_utc": "2026-11-14T10:52:00Z",
+  "status": "38_REPOS_DISCOVERED; 3_CANDIDATES_STATIC_AUDITED; LATEST_CI_GREEN",
+  "last_verified_at_utc": "2026-11-14T10:57:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "5140c93011b4baf55104c9ec91016f4a9c9ecfb3",
+  "latest_commit_at_checkpoint": "b579a1adf32e569e77453f57aac28cc97707d31d",
   "latest_ci_run": {
-    "run_id": 43587464686,
+    "run_id": 43587653922,
     "event": "push",
-    "status_at_checkpoint": "queued",
-    "conclusion": null
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "b579a1adf32e569e77453f57aac28cc97707d31d",
+    "matrix": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "tests": "all test steps passed; runner cleanup completed"
   },
   "phase_a_ci_history": "Prior commits and workflows repeatedly passed; latest evidence-register commit CI is pending at checkpoint.",
   "discovery": {
@@ -100,7 +107,7 @@
         "audit_path": "research/candidate-audits/tundefund0-gif__morpho-liquidator.md"
       }
     ],
-    "findings_recorded": 7,
+    "findings_recorded": 8,
     "runtime_executions": 0
   }
 }
