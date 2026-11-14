@@ -328,7 +328,7 @@ class MissionExecutor:
                             completed.append(result)
             remaining = [
                 x for x in task_store.list_tasks(mission_id)
-                if x["task_type"] == "candidate_purpose" and x["status"] != "completed"
+                if x["task_type"] == "candidate_source_capture" and x["status"] != "completed"
             ]
             return {
                 "mission_id": mission_id,
@@ -356,12 +356,19 @@ class MissionExecutor:
             store.close()
         endpoint = os.getenv("FLR_MODEL_BASE_URL", "").strip()
         if endpoint:
-            model_status = "endpoint_configured_adapter_not_yet_enabled"
+            model_status = "blocked_provider_adapter_not_implemented"
+            blocker_text = (
+                "A model endpoint is configured, but the approved free-provider adapter and "
+                "semantic specialist execution gate are not implemented yet."
+            )
         else:
             model_status = "blocked_no_approved_free_local_model_endpoint"
+            blocker_text = (
+                "No approved free local inference endpoint is configured. Semantic specialist and "
+                "independent-review tasks remain pending."
+            )
         reason = None if not pending_roles else (
-            "Deterministic discovery and source capture ran. Semantic specialist and independent-review "
-            "tasks remain pending because no approved free local inference endpoint is configured."
+            "Deterministic discovery and commit-pinned source capture ran. " + blocker_text
         )
         final_status = "blocked" if pending_roles else "completed"
         self._set_mission_status(mission_id, final_status, reason)
@@ -380,6 +387,15 @@ class MissionExecutor:
         prepared = self.prepare(mission_id)
         discovery = self.discover(mission_id)
         if not discovery["ready_for_merge"]:
+            task_store = MissionTaskStore(self.database_path)
+            try:
+                family_rows = [x for x in task_store.list_tasks(mission_id) if x["task_type"] == "discover_family"]
+                all_leased = bool(family_rows) and all(x["status"] == "leased" for x in family_rows if x["status"] != "completed")
+            finally:
+                task_store.close()
+            if all_leased:
+                self._set_mission_status(mission_id, "running", "Discovery tasks are leased by a prior worker and will resume after lease expiry.")
+                return {"prepare": prepared, "discovery": discovery, "status": "waiting_for_lease_recovery"}
             self._set_mission_status(mission_id, "blocked", "One or more discovery-family tasks remain incomplete.")
             return {"prepare": prepared, "discovery": discovery, "status": "blocked"}
         expansion = self.merge_and_expand(mission_id)
