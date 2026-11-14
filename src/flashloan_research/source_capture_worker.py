@@ -357,7 +357,8 @@ class SourceCaptureQueue:
         if cur.rowcount != 1:
             raise SourceCaptureError("source-capture lease was lost before completion")
 
-    def fail(self, run_id: str, repository: str, worker_id: str, error: str) -> str:
+    def fail(self, run_id: str, repository: str, worker_id: str, error: str,
+             retryable: bool = True) -> str:
         now = utc_now()
         with self.lock:
             row = self.connection.execute(
@@ -367,7 +368,7 @@ class SourceCaptureQueue:
             ).fetchone()
             if row is None:
                 raise SourceCaptureError("source-capture lease was lost before failure update")
-            status = "pending" if row["attempts"] < row["max_attempts"] else "failed"
+            status = "pending" if retryable and row["attempts"] < row["max_attempts"] else "failed"
             self.connection.execute(
                 """UPDATE source_capture_items SET status=?,lease_owner=NULL,
                 lease_expires_at=NULL,error=?,updated_at_utc=?
@@ -478,8 +479,24 @@ class SourceCaptureWorker:
             queue.complete(run_id, repository, worker_id, report_path, capture_summary)
             return {"repository": repository, "status": "captured", **capture_summary}
         except Exception as exc:
-            status = queue.fail(run_id, repository, worker_id, f"{type(exc).__name__}: {exc}")
-            return {"repository": repository, "status": status, "error": str(exc)[:500]}
+            error_text = f"{type(exc).__name__}: {exc}"
+            # GitHub returns 409 for repositories with no Git objects. Retrying
+            # an empty repository cannot produce a commit/tree pin, so classify
+            # it as terminal evidence debt on the first observation.
+            empty_repository = (
+                "HTTP 409" in error_text
+                and "Git Repository is empty" in error_text
+            )
+            status = queue.fail(
+                run_id, repository, worker_id, error_text,
+                retryable=not empty_repository,
+            )
+            return {
+                "repository": repository,
+                "status": status,
+                "failure_class": "empty_repository_no_git_objects" if empty_repository else "retryable_or_exhausted_capture_error",
+                "error": str(exc)[:500],
+            }
         finally:
             if store is not None:
                 store.close()
