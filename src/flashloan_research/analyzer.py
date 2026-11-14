@@ -54,6 +54,73 @@ def extract_signals(path: str, content: bytes) -> list[dict[str, Any]]:
     return signals
 
 
+def collect_repository_tree(client: Any, full_name: str, root_tree_sha: str, settings: Settings) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Recover a truncated recursive Git tree using bounded non-recursive traversal."""
+    recursive_tree = client.tree(full_name, root_tree_sha, recursive=True)
+    recursive_items = recursive_tree.get("tree", [])
+    if not isinstance(recursive_items, list):
+        raise ValueError("Git recursive tree response missing tree array")
+    if not recursive_tree.get("truncated", False):
+        return recursive_items, {
+            "recursive_tree_truncated": False,
+            "tree_recovery_attempted": False,
+            "tree_recovery_complete": True,
+            "tree_directories_visited": 0,
+            "tree_entries_seen": len(recursive_items),
+        }
+
+    recovered: list[dict[str, Any]] = []
+    pending: list[tuple[str, str]] = [("", root_tree_sha)]
+    visited: set[str] = set()
+    entries_seen = 0
+    complete = True
+
+    while pending:
+        prefix, tree_sha = pending.pop()
+        if tree_sha in visited:
+            continue
+        if len(visited) >= settings.max_tree_directories:
+            complete = False
+            break
+        visited.add(tree_sha)
+        page = client.tree(full_name, tree_sha, recursive=False)
+        entries = page.get("tree", [])
+        if not isinstance(entries, list) or page.get("truncated", False):
+            complete = False
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            entries_seen += 1
+            if entries_seen > settings.max_tree_entries:
+                complete = False
+                break
+            if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
+                complete = False
+                continue
+            full_path = f"{prefix}{entry['path']}"
+            normalized = {**entry, "path": full_path}
+            if entry.get("type") == "tree":
+                child_sha = entry.get("sha")
+                if not isinstance(child_sha, str) or len(child_sha) != 40:
+                    complete = False
+                else:
+                    pending.append((full_path.rstrip("/") + "/", child_sha))
+            else:
+                recovered.append(normalized)
+        if not complete:
+            break
+
+    if pending:
+        complete = False
+    return recovered, {
+        "recursive_tree_truncated": True,
+        "tree_recovery_attempted": True,
+        "tree_recovery_complete": complete,
+        "tree_directories_visited": len(visited),
+        "tree_entries_seen": entries_seen,
+    }
+
+
 class ResearchPipeline:
     def __init__(self, client: GitHubClient | None = None, settings: Settings = SETTINGS):
         self.settings = settings
@@ -75,11 +142,9 @@ class ResearchPipeline:
         tree_sha = commit.get("commit", {}).get("tree", {}).get("sha")
         if not isinstance(commit_sha, str) or len(commit_sha) != 40 or not isinstance(tree_sha, str):
             raise ValueError("GitHub commit response missing full commit SHA or tree SHA")
-        tree = self.client.tree(full_name, tree_sha)
-        tree_items = tree.get("tree", [])
-        if not isinstance(tree_items, list):
-            raise ValueError("Git tree response missing tree array")
-        store.save_snapshot(full_name, commit_sha, tree_sha, bool(tree.get("truncated", False)))
+        tree_items, tree_status = collect_repository_tree(self.client, full_name, tree_sha, self.settings)
+        tree_truncated = not tree_status["tree_recovery_complete"]
+        store.save_snapshot(full_name, commit_sha, tree_sha, tree_truncated)
         source_items_all = [
             item for item in tree_items
             if isinstance(item, dict)
@@ -123,15 +188,16 @@ class ResearchPipeline:
                     claim=f"Lexical pattern {signal['signal']} appears at line {signal['line']}; this is not proof of runtime behavior.",
                     evidence_excerpt=signal["excerpt"], confidence="low", acceptance_status="pending"
                 ))
-        tree_truncated = bool(tree.get("truncated", False))
         source_capture_complete = not tree_truncated and not source_cap_hit and oversized_source_count == 0
         limitations = [
             "Static lexical signals are leads, not proof of runtime behavior or a vulnerability.",
             "No candidate repository code was executed.",
             "The scan covers only configured source extensions and excludes common vendor/build directories.",
         ]
-        if tree_truncated:
-            limitations.append("GitHub returned a truncated recursive tree; repository coverage is incomplete.")
+        if tree_status["recursive_tree_truncated"] and tree_status["tree_recovery_complete"]:
+            limitations.append("GitHub's recursive tree response was truncated; bounded non-recursive traversal recovered the tree inventory.")
+        elif tree_truncated:
+            limitations.append("GitHub returned a truncated recursive tree and bounded recovery did not complete; repository coverage is incomplete.")
         if source_cap_hit:
             limitations.append("The configured source-file cap was reached; additional eligible source files were not captured.")
         if oversized_source_count:
@@ -141,6 +207,7 @@ class ResearchPipeline:
             "commit_sha": commit_sha,
             "tree_sha": tree_sha,
             "tree_truncated": tree_truncated,
+            **tree_status,
             "source_files_available_in_tree": len(source_items_all),
             "source_files_eligible_by_size": len(eligible_source_items),
             "source_files_selected": len(source_items),
