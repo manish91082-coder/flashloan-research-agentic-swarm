@@ -1,12 +1,20 @@
-name: Scheduled Public GitHub Discovery
+name: Autonomous Flash Loan Repository Discovery
 
 on:
   workflow_dispatch:
     inputs:
-      query:
-        description: GitHub repository search query
+      families:
+        description: Comma-separated taxonomy family IDs; blank runs all 11 families
+        required: false
+        default: ''
+      per_page:
+        description: Results per GitHub query page (maximum 100)
         required: true
-        default: 'flash loan arbitrage'
+        default: '100'
+      max_pages:
+        description: Maximum pages per query (maximum 10)
+        required: true
+        default: '10'
   schedule:
     - cron: '17 2 * * 1'
 
@@ -14,13 +22,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: public-github-discovery
+  group: flashloan-taxonomy-discovery
   cancel-in-progress: false
 
 jobs:
   discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 120
     steps:
       - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -30,6 +38,8 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
+      - name: Install project
+        run: pip install -e .
       - name: Verify research engine
         env:
           PYTHONPATH: src
@@ -37,25 +47,30 @@ jobs:
           set -euo pipefail
           python -m compileall -q src tests
           python -m unittest discover -s tests -v
-      - name: Discover and persist a bounded public-repository snapshot
+      - name: Run all selected keyword families with pagination
         env:
           PYTHONPATH: src
           FLR_DATABASE: /tmp/flashloan-research.sqlite3
           FLR_SNAPSHOT_DIR: /tmp/flashloan-research-vault
           GITHUB_TOKEN: ${{ github.token }}
-          SEARCH_QUERY: ${{ inputs.query || 'flash loan arbitrage' }}
+          SEARCH_FAMILIES: ${{ inputs.families }}
+          SEARCH_PER_PAGE: ${{ inputs.per_page || '100' }}
+          SEARCH_MAX_PAGES: ${{ inputs.max_pages || '10' }}
         run: |
           set -euo pipefail
           RUN_DATE="$(date -u +%Y-%m-%d)"
-          OUTPUT="research_runs/${RUN_DATE}/discovery-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+          OUTPUT="research_runs/mission/${RUN_DATE}/discovery-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
           mkdir -p "$(dirname "$OUTPUT")"
-          python -m flashloan_research.cli discover --query "$SEARCH_QUERY" --per-page 30 --page 1 --output "$OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
-          python -m flashloan_research.cli status | tee -a "$GITHUB_STEP_SUMMARY"
+          ARGS=(discover-mission --taxonomy research/keyword-taxonomy.json --per-page "$SEARCH_PER_PAGE" --max-pages "$SEARCH_MAX_PAGES" --output "$OUTPUT")
+          if [[ -n "$SEARCH_FAMILIES" ]]; then
+            ARGS+=(--families "$SEARCH_FAMILIES")
+          fi
+          python -m flashloan_research.cli "${ARGS[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$OUTPUT"
           if ! git diff --cached --quiet; then
-            git commit -m "data: record GitHub discovery run ${GITHUB_RUN_ID}"
+            git commit -m "data: persist taxonomy discovery run ${GITHUB_RUN_ID}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           else
             echo "No discovery report changes to persist." >> "$GITHUB_STEP_SUMMARY"
