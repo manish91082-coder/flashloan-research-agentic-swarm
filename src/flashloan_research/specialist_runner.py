@@ -300,7 +300,8 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
 def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Path,
                          limit: int = 4) -> dict[str, Any]:
     timeout_seconds = int(os.getenv("FLR_MODEL_TIMEOUT_SECONDS", "120"))
-    provider = LocalOpenAICompatibleProvider(timeout_seconds=timeout_seconds)
+    provider = LocalOpenAICompatibleProvider()
+    provider.timeout_seconds = timeout_seconds
     store = MissionTaskStore(database_path)
     worker_id = f"specialist-{mission_id}"
     completed: list[dict[str, Any]] = []
