@@ -535,6 +535,13 @@ class SourceCaptureWorker:
                 cycles += 1
                 attempted += latest["attempted_this_cycle"]
                 status = latest["queue"]
+                print(json.dumps({
+                    "event": "source_capture_progress",
+                    "cycle": cycles,
+                    "attempted_this_invocation": attempted,
+                    "run_id": run_id,
+                    "queue": status,
+                }, ensure_ascii=False), flush=True)
                 if status["pending"] == 0 and status["leased"] == 0:
                     break
                 if latest["attempted_this_cycle"] == 0:
