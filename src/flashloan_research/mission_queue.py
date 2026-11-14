@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -138,35 +139,39 @@ class MissionQueue:
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self.connection = sqlite3.connect(self.db_path, timeout=10)
+        self.connection = sqlite3.connect(self.db_path, timeout=10, check_same_thread=False)
         self.connection.row_factory = sqlite3.Row
+        self._lock = threading.RLock()
         self.connection.execute("PRAGMA journal_mode=WAL")
         self.connection.execute("PRAGMA busy_timeout=10000")
         self.connection.executescript(MISSION_DB_SCHEMA)
         self.connection.commit()
 
     def close(self) -> None:
-        self.connection.close()
+        with self._lock:
+            self.connection.close()
 
     def enqueue(self, payload: Any) -> dict[str, Any]:
         mission = validate_mission(payload)
         now = datetime.now(timezone.utc).isoformat()
         encoded = json.dumps(mission, ensure_ascii=False, sort_keys=True)
         try:
-            self.connection.execute(
-                "INSERT INTO research_missions(mission_id,title,status,payload_json,created_at_utc,updated_at_utc) VALUES(?,?,?,?,?,?)",
-                (mission["mission_id"], mission["title"], "queued", encoded, now, now),
-            )
-            self.connection.commit()
+            with self._lock:
+                self.connection.execute(
+                    "INSERT INTO research_missions(mission_id,title,status,payload_json,created_at_utc,updated_at_utc) VALUES(?,?,?,?,?,?)",
+                    (mission["mission_id"], mission["title"], "queued", encoded, now, now),
+                )
+                self.connection.commit()
         except sqlite3.IntegrityError as exc:
             raise MissionValidationError("mission_id already exists; use a new mission_id") from exc
         return {"mission_id": mission["mission_id"], "status": "queued", "created_at_utc": now}
 
     def get(self, mission_id: str) -> dict[str, Any] | None:
-        row = self.connection.execute(
-            "SELECT mission_id,title,status,payload_json,created_at_utc,updated_at_utc,rejection_reason FROM research_missions WHERE mission_id=?",
-            (mission_id,),
-        ).fetchone()
+        with self._lock:
+            row = self.connection.execute(
+                "SELECT mission_id,title,status,payload_json,created_at_utc,updated_at_utc,rejection_reason FROM research_missions WHERE mission_id=?",
+                (mission_id,),
+            ).fetchone()
         if row is None:
             return None
         result = dict(row)
@@ -174,8 +179,9 @@ class MissionQueue:
         return result
 
     def list_recent(self, limit: int = 50) -> list[dict[str, Any]]:
-        rows = self.connection.execute(
-            "SELECT mission_id,title,status,created_at_utc,updated_at_utc FROM research_missions ORDER BY created_at_utc DESC LIMIT ?",
-            (min(max(limit, 1), 100),),
-        ).fetchall()
+        with self._lock:
+            rows = self.connection.execute(
+                "SELECT mission_id,title,status,created_at_utc,updated_at_utc FROM research_missions ORDER BY created_at_utc DESC LIMIT ?",
+                (min(max(limit, 1), 100),),
+            ).fetchall()
         return [dict(row) for row in rows]
