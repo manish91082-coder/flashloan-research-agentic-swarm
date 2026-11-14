@@ -44,10 +44,10 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 
 ## Latest priority source-inspection checkpoint
 
-- Five candidates from immutable packet `research_runs/audit-batches/43600488013/batch-0001.jsonl` were inspected at exact default-branch commit/tree/blob pins: `0xTona/liquidator-bot`, `0xFantomMenace/Aave-Liquidation-Bot`, `0xFantomMenace/Compound-Liquidation-Bot`, and `0xGusMcCrae/aave-liquidator-bot`.
+- Five candidates from immutable packet `research_runs/audit-batches/43600488013/batch-0001.jsonl` were inspected at exact default-branch commit/tree/blob pins: `0xTona/liquidator-bot`, `0xFantomMenace/Aave-Liquidation-Bot`, `0xFantomMenace/Compound-Liquidation-Bot`, `0xGusMcCrae/aave-liquidator-bot`, and `0xTwyne/twyne-liquidation-bot`.
 - Five provisional dossiers were added under `research/candidate-audits/`. Grades: C, C, D, D, B respectively; all are pending independent reviewer validation.
 - Notable findings: Tona does not deduct gas from its positive-gross-profit gate; FantomMenace's HyperLend and Granary subprojects have different callback security; Compound liquidator has a reserve-index/purchasable-array construction defect and zero swap minimum; Gus uses Solidity XOR `2^256 - 1` (257, not max allowance) and exposes an unauthenticated callback.
-- These are four manually source-inspected candidates, not yet automated source-capture completion. The 7,901-row batch queue's automated source-capture counter remains 0/7,901. Candidate code was not built, tested or executed. Independent review is pending.
+- These are five manually source-inspected candidates, not yet automated source-capture completion. The 7,901-row batch queue's automated source-capture counter remains 0/7,901. Candidate code was not built, tested or executed. Independent review is pending.
 
 - Additional priority candidate: `0xTwyne/twyne-liquidation-bot`, pinned commit `568a6308adf82952a156b6374ae264643a0c4fc2`, tree `7a24b296c6c0947d95c2a6f54921a33fa4b5575f`; provisional grade B. This is a Twyne-specific Euler/Aave collateral-vault liquidation system using Morpho Blue flash loans, with authenticated callback, explicit min-profit gate and active fork-test source. Dossier: `research/candidate-audits/0xTwyne__twyne-liquidation-bot.md`.
 
