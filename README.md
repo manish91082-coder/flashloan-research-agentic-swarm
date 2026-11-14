@@ -92,7 +92,7 @@ flashloan-source-capture-worker \
 
 The worker resumes from SQLite after interruption and retries failed candidates up to three attempts. Set `GITHUB_TOKEN` as an environment variable when higher authenticated GitHub API limits are needed. This stage performs source acquisition only: a captured candidate is **not** semantically classified, independently reviewed, or security-audited until the model/evidence/reviewer stages run. It never executes candidate code.
 
-**Still incomplete:** source capture and purpose classification for the 7,901-row queue, fork/parent reconciliation during source inspection, independent review of the two new dossier finding sets, real free local-model inference, dossier/synthesis execution and retry-safe multi-batch continuation. No paid/cloud fallback or candidate execution.
+**Still incomplete:** the new worker has not yet been run against the live 7,901-candidate queue (source-capture counter remains 0/7,901); semantic purpose classification, fork/parent reconciliation, independent review of provisional dossiers, real free local-model inference, and dossier/synthesis execution also remain pending. A worker implementation and retry-safe multi-batch continuation now exist, but actual queue processing must be verified separately. No paid/cloud fallback or candidate execution.
 
 Start the local form and queue:
 
