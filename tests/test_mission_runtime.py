@@ -44,7 +44,7 @@ def taxonomy():
 class MissionRuntimeTests(unittest.TestCase):
     def test_plan_builds_dependency_aware_family_dag(self):
         tasks = build_mission_plan(mission(), taxonomy())
-        self.assertEqual(len(tasks), 7)
+        self.assertEqual(len(tasks), 8)
         by_type = {task.task_type: task for task in tasks}
         self.assertEqual(by_type["discover_family"].depends_on[0],
                          by_type["mission_plan"].task_id)
@@ -71,8 +71,8 @@ class MissionRuntimeTests(unittest.TestCase):
             store = MissionTaskStore(Path(tmp) / "missions.sqlite3")
             try:
                 tasks = build_mission_plan(mission(), taxonomy())
-                self.assertEqual(store.create_plan(tasks), {"inserted": 7, "existing": 0})
-                self.assertEqual(store.create_plan(tasks), {"inserted": 0, "existing": 7})
+                self.assertEqual(store.create_plan(tasks), {"inserted": 8, "existing": 0})
+                self.assertEqual(store.create_plan(tasks), {"inserted": 0, "existing": 8})
                 first = store.claim_ready("flashloan-test-01", "worker-a", limit=5)
                 self.assertEqual(len(first), 1)
                 self.assertEqual(first[0]["task_type"], "mission_plan")
