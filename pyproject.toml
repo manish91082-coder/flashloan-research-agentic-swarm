@@ -13,6 +13,7 @@ dependencies = []
 
 [project.scripts]
 flashloan-research = "flashloan_research.cli:main"
+flashloan-mission-api = "flashloan_research.mission_api:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
