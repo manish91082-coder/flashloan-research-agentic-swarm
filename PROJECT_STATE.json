@@ -3,24 +3,24 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_RESUMABLE_SOURCE_CAPTURE",
-  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; RESUMABLE_MANIFEST_DRIVEN_SOURCE_CAPTURE_WORKER_MERGED_PR7_CI_PASS; LIVE_7901_SOURCE_CAPTURE_NOT_YET_STARTED_0_OF_7901; FAKE_PROVIDER_SEMANTIC_PIPELINE_TESTED; REAL_LOCAL_MODEL_PENDING; FIVE_MANUAL_PRIORITY_SOURCE_INSPECTIONS_COMPLETED; FIVE_PROVISIONAL_DOSSIERS_PENDING_INDEPENDENT_REVIEW",
-  "last_verified_at_utc": "2026-11-14T14:46:36.919Z",
+  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED_AND_LIVE_PILOT_10_OF_10_SUCCESS; 10_REPOSITORIES_COMMIT_TREE_PINNED_182_SOURCE_REFERENCES_173_UNIQUE_BLOBS_SHA1_VERIFIED; 7891_CANDIDATES_SOURCE_CAPTURE_PENDING; FOUR_PILOT_REPOSITORIES_HIT_30_FILE_CAP_ONE_HAD_ZERO_ELIGIBLE_SOURCE_FILES; REAL_LOCAL_MODEL_PENDING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
+  "last_verified_at_utc": "2026-11-14T14:55:37.127Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0",
+  "latest_commit_at_checkpoint": "0cc64139f0476bb372f4446fc45fc301cc9522e0",
   "latest_ci_run": {
-    "run_id": 43606565796,
+    "run_id": 43607072884,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0",
+    "head_sha": "4f8136fb6e5c4c3deb8bf82b992715a0fcfaf9f6",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "Main CI passed on all three Python versions after the source-capture worker, next-actions checkpoint and changelog updates."
+    "tests": "Main CI passed on Python 3.11, 3.12 and 3.13 after bounded pilot workflow and trigger marker."
   },
-  "phase_a_ci_history": "Worker feature CI run 43606380880 and latest main CI run 43606565796 passed on Python 3.11, 3.12 and 3.13.",
+  "phase_a_ci_history": "Latest main CI run 43607072884 passed on Python 3.11/3.12/3.13; bounded source-capture pilot run 43607072905 completed successfully.",
   "discovery": {
     "snapshot_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
     "snapshot_commit": "231f47f0ada252a921a065da935720873f397bef",
@@ -65,7 +65,7 @@
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
-    "orchestration_phase_b": "LangGraph SQLite-checkpointed graph runs deterministic discovery/source capture and invokes local-only semantic specialists/evidence/reviewer. Fake-provider end-to-end covers candidate purpose, six specialists, evidence gate and reviewer. The 7,901 candidates are persisted as 80 hash-verified JSONL batches. A manifest-driven SQLite source-capture worker is now merged and CI-tested; actual queue execution remains 0/7,901. Real local-model inference, semantic review, synthesis and multi-stage autonomous completion remain pending.",
+    "orchestration_phase_b": "LangGraph checkpointed graph and SQLite task DAG are implemented. The manifest-driven source-capture worker is live-validated on 10 real candidates: 10/10 captured, 182 source-file references, 173 unique verified blobs and no SHA mismatches. The live queue contains 7,901 candidates, 10 captured and 7,891 pending. Real local-model inference, semantic purpose classification, independent review and full multi-stage autonomous completion remain pending.",
     "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; persistent local/WSL workers for source-capture queue and future local-model inference",
     "n8n": "optional notifications/approval UI only"
   },
@@ -84,7 +84,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Run the merged manifest-driven source-capture worker in a persistent local/WSL environment against research_runs/audit-batches/43600488013/manifest.json; verify the first 10-20 candidates, their commit/tree/blob pins and local vault, then resume through all 7,901 candidates. Keep source capture distinct from semantic audit and independent review.",
+  "next_gate": "Continue from the pilot's SQLite queue and content-addressed vault. Preserve its artifact state, process the next bounded source-capture tranche, verify report/blob hashes again, and increase batch size only after observing throughput and artifact growth. After source capture, run real free local-model semantic classification/specialists, evidence validation and independent review; do not equate source capture with audit.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -169,7 +169,7 @@
     "runtime_executions": 0,
     "metadata_imported": 7901,
     "prepared_audit_batches": 80,
-    "source_capture_completed": 0,
+    "source_capture_completed": 10,
     "source_audit_pending": 7901,
     "last_source_inspection": {
       "status": "five_manual_commit_pinned_source_inspections_completed_from_priority_packet_0001",
@@ -200,17 +200,145 @@
       "lease_seconds": 3600,
       "test_run_id": 43606380880,
       "test_result": "success_python_3_11_3_12_3_13",
-      "live_queue_execution_verified": false,
-      "documentation_checkpoint_commit": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0"
+      "live_queue_execution_verified": true,
+      "documentation_checkpoint_commit": "e3e9f189134cdc6dc9c8b262dc355fa3b1fd5de0",
+      "live_queue_execution_status": "first_real_pilot_10_of_7901_success; 7891_pending; full queue continuation not yet executed"
     },
     "last_source_capture": {
-      "status": "worker_implementation_merged_but_live_queue_not_yet_run",
+      "status": "bounded_real_source_capture_pilot_completed_successfully",
+      "workflow_run_id": 43607072905,
+      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905",
+      "artifact_id": 14118419543,
+      "artifact_name": "flashloan-source-capture-pilot-43607072905",
+      "artifact_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905/artifacts/14118419543",
+      "artifact_size_bytes": 1509274,
+      "artifact_sha256": "092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178",
+      "verification_path": "research_runs/source-capture-pilots/43607072905/verification.json",
+      "verification_commit": "0cc64139f0476bb372f4446fc45fc301cc9522e0",
       "manifest": "research_runs/audit-batches/43600488013/manifest.json",
-      "candidates_total": 7901,
-      "captured": 0,
+      "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
+      "total_candidates": 7901,
+      "attempted": 10,
+      "captured": 10,
+      "failed": 0,
+      "pending": 7891,
+      "leased": 0,
+      "source_file_references": 182,
+      "unique_content_addressed_blobs": 173,
+      "git_blob_sha1_references_verified": 182,
+      "missing_or_mismatched_blobs": 0,
+      "tree_inventory_complete": 10,
+      "source_capture_complete_within_configured_scope": 6,
+      "source_cap_limited": 4,
+      "repositories_with_zero_eligible_source_files": 1,
+      "reports_written": 10,
       "candidate_code_executed": false,
-      "next_verification": "capture a bounded first sample, verify persisted commit/tree/blob and content-addressed source vault, then continue"
-    }
+      "semantic_audit_completed": false,
+      "independent_review_completed": false,
+      "pilot_candidates": [
+        {
+          "repository": "010100100100011101010100/overcollaterizedlending",
+          "candidate_index": 0,
+          "commit": "c9a50e0ed82a7c712d798a6ef02af7c1711841f9",
+          "tree": "f272c9b3d08c1c35d5239b78e0e6f1770c3ffe95",
+          "files": 30,
+          "files_available": 56,
+          "source_cap_hit": true,
+          "signals": 12
+        },
+        {
+          "repository": "04-Lpds/defi-liquidation-simulator",
+          "candidate_index": 1,
+          "commit": "6efc7868fefe65db863c4472762f7b3a7e24d5c5",
+          "tree": "fa848fe1476eed8d78663b753ffc565e7668a0b0",
+          "files": 11,
+          "files_available": 11,
+          "source_cap_hit": false,
+          "signals": 6
+        },
+        {
+          "repository": "0kage-eth/damn-vulnerable-defi-solutions",
+          "candidate_index": 3,
+          "commit": "425ce91eff3004ef410496cbfb800553b7189254",
+          "tree": "9fa3f0890db944240c3ee1ade87178efb42c6794",
+          "files": 30,
+          "files_available": 42,
+          "source_cap_hit": true,
+          "signals": 49
+        },
+        {
+          "repository": "0prob/rust_polygon_arbitrage_bot",
+          "candidate_index": 5,
+          "commit": "1ed8a507c03a3e4c47a983c7fb87b198535d9ff5",
+          "tree": "9910e5ebbf868bf7d341e98623330afad3d14894",
+          "files": 30,
+          "files_available": 166,
+          "source_cap_hit": true,
+          "signals": 34
+        },
+        {
+          "repository": "0prob/solidity_and_huff_evm_contract",
+          "candidate_index": 6,
+          "commit": "a7fa35907e9d6a41707b6e332fd23e72a3c2c75e",
+          "tree": "63bf78571a6783f1ab94ef2711d7267179d77d23",
+          "files": 15,
+          "files_available": 15,
+          "source_cap_hit": false,
+          "signals": 43
+        },
+        {
+          "repository": "0x-Shashi/WEB3-AUDIT-SKILLS",
+          "candidate_index": 7,
+          "commit": "4c0e3b9d17436fa2f7ae709ba1c78c075a20c301",
+          "tree": "76c7b020b8e37b63608eb7502cdd34fa01f2bcb9",
+          "files": 30,
+          "files_available": 32,
+          "source_cap_hit": true,
+          "signals": 6
+        },
+        {
+          "repository": "0x0Glitch/Aave-liquidations",
+          "candidate_index": 8,
+          "commit": "0b200ee6a1be47d2ea48c9d01cf612e9341271aa",
+          "tree": "363bafd26063f28726ff5f9de2663ea647a28e70",
+          "files": 24,
+          "files_available": 24,
+          "source_cap_hit": false,
+          "signals": 0
+        },
+        {
+          "repository": "0xAbhay/Flash-loans",
+          "candidate_index": 12,
+          "commit": "44819f93456b905466e3aa9b7437cc18b83847b4",
+          "tree": "38b253f6056ed98e11dec23ae8a490b9fed3f9f4",
+          "files": 5,
+          "files_available": 5,
+          "source_cap_hit": false,
+          "signals": 6
+        },
+        {
+          "repository": "0xAllan123/flash-loans",
+          "candidate_index": 19,
+          "commit": "39c4156e89b5c3862b8fa07106baa455d27f2193",
+          "tree": "a8947eee9b240b903dadbf546c1b64e75eadcd51",
+          "files": 7,
+          "files_available": 7,
+          "source_cap_hit": false,
+          "signals": 12
+        },
+        {
+          "repository": "0xAlmadenCapMgmt/Web3Behaviors",
+          "candidate_index": 20,
+          "commit": "d8590eb180e1007bed664227ecb624e92cc9dd16",
+          "tree": "1ce3a75bf0acab68ee2d1065feb8faa993b8a4ad",
+          "files": 0,
+          "files_available": 0,
+          "source_cap_hit": false,
+          "signals": 0
+        }
+      ]
+    },
+    "source_capture_pending": 7891
   },
   "implementation_updates": [
     "GitHubClient.tree supports recursive and non-recursive requests.",
@@ -258,7 +386,13 @@
     "Worker uses SQLite candidate leases, three bounded attempts, lease-expiry recovery, direct flash-loan/liquidation family priority, bounded parallel inspections and one atomic commit-pinned report per candidate.",
     "Worker reuses ResearchPipeline.inspect to pin current default-branch commit/tree and verify Git blob hashes; raw verified blobs persist in the local content-addressed vault, default first-pass cap 30 files per repository.",
     "Added tests for manifest tampering, priority order, idempotent resume, retry after transient failure and expired-lease recovery. CI run 43606380880 passed on Python 3.11, 3.12 and 3.13.",
-    "Worker implementation is merged, but the live 7,901-candidate source-capture queue remains 0/7,901 until run in a persistent local/WSL environment. No candidate code was executed."
+    "Worker implementation is merged, but the live 7,901-candidate source-capture queue remains 0/7,901 until run in a persistent local/WSL environment. No candidate code was executed.",
+    "Added a bounded GitHub Actions source-capture pilot workflow with hard cap 10 candidates, max parallelism 2, contents:read-only token, compile step, and evidence bundle upload.",
+    "Pilot workflow run 43607072905 successfully attempted 10 prioritized live GitHub repositories; all 10 source-capture tasks completed, 0 failed, 7,891 remain pending in the persisted SQLite queue.",
+    "Pilot captured 182 source-file references across 9 repositories and stored 173 unique content-addressed Git blobs; all 182 Git blob SHA-1 references independently re-verified against the downloaded artifact, with zero missing or mismatched blobs.",
+    "All 10 repositories had full commit and tree pins and complete tree inventory; six reports were complete within configured source scope, four reached the 30-file cap, and one repository had zero eligible files in configured source extensions.",
+    "Uploaded artifact 14118419543 (1,509,274 bytes; SHA-256 092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178) with SQLite queue, raw source vault and 10 inspection reports; 30-day retention.",
+    "Persisted sanitized pilot verification report at research_runs/source-capture-pilots/43607072905/verification.json. No candidate code was executed; semantic audit and independent review remain pending."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
@@ -276,14 +410,14 @@
   },
   "orchestration": {
     "framework": "LangGraph",
-    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; LIVE_11_FAMILY_DISCOVERY_7901; 80_HASH_VERIFIED_BATCHES; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED_CI_PASS; SOURCE_CAPTURE_QUEUE_RUNTIME_PENDING_0_OF_7901; REAL_LOCAL_MODEL_PENDING; INDEPENDENT_REVIEW_PENDING",
+    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; LIVE_11_FAMILY_DISCOVERY_7901; 80_HASH_VERIFIED_BATCHES; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED; LIVE_PILOT_10_OF_10_CAPTURED_SHA1_VERIFIED; 7891_SOURCE_CAPTURE_PENDING; REAL_LOCAL_MODEL_PENDING; INDEPENDENT_REVIEW_PENDING",
     "modules": [
       "src/flashloan_research/mission_runtime.py",
       "src/flashloan_research/mission_executor.py",
       "src/flashloan_research/mission_graph.py",
       "src/flashloan_research/mission_worker.py"
     ],
-    "next": "Run flashloan-source-capture-worker against the immutable 7,901-candidate manifest in persistent local/WSL storage, validate the first 10-20 captures and resume checkpoints, then continue the full queue while preserving all 11 taxonomy families."
+    "next": "Resume the same SQLite queue and content-addressed vault from pilot artifact 14118419543; process another bounded tranche, preserve artifact/queue continuity, and verify exact candidate status, commit/tree/blob pins before raising batch size."
   },
   "constitution": "PROJECT_CONSTITUTION.md",
   "no_drift_guard": [
