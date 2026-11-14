@@ -122,7 +122,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
     try:
         claims = store.claim_ready(
             mission_id, worker_id, limit=limit, lease_seconds=900,
-            task_types=set(ROLE_PROMPTS),
+            task_types={"candidate_purpose", "protocol_forensics", "security_forensics", "execution_forensics", "test_forensics", "economic_forensics", "dependency_forensics", "independent_review"},
         )
         for task in claims:
             role = task["role"]
