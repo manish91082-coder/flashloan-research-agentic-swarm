@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "purpose": "One-time Agent Form semantic quality pilot using a verified source-capture checkpoint.",
-  "seed_run_id": 43614998279,
+  "seed_run_id": 43615137961,
   "batch_limit": 2,
   "model_runtime": "Ollama local CPU",
   "model": "qwen2.5:3b",
@@ -23,5 +23,6 @@
     "live_trading": false,
     "paid_inference": false,
     "cloud_inference": false
-  }
+  },
+  "updated_at_utc": "2026-11-14T16:21:30Z"
 }
