@@ -82,6 +82,7 @@ def run_taxonomy_discovery(
                 "incomplete_results": None,
                 "search_cap_hit": False,
                 "page_limit_hit": False,
+                "short_page_before_expected_end": False,
                 "status": "running",
                 "error": None,
             }
@@ -135,11 +136,15 @@ def run_taxonomy_discovery(
                         match = {"family_id": family_id, "query": query, "page": page}
                         if match not in candidates[canonical_name]["discovered_by"]:
                             candidates[canonical_name]["discovered_by"].append(match)
+                    expected_pages = min(10, math.ceil(min(total_count, 1000) / per_page))
                     if len(items) < per_page:
+                        if page < expected_pages:
+                            query_record["short_page_before_expected_end"] = True
                         break
                     if page == max_pages:
-                        expected_pages = min(10, math.ceil(min(total_count, 1000) / per_page))
                         query_record["page_limit_hit"] = page < expected_pages
+                    if page == expected_pages:
+                        break
                 except Exception as exc:
                     query_record["status"] = "incomplete"
                     query_record["error"] = f"{type(exc).__name__}: {str(exc)[:500]}"
@@ -149,7 +154,7 @@ def run_taxonomy_discovery(
                     query_record["status"] = "incomplete"
                 elif query_record["search_cap_hit"]:
                     query_record["status"] = "capped"
-                elif query_record["page_limit_hit"]:
+                elif query_record["page_limit_hit"] or query_record["short_page_before_expected_end"]:
                     query_record["status"] = "incomplete"
                 else:
                     query_record["status"] = "complete"
@@ -195,7 +200,8 @@ def run_taxonomy_discovery(
         "coverage_debt": [
             {"family_id": q["family_id"], "query": q["query"], "status": q["status"],
              "total_count": q["total_count"], "pages_captured": len(q["pages"]), "error": q["error"],
-             "search_cap_hit": q["search_cap_hit"], "page_limit_hit": q["page_limit_hit"]}
+             "search_cap_hit": q["search_cap_hit"], "page_limit_hit": q["page_limit_hit"],
+             "short_page_before_expected_end": q["short_page_before_expected_end"]}
             for q in incomplete_queries
         ],
         "unique_candidate_count": len(candidates),
