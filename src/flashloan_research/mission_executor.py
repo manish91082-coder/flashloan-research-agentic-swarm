@@ -30,10 +30,14 @@ class MissionExecutor:
 
     def __init__(self, database_path: Path | None = None,
                  taxonomy_path: Path = Path("research/keyword-taxonomy.json"),
-                 artifact_root: Path = Path("research_runs/mission")):
+                 artifact_root: Path = Path("research_runs/mission"),
+                 client_factory: Any = GitHubClient,
+                 pipeline_factory: Any = ResearchPipeline):
         self.database_path = Path(database_path or SETTINGS.database_path)
         self.taxonomy_path = Path(taxonomy_path)
         self.artifact_root = Path(artifact_root)
+        self.client_factory = client_factory
+        self.pipeline_factory = pipeline_factory
 
     def _worker_id(self, mission_id: str) -> str:
         return f"mission-{mission_id}-{uuid.uuid4().hex[:8]}"
@@ -108,7 +112,7 @@ class MissionExecutor:
             family_store = ResearchStore(self.database_path)
             try:
                 report = run_taxonomy_discovery(
-                    GitHubClient(), family_store, taxonomy_path,
+                    self.client_factory(), family_store, taxonomy_path,
                     selected_families=[family_id],
                     per_page=task["payload"]["per_page"],
                     max_pages=task["payload"]["max_pages_per_query"],
@@ -277,7 +281,7 @@ class MissionExecutor:
             repository = task["payload"]["repository"]
             store = ResearchStore(self.database_path)
             try:
-                pipeline = ResearchPipeline()
+                pipeline = self.pipeline_factory()
                 result = pipeline.inspect(repository, store)
                 path = inspection_dir / (repository.replace("/", "__") + ".json")
                 write_json(path, result)
