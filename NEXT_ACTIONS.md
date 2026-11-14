@@ -44,8 +44,8 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 
 ## Latest priority source-inspection checkpoint
 
-- Four candidates from immutable packet `research_runs/audit-batches/43600488013/batch-0001.jsonl` were inspected at exact default-branch commit/tree/blob pins: `0xTona/liquidator-bot`, `0xFantomMenace/Aave-Liquidation-Bot`, `0xFantomMenace/Compound-Liquidation-Bot`, and `0xGusMcCrae/aave-liquidator-bot`.
-- Four provisional dossiers were added under `research/candidate-audits/`. Grades: C, C, D, D respectively; all are pending independent reviewer validation.
+- Five candidates from immutable packet `research_runs/audit-batches/43600488013/batch-0001.jsonl` were inspected at exact default-branch commit/tree/blob pins: `0xTona/liquidator-bot`, `0xFantomMenace/Aave-Liquidation-Bot`, `0xFantomMenace/Compound-Liquidation-Bot`, and `0xGusMcCrae/aave-liquidator-bot`.
+- Five provisional dossiers were added under `research/candidate-audits/`. Grades: C, C, D, D, B respectively; all are pending independent reviewer validation.
 - Notable findings: Tona does not deduct gas from its positive-gross-profit gate; FantomMenace's HyperLend and Granary subprojects have different callback security; Compound liquidator has a reserve-index/purchasable-array construction defect and zero swap minimum; Gus uses Solidity XOR `2^256 - 1` (257, not max allowance) and exposes an unauthenticated callback.
 - These are four manually source-inspected candidates, not yet automated source-capture completion. The 7,901-row batch queue's automated source-capture counter remains 0/7,901. Candidate code was not built, tested or executed. Independent review is pending.
 
