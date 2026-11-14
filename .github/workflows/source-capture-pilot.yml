@@ -1,0 +1,146 @@
+name: Bounded Flash Loan Source Capture Pilot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-source-capture-pilot.json'
+  workflow_dispatch:
+    inputs:
+      max_candidates:
+        description: Maximum number of real repositories to inspect (hard cap 10 for this pilot)
+        required: true
+        type: number
+        default: 10
+      parallel:
+        description: Concurrent read-only inspections (1 or 2)
+        required: true
+        type: number
+        default: 2
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flashloan-source-capture-pilot
+  cancel-in-progress: false
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout canonical research repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Install research worker
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m compileall -q src/flashloan_research
+
+      - name: Run bounded real source-capture pilot
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FLR_DATABASE: data/research.sqlite3
+          FLR_SNAPSHOT_DIR: data/snapshots
+          MAX_CANDIDATES_INPUT: ${{ inputs.max_candidates || '10' }}
+          PARALLEL_INPUT: ${{ inputs.parallel || '2' }}
+        run: |
+          set -euo pipefail
+          MAX_CANDIDATES="$MAX_CANDIDATES_INPUT"
+          PARALLEL="$PARALLEL_INPUT"
+          case "$MAX_CANDIDATES" in ''|*[!0-9]*) echo "max_candidates must be an integer"; exit 2;; esac
+          case "$PARALLEL" in ''|*[!0-9]*) echo "parallel must be an integer"; exit 2;; esac
+          if (( MAX_CANDIDATES < 1 || MAX_CANDIDATES > 10 )); then
+            echo "Pilot hard cap is 10 candidates." >&2
+            exit 2
+          fi
+          if (( PARALLEL < 1 || PARALLEL > 2 )); then
+            echo "Pilot parallelism must be 1 or 2." >&2
+            exit 2
+          fi
+
+          MANIFEST="research_runs/audit-batches/43600488013/manifest.json"
+          test -s "$MANIFEST"
+          mkdir -p reports data
+          echo "## Source-capture pilot" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Manifest: $MANIFEST" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Candidate cap: $MAX_CANDIDATES" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Parallelism: $PARALLEL" >> "$GITHUB_STEP_SUMMARY"
+
+          flashloan-source-capture-worker \
+            --manifest "$MANIFEST" \
+            --workspace "$GITHUB_WORKSPACE" \
+            --database "$FLR_DATABASE" \
+            --snapshots "$FLR_SNAPSHOT_DIR" \
+            --output reports/source-capture \
+            --max-candidates "$MAX_CANDIDATES" \
+            --parallel "$PARALLEL" \
+            | tee reports/pilot-run-summary.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("reports/pilot-run-summary.json").read_text(encoding="utf-8"))
+          queue = report.get("queue", {})
+          captured = queue.get("captured", 0)
+          attempted = report.get("attempted_this_cycle", 0)
+          if attempted > 10 or captured > 10:
+              raise SystemExit("Pilot exceeded its hard cap")
+          if captured != attempted:
+              raise SystemExit("Pilot has failed or unresolved candidates; inspect report before proceeding")
+          if captured == 0:
+              raise SystemExit("Pilot captured zero repositories")
+          with Path("reports/pilot-verification.json").open("w", encoding="utf-8") as handle:
+              json.dump({
+                  "status": "bounded_real_source_capture_pilot_completed",
+                  "attempted_this_cycle": attempted,
+                  "captured": captured,
+                  "queue": queue,
+                  "reports_written": len(list(Path("reports/source-capture").rglob("*.json"))),
+                  "candidate_code_executed": False,
+                  "semantic_audit_completed": False,
+                  "independent_review_completed": False
+              }, handle, indent=2)
+          print(json.dumps({"pilot_verified": True, "captured": captured, "attempted": attempted}))
+          PY
+
+      - name: Checkpoint SQLite database
+        if: always()
+        run: |
+          python - <<'PY'
+          import sqlite3
+          from pathlib import Path
+          path = Path("data/research.sqlite3")
+          if path.exists():
+              connection = sqlite3.connect(path)
+              try:
+                  connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                  connection.commit()
+              finally:
+                  connection.close()
+          PY
+
+      - name: Upload pilot evidence bundle
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flashloan-source-capture-pilot-${{ github.run_id }}
+          path: |
+            data/research.sqlite3
+            data/snapshots/
+            reports/source-capture/
+            reports/pilot-run-summary.json
+            reports/pilot-verification.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
