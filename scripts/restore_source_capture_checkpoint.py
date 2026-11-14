@@ -23,7 +23,7 @@ def sha256_file(path: Path) -> str:
 
 
 def git_blob_sha(content: bytes) -> str:
-    return hashlib.sha1(b"blob " + str(len(content)).encode("ascii") + b"\\0" + content).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(content)).encode("ascii") + b"\0" + content).hexdigest()
 
 
 def safe_child(root: Path, relative: str) -> Path:
