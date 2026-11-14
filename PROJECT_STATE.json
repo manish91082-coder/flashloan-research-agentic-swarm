@@ -3,10 +3,10 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE",
-  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_GITHUB_HOSTED_SOURCE_CAPTURE_CHAIN_ACTIVE; 304_OF_7901_SOURCE_CAPTURED; 7595_PENDING; 0_LEASED; 2_EMPTY_REPOSITORY_TERMINAL_FAILURES; 226_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 78_WITH_COVERAGE_LIMITS; AGENT_FORM_BRIDGE_CI_GREEN; LOCAL_OPEN_WEIGHT_AGENT_FORM_SEMANTIC_PILOT_RUNNING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_NOT_YET_VERIFIED",
-  "last_verified_at_utc": "2026-11-14T16:25:30Z",
+  "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_GITHUB_HOSTED_SOURCE_CAPTURE_CHAIN_ACTIVE; 316_OF_7901_SOURCE_CAPTURED; 7583_PENDING; 0_LEASED; 2_EMPTY_REPOSITORY_TERMINAL_FAILURES; 236_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 80_WITH_COVERAGE_LIMITS; AGENT_FORM_BRIDGE_CI_GREEN; LOCAL_OPEN_WEIGHT_AGENT_FORM_SEMANTIC_PILOT_RUNNING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_NOT_YET_VERIFIED",
+  "last_verified_at_utc": "2026-11-14T16:27:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "b9911845d162514363774ca71d22ba730546055a",
+  "latest_commit_at_checkpoint": "a468361b5d4b67cfa5dfb67b7ea98e2774a7f091",
   "latest_ci_run": {
     "run_id": 43608435180,
     "event": "push",
@@ -170,7 +170,7 @@
     "runtime_executions": 0,
     "metadata_imported": 7901,
     "prepared_audit_batches": 80,
-    "source_capture_completed": 304,
+    "source_capture_completed": 316,
     "source_audit_pending": 7901,
     "last_source_inspection": {
       "status": "five_manual_commit_pinned_source_inspections_completed_from_priority_packet_0001",
@@ -237,11 +237,11 @@
     },
     "last_source_capture": {
       "status": "autonomous_github_hosted_checkpoint_completed",
-      "workflow_run_id": 43615383358,
-      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615383358",
-      "artifact_id": 14122475274,
+      "workflow_run_id": 43615449485,
+      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615449485",
+      "artifact_id": 14122085911,
       "artifact_name": "flashloan-source-capture-checkpoint",
-      "artifact_size_bytes": 8510984,
+      "artifact_size_bytes": 8795048,
       "cycle": {
         "attempted": 12,
         "captured": 12,
@@ -249,19 +249,19 @@
       },
       "queue": {
         "total": 7901,
-        "captured": 304,
-        "pending": 7595,
+        "captured": 316,
+        "pending": 7583,
         "leased": 0,
         "failed": 2,
-        "captured_complete_within_scope": 226,
-        "captured_with_coverage_limits": 78
+        "captured_complete_within_scope": 236,
+        "captured_with_coverage_limits": 80
       },
       "candidate_code_executed": false,
       "semantic_audit_completed": false,
       "independent_review_completed": false
     },
-    "source_capture_pending": 7595,
-    "source_capture_status": "304 captured; 7,595 pending; 0 leased; 2 terminal empty-repository failures; 226 within configured scope; 78 with coverage limits"
+    "source_capture_pending": 7583,
+    "source_capture_status": "316 captured; 7,583 pending; 0 leased; 2 terminal empty-repository failures; 236 within configured scope; 80 with coverage limits"
   },
   "implementation_updates": [
     "GitHubClient.tree supports recursive and non-recursive requests.",
@@ -332,7 +332,9 @@
     "The Agent Form pilot is explicitly gated: 2 candidate purpose tasks, 6 specialist roles per candidate, 2 evidence-validation tasks and 2 independent reviews. It fails closed if any specialist/evidence/reviewer task fails or if either evidence/review gate is missing.",
     "Added configurable local model timeout and bounded verified-source context. CI initially exposed compatibility with the injected fake provider; provider construction was corrected without breaking the test seam. Latest CI run 43615235086 passed all Python 3.11/3.12/3.13 tests.",
     "Autonomous source-capture chain advanced to 304 verified repositories; latest checkpoint 43615383358 / artifact 14122475274, with 7,595 pending, 0 leased and 2 empty-repository terminal failures.",
-    "Agent Form local-model semantic pilot 43615341905 completed checkpoint restoration, Agent Form runtime installation, Ollama local inference runtime installation and mission DAG bootstrap; specialist/evidence/reviewer stage remained in progress at this checkpoint. No semantic audit count incremented yet."
+    "Agent Form local-model semantic pilot 43615341905 completed checkpoint restoration, Agent Form runtime installation, Ollama local inference runtime installation and mission DAG bootstrap; specialist/evidence/reviewer stage remained in progress at this checkpoint. No semantic audit count incremented yet.",
+    "Source-capture automation advanced to 316 verified candidates; latest checkpoint 43615449485 / artifact 14122085911, 7,583 pending, 0 leased and 2 empty-repository terminal failures.",
+    "Agent Form semantic pilot 43615341905 remained active in the specialist/evidence/reviewer execution stage after successfully restoring the 268-candidate checkpoint, installing Ollama qwen2.5:3b and bootstrapping a two-candidate mission DAG. Outputs remain unverified and semantic audit count remains unchanged."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
