@@ -79,7 +79,9 @@ def validate_mission(payload: Any) -> dict[str, Any]:
     if not isinstance(protocols, list) or not all(isinstance(x, str) and 0 < len(x) <= 120 for x in protocols):
         raise MissionValidationError("scope.protocols must be an array of non-empty strings")
     allowed_scope = {"chains", "protocols", "repository_limit", "include_archived",
-                     "include_older_references", "date_cutoff"}
+                     "include_older_references", "date_cutoff", "keyword_taxonomy_version",
+                     "discovery_query_families", "search_per_page", "max_pages_per_query",
+                     "include_forked"}
     if set(scope) - allowed_scope:
         raise MissionValidationError("scope contains unknown fields")
     for flag in ("include_archived", "include_older_references"):
@@ -88,6 +90,26 @@ def validate_mission(payload: Any) -> dict[str, Any]:
     limit = scope.get("repository_limit", 100)
     if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 500:
         raise MissionValidationError("repository_limit must be an integer from 1 to 500")
+    family_ids = {
+        "flash_loan_core", "flash_loan_provider_apis", "defi_liquidation",
+        "flash_loan_liquidation_combo", "arbitrage", "mev_execution",
+        "lending_protocols", "dex_and_liquidity", "security_accounting",
+        "cross_chain_infrastructure", "tooling_and_research",
+    }
+    families = scope.get("discovery_query_families", [])
+    if not isinstance(families, list) or len(families) != len(set(families)) or any(x not in family_ids for x in families):
+        raise MissionValidationError("discovery_query_families must contain unique supported taxonomy IDs")
+    taxonomy_version = scope.get("keyword_taxonomy_version", "1.0.0")
+    if not isinstance(taxonomy_version, str) or not 1 <= len(taxonomy_version) <= 20:
+        raise MissionValidationError("keyword_taxonomy_version must be a non-empty string up to 20 characters")
+    per_page = scope.get("search_per_page", 100)
+    max_pages = scope.get("max_pages_per_query", 10)
+    if isinstance(per_page, bool) or not isinstance(per_page, int) or not 1 <= per_page <= 100:
+        raise MissionValidationError("search_per_page must be an integer from 1 to 100")
+    if isinstance(max_pages, bool) or not isinstance(max_pages, int) or not 1 <= max_pages <= 10:
+        raise MissionValidationError("max_pages_per_query must be an integer from 1 to 10")
+    if "include_forked" in scope and not isinstance(scope["include_forked"], bool):
+        raise MissionValidationError("scope.include_forked must be boolean")
 
     policy = payload["agent_policy"]
     if not isinstance(policy, dict) or set(policy) - {"mode", "independent_review", "max_parallel_agents", "max_iterations", "specialists"}:
