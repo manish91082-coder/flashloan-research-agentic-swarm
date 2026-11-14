@@ -13,6 +13,7 @@ class MissionGraphState(TypedDict, total=False):
     discovery: dict[str, Any]
     candidate_expansion: dict[str, Any]
     source_inspection: dict[str, Any]
+    semantic_agents: dict[str, Any]
     final: dict[str, Any]
 
 
@@ -39,6 +40,9 @@ def build_mission_graph(executor: MissionExecutor, checkpointer: Any = None):
     def inspection_node(state: MissionGraphState) -> dict[str, Any]:
         return {"source_inspection": executor.inspect_candidate_batch(state["mission_id"])}
 
+    def semantic_node(state: MissionGraphState) -> dict[str, Any]:
+        return {"semantic_agents": executor.run_local_semantic_agents(state["mission_id"])}
+
     def finalize_node(state: MissionGraphState) -> dict[str, Any]:
         return {"final": executor.finalize(state["mission_id"])}
 
@@ -46,13 +50,15 @@ def build_mission_graph(executor: MissionExecutor, checkpointer: Any = None):
     builder.add_node("github_discovery_swarm", discovery_node)
     builder.add_node("candidate_triage_and_task_expansion", expansion_node)
     builder.add_node("commit_pinned_source_inspection", inspection_node)
+    builder.add_node("semantic_specialists_evidence_gate_and_review", semantic_node)
     builder.add_node("mission_checkpoint_and_handoff", finalize_node)
 
     builder.add_edge(START, "research_director")
     builder.add_edge("research_director", "github_discovery_swarm")
     builder.add_edge("github_discovery_swarm", "candidate_triage_and_task_expansion")
     builder.add_edge("candidate_triage_and_task_expansion", "commit_pinned_source_inspection")
-    builder.add_edge("commit_pinned_source_inspection", "mission_checkpoint_and_handoff")
+    builder.add_edge("commit_pinned_source_inspection", "semantic_specialists_evidence_gate_and_review")
+    builder.add_edge("semantic_specialists_evidence_gate_and_review", "mission_checkpoint_and_handoff")
     builder.add_edge("mission_checkpoint_and_handoff", END)
     return builder.compile(checkpointer=checkpointer)
 

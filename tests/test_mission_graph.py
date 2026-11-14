@@ -29,6 +29,10 @@ class FakeExecutor:
         self.calls.append(("inspect", mission_id))
         return {"source_inspections_completed": 38}
 
+    def run_local_semantic_agents(self, mission_id):
+        self.calls.append(("semantic", mission_id))
+        return {"status": "blocked_no_approved_free_local_model_endpoint"}
+
     def finalize(self, mission_id):
         self.calls.append(("finalize", mission_id))
         return {"mission_status": "blocked", "pending_roles": ["independent_reviewer"]}
@@ -46,9 +50,13 @@ class MissionGraphTests(unittest.TestCase):
                 snapshot = graph.get_state(config)
             self.assertEqual(
                 [x[0] for x in executor.calls],
-                ["prepare", "discover", "expand", "inspect", "finalize"],
+                ["prepare", "discover", "expand", "inspect", "semantic", "finalize"],
             )
+            self.assertEqual(result["semantic_agents"]["status"],
+                             "blocked_no_approved_free_local_model_endpoint")
             self.assertEqual(result["final"]["mission_status"], "blocked")
+            self.assertEqual(snapshot.values["semantic_agents"]["status"],
+                             "blocked_no_approved_free_local_model_endpoint")
             self.assertEqual(snapshot.values["final"]["pending_roles"], ["independent_reviewer"])
             self.assertTrue(checkpoint_path.exists())
 
