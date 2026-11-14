@@ -21,6 +21,7 @@ agentic = [
 flashloan-research = "flashloan_research.cli:main"
 flashloan-mission-api = "flashloan_research.mission_api:main"
 flashloan-mission-worker = "flashloan_research.mission_worker:main"
+flashloan-source-capture-worker = "flashloan_research.source_capture_worker:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

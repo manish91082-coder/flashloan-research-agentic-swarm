@@ -74,7 +74,25 @@ The Mission Form records selected taxonomy families and pagination limits. Searc
 
 **Candidate queue preparation:** the 7,901 live-discovery candidates have been stream-imported and persisted as 80 hash-verified JSONL batches (up to 100 each) under `research_runs/audit-batches/43600488013/`. The preparation workflow verified 7,901 unique names, 7,901 unique GitHub repository IDs, contiguous candidate indexes and all batch SHA-256 hashes. Each row remains `pending_commit_pinned_source_capture`; import is not an audit.
 
-**Still incomplete:** source capture and purpose classification for the 7,901-row queue, fork/parent reconciliation during source inspection, independent review of the two new dossier finding sets, real free local-model inference, dossier/synthesis execution and retry-safe multi-batch continuation. No paid/cloud fallback or candidate execution.
+**Automated source-capture queue worker:** `flashloan-source-capture-worker` consumes the immutable manifest and all 80 JSONL batches. It verifies every batch SHA-256 and candidate index before queue import, uses SQLite leases and retry counters, pins each repository's current default-branch commit/tree and verified Git blob IDs, and writes one atomic inspection report per candidate. The default first-pass cap is 30 source files per repository; any tree/file cap is explicitly recorded as a coverage limitation. Raw verified blobs remain in the local content-addressed vault, not in Git history.
+
+Run it from the repository root (keep the SQLite database and snapshot vault on persistent storage):
+
+```bash
+pip install -e .
+flashloan-source-capture-worker \
+  --manifest research_runs/audit-batches/43600488013/manifest.json \
+  --database data/research.sqlite3 \
+  --snapshots data/snapshots \
+  --output reports/source-capture \
+  --max-candidates 4 \
+  --parallel 2 \
+  --continuous
+```
+
+The worker resumes from SQLite after interruption and retries failed candidates up to three attempts. Set `GITHUB_TOKEN` as an environment variable when higher authenticated GitHub API limits are needed. This stage performs source acquisition only: a captured candidate is **not** semantically classified, independently reviewed, or security-audited until the model/evidence/reviewer stages run. It never executes candidate code.
+
+**Still incomplete:** the new worker has not yet been run against the live 7,901-candidate queue (source-capture counter remains 0/7,901); semantic purpose classification, fork/parent reconciliation, independent review of provisional dossiers, real free local-model inference, and dossier/synthesis execution also remain pending. A worker implementation and retry-safe multi-batch continuation now exist, but actual queue processing must be verified separately. No paid/cloud fallback or candidate execution.
 
 Start the local form and queue:
 
