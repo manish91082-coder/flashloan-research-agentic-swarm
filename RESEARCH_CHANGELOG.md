@@ -3,13 +3,15 @@
 ## 2026-11-14
 - Created the dedicated repository and verified GitHub connector push/admin access.
 - Added Python standard-library research engine, GitHub REST client, SQLite persistence, commit/tree pinning, bounded source retrieval, Git object SHA-1 verification and lexical signal extraction.
-- Added read-only CI and a separately permissioned scheduled/manual discovery workflow.
+- Added read-only CI and separately permissioned scheduled/manual public GitHub discovery workflow.
 - Pinned external GitHub Actions by full commit SHA.
-- Added smoke tests, governance docs, accounting invariants and historical candidate revalidation queue.
-- Local validation: compileall PASS; 26/26 tests PASS; workflow YAML parsed; CLI help/status PASS.
-- Remote CI for Phase A feature branch and merged main passed on Python 3.11, 3.12 and 3.13.
-- Remote test suite currently has four focused smoke tests plus compileall. The full 26-test local suite has not yet been copied into the repository.
-- PR #1 was squash-merged into main at commit f42f93623e970a24beb0d3a5f395e03051f3893b.
-- Historical candidate assessments are marked for current-HEAD revalidation. No current security finding is accepted yet.
-- No candidate repository code executed. No wallet, signer, deployment, live trading or transaction execution.
-- Scheduled discovery is configured for Mondays at 02:17 UTC. First report is pending execution/verification.
+- Added governance docs, ten logical research roles, decision log, project state, accounting invariants and historical candidate revalidation queue.
+- Saved and verified a bounded manual GitHub search snapshot: 38 deduplicated leads across four queries; page 1 only, explicitly non-exhaustive.
+- PR #1 squash-merged Phase A foundation into main: f42f93623e970a24beb0d3a5f395e03051f3893b.
+- PR #2 squash-merged regression expansion and schemas into main: a1621f16f29debe99feec14d41cbd3d3b3acd314.
+- Added 14 extended regression tests and two JSON Schemas. Latest main CI run 43583006127 passed on Python 3.11, 3.12 and 3.13.
+- Remote test count is 18 (4 baseline smoke + 14 extended), plus compileall. Original full 26-test suite passed locally; it is not yet fully restored to remote CI.
+- Added Phase A local verification report at docs/PHASE_A_TEST_REPORT.md.
+- Candidate forensic review underway using exact current repository commit/tree/blob pins. No current candidate finding has yet been accepted into the evidence register.
+- Candidate source code was not executed. No wallet access, signer, deployment, live trading or transaction execution.
+- Scheduled discovery is configured for Mondays at 02:17 UTC. First actual scheduled run and report commit remain pending.
