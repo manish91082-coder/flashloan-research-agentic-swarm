@@ -1,0 +1,176 @@
+name: Agent Form Local-Model Semantic Pilot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-agentic-semantic-pilot.json'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: flashloan-agent-form-semantic-pilot
+  cancel-in-progress: false
+
+jobs:
+  semantic-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      FLR_DATABASE: data/agentic-mission.sqlite3
+      FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
+      FLR_MODEL_BASE_URL: http://127.0.0.1:11434
+      FLR_MODEL_NAME: qwen2.5:3b
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout canonical research project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Read immutable pilot seed
+        id: seed
+        run: |
+          set -euo pipefail
+          RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-autonomous-source-capture.json"))["agentic_pilot_seed_run_id"])')"
+          if [[ ! "$RUN_ID" =~ ^[0-9]+$ ]]; then
+            echo "Invalid agentic pilot seed run ID." >&2
+            exit 1
+          fi
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Agent Form pilot seed checkpoint: $RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Download verified source-capture checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/agentic-pilot-checkpoint"
+          gh run download "${{ steps.seed.outputs.run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "flashloan-source-capture-checkpoint" \
+            --dir "$RUNNER_TEMP/agentic-pilot-checkpoint"
+          python scripts/restore_source_capture_checkpoint.py \
+            --artifact-root "$RUNNER_TEMP/agentic-pilot-checkpoint" \
+            --workspace "$GITHUB_WORKSPACE" \
+            | tee reports-agentic-restore-verification.json
+
+      - name: Install Agent Form runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[agentic]'
+          python -m compileall -q src/flashloan_research scripts
+
+      - name: Install local open-weight inference runtime
+        run: |
+          set -euo pipefail
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          bash -n "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          sudo systemctl start ollama
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$FLR_MODEL_NAME"
+          ollama show "$FLR_MODEL_NAME" --modelfile > reports-ollama-modelfile.txt
+          curl --fail --silent http://127.0.0.1:11434/api/tags > reports-ollama-model-manifest.json
+
+      - name: Bootstrap Agent Form mission DAG from verified capture reports
+        run: |
+          set -euo pipefail
+          python scripts/initialize_agentic_capture_mission.py \
+            --report-dir reports/source-capture/43600488013 \
+            --vault data/source-capture-pilot-vault \
+            --mission-db "$FLR_DATABASE" \
+            --artifact-root research_runs/mission \
+            --batch-limit 2 \
+            | tee reports-agent-form-bootstrap.json
+
+      - name: Run bounded loopback-only specialist, evidence and reviewer pilot
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time
+          from pathlib import Path
+          from flashloan_research.mission_executor import MissionExecutor
+
+          started = time.time()
+          executor = MissionExecutor(
+              database_path=Path(os.environ["FLR_DATABASE"]),
+              artifact_root=Path("research_runs/mission"),
+          )
+          result = executor.run_local_semantic_agents("flashloan-research-43600488013")
+          result["elapsed_seconds"] = round(time.time() - started, 2)
+          result["candidate_code_executed"] = False
+          result["model_endpoint_policy"] = "127.0.0.1 loopback only; no cloud inference"
+          Path("reports-agent-form-semantic-pilot.json").write_text(
+              json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(result, indent=2, sort_keys=True))
+          if result.get("status") != "executed_with_evidence_gate":
+              raise SystemExit("Agent Form semantic pipeline did not complete its required stages.")
+          if any(batch.get("failures") for batch in result.get("specialist_batches", [])):
+              raise SystemExit("One or more specialist tasks failed; pilot is not a pass.")
+          if result.get("independent_review", {}).get("failures"):
+              raise SystemExit("Independent reviewer task failed; pilot is not a pass.")
+          PY
+
+      - name: Generate Agent Form pilot quality and task ledger
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os, sqlite3
+          from pathlib import Path
+          db = Path(os.environ["FLR_DATABASE"])
+          summary = {"mission_id": "flashloan-research-43600488013", "database_exists": db.is_file()}
+          if db.is_file():
+              con = sqlite3.connect(db)
+              con.row_factory = sqlite3.Row
+              try:
+                  summary["mission"] = dict(con.execute(
+                      "SELECT mission_id,title,status,rejection_reason FROM research_missions WHERE mission_id=?",
+                      (summary["mission_id"],)
+                  ).fetchone() or {})
+                  rows = con.execute(
+                      "SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks WHERE mission_id=? GROUP BY task_type,role,status ORDER BY task_type,role,status",
+                      (summary["mission_id"],)
+                  ).fetchall()
+                  summary["task_counts"] = [dict(x) for x in rows]
+                  summary["candidate_code_executed"] = False
+              finally:
+                  con.close()
+          Path("reports-agent-form-task-ledger.json").write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload Agent Form semantic pilot evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flashloan-agent-form-semantic-pilot
+          path: |
+            data/agentic-mission.sqlite3
+            research_runs/mission/flashloan-research-43600488013/
+            reports-agentic-restore-verification.json
+            reports-agent-form-bootstrap.json
+            reports-agent-form-semantic-pilot.json
+            reports-agent-form-task-ledger.json
+            reports-ollama-modelfile.txt
+            reports-ollama-model-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
