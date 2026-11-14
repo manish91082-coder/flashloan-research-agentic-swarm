@@ -4,23 +4,23 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE",
   "status": "LIVE_11_FAMILY_DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; STREAM_IMPORT_7901_COMPLETE; 80_SHA256_VERIFIED_AUDIT_BATCHES_PERSISTED; RESUMABLE_SOURCE_CAPTURE_WORKER_MERGED_AND_PILOT_10_OF_10_SUCCESS; 10_REPOSITORIES_COMMIT_TREE_PINNED_182_SOURCE_REFERENCES_173_UNIQUE_BLOBS_SHA1_VERIFIED; 7891_CANDIDATES_SOURCE_CAPTURE_PENDING; WSL_PILOT_RESTORE_AND_RESUME_SCRIPT_MERGED; GITHUB_API_PRIMARY_SECONDARY_RATE_LIMIT_RECOVERY_MERGED; REAL_LOCAL_MODEL_PENDING; SEMANTIC_AUDIT_AND_INDEPENDENT_REVIEW_PENDING",
-  "last_verified_at_utc": "2026-11-14T15:07:10.172Z",
+  "last_verified_at_utc": "2026-11-14T15:08:05.524Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "fb162f46a6ae9f8c27f658c4ffbae82ca132b397",
+  "latest_commit_at_checkpoint": "55cbc77da38e59a5cddcbfcdb2da3fa2a1ce6eae",
   "latest_ci_run": {
-    "run_id": 43607072884,
+    "run_id": 43608435180,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "4f8136fb6e5c4c3deb8bf82b992715a0fcfaf9f6",
+    "head_sha": "55cbc77da38e59a5cddcbfcdb2da3fa2a1ce6eae",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "Main CI passed on Python 3.11, 3.12 and 3.13 after bounded pilot workflow and trigger marker."
+    "tests": "Main CI passed on all three Python versions, including bash -n for the WSL resume helper, compileall and the full standard-library test suite."
   },
-  "phase_a_ci_history": "Latest main CI run 43607072884 passed on Python 3.11/3.12/3.13; bounded source-capture pilot run 43607072905 completed successfully.",
+  "phase_a_ci_history": "Main CI run 43608435180 passed on Python 3.11/3.12/3.13 after WSL resume helper and pilot checkpoint documentation; PR #10 CI also passed on all three.",
   "discovery": {
     "snapshot_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
     "snapshot_commit": "231f47f0ada252a921a065da935720873f397bef",
@@ -229,7 +229,9 @@
         "revalidates_sqlite_manifest_report_and_blob_pins": true,
         "progress_emitted_per_cycle": true,
         "local_long_queue_resume_verified": false,
-        "required_environment": "GITHUB_TOKEN"
+        "required_environment": "GITHUB_TOKEN",
+        "ci_run": 43608435180,
+        "ci_result": "success_python_3_11_3_12_3_13"
       }
     },
     "last_source_capture": {
