@@ -15,6 +15,8 @@ class Settings:
     max_retries: int = 4
     max_source_files: int = 80
     max_blob_bytes: int = 250_000
+    max_tree_entries: int = 50_000
+    max_tree_directories: int = 10_000
     github_token: str | None = os.getenv("GITHUB_TOKEN")
 
 
