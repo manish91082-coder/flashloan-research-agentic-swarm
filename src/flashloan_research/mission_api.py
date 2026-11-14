@@ -123,6 +123,7 @@ def main() -> None:
     worker_enabled = False
     if os.getenv("FLR_AUTOSTART_WORKER", "1").strip() != "0":
         try:
+            import langgraph  # noqa: F401
             from .mission_worker import worker_loop
             worker_thread = threading.Thread(
                 target=worker_loop,
@@ -133,7 +134,7 @@ def main() -> None:
             worker_thread.start()
             worker_enabled = True
         except (ImportError, RuntimeError) as exc:
-            print(f"Autonomous worker unavailable: {exc}")
+            print(f"Autonomous worker unavailable. Install pip install -e '.[agentic]': {exc}")
     server = MissionHTTPServer(("127.0.0.1", 8765), MissionRequestHandler, queue, worker_enabled)
     print("Research Mission Form: http://127.0.0.1:8765/")
     print("Local-only API. Submitting the form queues the autonomous research workflow.")
