@@ -46,7 +46,8 @@ jobs:
           set -euo pipefail
           SEED_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json"))["seed_run_id"])')"
           TRIGGER_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_run_id"])')"
-          if [[ ! "$SEED_RUN_ID" =~ ^[0-9]+$ || ! "$TRIGGER_RUN_ID" =~ ^[0-9]+$ ]]; then
+          ARTIFACT_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_artifact_id"])')"
+          if [[ ! "$SEED_RUN_ID" =~ ^[0-9]+$ || ! "$TRIGGER_RUN_ID" =~ ^[0-9]+$ || ! "$ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
             echo "Invalid Agent Form pilot checkpoint ID." >&2
             exit 1
           fi
@@ -56,19 +57,22 @@ jobs:
           fi
           echo "should_run=true" >> "$GITHUB_OUTPUT"
           echo "run_id=$TRIGGER_RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "Agent Form pilot seed checkpoint: $TRIGGER_RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+          echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
+          echo "Agent Form pilot seed checkpoint: $TRIGGER_RUN_ID (artifact $ARTIFACT_ID)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Download verified source-capture checkpoint
         if: steps.seed.outputs.should_run == 'true'
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/agentic-pilot-checkpoint"
-          gh run download "${{ steps.seed.outputs.run_id }}" \
-            --repo "$GITHUB_REPOSITORY" \
-            --name "flashloan-source-capture-checkpoint" \
-            --dir "$RUNNER_TEMP/agentic-pilot-checkpoint"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "${{ steps.seed.outputs.artifact_id }}" \
+            --destination "$RUNNER_TEMP/agentic-pilot-checkpoint/source-capture.zip" \
+            --extract-to "$RUNNER_TEMP/agentic-pilot-checkpoint/unpacked" \
+            --max-wait-seconds 7200
           python scripts/restore_source_capture_checkpoint.py \
-            --artifact-root "$RUNNER_TEMP/agentic-pilot-checkpoint" \
+            --artifact-root "$RUNNER_TEMP/agentic-pilot-checkpoint/unpacked" \
             --workspace "$GITHUB_WORKSPACE" \
             | tee reports-agentic-restore-verification.json
 
