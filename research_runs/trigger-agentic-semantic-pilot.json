@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Start the one-time Agent Form local open-weight semantic quality pilot from the verified 268-candidate checkpoint.",
+  "checkpoint_run_id": 43615137961,
+  "checkpoint_artifact_id": 14121666814,
+  "queue_checkpoint": {
+    "total": 7901,
+    "captured": 268,
+    "pending": 7631,
+    "leased": 0,
+    "failed": 2
+  },
+  "batch_limit": 2,
+  "model": "qwen2.5:3b",
+  "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
+  "acceptance": "two candidate purpose analyses, six specialist roles per candidate, evidence validation for both, independent reviewer for both",
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  }
+}
