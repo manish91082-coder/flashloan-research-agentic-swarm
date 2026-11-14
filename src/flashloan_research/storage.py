@@ -40,8 +40,10 @@ class ResearchStore:
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self.connection = sqlite3.connect(self.db_path)
+        self.connection = sqlite3.connect(self.db_path, timeout=15, check_same_thread=False)
         self.connection.row_factory = sqlite3.Row
+        self.connection.execute("PRAGMA journal_mode=WAL")
+        self.connection.execute("PRAGMA busy_timeout=15000")
         self.connection.executescript(SCHEMA)
         self.connection.commit()
 
@@ -71,6 +73,17 @@ class ResearchStore:
         VALUES (?,?,?,?,?,?,?,?,?)""", (record.repository, record.commit_sha, record.path, record.blob_sha,
         record.claim_type, record.claim, record.evidence_excerpt, record.confidence, record.acceptance_status))
         self.connection.commit()
+
+    def list_candidates(self, limit: int = 10000) -> list[dict[str, Any]]:
+        if isinstance(limit, bool) or not 1 <= limit <= 50000:
+            raise ValueError("limit must be between 1 and 50000")
+        rows = self.connection.execute(
+            """SELECT full_name,html_url,description,default_branch,pushed_at,archived,
+                      stars,forks,discovery_query,first_seen_at,last_seen_at
+               FROM candidates ORDER BY stars DESC,full_name LIMIT ?""",
+            (limit,),
+        ).fetchall()
+        return [dict(row) for row in rows]
 
     def counts(self) -> dict[str, int]:
         return {table: int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
