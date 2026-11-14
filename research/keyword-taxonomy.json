@@ -355,5 +355,67 @@
     "security_findings_require_independent_review": true,
     "profitability_claim_requires_all_execution_costs": true,
     "do_not_execute_candidate_code": true
+  },
+  "family_queries": {
+    "flash_loan_core": [
+      "\"flash loan\" in:name,description,readme",
+      "flashloan in:name,description,readme",
+      "\"flash-loan\" in:name,description,readme"
+    ],
+    "flash_loan_provider_apis": [
+      "\"flashLoanSimple\" in:name,description,readme",
+      "\"executeOperation\" Aave in:name,description,readme",
+      "\"receiveFlashLoan\" Balancer in:name,description,readme",
+      "\"onFlashLoan\" ERC3156 in:name,description,readme"
+    ],
+    "defi_liquidation": [
+      "\"liquidation bot\" defi in:name,description,readme",
+      "liquidator Aave in:name,description,readme",
+      "liquidator Morpho in:name,description,readme",
+      "\"Compound liquidator\" in:name,description,readme",
+      "\"Comet absorb\" liquidator in:name,description,readme"
+    ],
+    "flash_loan_liquidation_combo": [
+      "\"flash loan liquidation\" in:name,description,readme",
+      "\"flashloan liquidation\" in:name,description,readme",
+      "\"flashloan liquidator\" in:name,description,readme"
+    ],
+    "arbitrage": [
+      "\"flash loan arbitrage\" in:name,description,readme",
+      "\"flashloan arbitrage\" in:name,description,readme",
+      "\"DEX arbitrage\" bot in:name,description,readme",
+      "\"atomic arbitrage\" in:name,description,readme"
+    ],
+    "mev_execution": [
+      "\"flashbots\" arbitrage in:name,description,readme",
+      "\"MEV bot\" DeFi in:name,description,readme",
+      "\"bundle executor\" MEV in:name,description,readme"
+    ],
+    "lending_protocols": [
+      "\"Aave V3\" flash loan in:name,description,readme",
+      "\"Morpho Blue\" liquidation in:name,description,readme",
+      "\"Euler\" liquidation bot in:name,description,readme",
+      "\"Venus\" liquidation bot in:name,description,readme"
+    ],
+    "dex_and_liquidity": [
+      "\"Balancer\" flash loan in:name,description,readme",
+      "\"Uniswap V3\" flash callback in:name,description,readme",
+      "\"PancakeSwap\" arbitrage in:name,description,readme"
+    ],
+    "security_accounting": [
+      "\"flash loan callback\" security in:name,description,readme",
+      "\"minProfit\" flashloan in:name,description,readme",
+      "\"amountOutMin\" flashloan in:name,description,readme"
+    ],
+    "cross_chain_infrastructure": [
+      "\"cross-chain arbitrage\" DeFi in:name,description,readme",
+      "\"cross chain flash loan\" in:name,description,readme"
+    ],
+    "tooling_and_research": [
+      "\"flash loan\" Solidity in:name,description,readme",
+      "\"flashloan\" Python bot in:name,description,readme",
+      "\"liquidation bot framework\" in:name,description,readme",
+      "\"flash loan tutorial\" in:name,description,readme"
+    ]
   }
 }
