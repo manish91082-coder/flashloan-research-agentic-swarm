@@ -1,15 +1,18 @@
 # Next Actions
 
-1. Observe the first scheduled public GitHub discovery run. The current schedule is every Monday at 02:17 UTC (07:47 India Standard Time).
-2. Verify the run writes a timestamped JSON snapshot under research_runs/ and that the report includes limitations and query provenance.
-3. Copy the full 26-test local regression suite into the repository; remote CI currently runs four focused smoke tests plus compileall.
-4. Add fixture-backed pagination and recovery for truncated recursive trees.
-5. Revalidate every seeded candidate at its current exact commit SHA before treating historical findings as current.
-6. Add AST-aware Solidity/Rust/Python analysis and a protocol classifier.
-7. Add deterministic claim grading and evidence acceptance/rejection review.
-8. Only after those controls stabilize, add LangGraph specialist orchestration with bounded state transitions and schemas.
-9. Keep n8n optional for notifications and approval UX, not the evidence store or orchestration source of truth.
-10. Do not assert profitability without trade-size-specific simulation and full fees, gas, slippage, builder/relay costs, and independently evidenced realized settlement.
+1. Complete source-level forensic review of the pinned candidate shortlist, starting with Aquafr198/liquidator, litmajor/argus-evm, and clubytech/cluby-liquidator.
+2. Commit candidate evidence with exact current commit SHA, tree SHA, source blob SHA, path/line range, excerpt, claim type, confidence, limitations and review status.
+3. Restore the remaining original local regression cases into remote tests. Current remote CI runs 18 tests (4 baseline smoke + 14 extended); the full original 26-test suite has passed locally only.
+4. Add fixture-backed GitHub search pagination, total_count/incomplete_results capture and recursive-tree truncation recovery.
+5. Add deterministic protocol classification and AST-aware Solidity/Rust/Python analysis; lexical signals remain discovery leads.
+6. Add test/CI metadata collection pinned to candidate commit SHA, including exact workflows and test commands. Never execute candidate repo code in this research pipeline.
+7. Revalidate all carried-forward historical candidates at current HEAD before presenting current assessments.
+8. Add claim grading, contradiction tracking and evidence acceptance/rejection review.
+9. Only after these controls stabilize, add LangGraph specialist orchestration with bounded state transitions and schemas.
+10. Keep n8n optional for notifications and approval UX, not the evidence store or orchestration source of truth.
+11. Observe the first scheduled GitHub discovery run (Mondays at 02:17 UTC / 07:47 IST) and verify its timestamped report commit.
+12. Do not assert profitability without trade-size-specific simulation and full fees, gas, slippage, builder/relay costs, and independently evidenced realized settlement.
 
 ## Operational limitation
-The connected GitHub action set supports reading workflow runs/jobs and repository writes, but it does not expose a workflow-dispatch or branch-protection mutation action. The schedule is therefore enabled and will perform the first automated run without a manual dispatch from this connector.
+
+The connected GitHub action set supports reading workflow runs/jobs and repository writes, but it does not expose a workflow-dispatch or branch-protection mutation action. The scheduled workflow is enabled; first automatic run is pending. Branch protection is not configured.
