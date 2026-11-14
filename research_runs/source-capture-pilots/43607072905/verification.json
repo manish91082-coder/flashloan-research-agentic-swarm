@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.0",
+  "record_type": "source_capture_pilot_verification",
+  "workflow_run_id": 43607072905,
+  "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905",
+  "artifact": {
+    "id": 14118419543,
+    "name": "flashloan-source-capture-pilot-43607072905",
+    "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905/artifacts/14118419543",
+    "size_bytes": 1509274,
+    "sha256": "092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178",
+    "retention_days": 30
+  },
+  "source_manifest": {
+    "path": "research_runs/audit-batches/43600488013/manifest.json",
+    "run_id": "43600488013",
+    "total_candidates": 7901,
+    "sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd"
+  },
+  "pilot": {
+    "configured_max_candidates": 10,
+    "attempted": 10,
+    "captured": 10,
+    "failed": 0,
+    "pending_after_pilot": 7891,
+    "leased_after_pilot": 0,
+    "tree_inventory_complete": 10,
+    "source_capture_complete_within_configured_scope": 6,
+    "source_cap_limited": 4,
+    "repositories_with_zero_eligible_source_files": 1,
+    "source_file_references": 182,
+    "unique_content_addressed_blobs": 173,
+    "git_blob_sha1_references_verified": 182,
+    "missing_or_mismatched_blobs": 0,
+    "inspection_reports": 10,
+    "all_reports_have_commit_and_tree_sha": true,
+    "candidate_code_executed": false,
+    "semantic_audit_completed": false,
+    "independent_review_completed": false
+  },
+  "candidate_results": [
+    {
+      "index": 0,
+      "repository": "010100100100011101010100/overcollaterizedlending",
+      "commit_sha": "c9a50e0ed82a7c712d798a6ef02af7c1711841f9",
+      "tree_sha": "f272c9b3d08c1c35d5239b78e0e6f1770c3ffe95",
+      "source_files_available": 56,
+      "source_files_captured": 30,
+      "source_cap_hit": true,
+      "signal_count": 12,
+      "report_sha256": "d6b4590ea0fd2fa00251f4fb3120190b1608ca1e22c9058dfdcf52e6f7bab25a"
+    },
+    {
+      "index": 1,
+      "repository": "04-Lpds/defi-liquidation-simulator",
+      "commit_sha": "6efc7868fefe65db863c4472762f7b3a7e24d5c5",
+      "tree_sha": "fa848fe1476eed8d78663b753ffc565e7668a0b0",
+      "source_files_available": 11,
+      "source_files_captured": 11,
+      "source_cap_hit": false,
+      "signal_count": 6,
+      "report_sha256": "5aa0e9716da6d7aa988738e3315bd4e131849a0a4c8a50fd1d3a4130f918a299"
+    },
+    {
+      "index": 3,
+      "repository": "0kage-eth/damn-vulnerable-defi-solutions",
+      "commit_sha": "425ce91eff3004ef410496cbfb800553b7189254",
+      "tree_sha": "9fa3f0890db944240c3ee1ade87178efb42c6794",
+      "source_files_available": 42,
+      "source_files_captured": 30,
+      "source_cap_hit": true,
+      "signal_count": 49,
+      "report_sha256": "541634f09f805a1794c44dd65e301a9ac88162457f8144ac36662ae34753a876"
+    },
+    {
+      "index": 5,
+      "repository": "0prob/rust_polygon_arbitrage_bot",
+      "commit_sha": "1ed8a507c03a3e4c47a983c7fb87b198535d9ff5",
+      "tree_sha": "9910e5ebbf868bf7d341e98623330afad3d14894",
+      "source_files_available": 166,
+      "source_files_captured": 30,
+      "source_cap_hit": true,
+      "signal_count": 34,
+      "report_sha256": "1738782daa192f5dda86ee07f613a840221e0387a9e2b52b2bc76571843acc8b"
+    },
+    {
+      "index": 6,
+      "repository": "0prob/solidity_and_huff_evm_contract",
+      "commit_sha": "a7fa35907e9d6a41707b6e332fd23e72a3c2c75e",
+      "tree_sha": "63bf78571a6783f1ab94ef2711d7267179d77d23",
+      "source_files_available": 15,
+      "source_files_captured": 15,
+      "source_cap_hit": false,
+      "signal_count": 43,
+      "report_sha256": "1453d7568bc2ffc116da81b65b2ad1ee3a8205ca8f9dda3497fede67f34dbcdd"
+    },
+    {
+      "index": 7,
+      "repository": "0x-Shashi/WEB3-AUDIT-SKILLS",
+      "commit_sha": "4c0e3b9d17436fa2f7ae709ba1c78c075a20c301",
+      "tree_sha": "76c7b020b8e37b63608eb7502cdd34fa01f2bcb9",
+      "source_files_available": 32,
+      "source_files_captured": 30,
+      "source_cap_hit": true,
+      "signal_count": 6,
+      "report_sha256": "0b87054dad5c66bac0d51aad4562c11343cea528668199a38cb809417f0be23d"
+    },
+    {
+      "index": 8,
+      "repository": "0x0Glitch/Aave-liquidations",
+      "commit_sha": "0b200ee6a1be47d2ea48c9d01cf612e9341271aa",
+      "tree_sha": "363bafd26063f28726ff5f9de2663ea647a28e70",
+      "source_files_available": 24,
+      "source_files_captured": 24,
+      "source_cap_hit": false,
+      "signal_count": 0,
+      "report_sha256": "2623b0e683b8f40d4d3b67dd5ef85be913f39d7ca4d2a7eadbc08cf5a1ceda25"
+    },
+    {
+      "index": 12,
+      "repository": "0xAbhay/Flash-loans",
+      "commit_sha": "44819f93456b905466e3aa9b7437cc18b83847b4",
+      "tree_sha": "38b253f6056ed98e11dec23ae8a490b9fed3f9f4",
+      "source_files_available": 5,
+      "source_files_captured": 5,
+      "source_cap_hit": false,
+      "signal_count": 6,
+      "report_sha256": "36b974b81e634f4b41f61676494b73093ad84ebb459a909f7689a2f24c3e4d30"
+    },
+    {
+      "index": 19,
+      "repository": "0xAllan123/flash-loans",
+      "commit_sha": "39c4156e89b5c3862b8fa07106baa455d27f2193",
+      "tree_sha": "a8947eee9b240b903dadbf546c1b64e75eadcd51",
+      "source_files_available": 7,
+      "source_files_captured": 7,
+      "source_cap_hit": false,
+      "signal_count": 12,
+      "report_sha256": "44239673d81a5640fd135d2dd98c086eba526bccf50effa93c68b8e6539186b8"
+    },
+    {
+      "index": 20,
+      "repository": "0xAlmadenCapMgmt/Web3Behaviors",
+      "commit_sha": "d8590eb180e1007bed664227ecb624e92cc9dd16",
+      "tree_sha": "1ce3a75bf0acab68ee2d1065feb8faa993b8a4ad",
+      "source_files_available": 0,
+      "source_files_captured": 0,
+      "source_cap_hit": false,
+      "signal_count": 0,
+      "report_sha256": "1d379e24113986afdee5781e5b42e127b301ce54f1645bc3783fda686aa998ce"
+    }
+  ],
+  "limitations": [
+    "This is source capture, not semantic purpose classification, security auditing or independent review.",
+    "One repository had zero files matching the configured source extensions; it is not counted as a source-code-bearing capture.",
+    "Four repositories hit the 30-file source cap; their source inventories remain incomplete.",
+    "Lexical signal counts are discovery hints only, not proof of vulnerabilities, functionality or runtime behavior.",
+    "No candidate repository code was executed."
+  ]
+}
