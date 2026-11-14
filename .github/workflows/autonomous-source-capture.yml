@@ -1,0 +1,186 @@
+name: Autonomous Flash Loan Source Capture Continuation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-autonomous-source-capture.json'
+  workflow_dispatch:
+    inputs:
+      resume_run_id:
+        description: Previous successful checkpoint workflow run ID
+        required: true
+        type: string
+  concurrency:
+    group: flashloan-autonomous-source-capture
+    cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  source-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
+      FLR_DATABASE: data/source-capture-pilot.sqlite3
+      FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
+      RESUME_RUN_ID: ${{ github.event.inputs.resume_run_id || '43607072905' }}
+      SOURCE_CAPTURE_BATCH: '12'
+      SOURCE_CAPTURE_PARALLEL: '2'
+    steps:
+      - name: Checkout canonical research project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Install deterministic research worker
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m compileall -q src/flashloan_research scripts
+
+      - name: Download prior verified checkpoint
+        id: restore
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/source-capture-restore"
+          if [[ "$RESUME_RUN_ID" == "43607072905" ]]; then
+            gh run download "$RESUME_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "flashloan-source-capture-pilot-43607072905" \
+              --dir "$RUNNER_TEMP/source-capture-restore"
+          else
+            gh run download "$RESUME_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "flashloan-source-capture-checkpoint" \
+              --dir "$RUNNER_TEMP/source-capture-restore"
+          fi
+          python scripts/restore_source_capture_checkpoint.py \
+            --artifact-root "$RUNNER_TEMP/source-capture-restore" \
+            --workspace "$GITHUB_WORKSPACE" \
+            | tee reports-restore-verification.json
+          echo "Restored checkpoint from workflow run $RESUME_RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Capture next 12 priority repositories
+        id: capture
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          flashloan-source-capture-worker \
+            --manifest research_runs/audit-batches/43600488013/manifest.json \
+            --workspace "$GITHUB_WORKSPACE" \
+            --database "$FLR_DATABASE" \
+            --snapshots "$FLR_SNAPSHOT_DIR" \
+            --output reports/source-capture \
+            --max-candidates "$SOURCE_CAPTURE_BATCH" \
+            --parallel "$SOURCE_CAPTURE_PARALLEL" \
+            | tee reports/source-capture-cycle.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("reports/source-capture-cycle.json").read_text(encoding="utf-8"))
+          queue = result["queue"]
+          if queue["total"] != 7901:
+              raise SystemExit("Unexpected candidate total; refusing to continue.")
+          if queue["pending"] < 0 or queue["leased"] < 0 or queue["captured"] < 0 or queue["failed"] < 0:
+              raise SystemExit("Negative queue counter.")
+          if sum(queue[key] for key in ("pending", "leased", "captured", "failed")) != 7901:
+              raise SystemExit("Queue accounting invariant failed.")
+          checkpoint = {
+              "schema_version": "1.0",
+              "record_type": "autonomous_source_capture_checkpoint",
+              "workflow_run_id": int(__import__("os").environ["GITHUB_RUN_ID"]),
+              "parent_workflow_run_id": int(__import__("os").environ["RESUME_RUN_ID"]),
+              "mission_run_id": "43600488013",
+              "queue": queue,
+              "candidate_code_executed": False,
+              "semantic_audit_completed": False,
+              "independent_review_completed": False,
+              "next_action": "self_dispatch_next_checkpoint" if queue["pending"] else (
+                  "reconcile_failed_candidates" if queue["failed"] else "source_capture_complete"
+              ),
+          }
+          Path("reports/source-capture-checkpoint.json").write_text(
+              json.dumps(checkpoint, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(checkpoint, indent=2, sort_keys=True))
+          PY
+
+      - name: Checkpoint SQLite WAL and integrity
+        if: always()
+        run: |
+          python - <<'PY'
+          import os, sqlite3
+          from pathlib import Path
+          path = Path(os.environ["FLR_DATABASE"])
+          if path.is_file():
+              connection = sqlite3.connect(path)
+              try:
+                  connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                  connection.commit()
+                  result = connection.execute("PRAGMA integrity_check").fetchone()[0]
+                  if result != "ok":
+                      raise SystemExit(f"SQLite integrity check failed: {result}")
+              finally:
+                  connection.close()
+          PY
+
+      - name: Upload durable source-capture checkpoint
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flashloan-source-capture-checkpoint
+          path: |
+            data/source-capture-pilot.sqlite3
+            data/source-capture-pilot-vault/
+            reports/source-capture/43600488013/
+            reports/source-capture-cycle.json
+            reports/source-capture-checkpoint.json
+            reports-restore-verification.json
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 6
+
+      - name: Automatically dispatch next research batch
+        if: success()
+        run: |
+          set -euo pipefail
+          PENDING="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["pending"])')"
+          LEASED="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["leased"])')"
+          FAILED="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["failed"])')"
+          CAPTURED="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["captured"])')"
+          {
+            echo "## Autonomous source-capture progress"
+            echo "- Captured: $CAPTURED / 7901"
+            echo "- Pending: $PENDING"
+            echo "- Leased: $LEASED"
+            echo "- Failed after retry budget: $FAILED"
+            echo "- Candidate code execution: disabled"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if (( PENDING > 0 )); then
+            gh api --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/autonomous-source-capture.yml/dispatches" \
+              -f ref=main \
+              -f "inputs[resume_run_id]=$GITHUB_RUN_ID"
+            echo "Next checkpoint workflow dispatched automatically from run $GITHUB_RUN_ID."
+          elif (( LEASED > 0 )); then
+            echo "::warning::Queue still has leased items; continuation is paused for lease recovery."
+          elif (( FAILED > 0 )); then
+            echo "::warning::Source capture reached retry-exhausted candidates. They are preserved for a separate reconciliation queue."
+          else
+            echo "## Source capture complete" >> "$GITHUB_STEP_SUMMARY"
+          fi
