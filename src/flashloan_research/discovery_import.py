@@ -114,7 +114,7 @@ def _iter_candidate_objects(path: Path) -> Iterator[dict[str, Any]]:
                 if in_string:
                     if escaped:
                         escaped = False
-                    elif char == "\\\\":
+                    elif char == "\\":
                         escaped = True
                     elif char == '"':
                         in_string = False

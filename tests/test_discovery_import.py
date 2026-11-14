@@ -44,6 +44,7 @@ class DiscoveryImportTests(unittest.TestCase):
                     candidate("org/three", 3, "arbitrage"),
                 ],
             }
+            report["candidates"][0]["metadata"]["description"] = 'quoted "text" and path C:\\research\\repo'
             report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
             store = ResearchStore(root / "research.sqlite3")
             try:
@@ -54,6 +55,10 @@ class DiscoveryImportTests(unittest.TestCase):
                 self.assertEqual(second["status"], "completed")
                 self.assertEqual(second["imported_candidates"], 3)
                 self.assertEqual(store.counts()["candidates"], 3)
+                stored_description = store.connection.execute(
+                    "SELECT description FROM candidates WHERE full_name='org/one'"
+                ).fetchone()[0]
+                self.assertEqual(stored_description, 'quoted "text" and path C:\\research\\repo')
                 provenance = store.connection.execute(
                     "SELECT COUNT(*) FROM discovery_candidate_provenance WHERE run_id='run-001'"
                 ).fetchone()[0]
