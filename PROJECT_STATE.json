@@ -2,23 +2,23 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "A_DISCOVERY_AND_CANDIDATE_TRIAGE",
-  "status": "38_REPOS_DISCOVERED; 3_CANDIDATES_STATIC_AUDITED; LATEST_CI_GREEN",
+  "phase": "A_DISCOVERY_EVIDENCE_AND_TREE_RECOVERY",
+  "status": "TREE_TRUNCATION_RECOVERY_IMPLEMENTED; 7_REMOTE_TESTS_PASS; 3_CANDIDATE_AUDITS",
   "last_verified_at_utc": "2026-11-14T10:57:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "b579a1adf32e569e77453f57aac28cc97707d31d",
+  "latest_commit_at_checkpoint": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "latest_ci_run": {
-    "run_id": 43587653922,
+    "run_id": 43587812556,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "b579a1adf32e569e77453f57aac28cc97707d31d",
+    "head_sha": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "all test steps passed; runner cleanup completed"
+    "tests": "all 7 repository tests passed; compileall passed"
   },
   "phase_a_ci_history": "Prior commits and workflows repeatedly passed; latest evidence-register commit CI is pending at checkpoint.",
   "discovery": {
@@ -109,5 +109,11 @@
     ],
     "findings_recorded": 8,
     "runtime_executions": 0
-  }
+  },
+  "implementation_updates": [
+    "GitHubClient.tree supports recursive and non-recursive requests.",
+    "Truncated recursive trees trigger bounded directory traversal with max_tree_entries=50000 and max_tree_directories=10000.",
+    "Reports distinguish recursive truncation, recovery attempted/completed, directories visited and entries seen.",
+    "Three new regression tests cover successful recovery, directory-cap incompleteness and truncated subtree incompleteness."
+  ]
 }
