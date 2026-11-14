@@ -85,6 +85,8 @@ def validate_acyclic(tasks: list[MissionTask], external_dependencies: set[str] |
     visited: set[str] = set()
 
     def visit(task_id: str) -> None:
+        if task_id not in by_id:
+            return
         if task_id in visiting:
             raise MissionPlanError("mission task plan contains a dependency cycle")
         if task_id in visited:
