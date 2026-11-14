@@ -24,10 +24,10 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 2. **Completed:** exported 80 immutable JSONL packets (100 candidates per packet) with source-report SHA-256, per-batch SHA-256, candidate-index continuity and identity verification. Audit status remains pending.
 3. **Manual priority sample completed:** four packet-0001 candidates source-inspected at exact commit/tree/blob pins and documented in four provisional dossiers; independent review pending. This does not change the automated queue source-capture counter (still 0/7,901).
 4. **Completed and merged in PR #7:** implement the manifest-verified, resumable source-capture worker with SQLite per-candidate states, retry counts, leases, atomic reports and commit/tree/blob evidence. CI passed on Python 3.11/3.12/3.13. See `src/flashloan_research/source_capture_worker.py`.
-5. **Next runtime gate:** run `flashloan-source-capture-worker` in persistent local/WSL storage against `research_runs/audit-batches/43600488013/manifest.json`. First validate 10–20 real captures, verify repository ID, commit SHA, tree SHA, Git blob SHAs, vault contents, report paths and retry/checkpoint state. Then resume the remaining queue, keeping all 11 taxonomy families.
+5. **Pilot completed:** GitHub Actions run [43607072905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905) captured 10/10 real repositories with zero failures. It produced 182 source-file references and 173 unique blobs; all 182 Git blob SHA-1 references verified against the source vault. The queue now has 10 captured and 7,891 pending. The next runtime gate is to restore the pilot artifact with `scripts/resume_source_capture.sh` in persistent WSL storage and resume the same SQLite run.
 6. Capture bounded source evidence and deterministic purpose hints; do not claim semantic purpose classification until source evidence and an approved reviewer support it.
 7. Build deterministic candidate dossiers and mission synthesis only from source-pinned, evidence-validated and independently reviewed outputs.
-8. **Worker continuation implemented:** the standalone worker imports the immutable 80-batch manifest once, processes multiple bounded cycles, recovers expired leases and stops when the queue is drained or all retries are exhausted. Actual live run still pending.
+8. **Worker continuation implemented and pilot-verified:** the standalone worker imports the immutable 80-batch manifest once, processes multiple bounded cycles, emits JSON progress, recovers expired leases and stops when the queue is drained or all retries are exhausted. The first 10 real captures are complete; the remaining 7,891 are not yet processed.
 9. Investigate and rerun only the 10 incomplete discovery query templates; retain old snapshots and coverage debt.
 10. Add task/report/coverage endpoints and a dashboard for discovered/imported/source-inspected/audited queues, query debt, evidence confidence, reviewer status and next batch.
 11. Run real local-model inference only after a free loopback endpoint is explicitly configured; no paid/cloud fallback. Publish synthesis only with coverage and evidence limitations.
@@ -52,6 +52,25 @@ Discover the broadest reproducible set of public GitHub repositories across all 
   ```
 - Do not start a 7,901-item run until the first 10–20 captures have been checked for correct commit/tree/blob pins, local vault persistence and checkpoint recovery.
 
+## Latest live source-capture pilot and persistent WSL resume checkpoint
+
+- Bounded pilot workflow [43607072905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905) completed successfully on GitHub Actions. The workflow enforced a hard cap of 10 candidates and parallelism 2.
+- **Queue state at pilot end:** 7,901 total; 10 captured; 7,891 pending; 0 leased; 0 failed. This was a real source-capture run, not a fake-provider fixture.
+- All 10 candidates have current default-branch commit SHA and tree SHA pins, complete tree inventory and one persisted JSON inspection report each. Across 9 repositories with eligible source files, 182 blob references were captured; 173 unique Git blobs were stored in the content-addressed vault. All 182 references were reverified against the artifact bytes; zero missing/mismatched blobs.
+- Coverage limits: four repositories reached the configured 30-file source cap; one repository had zero eligible source files under the configured source-extension allowlist. Six reports are marked complete within configured source scope, but only five of those six contain source files. Signal counts are lexical leads only, not proof of behavior or vulnerabilities.
+- Artifact [14118419543](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905/artifacts/14118419543), 1,509,274 bytes, SHA-256 `092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178`, retained for 30 days. It contains the SQLite source-capture queue, 10 reports and raw verified source vault.
+- Sanitized verification record: `research_runs/source-capture-pilots/43607072905/verification.json`, commit `0cc64139f0476bb372f4446fc45fc301cc9522e0`.
+- PR [#8](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/8) corrected direct liquidation-combo priority and null default-branch handling. PR [#9](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/9) fixed primary and secondary GitHub API rate-limit waits. Both are merged and CI-tested on Python 3.11/3.12/3.13.
+- PR [#10](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/10) merged `scripts/resume_source_capture.sh`, README restore instructions and per-cycle progress output. CI validates shell syntax, compiles the project and runs the test suite on Python 3.11/3.12/3.13.
+- To continue in WSL, download the pilot artifact ZIP from the run above, then from the canonical repository root:
+  ```bash
+  export GITHUB_TOKEN='YOUR_READ_ONLY_GITHUB_TOKEN'
+  bash scripts/resume_source_capture.sh ~/Downloads/flashloan-source-capture-pilot-43607072905.zip
+  ```
+- The helper verifies the artifact checksum, SQLite integrity, original manifest SHA, all report identities and all 182 Git blob hashes before restore. It uses dedicated `data/source-capture-pilot.sqlite3` and `data/source-capture-pilot-vault/` paths; it does not overwrite the project's existing `data/research.sqlite3` or `data/snapshots/`. It resumes run ID `43600488013`; default processing is 12 candidates per cycle, parallelism 2.
+- A GitHub token is required for authenticated API quota. Export it only in the WSL shell; never paste it into chat or commit it.
+- **Audit distinction:** these 10 captures have not been semantically classified, security-audited or independently reviewed. No candidate code was built or executed. Automated source-audit count remains 0/7,901 until specialist/evidence/reviewer gates pass.
+
 ## Latest verified batch-preparation checkpoint
 
 - Original discovery batch-data commit: `8448711d734978d5c0e793793feccf08dad29747`; worker implementation merge: `089e215bac99a60ba2b2e2c7b33c8f9e370a21b3`.
@@ -59,7 +78,7 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 - All 7,901 discovery rows were stream-imported and exported to `research_runs/audit-batches/43600488013/` as **80 JSONL batches**, maximum 100 records each.
 - Batch verification: 7,901 unique canonical repository names; 7,901 unique GitHub repository IDs; candidate indexes 0–7,900 contiguous; all 80 batch SHA-256 hashes verified.
 - Manifest SHA-256: `45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd`; source report SHA-256: `d99ebcdcbd1739536ba987e51ffe2a5c06610094e24b4603c89d3f5f32db3002`.
-- This is metadata import and queue preparation only. Candidate source capture and audits from this 7,901-row queue remain **0/7,901**; existing five dossiers remain a separate prior audit sample. No candidate code was executed.
+- This is metadata import and queue preparation only. The later bounded pilot source-captured **10/7,901** candidates; **7,891 remain pending**. Semantic audit and independent review of this 7,901-row queue remain **0/7,901**. Existing five manual dossiers remain a separate sample. No candidate code was executed.
 - Future `research-discovery.yml` runs now perform import/export of their own discovery rows during the same workflow.
 
 ## Latest priority source-inspection checkpoint
