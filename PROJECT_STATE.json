@@ -2,68 +2,47 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "A_EVIDENCE_PIPELINE_MVP",
-  "status": "PHASE_A_MERGED_CANDIDATE_FORENSICS_COMMITTED_MAIN_CI_PENDING",
-  "last_verified_at_utc": "2026-11-14",
+  "phase": "A_DISCOVERY_AND_EVIDENCE_CAPTURE",
+  "status": "FIRST_MANUAL_DISCOVERY_SNAPSHOT_SAVED; FIRST_CANDIDATE_AUDIT_RECORDED; LATEST_CI_PENDING",
+  "last_verified_at_utc": "2026-11-14T10:52:00Z",
   "default_branch": "main",
-  "main_commit": "6a0a395699e0bc6479ad493b4c33d8ca06818a11",
-  "pull_requests": [
-    {"number": 1, "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1", "merged": true, "merge_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b"},
-    {"number": 2, "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/2", "merged": true, "merge_commit": "a1621f16f29debe99feec14d41cbd3d3b3acd314"},
-    {"number": 3, "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/3", "merged": true, "merge_commit": "6a0a395699e0bc6479ad493b4c33d8ca06818a11"}
-  ],
-  "latest_remote_ci": {
-    "workflow": "Research Engine CI",
-    "pr_run_id": 43584553897,
-    "pr_run_conclusion": "success",
-    "main_push_run_id": 43584589907,
-    "main_push_status_at_checkpoint": "queued",
-    "python_matrix": ["3.11", "3.12", "3.13"],
-    "pr_matrix_all_jobs": "success",
-    "remote_test_scope": "4 baseline smoke tests + 14 extended regression tests = 18; compileall also passed"
+  "latest_commit_at_checkpoint": "5140c93011b4baf55104c9ec91016f4a9c9ecfb3",
+  "latest_ci_run": {
+    "run_id": 43587464686,
+    "event": "push",
+    "status_at_checkpoint": "queued",
+    "conclusion": null
   },
-  "local_validation": {
-    "full_baseline_unittest": "26/26 PASS in isolated work container",
-    "remote_vs_local_distinction": "Only 18 tests currently run in remote CI; the full local 26-test suite is not claimed as remotely executed",
-    "workflow_yaml_parse": "PASS for both workflows",
-    "cli_help_and_status": "PASS",
-    "editable_install": "PASS with --no-build-isolation --no-deps using local build tooling"
-  },
+  "phase_a_ci_history": "Prior commits and workflows repeatedly passed; latest evidence-register commit CI is pending at checkpoint.",
   "discovery": {
-    "manual_snapshot": "research_runs/2026-11-14/manual-discovery-baseline-01.json",
-    "deduplicated_candidates": 38,
-    "queries": 4,
-    "coverage": "page 1 only per query; explicitly bounded and non-exhaustive",
-    "scheduled_run": "Mondays 02:17 UTC",
-    "first_scheduled_run": "pending"
-  },
-  "candidate_forensics": {
-    "report": "research/CANDIDATE_FORENSICS_2026-11-14.md",
-    "current_pinned_candidates": [
-      "Aquafr198/liquidator",
-      "clubytech/cluby-liquidator",
-      "litmajor/argus-evm",
-      "MELD-labs/meld-flashloan-liquidation-bot-public"
+    "snapshot_path": "research_runs/manual/2026-11-14-discovery-1052Z.json",
+    "snapshot_commit": "3758549668a384759061b12827135e8341ef713b",
+    "snapshot_blob_sha": "551e82884750c60e0bfa2529448eb20e67edaf31",
+    "unique_candidates": 38,
+    "queries": [
+      {"query": "flash loan arbitrage", "page": 1, "returned": 20},
+      {"query": "flashloan liquidation bot", "page": 1, "returned": 13},
+      {"query": "Aave V3 flashLoanSimple arbitrage", "page": 1, "returned": 0},
+      {"query": "Morpho flash loan liquidation", "page": 1, "returned": 6}
     ],
-    "source_evidence_records": 9,
-    "accepted_for_research_findings": 7,
-    "important_classification": "litmajor/argus-evm is a native Morpho liquidation callback reference, not a flash-loan bot",
-    "scope_note": "Research acceptance is not an external audit, exploit reproduction, live-chain verification or profitability proof"
+    "capture_type": "manual read-only GitHub repository search persisted to repository; not a GitHub Actions workflow execution"
   },
-  "repository_contents": {
-    "test_report": "docs/PHASE_A_TEST_REPORT.md",
-    "remote_tests": ["tests/test_smoke.py", "tests/test_extended.py"],
-    "schemas": ["schemas/evidence-record.schema.json", "schemas/repository-candidate.schema.json"],
-    "candidate_registry": "CANDIDATE_REPOSITORIES.json",
-    "security_findings": "SECURITY_FINDINGS.json",
-    "evidence_register": "EVIDENCE_REGISTER.csv",
-    "seeded_matrix": "research/SEEDED_CANDIDATE_MATRIX.md"
+  "candidate_review": {
+    "repository": "MELD-labs/meld-flashloan-liquidation-bot-public",
+    "branch": "main",
+    "commit": "74653447a0ff9014f2e022d6778b442182f9841a",
+    "audit_path": "research/candidate-audits/MELD-labs__meld-flashloan-liquidation-bot-public.md",
+    "findings": [
+      "MELD-CALLBACK-AUTH-001",
+      "MELD-ACCOUNTING-002"
+    ],
+    "assessment": "C+ reference only; source-level findings recorded; no runtime exploit reproduction, deployment validation or profit proof"
   },
   "architecture": {
     "research_engine": "Python standard library",
     "database": "SQLite",
-    "scheduler": "GitHub Actions",
-    "phase_b_orchestration": "LangGraph, gated until deterministic evidence/acceptance controls stabilize",
+    "orchestration_phase_b": "LangGraph gated until evidence schemas, deterministic acceptance and regression tests are robust",
+    "scheduling": "GitHub Actions",
     "n8n": "optional notifications and approval UI only"
   },
   "safety": {
@@ -76,11 +55,10 @@
   },
   "permissions": {
     "github_connector": "admin/push/pull/maintain/triage verified",
+    "repository_access_scope": "Only select repositories; this repository selected",
     "ci_workflow_contents": "read",
     "discovery_workflow_contents": "write only",
-    "repository_access_scope": "Only select repositories; this repository selected",
-    "repository_secrets_added": false,
-    "branch_protection": "not configured; connector exposes no branch-protection mutation action in this session"
+    "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Verify post-merge main CI; build the missing eight regression tests and deterministic B0/delta-profit invariant harness; then add pagination and recursive-tree truncation recovery."
+  "next_gate": "Verify latest CI; audit remaining discovered candidates at current pinned HEAD; improve truncated-tree recovery and add tests before LangGraph."
 }
