@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "purpose": "one_shot_bounded_source_capture_pilot",
+  "pilot_id": "flashloan-source-capture-43600488013-first-10",
+  "manifest": "research_runs/audit-batches/43600488013/manifest.json",
+  "max_candidates": 10,
+  "parallel": 2,
+  "maximum_scope": "10 repositories only",
+  "candidate_code_execution": false,
+  "live_transactions": false
+}
