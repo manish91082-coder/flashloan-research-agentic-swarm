@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "record_status": "historical_leads_revalidation_required",
+  "warning": "These are carried-forward research leads. Reinspect current default-branch HEAD and exact source blobs before making present-tense claims.",
+  "candidates": [
+    {"repository":"manuelinfosec/flash-arb-bot","prior_grade":"B","prior_status":"BLOCKED_CONFIG","prior_commit":"dd89d1ccfefb4a7ec34d993ec3ee7fa27ac865f5","revalidation_required":true},
+    {"repository":"babylonlabs-io/aave-v4-bots","prior_grade":"A_tested_custom_integration_not_external_audit","prior_status":"swapDatas_router_trust_boundary_review","prior_commit":"5a28358f9f5c123faff099bd502f688716383933","revalidation_required":true},
+    {"repository":"leex0x0/keeper-liquidator","prior_grade":"B+","prior_status":"Base_Sepolia_fork_tests_not_mainnet_profit_proof","prior_commit":"db2033ae48ff5f313084c74e056923ecf2213e7e","revalidation_required":true},
+    {"repository":"obchain/Charon","prior_grade":"A_minus_B_split","prior_status":"Venus_BSC_and_Aave_scope_split","prior_commit":"d805c9cabac16bf9d32a77fa935109de59c0760a","revalidation_required":true},
+    {"repository":"BowTiedDevil/degenbot","prior_grade":"B_framework_not_flashloan_executor","prior_status":"general_MEV_simulation_framework_CI_failed_at_snapshot","prior_commit":"56471478668c70001d0065b59bce0bc8cdd7c100","revalidation_required":true},
+    {"repository":"arksenu/liquidation-bot","prior_grade":"C_minus_blocked_executor","prior_status":"nonReentrant_callback_conflict_and_profit_threshold_review","prior_commit":"33497e570ba63cbf9fc90f79b2472ad7474b0306","revalidation_required":true},
+    {"repository":"danywayGit/OnChainArbitrage","prior_grade":"C_prototype","prior_status":"profit_estimator_cost_and_slippage_assumptions","prior_commit":"1e38b593d051b0851f81e0c26eae2b756643b8ab","revalidation_required":true},
+    {"repository":"tsmluky/Morpho-Blue-Liquidator-Bot","prior_grade":"B_minus_C_plus","prior_status":"balance_dust_and_limited_test_coverage","prior_commit":"1bc416a0dab923c53d4e1086d9c7de7cfc446d96","revalidation_required":true},
+    {"repository":"cobibean/aave-liquidator-bot","prior_grade":"B_minus","prior_status":"router_configuration_mismatch_no_CI_evidence_at_snapshot","prior_commit":"3159c15f4dcfb0df215b4c3024f47753a1133b84","revalidation_required":true},
+    {"repository":"alexpetrache-dev/aave-liquidator-base","prior_grade":"C_prototype","prior_status":"Uniswap_V3_flash_swap_not_Aave_flash_loan_no_tests","prior_commit":"fda5ff2a68a8803e40e7c6ea1ec6d22889fc8f","revalidation_required":true}
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "accepted_findings": [],
+  "revalidation_queue": [
+    {
+      "id": "ARKSENU-REENTRANCY-CALLBACK-001",
+      "candidate": "arksenu/liquidation-bot",
+      "inspected_commit": "33497e570ba63cbf9fc90f79b2472ad7474b0306",
+      "summary": "Potential deterministic conflict between a nonReentrant entrypoint and the synchronous lender callback using the same shared guard.",
+      "status": "historical_source_review_requires_current_HEAD_revalidation"
+    },
+    {
+      "id": "BABYLON-SWAPDATA-001",
+      "candidate": "babylonlabs-io/aave-v4-bots",
+      "inspected_commit": "5a28358f9f5c123faff099bd502f688716383933",
+      "summary": "Caller-provided swap data can cross a router trust boundary and grant broad token approval; inspect current execution path and whether non-empty swap data is reachable.",
+      "status": "historical_source_review_requires_current_HEAD_revalidation"
+    }
+  ],
+  "acceptance_policy": "No finding is accepted without a current exact commit SHA, source path, Git blob SHA, supporting excerpt or line range, claim type, confidence, limitations, reproducible test where applicable, and review status. Historical leads are not accepted findings."
+}

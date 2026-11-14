@@ -1,0 +1,49 @@
+{
+  "project": "Flash Loan Research Agentic Swarm",
+  "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
+  "project_mode": "RESEARCH_ONLY",
+  "phase": "A_EVIDENCE_PIPELINE_MVP",
+  "status": "PHASE_A_BRANCH_PUSHED_PR_OPEN_REMOTE_CI_GREEN",
+  "last_verified_at_utc": "2026-11-14",
+  "branch": "phase-a/foundation",
+  "branch_commit": "12ebd1279bb7932dc565d8c74a5226074a76c140",
+  "pull_request": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1",
+  "remote_ci": {
+    "workflow": "Research Engine CI",
+    "push_run_id": 43574634334,
+    "push_run_conclusion": "success",
+    "pull_request_run_id": 43574659684,
+    "pull_request_test_steps": "passed on Python 3.11, 3.12 and 3.13 at last inspection",
+    "remote_test_scope": "four focused smoke tests plus compileall; not the full 26-test local suite"
+  },
+  "local_validation": {
+    "compileall": "PASS",
+    "unittest": "26/26 PASS",
+    "workflow_yaml_parse": "PASS for both workflows",
+    "cli_help_and_status": "PASS",
+    "editable_install": "PASS with --no-build-isolation --no-deps using local build tooling",
+    "network_note": "direct outbound internet from local execution environment unavailable; GitHub API and Actions used for remote repository operations and CI"
+  },
+  "architecture": {
+    "research_engine": "Python standard library",
+    "database": "SQLite",
+    "orchestration_phase_b": "LangGraph, gated until deterministic evidence controls stabilize",
+    "scheduling": "GitHub Actions",
+    "n8n": "optional notifications and approval UI only"
+  },
+  "safety": {
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_execution": false,
+    "candidate_code_execution": false,
+    "paid_services_required": false
+  },
+  "permissions": {
+    "github_connector": "admin/push/pull/maintain/triage verified",
+    "ci_workflow_contents": "read",
+    "discovery_workflow_contents": "write only",
+    "repository_access_scope": "Only select repositories; this repository selected"
+  },
+  "next_gate": "Complete all PR checks, merge only after successful CI, then dispatch discovery and verify a timestamped report commit."
+}

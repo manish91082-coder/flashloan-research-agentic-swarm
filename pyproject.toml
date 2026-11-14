@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flashloan-research-agentic-swarm"
+version = "0.1.0"
+description = "Evidence-first, research-only GitHub flash-loan repository intelligence pipeline"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Flash Loan Research Project"}]
+dependencies = []
+
+[project.scripts]
+flashloan-research = "flashloan_research.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
