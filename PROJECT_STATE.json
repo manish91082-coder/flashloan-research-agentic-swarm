@@ -4,21 +4,21 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_DETERMINISTIC_DISCOVERY",
   "status": "MISSION_FORM_AND_SQLITE_QUEUE_IMPLEMENTED; TAXONOMY_DRIVEN_PAGINATED_DISCOVERY_IMPLEMENTED; IDEMPOTENT_TASK_DAG_AND_LEASED_WORKER_IMPLEMENTED; LANGGRAPH_SQLITE_CHECKPOINT_GRAPH_IMPLEMENTED; COMMIT_PINNED_SOURCE_CAPTURE_IMPLEMENTED; SEMANTIC_SPECIALISTS_BLOCKED_PENDING_FREE_MODEL_ADAPTER",
-  "last_verified_at_utc": "2026-11-14T12:15:00Z",
+  "last_verified_at_utc": "2026-11-14T12:20:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "7e3853f4a95cf9ce2a8722de557b3dcee48dc502",
+  "latest_commit_at_checkpoint": "278031dd0a88106bb7a38dff7425161ed1faa94a",
   "latest_ci_run": {
-    "run_id": 43592109714,
+    "run_id": 43593929471,
     "event": "push",
-    "status": "completed",
-    "conclusion": "success",
-    "head_sha": "7e3853f4a95cf9ce2a8722de557b3dcee48dc502",
+    "status": "queued",
+    "conclusion": null,
+    "head_sha": "278031dd0a88106bb7a38dff7425161ed1faa94a",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "All repository unittest suite and compileall passed on all three Python versions."
+    "tests": "Awaiting CI; previous main-head runtime and provider commits passed."
   },
   "phase_a_ci_history": "Latest main-head CI verified green at 7e3853f4a95cf9ce2a8722de557b3dcee48dc502.",
   "discovery": {
@@ -76,7 +76,7 @@
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
-    "orchestration_phase_b": "LangGraph graph with SQLite checkpoint saver implemented; deterministic stages active; semantic model-driven specialists not yet executable",
+    "orchestration_phase_b": "LangGraph graph with SQLite checkpoints; deterministic discovery/source capture active; loopback-only OpenAI-compatible local inference adapter and specialist/evidence gate added; semantic reviewer integration pending end-to-end test",
     "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; local/WSL mission worker for persistent queue processing",
     "n8n": "optional notifications/approval UI only"
   },
@@ -95,7 +95,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Implement free local inference provider adapter with strict schema/evidence gates, specialist node execution and independent reviewer; add mission task status/report endpoints and dashboard; implement resumable multi-batch continuation. Then run a real bounded mission and persist coverage ledger.",
+  "next_gate": "Verify latest CI for specialist evidence gate; add fake-local-model end-to-end tests for specialist task completion, evidence validation and independent review; then execute a bounded live discovery mission and persist its coverage ledger.",
   "candidate_review_queue": {
     "total_discovered": 38,
     "audited": 3,
@@ -130,7 +130,12 @@
     "Research Mission Form now submits to local-only HTTP API and queues validated mission JSON in SQLite.",
     "Mission validator enforces strict field allowlists, independent reviewer inclusion and immutable research-only safety policy.",
     "Mission queue uses thread-safe SQLite access for concurrent HTTP worker threads.",
-    "Mission API end-to-end tests and safety rejection tests added."
+    "Mission API end-to-end tests and safety rejection tests added.",
+    "Added a loopback-only OpenAI-compatible model adapter with structured JSON output, bounded responses, timeout, explicit model identity, and redirect blocking; no cloud or paid fallback.",
+    "Added specialist role prompts and a provenance gate that accepts only exact source signals present in the pinned inspection report.",
+    "Added deterministic specialist-report provenance validation before independent reviewer tasks.",
+    "Integrated local semantic task stages into mission execution when both local endpoint and model name are explicitly configured.",
+    "Mission finalization now preserves failed and dependency-blocked task states instead of incorrectly marking the mission completed."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
@@ -148,14 +153,14 @@
   },
   "orchestration": {
     "framework": "LangGraph",
-    "status": "DETERMINISTIC_GRAPH_AND_SQLITE_CHECKPOINTS_IMPLEMENTED; SEMANTIC_SPECIALIST_EXECUTION_BLOCKED",
+    "status": "LANGGRAPH_CHECKPOINTED_GRAPH; DETERMINISTIC_DISCOVERY_AND_SOURCE_CAPTURE; LOCAL_ONLY_SPECIALIST_ADAPTER_AND_EVIDENCE_GATE_IMPLEMENTED; END_TO_END_SEMANTIC_REVIEW_PENDING_RUNTIME_VERIFICATION",
     "modules": [
       "src/flashloan_research/mission_runtime.py",
       "src/flashloan_research/mission_executor.py",
       "src/flashloan_research/mission_graph.py",
       "src/flashloan_research/mission_worker.py"
     ],
-    "next": "Implement approved free local model adapter and typed specialist/reviewer nodes; add task/report API and UI; implement multi-batch continuation with coverage-debt reconciliation."
+    "next": "Verify current CI; test end-to-end specialist -> deterministic evidence gate -> independent reviewer with fake local endpoint; add provider/runtime failure recovery; then run bounded live mission."
   },
   "constitution": "PROJECT_CONSTITUTION.md",
   "no_drift_guard": [
