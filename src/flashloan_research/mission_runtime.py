@@ -111,7 +111,11 @@ def build_mission_plan(mission: dict[str, Any], taxonomy: dict[str, Any]) -> lis
     family_queries = taxonomy.get("family_queries")
     if not isinstance(family_queries, dict):
         raise MissionPlanError("taxonomy family_queries is required")
-    selected = scope.get("discovery_query_families") or list(family_queries)
+    selected = scope.get("discovery_query_families", list(family_queries))
+    if not selected:
+        raise MissionPlanError("at least one discovery query family must be selected")
+    if not isinstance(selected, list) or any(not isinstance(x, str) for x in selected):
+        raise MissionPlanError("discovery_query_families must be a list of family IDs")
     unknown = sorted(set(selected) - set(family_queries))
     if unknown:
         raise MissionPlanError(f"unknown taxonomy families: {unknown}")
@@ -175,13 +179,18 @@ def build_mission_plan(mission: dict[str, Any], taxonomy: dict[str, Any]) -> lis
 
 def build_candidate_tasks(mission_id: str, repository: str, expansion_task_id: str,
                           selected_roles: list[str] | None = None) -> list[MissionTask]:
-    roles = sorted(set(selected_roles or SPECIALIST_ROLES) & SPECIALIST_ROLES)
-    purpose = _task(
-        mission_id, "candidate_purpose", "protocol_specialist", key=repository,
+    roles = sorted(set(SPECIALIST_ROLES if selected_roles is None else selected_roles) & SPECIALIST_ROLES)
+    source_capture = _task(
+        mission_id, "candidate_source_capture", "github_discovery", key=repository,
         depends_on=(expansion_task_id,), payload={"repository": repository},
         priority=45, budget_units=2,
     )
-    tasks = [purpose]
+    purpose = _task(
+        mission_id, "candidate_purpose", "protocol_specialist", key=repository,
+        depends_on=(source_capture.task_id,), payload={"repository": repository},
+        priority=47, budget_units=2,
+    )
+    tasks = [source_capture, purpose]
     specialist_tasks: list[MissionTask] = []
     for role in roles:
         item = _task(
@@ -259,6 +268,9 @@ class MissionTaskStore:
     def create_plan(self, tasks: list[MissionTask]) -> dict[str, int]:
         if not tasks:
             raise MissionPlanError("cannot persist an empty task plan")
+        mission_ids = {task.mission_id for task in tasks}
+        if len(mission_ids) != 1:
+            raise MissionPlanError("a persisted task batch must contain exactly one mission")
         now = utc_now()
         inserted = 0
         with self._lock:
