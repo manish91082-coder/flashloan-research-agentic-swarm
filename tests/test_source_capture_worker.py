@@ -40,9 +40,12 @@ def write_manifest(root: Path) -> Path:
     batch_dir.mkdir(parents=True)
     rows = [
         candidate(0, "sample-lab/adjacent-repo", 101, ["dex_and_liquidity"]),
-        candidate(1, "sample-lab/direct-liquidator", 102, ["defi_liquidation"]),
+        candidate(1, "sample-lab/direct-liquidator", 102, ["flash_loan_liquidation_combo"]),
         candidate(2, "sample-lab/provider-repo", 103, ["flash_loan_provider_apis"]),
     ]
+    # Empty repositories can have a null discovery-time default branch. The worker
+    # refetches live repository metadata before resolving the branch for inspection.
+    rows[0]["metadata"]["default_branch"] = None
     batches = []
     for number, chunk in enumerate((rows[:2], rows[2:]), start=1):
         name = f"batch-{number:04d}.jsonl"
