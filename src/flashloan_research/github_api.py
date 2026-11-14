@@ -58,9 +58,15 @@ class GitHubClient:
                     body = exc.read(500).decode("utf-8", errors="replace")
                     raise GitHubAPIError(f"GitHub API HTTP {exc.code}: {body}") from exc
                 if rate_limited and reset and remaining == "0":
-                    delay = max(1, min(60, int(reset) - int(self.clock())))
+                    # Primary API quotas reset on an absolute epoch timestamp.
+                    # Waiting only 60 seconds causes repeated failures for the
+                    # remainder of the hour and burns the candidate retry budget.
+                    reset_at = int(reset)
+                    now = int(self.clock())
+                    delay = max(1, min(3600, reset_at - now + 1))
                 elif retry_after:
-                    delay = max(1, min(60, int(retry_after)))
+                    # Respect GitHub's Retry-After window for secondary limits.
+                    delay = max(1, min(3600, int(retry_after)))
                 else:
                     delay = min(30, (2 ** attempt) + random.random())
                 self.sleep(delay)
