@@ -1,5 +1,16 @@
 # Research Changelog
 
+## 2026-11-14 (autonomous hosted continuation)
+
+- Replaced the WSL-only primary continuation dependency with a GitHub-hosted self-chaining source-capture workflow: `.github/workflows/autonomous-source-capture.yml`.
+- Added a deterministic cross-run checkpoint restore verifier: `scripts/restore_source_capture_checkpoint.py`. It validates the immutable discovery manifest, SQLite integrity and queue accounting, report/candidate identity, commit/tree pins, execution-safety flags and captured Git blob SHA-1 references before restoring the state into dedicated DB/vault paths.
+- Added regression tests for canonical Git blob hashing and artifact path traversal. CI initially caught a double-escaped null-byte literal; the helper was corrected to use Git's exact `blob <length>\\0<content>` framing. Latest CI run 43613456152 passed on Python 3.11/3.12/3.13 with 70 tests.
+- Added an autonomous workflow-dispatch chain using repository-scoped `GITHUB_TOKEN` with `actions:write`. Each hosted run restores the preceding artifact, performs 12 bounded read-only captures at concurrency 2, writes a checkpoint, uploads SQLite/source-vault/reports and dispatches the next run while pending work remains.
+- Started the first hosted continuation from the existing 10-candidate pilot through marker commit `975dd04e80878a7ee36c83a079027eaa1a4914a8`. Workflow run [43613572504](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43613572504) passed checkout, runtime installation and prior-checkpoint download/restore; source capture was still running at the time this entry was written.
+- The automation is not yet declared complete or fully proven: first-batch queue counts, artifact upload and successor workflow dispatch must be verified from live Actions outputs. The last fully verified queue remains 10 captured / 7,891 pending / 0 leased / 0 failed.
+- The 7,901-candidate semantic classification, security/economics specialist analysis, evidence auditor and independent reviewer remain separate gates. Source capture is not an audit. Candidate code execution, wallets, keys, signing, deployment and live transactions remain prohibited.
+- User-side WSL commands, artifact download and personal GitHub token are no longer required for the hosted deterministic source-capture path.
+
 ## 2026-11-14
 - Created the dedicated repository and verified GitHub connector admin/push access.
 - Phase A deterministic Python engine, SQLite evidence store, GitHub acquisition, commit/tree pinning, bounded source capture, Git blob verification and lexical signal extraction are merged to main.
