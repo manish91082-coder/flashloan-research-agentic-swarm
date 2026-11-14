@@ -54,7 +54,7 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 
 ## Latest live source-capture pilot and GitHub-hosted autonomous continuation
 
-- Immutable source-capture seed: bounded pilot [43607072905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905), artifact 14118419543, SHA-256 `092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da9478204fd1a34ad43fd` (discovery manifest digest is separately recorded below).
+- Immutable source-capture seed: bounded pilot [43607072905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43607072905), artifact 14118419543, SHA-256 `092235cf3f11920d65ccbbe4e6412f5b325c2158c2d698f61da947767400c178` (discovery manifest digest is separately recorded below).
 - Primary continuation is GitHub-hosted and self-chaining. WSL restore remains fallback only; no user-side command, artifact download or personal token is required.
 - Latest inspected source checkpoint: workflow [43615383358](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615383358), artifact **14122475274** (8,510,984 bytes). Its 12-candidate cycle succeeded.
 - **Latest verified queue:** 7,901 total; **304 captured; 7,595 pending; 0 leased; 2 failed**. Configured source-scope coverage: 226 complete; 78 with coverage limitations. Candidate code execution remains zero.
