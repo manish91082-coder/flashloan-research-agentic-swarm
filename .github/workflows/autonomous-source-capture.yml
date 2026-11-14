@@ -11,9 +11,9 @@ on:
         description: Previous successful checkpoint workflow run ID
         required: true
         type: string
-  concurrency:
-    group: flashloan-autonomous-source-capture
-    cancel-in-progress: false
+concurrency:
+  group: flashloan-autonomous-source-capture
+  cancel-in-progress: false
 
 permissions:
   actions: write
