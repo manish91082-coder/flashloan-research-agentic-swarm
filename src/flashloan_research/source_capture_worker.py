@@ -3,11 +3,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import sqlite3
 import threading
-import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import replace
@@ -439,8 +437,9 @@ class SourceCaptureWorker:
     def _capture_one(self, item: dict[str, Any], run_id: str, worker_id: str,
                      queue: SourceCaptureQueue) -> dict[str, Any]:
         repository = item["repository"]
-        store = ResearchStore(self.database_path)
+        store: ResearchStore | None = None
         try:
+            store = ResearchStore(self.database_path)
             result = self._pipeline().inspect(repository, store)
             filename = re.sub(r"[^A-Za-z0-9._-]+", "_", repository.replace("/", "__"))
             report_path = self.output_dir / run_id / f"{item['candidate_index']:05d}-{filename}.json"
@@ -475,7 +474,8 @@ class SourceCaptureWorker:
             status = queue.fail(run_id, repository, worker_id, f"{type(exc).__name__}: {exc}")
             return {"repository": repository, "status": status, "error": str(exc)[:500]}
         finally:
-            store.close()
+            if store is not None:
+                store.close()
 
     def _capture_cycle(self, queue: SourceCaptureQueue, run_id: str,
                        max_candidates: int, parallel: int) -> dict[str, Any]:
