@@ -9,12 +9,19 @@ import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from flashloan_research.artifact_download import (
-    ArtifactDownloadError,
-    _rate_limit_delay,
-    download_artifact,
-    safe_extract,
-)
+import importlib.util
+import sys
+
+SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "download_github_workflow_artifact.py"
+SPEC = importlib.util.spec_from_file_location("download_github_workflow_artifact", SCRIPT_PATH)
+ARTIFACT_MODULE = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = ARTIFACT_MODULE
+SPEC.loader.exec_module(ARTIFACT_MODULE)
+
+ArtifactDownloadError = ARTIFACT_MODULE.ArtifactDownloadError
+_rate_limit_delay = ARTIFACT_MODULE._rate_limit_delay
+download_artifact = ARTIFACT_MODULE.download_artifact
+safe_extract = ARTIFACT_MODULE.safe_extract
 
 
 def make_zip() -> bytes:
