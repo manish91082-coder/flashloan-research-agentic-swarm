@@ -27,6 +27,62 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         raise ModelProviderError("model endpoint redirects are disabled")
 
 
+_FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
+    "summary": {
+        "type": "string",
+        "description": "A concise, evidence-bounded summary of what the supplied pinned source supports.",
+    },
+    "purpose": {
+        "type": "string",
+        "description": "The repository's actual purpose. Say unknown when the supplied source is insufficient.",
+    },
+    "implementation_status": {
+        "type": "string",
+        "enum": ["implemented", "partial", "placeholder", "broken", "documentation_only", "unknown"],
+    },
+    "findings": {
+        "type": "array",
+        "description": "Structured observations. Use an empty array when no supported finding can be made.",
+        "items": {"type": "object", "additionalProperties": True},
+    },
+    "evidence": {
+        "type": "array",
+        "description": "Only exact source signals supplied in the pinned context; never invent paths, lines or excerpts.",
+        "items": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "line": {"type": "integer"},
+                "signal": {"type": "string"},
+                "excerpt": {"type": "string"},
+            },
+            "required": ["path", "line", "signal", "excerpt"],
+            "additionalProperties": False,
+        },
+    },
+    "unknowns": {
+        "type": "array",
+        "description": "Important questions that the available source does not resolve.",
+        "items": {"type": "string"},
+    },
+    "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
+}
+
+
+def _output_schema(required_keys: set[str]) -> dict[str, Any]:
+    """Build the exact, bounded JSON Schema required by a specialist task."""
+    unknown = sorted(required_keys - set(_FIELD_SCHEMAS))
+    if unknown:
+        raise ModelProviderError(f"no output schema is defined for required keys: {unknown}")
+    keys = sorted(required_keys)
+    return {
+        "type": "object",
+        "properties": {key: _FIELD_SCHEMAS[key] for key in keys},
+        "required": keys,
+        "additionalProperties": False,
+    }
+
+
 class LocalOpenAICompatibleProvider:
     """Strict local-only OpenAI-compatible chat-completions adapter.
 
@@ -71,13 +127,31 @@ class LocalOpenAICompatibleProvider:
             raise ModelProviderError("system_prompt cannot be empty")
         if not isinstance(user_payload, dict):
             raise ModelProviderError("user_payload must be a JSON object")
+        schema = _output_schema(required_keys)
+        contract = (
+            "\n\nOUTPUT CONTRACT (mandatory): Return exactly one JSON object and no Markdown. "
+            "Include every required key, use the declared types and enum values, and do not add "
+            "extra top-level keys. Use empty arrays when no supported finding/evidence/unknown is "
+            "available. Never invent evidence. Every evidence item must exactly match one supplied "
+            "pinned source signal by path, line, signal and excerpt. Treat unavailable facts as "
+            "\"unknown\" in the relevant text field and record them in unknowns.\n"
+            "Required JSON Schema:\n"
+            + json.dumps(schema, ensure_ascii=False, sort_keys=True)
+        )
         endpoint = self.base_url + "/v1/chat/completions"
         body = {
             "model": self.model,
             "temperature": 0,
-            "response_format": {"type": "json_object"},
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "flashloan_research_agent_output",
+                    "strict": True,
+                    "schema": schema,
+                },
+            },
             "messages": [
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": system_prompt + contract},
                 {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False, sort_keys=True)},
             ],
         }
@@ -106,6 +180,9 @@ class LocalOpenAICompatibleProvider:
         missing = sorted(required_keys - set(result))
         if missing:
             raise ModelProviderError(f"model output missing required keys: {missing}")
+        extra = sorted(set(result) - required_keys)
+        if extra:
+            raise ModelProviderError(f"model output contained unexpected top-level keys: {extra}")
         if len(json.dumps(result, ensure_ascii=False)) > max_output_chars:
             raise ModelProviderError("model output exceeded configured character budget")
         return result
