@@ -187,6 +187,33 @@ class SourceCaptureWorkerTests(unittest.TestCase):
             finally:
                 queue.close()
 
+
+    def test_empty_repository_failure_is_terminal_without_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = write_manifest(root)
+            queue = SourceCaptureQueue(root / "state.sqlite3")
+            try:
+                queue.import_manifest(manifest, root)
+                claimed = queue.claim_ready("test-run", "empty-repo-worker", 1, lease_seconds=60)
+                self.assertEqual(len(claimed), 1)
+                repository = claimed[0]["repository"]
+                status = queue.fail(
+                    "test-run", repository, "empty-repo-worker",
+                    'GitHubAPIError: GitHub API HTTP 409: {"message":"Git Repository is empty."}',
+                    retryable=False,
+                )
+                self.assertEqual(status, "failed")
+                row = queue.connection.execute(
+                    "SELECT attempts,status,error FROM source_capture_items WHERE run_id=? AND repository=?",
+                    ("test-run", repository),
+                ).fetchone()
+                self.assertEqual(row["attempts"], 1)
+                self.assertEqual(row["status"], "failed")
+                self.assertIn("Git Repository is empty", row["error"])
+            finally:
+                queue.close()
+
     def test_batch_hash_mismatch_is_rejected_before_queue_import(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
