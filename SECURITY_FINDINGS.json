@@ -242,6 +242,36 @@
       "line_range": "31-35",
       "summary": "Liquidation path hardcodes borrower address(0); companion protocol adapter is generic and lacks verified protocol-specific implementation.",
       "status": "confirmed_source_level_placeholder"
+    },
+    {
+      "id": "MORPHO-EXEC-001",
+      "candidate": "tundefund0-gif/morpho-liquidator",
+      "inspected_commit": "7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9",
+      "source_path": "bot_v4.py",
+      "source_blob_sha": "8d36ed6cecdf421ef0dcd67bdcee56d8ee509fb9",
+      "line_range": "12-14;100-114;220-245;449-490",
+      "summary": "Script reads private key, signs raw transactions, embeds non-empty deployment bytecode and can auto-deploy and broadcast liquidation transactions when run.",
+      "status": "confirmed_source_level_operational_risk_not_executed"
+    },
+    {
+      "id": "MORPHO-ACCOUNTING-002",
+      "candidate": "tundefund0-gif/morpho-liquidator",
+      "inspected_commit": "7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9",
+      "source_path": "bot_v4.py",
+      "source_blob_sha": "8d36ed6cecdf421ef0dcd67bdcee56d8ee509fb9",
+      "line_range": "embedded Solidity receiveFlashLoan; source lines approximately 184-199",
+      "summary": "Embedded callback records balBefore but never uses it; repayment check only compares post-swap balance to principal plus fee, allowing pre-existing loan-token dust to mask a loss.",
+      "status": "confirmed_source_level_accounting_weakness"
+    },
+    {
+      "id": "MORPHO-QUOTE-003",
+      "candidate": "tundefund0-gif/morpho-liquidator",
+      "inspected_commit": "7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9",
+      "source_path": "bot_v4.py",
+      "source_blob_sha": "8d36ed6cecdf421ef0dcd67bdcee56d8ee509fb9",
+      "line_range": "liq_fl around 390-405",
+      "summary": "DEX quote exception is caught and min_out is set to 1; execution path continues instead of failing closed.",
+      "status": "confirmed_source_level_fail_open_quote_fallback"
     }
   ],
   "acceptance_policy": "Accepted means the claim is supported by exact pinned source or repository metadata for research triage. It does not mean an external security audit, exploit reproduction, mainnet validation or profit proof. Candidate code is never executed by this pipeline."
