@@ -152,6 +152,27 @@ jobs:
           retention-days: 7
           compression-level: 6
 
+      - name: Retire consumed checkpoint artifact after durable replacement
+        if: success()
+        run: |
+          set -euo pipefail
+          # Preserve the original 10-candidate pilot as the immutable baseline.
+          # Every later parent checkpoint is deleted only after this run has
+          # uploaded its replacement artifact and passed the SQLite check.
+          if [[ "$RESUME_RUN_ID" != "43607072905" ]]; then
+            ARTIFACT_ID="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RESUME_RUN_ID/artifacts" \
+              --jq '.artifacts[] | select(.name == "flashloan-source-capture-checkpoint" and .expired == false) | .id' \
+              | head -n 1)"
+            if [[ -n "$ARTIFACT_ID" ]]; then
+              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID"
+              echo "Deleted consumed checkpoint artifact $ARTIFACT_ID after verified replacement."
+            else
+              echo "::warning::Previous checkpoint artifact not found for cleanup; keeping the newly uploaded checkpoint."
+            fi
+          else
+            echo "Original bounded pilot artifact preserved as the immutable baseline."
+          fi
+
       - name: Automatically dispatch next research batch
         if: success()
         run: |
