@@ -29,6 +29,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install optional agentic runtime
         run: pip install -e '.[agentic]'
+      - name: Validate WSL resume helper syntax
+        run: bash -n scripts/resume_source_capture.sh
       - name: Compile source
         run: python -m compileall -q src tests
       - name: Run standard-library tests
