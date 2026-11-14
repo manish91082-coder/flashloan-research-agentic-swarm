@@ -92,9 +92,10 @@ class GitHubClient:
         owner, repo = full_name.split("/", 1)
         return self.get(f"/repos/{urllib.parse.quote(owner)}/{urllib.parse.quote(repo)}/commits/{urllib.parse.quote(ref)}")
 
-    def tree(self, full_name: str, tree_sha: str) -> dict[str, Any]:
+    def tree(self, full_name: str, tree_sha: str, recursive: bool = True) -> dict[str, Any]:
         owner, repo = full_name.split("/", 1)
-        return self.get(f"/repos/{urllib.parse.quote(owner)}/{urllib.parse.quote(repo)}/git/trees/{tree_sha}", {"recursive": "1"})
+        params = {"recursive": "1"} if recursive else None
+        return self.get(f"/repos/{urllib.parse.quote(owner)}/{urllib.parse.quote(repo)}/git/trees/{tree_sha}", params)
 
     def blob(self, full_name: str, blob_sha: str) -> dict[str, Any]:
         owner, repo = full_name.split("/", 1)
