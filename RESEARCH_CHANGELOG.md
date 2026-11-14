@@ -1,5 +1,15 @@
 # Research Changelog
 
+## 2026-11-14 (verified continuation checkpoint: 118 source captures)
+
+- Verified that the GitHub-hosted source-capture chain self-dispatches successfully across successive workflow runs; latest completed run at this checkpoint: [43614195040](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614195040).
+- Downloaded and inspected artifact 14121562264 (3,965,756 bytes). Its restore-verification record confirms 106 prior report identities and 1,343 Git blob references (1,261 unique blobs) were revalidated before continuation.
+- Its cycle captured 12 additional candidates. Queue counters now read 7,901 total / 118 captured / 7,783 pending / 0 leased / 0 failed. Source-scope coverage: 86 complete within configured limits; 32 with coverage limitations.
+- Successor run [43614274364](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614274364) was observed in progress. Its output must be checked before the next counter increment.
+- Updated PROJECT_STATE.json and NEXT_ACTIONS.md to remove WSL/manual commands from the primary path and to record the actual Agent Form integration gate.
+- Agent Form is not yet the active semantic runtime for the captured queue: HTML intake + local SQLite API + LangGraph task DAG + local-only model adapter exist, but the adapter explicitly rejects cloud inference. Next implementation is a deterministic bridge from verified capture reports to the form-defined task DAG, followed by a bounded open-weight model inference pilot served on loopback inside GitHub-hosted runners.
+- No semantic audits or independent reviews are inferred from source capture. Existing manually reviewed dossiers remain a separate sample. Candidate code execution remains zero.
+
 ## 2026-11-14 (autonomous hosted continuation)
 
 - Replaced the WSL-only primary continuation dependency with a GitHub-hosted self-chaining source-capture workflow: `.github/workflows/autonomous-source-capture.yml`.
