@@ -57,6 +57,45 @@ class AgenticCaptureBridgeTests(unittest.TestCase):
             self.assertEqual(len(loaded), 1)
             self.assertEqual(loaded[0]["repository"], "example/flashloan")
 
+
+    def test_load_reports_prioritizes_flashloan_liquidation_intersection(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report_dir = root / "reports"
+            vault = root / "vault"
+            report_dir.mkdir()
+            vault.mkdir()
+            reports = [
+                {
+                    "record_type": "commit_pinned_source_capture",
+                    "run_id": MODULE.DISCOVERY_RUN_ID,
+                    "candidate_code_executed": False,
+                    "candidate_index": 1,
+                    "repository": "example/flashloan-core",
+                    "commit_sha": "a" * 40,
+                    "tree_sha": "b" * 40,
+                    "matched_families": ["flash_loan_core"],
+                    "signals": [{"signal": "flash_callback"}],
+                    "captured_files": [],
+                },
+                {
+                    "record_type": "commit_pinned_source_capture",
+                    "run_id": MODULE.DISCOVERY_RUN_ID,
+                    "candidate_code_executed": False,
+                    "candidate_index": 99,
+                    "repository": "example/liquidation-flashloan",
+                    "commit_sha": "c" * 40,
+                    "tree_sha": "d" * 40,
+                    "matched_families": ["flash_loan_liquidation_combo", "defi_liquidation"],
+                    "signals": [],
+                    "captured_files": [],
+                },
+            ]
+            for report in reports:
+                (report_dir / (str(report["candidate_index"]) + ".json")).write_text(json.dumps(report))
+            loaded = MODULE.load_reports(report_dir, vault, 1)
+            self.assertEqual(loaded[0]["repository"], "example/liquidation-flashloan")
+
     def test_load_reports_rejects_tampered_blob(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
