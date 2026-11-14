@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 import threading
 import time
 from pathlib import Path
@@ -43,9 +42,8 @@ def worker_loop(database_path: Path | None = None, poll_seconds: float = 3.0,
                 stop_event: threading.Event | None = None) -> None:
     stop = stop_event or threading.Event()
     while not stop.is_set():
-        processed = run_pending_once(database_path)
-        if processed == 0:
-            stop.wait(poll_seconds)
+        run_pending_once(database_path)
+        stop.wait(poll_seconds)
 
 
 def main() -> None:
