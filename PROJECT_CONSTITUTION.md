@@ -2,7 +2,7 @@
 
 ## North-star objective
 
-Build a form-driven autonomous agentic research system that independently discovers, investigates, cross-checks and documents public flash-loan/DeFi research, then continues through a durable task queue with no repeated manual prompting.
+Build a form-driven autonomous research swarm that discovers the broadest reproducible set of public GitHub repositories across flash loans, flash-loan liquidation, DeFi liquidators, lending/borrowing, DEX arbitrage, MEV and supporting protocol/tooling ecosystems. For every repository, determine actual purpose, actual implementation, completeness, correctness, security posture, economics, tests/CI, dependencies, license and research value from commit-pinned evidence, then continue through a durable task queue without repeated manual prompting.
 
 ## Primary interaction model
 
@@ -11,7 +11,8 @@ The Research Mission Form is the user-facing control plane. The user describes t
 ## Non-drifting scope
 
 In scope:
-- public-source research of flash loans, DeFi arbitrage, liquidation and MEV execution architectures;
+- public GitHub discovery and repository forensics for flash loans, flash-loan-powered liquidation, liquidation bots, provider callbacks, lending/borrowing protocols, DEX/triangular/cross-DEX arbitrage, MEV/searchers, simulations, libraries, tutorials and supporting tooling;
+- paginated query-family coverage accounting, candidate deduplication, fork/mirror identification and repository-purpose classification;
 - protocol and smart-contract security analysis;
 - profitability mathematics and costs;
 - repository and dependency forensics;
