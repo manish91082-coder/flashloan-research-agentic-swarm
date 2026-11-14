@@ -17,3 +17,8 @@
 - Added a third candidate audit: tundefund0-gif/morpho-liquidator at commit 7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9. Grade C reference only; source contains private-key signing, raw transaction broadcast and automatic deployment paths, so it was not executed. Flash callback does not enforce balance-delta profit above pre-loan balance and failed quote falls back to minOut=1.
 - Added all three candidate audits and seven total candidate findings/evidence rows to the matrix, SECURITY_FINDINGS.json and EVIDENCE_REGISTER.csv.
 - Candidate execution was deliberately not performed. The research project did not supply keys, deploy contracts, broadcast transactions or interact with wallets.
+
+- Implemented bounded recovery for GitHub recursive tree truncation. The engine now falls back to non-recursive directory traversal, bounded by 50,000 tree entries and 10,000 directories; it preserves an incomplete status if any subtree is truncated or a cap is reached.
+- Added tree-recovery metadata to inspection results and explicit coverage limitations.
+- Added tests for successful recovery, directory limit and truncated subtree handling.
+- GitHub Actions run 43587812556 passed on Python 3.11, 3.12 and 3.13. All 7 repository tests and compileall passed.
