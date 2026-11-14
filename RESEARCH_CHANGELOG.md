@@ -12,3 +12,8 @@
 - Added both findings to SECURITY_FINDINGS.json and EVIDENCE_REGISTER.csv with exact source blob SHA and line ranges.
 - Findings are not claims of a reproduced live exploit. No candidate code was executed; no wallet, signer, deployment or live trading used.
 - Latest evidence-register commit CI run 43587464686 was queued at the last checkpoint; verify before declaring the latest main state green.
+
+- Added a second candidate audit: Power-Howdy/flashloan-bot-ArbitrageAndLiquidation at commit 025eb602ddd96c3cc8479fb0fbd00cde13e198b6. Grade D: callback integration absent, zero-address placeholders, amountOutMin=0 and no profit invariant.
+- Added a third candidate audit: tundefund0-gif/morpho-liquidator at commit 7cbfa8abc8f0c75b38f75ac4b0878ffe883645e9. Grade C reference only; source contains private-key signing, raw transaction broadcast and automatic deployment paths, so it was not executed. Flash callback does not enforce balance-delta profit above pre-loan balance and failed quote falls back to minOut=1.
+- Added all three candidate audits and seven total candidate findings/evidence rows to the matrix, SECURITY_FINDINGS.json and EVIDENCE_REGISTER.csv.
+- Candidate execution was deliberately not performed. The research project did not supply keys, deploy contracts, broadcast transactions or interact with wallets.
