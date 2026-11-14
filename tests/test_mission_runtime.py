@@ -84,6 +84,28 @@ class MissionRuntimeTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_claim_ready_can_filter_task_types_without_skipping_dependencies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = MissionTaskStore(Path(tmp) / "missions.sqlite3")
+            try:
+                tasks = build_mission_plan(mission(), taxonomy())
+                store.create_plan(tasks)
+                self.assertEqual(
+                    store.claim_ready("flashloan-test-01", "worker-a", task_types={"discover_family"}),
+                    [],
+                )
+                director = store.claim_ready(
+                    "flashloan-test-01", "worker-a", task_types={"mission_plan"}
+                )[0]
+                store.complete_task("flashloan-test-01", director["task_id"], "worker-a", {})
+                discovered = store.claim_ready(
+                    "flashloan-test-01", "worker-a", limit=5, task_types={"discover_family"}
+                )
+                self.assertEqual(len(discovered), 2)
+                self.assertTrue(all(x["task_type"] == "discover_family" for x in discovered))
+            finally:
+                store.close()
+
     def test_lease_owner_is_enforced_and_failure_retries(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = MissionTaskStore(Path(tmp) / "missions.sqlite3")
