@@ -3,33 +3,48 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "A_EVIDENCE_PIPELINE_MVP",
-  "status": "PHASE_A_MERGED_MAIN_CI_GREEN",
+  "status": "PHASE_A_MERGED_MAIN_CI_GREEN_REGRESSION_EXPANDED",
   "last_verified_at_utc": "2026-11-14",
   "default_branch": "main",
-  "main_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b",
-  "feature_branch": "phase-a/foundation",
-  "pull_request": {
-    "number": 1,
-    "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1",
-    "state": "closed",
-    "merged": true,
-    "merge_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b"
-  },
+  "main_commit": "a1621f16f29debe99feec14d41cbd3d3b3acd314",
+  "pull_requests": [
+    {
+      "number": 1,
+      "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/1",
+      "merged": true,
+      "merge_commit": "f42f93623e970a24beb0d3a5f395e03051f3893b"
+    },
+    {
+      "number": 2,
+      "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/2",
+      "merged": true,
+      "merge_commit": "a1621f16f29debe99feec14d41cbd3d3b3acd314"
+    }
+  ],
   "remote_ci": {
     "workflow": "Research Engine CI",
-    "main_push_run_id": 43575510516,
+    "main_push_run_id": 43583006127,
     "main_push_conclusion": "success",
     "python_matrix": ["3.11", "3.12", "3.13"],
     "all_matrix_jobs": "success",
-    "remote_test_scope": "four focused smoke tests plus compileall; not the full 26-test local suite"
+    "remote_test_scope": "4 baseline smoke tests plus 14 extended regression tests = 18 remote tests; compileall also passed"
   },
   "local_validation": {
     "compileall": "PASS",
-    "unittest": "26/26 PASS",
+    "full_baseline_unittest": "26/26 PASS locally in the isolated work container",
     "workflow_yaml_parse": "PASS for both workflows",
     "cli_help_and_status": "PASS",
     "editable_install": "PASS with --no-build-isolation --no-deps using local build tooling",
     "network_note": "direct outbound internet from local execution environment unavailable; GitHub API and Actions used for remote repository operations and CI"
+  },
+  "repository_contents": {
+    "phase_a_test_report": "docs/PHASE_A_TEST_REPORT.md",
+    "remote_regression_tests": ["tests/test_smoke.py", "tests/test_extended.py"],
+    "schemas": ["schemas/evidence-record.schema.json", "schemas/repository-candidate.schema.json"],
+    "manual_discovery_snapshot": "research_runs/2026-11-14/manual-discovery-baseline-01.json",
+    "seeded_candidate_matrix": "research/SEEDED_CANDIDATE_MATRIX.md",
+    "evidence_register": "EVIDENCE_REGISTER.csv",
+    "security_findings": "SECURITY_FINDINGS.json"
   },
   "architecture": {
     "research_engine": "Python standard library",
@@ -54,5 +69,5 @@
     "repository_secrets_added": false,
     "branch_protection": "not configured; connector exposes no branch-protection mutation action in this session"
   },
-  "next_gate": "Observe first scheduled discovery run, verify the committed timestamped report, then implement full pagination, recovery and 26-test remote coverage."
+  "next_gate": "Complete current-HEAD candidate forensic review, expand remaining local regression tests to remote suite, add pagination/truncated-tree recovery, and verify first scheduled discovery run."
 }
