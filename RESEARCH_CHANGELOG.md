@@ -1,5 +1,17 @@
 # Research Changelog
 
+## 2026-11-14 (Agent Form semantic pilot launched)
+
+- Latest inspected source-capture checkpoint: [43615137961](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615137961), artifact 14121666814. Queue: 7,901 total / 268 captured / 7,631 pending / 0 leased / 2 failed. Coverage: 203 complete within configured source scope; 65 with limitations.
+- Two failed rows are empty repositories returning GitHub HTTP 409: ADMac/flashloan and Alejo1156/FLASHLOAN. They are unavailable-source records, not security findings.
+- Added `.github/workflows/agentic-semantic-pilot.yml`. It downloads a preserved verified source-capture artifact, restores and validates it, installs the Agent Form/LangGraph runtime, then installs Ollama and pulls qwen2.5:3b for CPU inference served only on loopback 127.0.0.1:11434.
+- Added a one-time pilot seed marker for run 43615137961 and updated checkpoint-retirement logic so the source-capture chain preserves this designated artifact until the semantic pilot consumes it.
+- Triggered Agent Form pilot workflow [43615341905](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615341905). At checkpoint time, restore succeeded and Agent Form runtime installation was in progress; no semantic output had yet been verified.
+- Pilot batch size: 2 repositories, selected by direct flash-loan/liquidation taxonomy priority. The workflow requires two purpose tasks, six specialist roles per repository, two evidence-validation tasks and two independent reviews. It records model manifest, task ledger and elapsed time. The pilot fails closed on task failures or missing gates.
+- Model context is bounded to five files and 18,000 characters per task, with 600-second request timeout. This is a controlled quality/throughput experiment; full-scale semantic automation remains gated on the resulting evidence.
+- A fake-provider test seam initially failed when timeout configuration was injected as a constructor argument. The implementation now applies timeout after provider construction, preserving the existing injectable provider contract. Latest CI [43615235086](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43615235086) passed on Python 3.11/3.12/3.13.
+- No semantic audit count is increased until the pilot reports are inspected. Candidate code execution, wallet access, transaction signing, deployment, live trading, cloud inference and paid model use remain disabled.
+
 ## 2026-11-14 (Agent Form bridge and 196-candidate source checkpoint)
 
 - Latest inspected source checkpoint: workflow [43614692895](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614692895), artifact 14121229184. The artifact's queue reports 196 captured / 7,703 pending / 0 leased / 2 failed out of 7,901.
