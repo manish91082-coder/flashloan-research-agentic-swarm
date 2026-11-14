@@ -84,6 +84,28 @@ class MissionDiscoveryTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_short_page_before_reported_end_is_coverage_debt(self):
+        responses = {
+            ("q-flash", 1): {
+                "total_count": 5,
+                "incomplete_results": False,
+                "items": [repository(1, "org/one")],
+            }
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            store = ResearchStore(root / "research.sqlite3")
+            try:
+                report = run_taxonomy_discovery(
+                    FakeClient(responses), store, self.write_taxonomy(root),
+                    selected_families=["flash_loan_core"], per_page=2, max_pages=2
+                )
+                self.assertFalse(report["coverage_complete"])
+                row = next(x for x in report["coverage_debt"] if x["query"] == "q-flash")
+                self.assertTrue(row["short_page_before_expected_end"])
+            finally:
+                store.close()
+
     def test_search_result_cap_is_reported_as_coverage_debt(self):
         item = repository(1, "org/one")
         responses = {("q-flash", page): {
