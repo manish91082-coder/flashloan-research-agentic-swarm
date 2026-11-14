@@ -314,7 +314,7 @@ class MissionExecutor:
             while True:
                 claimed = task_store.claim_ready(
                     mission_id, worker_id, limit=parallel, lease_seconds=900,
-                    task_types={"candidate_purpose"},
+                    task_types={"candidate_source_capture"},
                 )
                 if not claimed:
                     break
