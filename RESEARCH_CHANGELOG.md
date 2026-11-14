@@ -72,3 +72,17 @@
 - Reviewed both Euler/Twyne and Aave-vault liquidators, Morpho callback authentication, explicit realized minimum-profit gate, approval reset, router-call error propagation and fork-based Foundry test sources.
 - Diligence notes cover public trigger/owner-directed proceeds, caller-provided router calldata under owner-configured router allowance, temporary max approvals and zero-debt branch semantics.
 - Five manual candidates now have source-pinned dossiers, all awaiting independent review. Automated 7,901-candidate queue source-capture counter remains 0/7,901. No candidate code executed.
+
+
+## 2026-11-14 — resumable manifest-driven source-capture worker merged
+
+- Added a standalone `flashloan-source-capture-worker` backed by a durable SQLite queue for the immutable discovery manifest and 80 JSONL batches.
+- The importer verifies the manifest type/run ID, every batch SHA-256, contiguous candidate indexes, canonical repository identity, unique GitHub repository IDs and batch counts before writing queue records.
+- The queue persists per-candidate pending/leased/captured/failed states, bounded three-attempt retries, 60-minute expiring leases and crash/lease recovery. Existing runs are idempotent and must match the same manifest SHA-256.
+- Worker processes direct flash-loan/provider/liquidation candidates first, then adjacent DeFi families, then remaining taxonomy families. It uses bounded concurrency and the existing read-only `ResearchPipeline.inspect` to pin current default-branch commit/tree and verify Git blob SHAs.
+- Per-candidate capture reports are written atomically; raw verified source blobs are stored in the local content-addressed vault. Default first-pass capture limit is 30 source files per repository with configured blob-size and tree traversal limits disclosed as coverage constraints.
+- Added regression tests for manifest hash tampering, priority order, idempotent continuation, transient retry and expired-lease recovery.
+- PR [#7](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/7) merged to main at `089e215bac99a60ba2b2e2c7b33c8f9e370a21b3`.
+- CI run [43606380880](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43606380880) passed compile and test jobs on Python 3.11, 3.12 and 3.13.
+- **Execution distinction:** the worker implementation is merged, but it has not yet been run against the live 7,901-candidate manifest. Automated source capture remains **0/7,901** until a real persistent local/WSL run records captures. The five manual source-inspected dossiers remain a separate sample awaiting independent review.
+- No candidate repository code was executed; no wallet, transaction signing, deployment or live trading was used.
