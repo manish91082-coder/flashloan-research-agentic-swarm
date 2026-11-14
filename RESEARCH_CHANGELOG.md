@@ -1,5 +1,16 @@
 # Research Changelog
 
+## 2026-11-14 (Agent Form bridge and 196-candidate source checkpoint)
+
+- Latest inspected source checkpoint: workflow [43614692895](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614692895), artifact 14121229184. The artifact's queue reports 196 captured / 7,703 pending / 0 leased / 2 failed out of 7,901.
+- Captured coverage: 148 complete within configured source scope; 48 have source-scope limitations. The 2 failed rows are empty Git repositories (HTTP 409): ADMac/flashloan and Alejo1156/FLASHLOAN. They are source availability gaps, not code findings.
+- Added `scripts/initialize_agentic_capture_mission.py`, which maps verified source-capture reports into the Agent Form schema, mission queue and task DAG. It verifies commit/tree identities and all source Git blob hashes before creating inspection inputs. It does not re-run discovery or treat lexical signals as audit findings.
+- Candidate selection for the bounded Agent Form pilot prioritizes direct flash-loan/liquidation intersections, then flash-loan core, liquidation, provider APIs, lending and security/accounting families. Lexical signal counts are scheduling hints only.
+- Added tests for mission payload schema compatibility, blob verification, tamper rejection and priority ordering. CI passed on Python 3.11/3.12/3.13 (runs 43614561997 and 43614586467).
+- Added terminal handling for GitHub 409 empty repositories to avoid three futile retries. Regression test and CI run 43614709576 passed across Python 3.11/3.12/3.13.
+- The Agent Form DAG bridge is implemented, but hosted local-model inference has not yet run. The loopback-only provider rejects cloud endpoints. Next gate: run a bounded open-weight model pilot inside a GitHub-hosted runner using a loopback endpoint, validate outputs against pinned evidence, and only then scale specialist/reviewer processing.
+- Source capture, semantic specialist analysis, evidence validation and independent review remain distinct counters. No candidate code execution, wallet access, signing, deployment or live transactions.
+
 ## 2026-11-14 (verified continuation checkpoint: 118 source captures)
 
 - Verified that the GitHub-hosted source-capture chain self-dispatches successfully across successive workflow runs; latest completed run at this checkpoint: [43614195040](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43614195040).
