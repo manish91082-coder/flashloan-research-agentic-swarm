@@ -252,6 +252,50 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             self.assertTrue(all(item["accepted_evidence_ids"] == ["EV00001"] for item in context))
             self.assertEqual(len({item["task_type"] for item in context}), 7)
 
+    def test_prior_reviewer_context_fails_closed_instead_of_truncating_findings(self):
+        roles = [
+            ("candidate_purpose", "candidate_purpose"),
+            ("protocol_forensics", "protocol_specialist"),
+            ("security_forensics", "solidity_security"),
+            ("execution_forensics", "execution_engineer"),
+            ("test_forensics", "test_verification"),
+            ("economic_forensics", "economics_quant"),
+            ("dependency_forensics", "dependency_license"),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            tasks = []
+            for index, (task_type, role) in enumerate(roles):
+                task_id = f"overflow-task-{index}"
+                report = {
+                    "summary": "summary",
+                    "purpose": "purpose",
+                    "implementation_status": "partial",
+                    "findings": [{
+                        "finding_id": f"F-{i}", "claim": "claim", "category": "security",
+                        "severity": "medium", "claim_status": "supported_inference",
+                        "confidence": "low", "evidence_refs": ["EV00001"],
+                    } for i in range(31 if index == 0 else 1)],
+                    "evidence": [{"evidence_id": "EV00001"}],
+                    "unknowns": [],
+                    "confidence": "low",
+                    "task_metadata": {"task_id": task_id, "task_type": task_type},
+                    "agent_metadata": {"role": role},
+                    "evidence_validation": {
+                        "inspection_commit_sha": "a" * 40,
+                        "inspection_tree_sha": "b" * 40,
+                        "all_findings_linked_to_accepted_evidence": True,
+                    },
+                }
+                path = Path(tmp) / f"{task_id}.json"
+                path.write_text(json.dumps(report), encoding="utf-8")
+                tasks.append({
+                    "task_type": task_type, "role": role, "status": "completed",
+                    "task_id": task_id, "payload": {"repository": "org/repo"},
+                    "result": {"report": str(path)},
+                })
+            with self.assertRaisesRegex(SpecialistTaskError, "lossless reviewer-context item limits"):
+                _prior_specialist_reports(tasks, "org/repo", self.inspection)
+
     def test_prior_reviewer_context_rejects_report_task_id_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:
             report = {
