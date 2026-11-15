@@ -95,6 +95,56 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIn("source_evidence_catalog", system_prompt)
         self.assertIn("Never invent IDs", system_prompt)
 
+    def test_review_decision_schema_is_conditioned_on_task_role(self):
+        required = {
+            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "unknowns", "confidence", "review_decision", "review_disagreements",
+        }
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        Handler.response_content = json.dumps({
+            "summary": "Source-supported purpose classification.",
+            "purpose": "liquidator",
+            "implementation_status": "partial",
+            "findings": [],
+            "evidence": ["EV00001"],
+            "unknowns": ["Runtime behavior not tested."],
+            "confidence": "low",
+            "review_decision": "not_applicable",
+            "review_disagreements": [],
+        })
+        provider.generate_json(
+            "Classify purpose.", {"role": "candidate_purpose", "source_evidence_catalog": []}, required,
+        )
+        specialist_enum = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["review_decision"]["enum"]
+        self.assertEqual(specialist_enum, ["not_applicable"])
+
+        Handler.response_content = json.dumps({
+            "summary": "Independent review of prior source reports.",
+            "purpose": "liquidator",
+            "implementation_status": "partial",
+            "findings": [],
+            "evidence": ["EV00001"],
+            "unknowns": ["Runtime behavior not tested."],
+            "confidence": "low",
+            "review_decision": "accept_with_reservations",
+            "review_disagreements": ["No proof of runtime profitability."],
+        })
+        provider.generate_json(
+            "Review prior analysis.", {"role": "independent_reviewer", "source_evidence_catalog": []}, required,
+        )
+        reviewer_enum = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["review_decision"]["enum"]
+        self.assertEqual(reviewer_enum, ["accept", "accept_with_reservations", "reject", "inconclusive"])
+        self.assertNotIn("not_applicable", reviewer_enum)
+
+    def test_full_output_schema_requires_a_recognized_role(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "unknowns", "confidence", "review_decision", "review_disagreements",
+        }
+        with self.assertRaisesRegex(ModelProviderError, "recognized specialist role"):
+            provider.generate_json("Classify.", {"repository": "org/repo"}, required)
+
     def test_rejects_non_loopback_model_hosts(self):
         with patch(
             "flashloan_research.model_provider.socket.getaddrinfo",
