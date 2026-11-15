@@ -19,7 +19,9 @@ ROLE_PROMPTS = {
         "Classify the repository's actual purpose from its pinned source files and select exactly one purpose_category from the strict taxonomy. Identify the "
         "main executable entry points and implemented protocol flow. Distinguish working code "
         "from TODOs, comments, examples and README claims. Do not grade security or economics "
-        "unless directly established. If the supplied source is insufficient, return unknown."
+        "unless directly established. If the supplied source is insufficient, return unknown. "
+        "Keep output compact: at most eight distinct evidence IDs total, never repeat an ID, "
+        "at most six findings and eight concise unknowns. Use only low or medium confidence."
     ),
     "protocol_specialist": (
         "Use purpose_category consistently with the candidate-purpose report. Analyze the actual protocol integration and end-to-end call flow: provider entry point, "
@@ -412,7 +414,7 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
         raise SpecialistTaskError(f"report findings must contain at most {MAX_REPORT_FINDINGS} items")
     if len(output["unknowns"]) > MAX_REPORT_UNKNOWNS:
         raise SpecialistTaskError(f"report unknowns must contain at most {MAX_REPORT_UNKNOWNS} items")
-    if len(set(output["evidence"])) != len(output["evidence"]):
+    if all(isinstance(item, str) for item in output["evidence"]) and len(set(output["evidence"])) != len(output["evidence"]):
         raise SpecialistTaskError("report evidence IDs must be unique; duplicate IDs are not permitted")
     if role == "independent_reviewer" and len(output["review_disagreements"]) > 12:
         raise SpecialistTaskError("review_disagreements must contain at most 12 concise items")
