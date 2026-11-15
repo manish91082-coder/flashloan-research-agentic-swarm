@@ -122,6 +122,25 @@ class MissionRuntimeTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_candidate_purpose_has_distinct_role_and_task_identity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = MissionTaskStore(Path(tmp) / "missions.sqlite3")
+            try:
+                base = build_mission_plan(mission(), taxonomy())
+                store.create_plan(base)
+                expansion = next(x for x in base if x.task_type == "expand_candidate_tasks")
+                store.expand_candidates(
+                    "flashloan-test-01", expansion.task_id, ["org/repo-one"],
+                )
+                rows = store.list_tasks("flashloan-test-01")
+                purpose = next(x for x in rows if x["task_type"] == "candidate_purpose")
+                protocol = next(x for x in rows if x["task_type"] == "protocol_forensics")
+                self.assertEqual(purpose["role"], "candidate_purpose")
+                self.assertEqual(protocol["role"], "protocol_specialist")
+                self.assertNotEqual(purpose["task_id"], protocol["task_id"])
+            finally:
+                store.close()
+
     def test_candidate_expansion_adds_independent_specialist_and_review_chain(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = MissionTaskStore(Path(tmp) / "missions.sqlite3")
