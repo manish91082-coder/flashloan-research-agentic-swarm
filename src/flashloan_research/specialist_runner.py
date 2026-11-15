@@ -19,7 +19,10 @@ ROLE_PROMPTS = {
         "Classify the repository's actual purpose from its pinned source files. Identify the "
         "main executable entry points and implemented protocol flow. Distinguish working code "
         "from TODOs, comments, examples and README claims. Do not grade security or economics "
-        "unless directly established. If the supplied source is insufficient, return unknown."
+        "unless directly established. Select evidence ONLY by choosing EV identifiers from the "
+        "catalog. The evidence array must contain identifiers such as EV00001, never source code, "
+        "line-numbered text, paths or quotations. If the supplied source is insufficient, return "
+        "unknown with no findings and low confidence."
     ),
     "protocol_specialist": (
         "Analyze the actual protocol integration and end-to-end call flow: provider entry point, "
@@ -105,6 +108,19 @@ def _evidence_catalog(inspection: dict[str, Any]) -> list[dict[str, Any]]:
             "excerpt": excerpt,
         })
     return catalog
+
+
+def _model_evidence_catalog(inspection: dict[str, Any]) -> list[dict[str, Any]]:
+    """Expose identifiers and coordinates to the model, not duplicate source excerpts."""
+    return [
+        {
+            "evidence_id": item["evidence_id"],
+            "path": item["path"],
+            "line": item["line"],
+            "signal": item["signal"],
+        }
+        for item in _evidence_catalog(inspection)
+    ]
 
 
 def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | None = None,
