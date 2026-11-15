@@ -345,35 +345,51 @@ class MissionExecutor:
         if not os.getenv("FLR_MODEL_BASE_URL", "").strip() or not os.getenv("FLR_MODEL_NAME", "").strip():
             return {
                 "status": "blocked_no_approved_free_local_model_endpoint",
-                "specialist_batches": 0,
+                "specialist_batches": [],
                 "evidence_validation": None,
                 "independent_review": None,
             }
         from .specialist_runner import run_evidence_validation_batch, run_specialist_batch
 
         specialist_batches = []
+        # Process one CPU inference at a time. Retryable timeouts return the task
+        # to pending; the durable max_attempts counter bounds retries.
         while True:
             result = run_specialist_batch(
                 mission_id, self.database_path, self.artifact_root,
-                limit=12,
+                limit=1,
             )
             specialist_batches.append(result)
             if result["claimed_tasks"] == 0:
                 break
-            if result["failures"]:
-                break
+
         evidence = run_evidence_validation_batch(
             mission_id, self.database_path, self.artifact_root,
         )
-        reviewer = run_specialist_batch(
-            mission_id, self.database_path, self.artifact_root,
-            limit=12,
-        )
+        reviewer_batches = []
+        while True:
+            result = run_specialist_batch(
+                mission_id, self.database_path, self.artifact_root,
+                limit=1,
+            )
+            reviewer_batches.append(result)
+            if result["claimed_tasks"] == 0:
+                break
         return {
             "status": "executed_with_evidence_gate",
             "specialist_batches": specialist_batches,
             "evidence_validation": evidence,
-            "independent_review": reviewer,
+            "independent_review": {
+                "mission_id": mission_id,
+                "batches": reviewer_batches,
+                "completed": [
+                    item for batch in reviewer_batches for item in batch.get("completed", [])
+                ],
+                "failures": [
+                    item for batch in reviewer_batches for item in batch.get("failures", [])
+                ],
+                "claimed_tasks": sum(batch.get("claimed_tasks", 0) for batch in reviewer_batches),
+            },
         }
 
     def finalize(self, mission_id: str) -> dict[str, Any]:

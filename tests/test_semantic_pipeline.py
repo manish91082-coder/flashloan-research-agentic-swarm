@@ -10,7 +10,6 @@ from unittest.mock import patch
 
 from flashloan_research.mission_executor import MissionExecutor
 from flashloan_research.mission_runtime import MissionTask, MissionTaskStore, stable_task_id
-from flashloan_research.mission_queue import MissionQueue
 from flashloan_research.storage import git_blob_sha
 
 
@@ -30,22 +29,33 @@ class FakeLocalProvider:
     def generate_json(self, system_prompt, user_payload, required_keys):
         self.calls.append({"system_prompt": system_prompt, "payload": user_payload})
         self.assert_context(user_payload, system_prompt)
-        signal = user_payload["source_signals"][0]
-        if "Independently challenge" in system_prompt:
+        evidence = user_payload["source_evidence_catalog"][0]["evidence_id"]
+        role = user_payload["role"]
+        if role == "independent_reviewer":
             self.__class__.reviewer_prior_count = len(user_payload["prior_specialist_outputs"])
+            decision = "accept_with_reservations"
+            disagreements = ["Runtime behavior and realized profitability are not established by static source excerpts."]
+        else:
+            decision = "not_applicable"
+            disagreements = []
         return {
-            "summary": "Fixture analysis; all claims remain provisional.",
+            "summary": "Fixture analysis; all material claims are linked to a pinned source signal.",
             "purpose": "flash-loan liquidation research implementation",
             "implementation_status": "partial",
-            "findings": [],
-            "evidence": [{
-                "path": signal["path"],
-                "line": signal["line"],
-                "signal": signal["signal"],
-                "excerpt": signal["excerpt"],
+            "findings": [{
+                "finding_id": f"F-{role}",
+                "claim": "The pinned source excerpt contains the executeOperation callback declaration.",
+                "category": "protocol_flow",
+                "severity": "informational",
+                "claim_status": "source_observed",
+                "confidence": "low",
+                "evidence_refs": [evidence],
             }],
+            "evidence": [evidence],
             "unknowns": ["No live execution or profitability proof."],
             "confidence": "low",
+            "review_decision": decision,
+            "review_disagreements": disagreements,
         }
 
     @staticmethod
@@ -53,8 +63,12 @@ class FakeLocalProvider:
         excerpts = user_payload.get("verified_source_excerpts", [])
         assert excerpts, "verified source excerpts must reach every model task"
         assert "blob_sha" in excerpts[0] and "excerpt_sha256" in excerpts[0]
-        if "Independently challenge" in system_prompt:
-            assert user_payload.get("prior_specialist_outputs"), "reviewer must receive prior reports"
+        assert user_payload.get("source_evidence_catalog"), "pinned evidence catalog must reach every model task"
+        assert "task_type" in user_payload and "role" in user_payload
+        if user_payload["role"] == "independent_reviewer":
+            assert len(user_payload.get("prior_specialist_outputs", [])) == 7, (
+                "reviewer must receive all seven unique purpose/specialist reports"
+            )
 
 
 class SemanticPipelineEndToEndTests(unittest.TestCase):
@@ -78,7 +92,7 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             store = MissionTaskStore(database)
             try:
                 store.create_plan(base_tasks)
-                claim = store.claim_ready(mission_id, "test-planner", task_types={"expand_candidate_tasks"})[0]
+                store.claim_ready(mission_id, "test-planner", task_types={"expand_candidate_tasks"})
                 store.complete_task(mission_id, expansion_id, "test-planner", {"test_fixture": True})
                 store.expand_candidates(
                     mission_id, expansion_id, [repository],
@@ -142,6 +156,7 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
                 "FLR_MODEL_BASE_URL": "http://127.0.0.1:11434",
                 "FLR_MODEL_NAME": "deterministic-fixture-model",
                 "FLR_SNAPSHOT_DIR": str(vault),
+                "FLR_MODEL_TIMEOUT_SECONDS": "1200",
             }), patch(
                 "flashloan_research.specialist_runner.LocalOpenAICompatibleProvider",
                 FakeLocalProvider,
@@ -159,6 +174,15 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
                 call["payload"].get("verified_source_excerpts")
                 for call in FakeLocalProvider.calls
             ))
+            gate = json.loads(Path(result["evidence_validation"]["completed"][0]["report"]).read_text())
+            self.assertEqual(gate["evidence_gate"], "pinned_evidence_and_claim_linkage_pass")
+            self.assertGreater(gate["accepted_evidence_total"], 0)
+            self.assertGreater(gate["candidate_purpose_evidence_count"], 0)
+            reviewer = result["independent_review"]["completed"][0]
+            reviewer_report = json.loads(Path(reviewer["report"]).read_text())
+            self.assertEqual(reviewer_report["review_decision"], "accept_with_reservations")
+            self.assertTrue(reviewer_report["review_disagreements"])
+
             store = MissionTaskStore(database)
             try:
                 rows = store.list_tasks(mission_id)
@@ -173,6 +197,11 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
                 self.assertEqual(statuses["evidence_validation"], "completed")
                 self.assertEqual(statuses["independent_review"], "completed")
                 self.assertEqual(statuses["candidate_dossier"], "pending")
+                report_paths = [
+                    row["result"]["report"] for row in rows
+                    if row["task_type"] in {"candidate_purpose", "protocol_forensics"}
+                ]
+                self.assertEqual(len(set(report_paths)), 2)
             finally:
                 store.close()
 

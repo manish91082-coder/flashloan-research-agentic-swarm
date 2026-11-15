@@ -64,6 +64,37 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIn('"purpose"', Handler.body["messages"][0]["content"])
         self.assertEqual(Handler.body["temperature"], 0)
 
+    def test_full_specialist_schema_includes_evidence_and_reviewer_contracts(self):
+        Handler.response_content = json.dumps({
+            "summary": "Unknown until source evidence is sufficient.",
+            "purpose": "unknown",
+            "implementation_status": "unknown",
+            "findings": [],
+            "evidence": [],
+            "unknowns": ["No evidence was selected."],
+            "confidence": "low",
+            "review_decision": "not_applicable",
+            "review_disagreements": [],
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "unknowns", "confidence", "review_decision", "review_disagreements",
+        }
+        result = provider.generate_json(
+            "Return evidence-grounded specialist output.",
+            {"source_evidence_catalog": [], "role": "candidate_purpose"},
+            required,
+        )
+        self.assertEqual(result["implementation_status"], "unknown")
+        schema = Handler.body["response_format"]["json_schema"]["schema"]
+        self.assertIn("review_decision", schema["properties"])
+        self.assertIn("review_disagreements", schema["properties"])
+        self.assertIn("evidence_refs", schema["properties"]["findings"]["items"]["properties"])
+        system_prompt = Handler.body["messages"][0]["content"]
+        self.assertIn("source_evidence_catalog", system_prompt)
+        self.assertIn("Never invent IDs", system_prompt)
+
     def test_rejects_non_loopback_model_hosts(self):
         with patch(
             "flashloan_research.model_provider.socket.getaddrinfo",

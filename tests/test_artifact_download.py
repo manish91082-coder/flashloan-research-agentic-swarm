@@ -33,15 +33,22 @@ def make_zip() -> bytes:
 
 class Handler(BaseHTTPRequestHandler):
     attempts = 0
+    error_codes = [502, 403]
     archive_bytes = make_zip()
 
     def do_GET(self):
         if self.path == "/repos/org/repo/actions/artifacts/42/zip":
             Handler.attempts += 1
-            if Handler.attempts == 1:
-                body = b'{"message":"API rate limit exceeded for installation"}'
-                self.send_response(403)
-                self.send_header("X-RateLimit-Reset", str(int(time.time())))
+            error_index = Handler.attempts - 1
+            if error_index < len(Handler.error_codes):
+                status = Handler.error_codes[error_index]
+                body = (
+                    b'{"message":"API rate limit exceeded for installation"}'
+                    if status == 403 else b'{"message":"temporary artifact service error"}'
+                )
+                self.send_response(status)
+                if status == 403:
+                    self.send_header("X-RateLimit-Reset", str(int(time.time())))
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
@@ -66,6 +73,7 @@ class Handler(BaseHTTPRequestHandler):
 class GitHubArtifactDownloadTests(unittest.TestCase):
     def setUp(self):
         Handler.attempts = 0
+        Handler.error_codes = [502, 403]
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -90,8 +98,8 @@ class GitHubArtifactDownloadTests(unittest.TestCase):
                 sleep_fn=sleeps.append,
             )
             safe_extract(archive, root / "unpacked")
-            self.assertEqual(Handler.attempts, 2)
-            self.assertEqual(len(sleeps), 1)
+            self.assertEqual(Handler.attempts, 3)
+            self.assertEqual(len(sleeps), 2)
             content = (root / "unpacked/reports/checkpoint.json").read_text()
             self.assertEqual(content, '{"status":"verified"}')
 

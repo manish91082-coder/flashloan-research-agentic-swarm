@@ -186,7 +186,7 @@ def build_candidate_tasks(mission_id: str, repository: str, expansion_task_id: s
         priority=45, budget_units=2,
     )
     purpose = _task(
-        mission_id, "candidate_purpose", "protocol_specialist", key=repository,
+        mission_id, "candidate_purpose", "candidate_purpose", key=repository,
         depends_on=(source_capture.task_id,), payload={"repository": repository},
         priority=47, budget_units=2,
     )

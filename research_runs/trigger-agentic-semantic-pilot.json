@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Rerun the bounded Agent Form local-model quality pilot after merging the strict JSON Schema contract and rate-limit-aware artifact downloader; use the preserved immutable 268-candidate checkpoint.",
+  "purpose": "Run an isolated source-grounded Agent Form quality pilot with the revised evidence-ID schema, finding-to-evidence validation, distinct task-bound reports, strict zero-evidence rejection and independent review. This does not start a global semantic audit.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "queue_checkpoint": {
@@ -14,12 +14,16 @@
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
   "acceptance": [
-    "restore checkpoint and verify pinned source evidence",
-    "validate Agent Form mission payload and task DAG",
-    "complete two candidate purpose analyses and six specialist roles per candidate",
-    "run structural evidence gate for both candidates",
-    "run independent reviewer for both candidates",
-    "inspect artifact for valid schema outputs, accepted/rejected evidence, task ledger and review reports"
+    "restore and verify immutable source-capture checkpoint 43615137961 / artifact 14121666814",
+    "bootstrap a fresh mission database and unique mission ID, with no reuse of previous failed pilot task states",
+    "complete both candidate-purpose tasks and six distinct specialist tasks per candidate",
+    "every finding must cite evidence IDs resolved from the pinned inspection signal catalog",
+    "zero accepted evidence must block the candidate evidence gate",
+    "complete both claim-linked evidence gates with positive purpose evidence",
+    "complete two independent reviewers with explicit review decisions and disagreement outputs",
+    "verify task IDs, task types, roles, commit pins and report paths independently",
+    "inspect model manifest, task ledger, specialist reports and reviewer reports before accepting quality",
+    "do not count candidates as audited or start global semantic scaling from this pilot"
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -31,7 +35,15 @@
     "cloud_inference": false
   },
   "triggered_after_commit": "84dc4e423d5884cb170500aec3961e22345d749f",
-  "updated_at_utc": "2026-11-14T18:42:00Z",
+  "updated_at_utc": "2026-11-15T10:50:00+05:30",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "pilot-retry-3-json-schema-and-artifact-backoff"
+  "trigger_revision": "evidence-id-linked-claims-fresh-mission-pilot-20261115",
+  "mission_id": "flashloan-agent-form-pilot-20261115",
+  "model_runtime": "Ollama local CPU on GitHub-hosted runner",
+  "model_timeout_seconds": 1200,
+  "context_limits": {
+    "max_files": 4,
+    "max_chars": 10000
+  },
+  "output_contract_version": "2.0.0"
 }
