@@ -8,6 +8,7 @@ from pathlib import Path
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, validate_specialist_output, _evidence_catalog,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
+    ROLE_PROMPTS,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -52,6 +53,14 @@ def sample_output(**overrides):
 class SpecialistEvidenceGateTests(unittest.TestCase):
     def setUp(self):
         self.inspection = sample_inspection()
+
+    def test_independent_reviewer_prompt_checks_callback_auth_and_placeholder_logic(self):
+        prompt = ROLE_PROMPTS["independent_reviewer"]
+        self.assertIn("callback caller", prompt)
+        self.assertIn("initiator", prompt)
+        self.assertIn("repayment and premium", prompt)
+        self.assertIn("TODO or placeholder", prompt)
+        self.assertIn("configured lending Pool/provider address", prompt)
 
     def test_rejects_role_inappropriate_finding_category(self):
         output = sample_output(findings=[{
