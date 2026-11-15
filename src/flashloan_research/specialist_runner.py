@@ -66,10 +66,27 @@ ROLE_PROMPTS = {
     ),
 }
 
-REQUIRED_KEYS = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
+REQUIRED_KEYS = {"summary", "purpose", "purpose_category", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
 REVIEWER_REQUIRED_KEYS = REQUIRED_KEYS | {"review_decision", "review_disagreements"}
 ALLOWED_STATUS = {"implemented", "partial", "placeholder", "broken", "documentation_only", "unknown"}
 ALLOWED_CONFIDENCE = {"low", "medium", "high"}
+ALLOWED_PURPOSE_CATEGORIES = {
+    "flash_loan_liquidation_bot", "flash_swap_liquidation_bot",
+    "flash_loan_arbitrage", "flash_swap_arbitrage",
+    "lending_protocol", "flash_loan_provider", "liquidation_library_or_sdk",
+    "educational_example_or_lab", "security_tooling", "unrelated", "unknown",
+}
+ROLE_FINDING_CATEGORIES = {
+    "candidate_purpose": {"purpose", "protocol_flow"},
+    "protocol_specialist": {"protocol_flow"},
+    "solidity_security": {"security"},
+    "execution_engineer": {"execution"},
+    "test_verification": {"testing"},
+    "economics_quant": {"economics"},
+    "dependency_license": {"dependency_license"},
+    "independent_reviewer": {"review_challenge"},
+}
+MAX_FINDING_EVIDENCE_REFS = 4
 ALLOWED_REVIEW_DECISIONS = {
     "not_applicable", "accept", "accept_with_reservations", "reject", "inconclusive"
 }
@@ -266,6 +283,7 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
             "inspection_tree_sha": expected_tree,
             "summary": str(data.get("summary", ""))[:600],
             "purpose": str(data.get("purpose", ""))[:600],
+            "purpose_category": data.get("purpose_category"),
             "implementation_status": data.get("implementation_status"),
             "findings": findings,
             "accepted_evidence_ids": evidence_ids,
@@ -293,6 +311,39 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
         raise SpecialistTaskError("independent review context contains duplicate specialist task types")
     return reports
 
+def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None:
+    """Reject structurally valid but semantically misclassified or overconfident reports."""
+    if report.get("purpose_category") not in ALLOWED_PURPOSE_CATEGORIES:
+        raise SpecialistTaskError("invalid or missing purpose_category")
+    status = report.get("implementation_status")
+    confidence = report.get("confidence")
+    unknowns = report.get("unknowns")
+    if status not in ALLOWED_STATUS or confidence not in ALLOWED_CONFIDENCE or not isinstance(unknowns, list):
+        raise SpecialistTaskError("invalid semantic quality metadata")
+    if confidence == "high" and (status != "implemented" or unknowns):
+        raise SpecialistTaskError("high confidence requires implemented status and zero unresolved unknowns")
+    seen_claims: set[str] = set()
+    for finding in report.get("findings", []):
+        if not isinstance(finding, dict):
+            raise SpecialistTaskError("finding must be an object")
+        if finding.get("category") not in ROLE_FINDING_CATEGORIES.get(role, set()):
+            raise SpecialistTaskError(f"finding category is not permitted for role {role}")
+        refs = finding.get("evidence_refs")
+        if not isinstance(refs, list) or not refs or len(refs) > MAX_FINDING_EVIDENCE_REFS:
+            raise SpecialistTaskError(
+                f"finding evidence_refs must contain 1..{MAX_FINDING_EVIDENCE_REFS} narrowly relevant IDs"
+            )
+        if role != "solidity_security" and finding.get("severity") != "not_applicable":
+            raise SpecialistTaskError(f"severity must be not_applicable for non-security role {role}")
+        if finding.get("confidence") == "high" and (status != "implemented" or unknowns):
+            raise SpecialistTaskError("high-confidence finding is incompatible with partial/unknown implementation or unresolved unknowns")
+        claim = finding.get("claim", "").strip().casefold()
+        if claim and claim in seen_claims:
+            raise SpecialistTaskError("duplicate finding claim")
+        if claim:
+            seen_claims.add(claim)
+
+
 def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any],
                                role: str) -> dict[str, Any]:
     required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
@@ -305,6 +356,7 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
         raise SpecialistTaskError("invalid implementation_status")
     if output["confidence"] not in ALLOWED_CONFIDENCE:
         raise SpecialistTaskError("invalid confidence")
+    _validate_semantic_quality_fields(output, role)
     for field in ("findings", "evidence", "unknowns"):
         if not isinstance(output[field], list):
             raise SpecialistTaskError(f"{field} must be an array")
@@ -419,6 +471,7 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                 if len(prior_tasks) != 7:
                     raise SpecialistTaskError(f"expected 7 distinct purpose/specialist tasks, found {len(prior_tasks)}")
                 seen_task_types: set[str] = set()
+                purpose_categories: set[str] = set()
                 for item in prior_tasks:
                     if item["status"] != "completed":
                         raise SpecialistTaskError(f"required specialist task is not completed: {item['task_id']}")
@@ -434,6 +487,8 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                         raise SpecialistTaskError("specialist report task provenance mismatch")
                     if report.get("agent_metadata", {}).get("role") != item["role"]:
                         raise SpecialistTaskError("specialist report role provenance mismatch")
+                    _validate_semantic_quality_fields(report, item["role"])
+                    purpose_categories.add(report["purpose_category"])
                     validation = report.get("evidence_validation", {})
                     if validation.get("inspection_commit_sha") != inspection["commit_sha"]:
                         raise SpecialistTaskError("specialist report commit provenance mismatch")
@@ -460,6 +515,8 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                                      "test_forensics", "economic_forensics", "dependency_forensics"}
                 if seen_task_types != required_forensics | {"candidate_purpose"}:
                     raise SpecialistTaskError("candidate dossier evidence gate received an incomplete role set")
+                if len(purpose_categories) != 1:
+                    raise SpecialistTaskError("specialist reports disagree on primary purpose_category; reviewer reconciliation required")
                 if total_accepted == 0 or purpose_evidence == 0:
                     raise SpecialistTaskError("candidate purpose/specialist chain has no accepted pinned-source evidence")
                 summary = {
