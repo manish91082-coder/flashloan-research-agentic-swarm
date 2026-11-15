@@ -763,8 +763,11 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
 def _is_retryable_specialist_error(exc: Exception) -> bool:
     """Retry bounded model-output failures, including duplicate claims after correction."""
     message = str(exc)
+    error_type = type(exc).__name__
     return (
-        "TimeoutError" in message
+        error_type == "TimeoutError"
+        or error_type == "URLError"
+        or "TimeoutError" in message
         or "URLError" in message
         or "finish_reason=length" in message
         or "malformed OpenAI-compatible JSON response" in message
