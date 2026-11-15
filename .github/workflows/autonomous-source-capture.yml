@@ -11,6 +11,10 @@ on:
         description: Previous successful checkpoint workflow run ID
         required: true
         type: string
+      resume_artifact_id:
+        description: Immutable artifact ID belonging to the previous successful checkpoint
+        required: true
+        type: string
 concurrency:
   group: flashloan-autonomous-source-capture
   cancel-in-progress: false
@@ -28,7 +32,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       FLR_DATABASE: data/source-capture-pilot.sqlite3
       FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
-      RESUME_RUN_ID: ${{ github.event.inputs.resume_run_id || '43607072905' }}
+      RESUME_RUN_ID_INPUT: ${{ github.event.inputs.resume_run_id || '' }}
+      RESUME_ARTIFACT_ID_INPUT: ${{ github.event.inputs.resume_artifact_id || '' }}
       SOURCE_CAPTURE_BATCH: '12'
       SOURCE_CAPTURE_PARALLEL: '2'
     steps:
@@ -42,6 +47,27 @@ jobs:
         with:
           python-version: '3.13'
 
+      - name: Read immutable checkpoint identity
+        id: checkpoint
+        run: |
+          set -euo pipefail
+          if [[ -n "$RESUME_RUN_ID_INPUT" && -n "$RESUME_ARTIFACT_ID_INPUT" ]]; then
+            RUN_ID="$RESUME_RUN_ID_INPUT"
+            ARTIFACT_ID="$RESUME_ARTIFACT_ID_INPUT"
+          else
+            RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-autonomous-source-capture.json"))["resume_from_workflow_run_id"])')"
+            ARTIFACT_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-autonomous-source-capture.json"))["resume_from_artifact_id"])')"
+          fi
+          if [[ ! "$RUN_ID" =~ ^[0-9]+$ || ! "$ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
+            echo "Invalid immutable checkpoint run/artifact identity." >&2
+            exit 1
+          fi
+          echo "RESUME_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "RESUME_ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
+          echo "Restoring run $RUN_ID from pinned artifact $ARTIFACT_ID." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Install deterministic research worker
         run: |
           set -euo pipefail
@@ -54,22 +80,17 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/source-capture-restore"
-          if [[ "$RESUME_RUN_ID" == "43607072905" ]]; then
-            gh run download "$RESUME_RUN_ID" \
-              --repo "$GITHUB_REPOSITORY" \
-              --name "flashloan-source-capture-pilot-43607072905" \
-              --dir "$RUNNER_TEMP/source-capture-restore"
-          else
-            gh run download "$RESUME_RUN_ID" \
-              --repo "$GITHUB_REPOSITORY" \
-              --name "flashloan-source-capture-checkpoint" \
-              --dir "$RUNNER_TEMP/source-capture-restore"
-          fi
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "$RESUME_ARTIFACT_ID" \
+            --destination "$RUNNER_TEMP/source-capture-restore/checkpoint.zip" \
+            --extract-to "$RUNNER_TEMP/source-capture-restore/unpacked" \
+            --max-wait-seconds 7200
           python scripts/restore_source_capture_checkpoint.py \
-            --artifact-root "$RUNNER_TEMP/source-capture-restore" \
+            --artifact-root "$RUNNER_TEMP/source-capture-restore/unpacked" \
             --workspace "$GITHUB_WORKSPACE" \
             | tee reports-restore-verification.json
-          echo "Restored checkpoint from workflow run $RESUME_RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+          echo "Restored checkpoint from run $RESUME_RUN_ID / artifact $RESUME_ARTIFACT_ID" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Capture next 12 priority repositories
         id: capture
@@ -137,6 +158,7 @@ jobs:
           PY
 
       - name: Upload durable source-capture checkpoint
+        id: upload
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -156,28 +178,15 @@ jobs:
         if: success()
         run: |
           set -euo pipefail
-          # Preserve the original 10-candidate pilot as the immutable baseline.
-          # Every later parent checkpoint is deleted only after this run has
-          # uploaded its replacement artifact and passed the SQLite check.
-          PILOT_SEED_RUN_ID=""
-          if [[ -f research_runs/agentic-pilot-seed.json ]]; then
-            PILOT_SEED_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json")).get("seed_run_id", ""))')"
-          fi
-
+          PILOT_SEED_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json")).get("seed_run_id", ""))')"
           if [[ "$RESUME_RUN_ID" == "$PILOT_SEED_RUN_ID" ]]; then
-            echo "Preserving checkpoint $RESUME_RUN_ID as the designated Agent Form semantic-pilot seed."
-          elif [[ "$RESUME_RUN_ID" != "43607072905" ]]; then
-            ARTIFACT_ID="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RESUME_RUN_ID/artifacts" \
-              --jq '.artifacts[] | select(.name == "flashloan-source-capture-checkpoint" and .expired == false) | .id' \
-              | head -n 1)"
-            if [[ -n "$ARTIFACT_ID" ]]; then
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID"
-              echo "Deleted consumed checkpoint artifact $ARTIFACT_ID after verified replacement."
+            echo "Preserving the designated Agent Form pilot seed artifact $RESUME_ARTIFACT_ID."
+          elif [[ -n "$RESUME_ARTIFACT_ID" ]]; then
+            if gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$RESUME_ARTIFACT_ID"; then
+              echo "Deleted consumed checkpoint artifact $RESUME_ARTIFACT_ID after successful durable replacement."
             else
-              echo "::warning::Previous checkpoint artifact not found for cleanup; keeping the newly uploaded checkpoint."
+              echo "::warning::Could not retire consumed checkpoint artifact $RESUME_ARTIFACT_ID; the new checkpoint remains valid."
             fi
-          else
-            echo "Original bounded pilot artifact preserved as the immutable baseline."
           fi
 
       - name: Automatically dispatch next research batch
@@ -185,6 +194,11 @@ jobs:
         run: |
           set -euo pipefail
           PENDING="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["pending"])')"
+          NEW_ARTIFACT_ID="${{ steps.upload.outputs.artifact-id }}"
+          if [[ ! "$NEW_ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
+            echo "Durable source-capture artifact ID is missing; refusing to dispatch without a checkpoint." >&2
+            exit 1
+          fi
           LEASED="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["leased"])')"
           FAILED="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["failed"])')"
           CAPTURED="$(python -c 'import json; print(json.load(open("reports/source-capture-checkpoint.json"))["queue"]["captured"])')"
@@ -203,7 +217,8 @@ jobs:
               -H "X-GitHub-Api-Version: 2022-11-28" \
               "repos/$GITHUB_REPOSITORY/actions/workflows/autonomous-source-capture.yml/dispatches" \
               -f ref=main \
-              -f "inputs[resume_run_id]=$GITHUB_RUN_ID"
+              -f "inputs[resume_run_id]=$GITHUB_RUN_ID" \
+              -f "inputs[resume_artifact_id]=$NEW_ARTIFACT_ID"
             echo "Next checkpoint workflow dispatched automatically from run $GITHUB_RUN_ID."
           elif (( LEASED > 0 )); then
             echo "::warning::Queue still has leased items; continuation is paused for lease recovery."
