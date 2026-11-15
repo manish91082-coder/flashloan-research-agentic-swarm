@@ -69,12 +69,33 @@ class GitHubClient:
                     delay = max(1, min(3600, int(retry_after)))
                 else:
                     delay = min(30, (2 ** attempt) + random.random())
+                print(json.dumps({
+                    "event": "github_api_retry",
+                    "path": path,
+                    "http_status": exc.code,
+                    "attempt": attempt + 1,
+                    "max_attempts": self.settings.max_retries + 1,
+                    "rate_limited": rate_limited,
+                    "rate_limit_remaining": remaining,
+                    "rate_limit_reset": reset,
+                    "retry_after": retry_after,
+                    "sleep_seconds": delay,
+                }, sort_keys=True), flush=True)
                 self.sleep(delay)
             except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
                 last_error = exc
                 if attempt >= self.settings.max_retries:
                     raise GitHubAPIError(f"GitHub API request failed after retries: {exc}") from exc
-                self.sleep(min(30, (2 ** attempt) + random.random()))
+                delay = min(30, (2 ** attempt) + random.random())
+                print(json.dumps({
+                    "event": "github_api_retry",
+                    "path": path,
+                    "error_type": type(exc).__name__,
+                    "attempt": attempt + 1,
+                    "max_attempts": self.settings.max_retries + 1,
+                    "sleep_seconds": round(delay, 2),
+                }, sort_keys=True), flush=True)
+                self.sleep(delay)
         raise GitHubAPIError(f"GitHub API request failed: {last_error}")
 
     def search_repositories(self, query: str, per_page: int = 30, page: int = 1) -> list[dict[str, Any]]:

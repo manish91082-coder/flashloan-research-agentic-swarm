@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import io
+import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from dataclasses import replace
 from email.message import Message
 from io import BytesIO
@@ -109,9 +112,15 @@ class ExtendedRegressionTests(unittest.TestCase):
             settings=settings, opener=opener, sleep=sleeps.append,
             clock=lambda: 1000.0,
         )
-        self.assertEqual(client.get("/rate-limit"), {"ok": True})
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(client.get("/rate-limit"), {"ok": True})
         self.assertEqual(calls, 2)
         self.assertEqual(sleeps, [1001])
+        telemetry = json.loads(output.getvalue().strip())
+        self.assertEqual(telemetry["event"], "github_api_retry")
+        self.assertTrue(telemetry["rate_limited"])
+        self.assertEqual(telemetry["sleep_seconds"], 1001)
 
     def test_github_client_respects_retry_after_above_sixty_seconds(self):
         calls = 0
