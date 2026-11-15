@@ -257,3 +257,13 @@
 - PR #21 merged at 4d5d403121ec48c541f0fe646d76f7e90910bc36. It returns inference to qwen2.5:3b, adds bounded malformed-output diagnostics and fenced/pre-parsed JSON handling, and retries malformed/truncated JSON/timeouts only within the existing attempt budget. CI 43688699274 passed on Python 3.11/3.12/3.13.
 - Fresh r4 Agent Form pilot 43688699311 was launched with a new database and mission ID, the immutable 268-candidate seed, qwen2.5:3b, reduced source context and a 1,200-token output cap. Restore/runtime/bootstrap passed; the semantic specialist/evidence/reviewer step was still running at the latest verification. No r4 quality pass or audit count is claimed.
 - Research scope and safety invariants remain unchanged: no candidate code execution, wallet access, signing, deployment, live trading, paid inference or cloud inference.
+
+
+## 2026-11-15 — r4 reviewer recovery and source checkpoint 1,112
+
+- Independently downloaded source artifact 14152633179 from run 43691891924 and verified checkpoint JSON against SQLite: 1,112 captured, 6,771 pending, 0 leased, 18 failed; 802 complete within configured scope and 310 coverage-limited. The 12-item cycle captured 12/12. All 18 failed records are empty-Git-repository HTTP 409 source-availability failures.
+- Source successor 43691988547 restored the exact parent artifact and is still in its next capture batch; no successor checkpoint is claimed yet.
+- Independently audited r4 artifact 14152481228 from run 43688699311. Both candidate-purpose tasks and all 12 specialist reports completed; both evidence gates passed with 77 accepted evidence references for 0xnavarro/Aave-Liquiditor and 23 for AlbertSu123/UniswapFlashSwap. Both reviewer tasks failed before inference because the seven prior reports plus duplicated source excerpts exceeded the reviewer context cap. No dossiers were generated and no semantic audit count changed.
+- PR #22 merged at ddeb3470f61fb61f389d5604508cb7a7dc7e1203. It adds lossless reviewer context compaction, stronger adversarial reviewer criteria, fail-closed overflow checks, and a provenance-verified reviewer-only recovery workflow. CI 43693371140 and main CI 43693473120 passed Python 3.11/3.12/3.13.
+- Reviewer recovery run 43693473127 is in progress at immutable r4 artifact download/verification. It must revalidate all seven prior reports, task/role/commit/tree provenance and the positive evidence gate, then run only the two independent reviewers. r4 remains not accepted pending artifact audit.
+- Mission and safety boundary unchanged. Source captures are not semantic audits; no candidate code executed; no wallet/signing/deployment/live trading; no cloud or paid inference.
