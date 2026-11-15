@@ -424,9 +424,11 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
 def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Path,
                          limit: int = 1) -> dict[str, Any]:
     timeout_seconds = int(os.getenv("FLR_MODEL_TIMEOUT_SECONDS", "1200"))
-    provider = LocalOpenAICompatibleProvider(
-        timeout_seconds=timeout_seconds, prompt_template_version="2.0.0"
-    )
+    provider = LocalOpenAICompatibleProvider()
+    # Preserve the existing injectable provider constructor contract used by
+    # deterministic end-to-end fixtures and test doubles.
+    provider.timeout_seconds = timeout_seconds
+    provider.prompt_template_version = "2.0.0"
     store = MissionTaskStore(database_path)
     worker_id = f"specialist-{mission_id}"
     completed: list[dict[str, Any]] = []
