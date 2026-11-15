@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 from flashloan_research.specialist_runner import (
-    SpecialistTaskError, validate_specialist_output, _generate_validated_output, _evidence_catalog,
+    SpecialistTaskError, REQUIRED_KEYS, validate_specialist_output, _generate_validated_output, _evidence_catalog,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
     ROLE_PROMPTS, _canonical_purpose_category,
 )
