@@ -99,7 +99,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
                 "evidence_refs": [f"EV{i:05d}" for i in range(1, 6)],
             }],
         )
-        with self.assertRaisesRegex(SpecialistTaskError, "1..4 narrowly relevant IDs"):
+        with self.assertRaisesRegex(SpecialistTaskError, "at most 4 narrowly relevant IDs"):
             validate_specialist_output(output, inspection, "candidate_purpose")
 
     def test_report_evidence_provenance_rechecks_exact_signal_and_commit_tree_pins(self):
