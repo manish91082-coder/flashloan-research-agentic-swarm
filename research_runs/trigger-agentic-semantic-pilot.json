@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run a fresh isolated Agent Form r5 semantic-quality pilot. Apply strict purpose taxonomy, role-specific finding categories, calibrated confidence, narrow evidence references and independent evidence provenance revalidation. Preserve immutable source seed and do not reuse any r1-r4 mission database.",
+  "purpose": "Run a fresh isolated Agent Form r6 semantic-quality pilot. Preserve the immutable source seed and use a bounded corrective retry for deterministic semantic-validation errors. Limit evidence selection to four unique IDs total and archive the exact r6 database, reports and task ledger.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "checkpoint_artifact_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
@@ -14,9 +14,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
-  "mission_id": "flashloan-agent-form-pilot-20261115-r5",
-  "database": "data/agentic-mission-pilot-20261115-r5.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r5",
+  "mission_id": "flashloan-agent-form-pilot-20261115-r6",
+  "database": "data/agentic-mission-pilot-20261115-r6.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r6",
   "model_timeout_seconds": 1200,
   "context_limits": {
     "max_files": 3,
@@ -24,21 +24,23 @@
     "context_lines": 12,
     "max_reviewer_chars": 18000
   },
-  "model_max_output_tokens": 1200,
-  "output_contract_version": "5.0.0-semantic-quality-gates",
+  "model_max_output_tokens": 2400,
+  "output_contract_version": "5.1.0-semantic-quality-corrective-retry",
   "acceptance": [
     "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814 by exact SHA-256",
-    "bootstrap a fresh isolated r5 mission database and artifact root; do not reuse r1-r4 task state",
+    "bootstrap a fresh isolated r6 mission database and artifact root; do not reuse r1-r5 task state",
     "complete two candidate-purpose tasks and twelve distinct specialist tasks across the same two pinned candidates",
     "require one strict purpose_category enum from the allowed taxonomy and prohibit review-topic labels as primary repository purpose",
     "require role-specific finding category enums and severity=not_applicable for non-security specialists",
-    "limit every finding to at most four narrowly relevant evidence IDs",
+    "limit the entire evidence array to at most four unique evidence IDs and every finding to at most four unique narrowly relevant IDs",
     "forbid high confidence unless implementation_status is implemented and unknowns is empty",
+    "on deterministic semantic validation rejection, allow exactly one corrective model request with the rejected rule supplied; fail closed if the corrected output still fails",
     "require all seven reports for each candidate to agree on purpose_category",
     "independently re-resolve every accepted evidence ID, excerpt, path, line, commit and tree against the pinned inspection catalog",
     "complete both positive semantic-quality and evidence-provenance gates",
     "complete two independent adversarial reviewers with explicit decisions and disagreements",
     "inspect all output reports and the full SQLite task ledger; any quality failure blocks downstream stages",
+    "archive the exact mission SQLite database, artifact root, restore report, model manifest, task ledger and semantic report under an artifact name derived from the r6 mission ID",
     "do not generate dossiers or increment semantic audit counts until the full pilot artifact and reviewer reports are independently accepted",
     "candidate code execution, wallet access, signing, deployment and live trading remain disabled; cloud and paid inference remain disabled"
   ],
@@ -52,7 +54,7 @@
     "cloud_inference": false
   },
   "triggered_after_commit": "5bff54b556cf45d482391cefbf16de746df3f2f4",
-  "updated_at_utc": "2026-11-15T08:38:00Z",
+  "updated_at_utc": "2026-11-15T08:49:00Z",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r5-semantic-quality-gates-purpose-role-confidence-evidence-provenance"
+  "trigger_revision": "r6-four-unique-evidence-ids-corrective-validation-retry-dynamic-artifact-packaging"
 }
