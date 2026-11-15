@@ -79,6 +79,30 @@ def _inspection_for(artifact_root: Path, mission_id: str, repository: str) -> di
     return data
 
 
+def _evidence_catalog(inspection: dict[str, Any]) -> list[dict[str, Any]]:
+    """Assign stable per-inspection IDs to exact, commit-pinned lexical signals."""
+    catalog = []
+    for index, signal in enumerate(inspection.get("signals", []), start=1):
+        if not isinstance(signal, dict):
+            continue
+        path = signal.get("path")
+        line = signal.get("line")
+        signal_name = signal.get("signal")
+        excerpt = signal.get("excerpt")
+        if not isinstance(path, str) or not isinstance(line, int) or line < 1:
+            continue
+        if not isinstance(signal_name, str) or not isinstance(excerpt, str) or not excerpt:
+            continue
+        catalog.append({
+            "evidence_id": f"EV{index:05d}",
+            "path": path,
+            "line": line,
+            "signal": signal_name,
+            "excerpt": excerpt,
+        })
+    return catalog
+
+
 def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | None = None,
                             max_files: int = 10, max_chars: int = 60000,
                             context_lines: int = 24) -> list[dict[str, Any]]:
