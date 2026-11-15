@@ -3,16 +3,16 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R12_BOUNDED_DUPLICATE_CLAIM_TASK_RETRY",
-  "status": "DISCOVERY_7901; SOURCE_CAPTURE_3424_CAPTURED_2481_COMPLETE_WITHIN_SCOPE_943_COVERAGE_LIMITED_4430_PENDING_47_FAILED; RUN293_SUCCESS_ARTIFACT_14172557143_INDEPENDENTLY_VERIFIED; PR31_MERGED_CI405_PASS; MAIN_CI408_PASS_311_312_313; R12_SPECIALIST_EVIDENCE_REVIEW_EXECUTION_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-15T17:48:00Z",
+  "status": "DISCOVERY_7901; SOURCE_CAPTURE_LATEST_VERIFIED_RUN293_CAPTURED_3424_COMPLETE_2481_COVERAGE_LIMITED_943_PENDING_4430_FAILED_47; RUN293_ARTIFACT_14172557143_INDEPENDENTLY_VERIFIED; PR31_MERGED; MAIN_CI_412_PASS_311_312_313; R12_SPECIALIST_EVIDENCE_REVIEW_IN_PROGRESS; SOURCE_CAPTURE_294_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
+  "last_verified_at_utc": "2026-11-15T17:49:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "0b82bb10abfd42f17e04726de4649f031b46d4ab",
+  "latest_commit_at_checkpoint": "7fe7acc9c6723f96b6e2bba80cdc92f399cb7c56",
   "latest_ci_run": {
-    "run_id": 43742998589,
-    "run_number": 411,
+    "run_id": 43743132032,
+    "run_number": 412,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "55ce270fc7341cfc75c70541998233739aa757eb",
+    "head_sha": "7fe7acc9c6723f96b6e2bba80cdc92f399cb7c56",
     "matrix": [
       "3.11",
       "3.12",
@@ -104,7 +104,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Monitor R12 and source capture #294 without duplicate dispatch. On R12 completion, download artifact and inspect task ledger, bounded retry attempts, 14 specialist statuses, both evidence gates, two exact independent reviewer accepts, disagreements, provenance and SQLite integrity. On #294 completion, verify checkpoint SHA-256, ZIP CRC, SQLite integrity, queue accounting, report identities and Git object hashes.",
+  "next_gate": "Poll R12 and source capture #294. If either reaches terminal state, verify all durable artifacts and acceptance gates before incrementing counts. Do not duplicate active workflows or weaken validation.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -1119,8 +1119,8 @@
     ],
     "artifact_available": false,
     "semantic_audit_count_incremented": false,
-    "observation": "Job step remains active. No artifacts/task ledger published. Logs endpoint returns BlobNotFound while active; run metadata confirms in_progress. No failure or acceptance inferred.",
-    "last_verified_at_utc": "2026-11-15T17:47:46Z",
+    "observation": "Still active; no artifact or task ledger. Do not infer specialist completion or acceptance.",
+    "last_verified_at_utc": "2026-11-15T17:49:00Z",
     "acceptance": false
   },
   "source_capture_latest": {
@@ -1175,7 +1175,7 @@
     "parent_checkpoint_run": 43739811468,
     "parent_artifact_id": 14172557143,
     "artifact_available": false,
-    "last_verified_at_utc": "2026-11-15T17:47:46Z",
-    "observation": "Worker still active; checkpoint/integrity and artifact upload steps pending. No new capture counts inferred."
+    "last_verified_at_utc": "2026-11-15T17:49:00Z",
+    "observation": "Still active; SQLite checkpoint and artifact upload remain pending. No new queue metrics inferred."
   }
 }
