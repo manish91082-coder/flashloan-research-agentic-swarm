@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run fresh isolated R10 semantic-quality pilot after PR #28 CI success and merge. Validate source-pinned Aave/Uniswap purpose classification plus duplicate-claim corrective retry; preserve immutable seed and fail closed.",
+  "purpose": "Run fresh isolated R11 semantic-quality pilot after PR #29 source-pinned candidate-purpose schema fix and PR #30 prompt-version provenance update. Preserve immutable seed and fail closed.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "checkpoint_artifact_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
@@ -14,9 +14,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
-  "mission_id": "flashloan-agent-form-pilot-20261115-r10",
-  "database": "data/agentic-mission-pilot-20261115-r10.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r10",
+  "mission_id": "flashloan-agent-form-pilot-20261115-r11",
+  "database": "data/agentic-mission-pilot-20261115-r11.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r11",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -25,20 +25,21 @@
     "max_reviewer_chars": 50000
   },
   "model_max_output_tokens": 2400,
-  "output_contract_version": "5.2.2-r10-source-pinned-purpose-and-duplicate-claim-retry",
+  "output_contract_version": "5.3.0-source-pinned-candidate-purpose-schema",
   "acceptance": [
     "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814 by exact SHA-256",
-    "bootstrap a fresh isolated r10 mission database and artifact root; never reuse r1-r9 task state",
+    "bootstrap a fresh isolated r11 mission database and artifact root; never reuse r1-r10 task state",
     "complete two candidate-purpose tasks and twelve distinct specialist tasks across the same two pinned candidates",
-    "source-pinned purpose rule must classify 0xnavarro/Aave-Liquiditor as flash_loan_liquidation_bot only when both the Aave liquidation source path and aave_flash_loan_simple source signal are present",
-    "source-pinned purpose rule must classify AlbertSu123/UniswapFlashSwap as flash_swap_liquidation_bot only when both the liquidation operator source path and uniswap_v2_flash_callback source signal are present",
-    "purpose mismatch must receive one bounded corrective model retry and then pass the complete strict validator; no silent category overwrite or relaxation",
+    "before candidate-purpose model generation, source-pinned Aave liquidation path plus aave_flash_loan_simple signal must constrain JSON Schema purpose_category enum to exactly flash_loan_liquidation_bot",
+    "before candidate-purpose model generation, source-pinned Uniswap liquidation operator path plus uniswap_v2_flash_callback signal must constrain JSON Schema purpose_category enum to exactly flash_swap_liquidation_bot",
+    "candidate-purpose model must still generate its purpose explanation, implementation status, findings, evidence selections and unknowns; no post-generation category rewrite or silent validator bypass",
+    "independent source-signal validator must still verify the emitted category; if a model response violates the singleton enum, fail closed after bounded corrective validation",
     "duplicate finding claim must receive one bounded corrective model retry and then pass the complete strict validator; no silent deduplication of claims",
     "all seven reports per candidate must inherit the exact task-pinned canonical purpose category and exact commit/tree evidence provenance",
     "all 14 specialist tasks must complete; both candidate evidence gates must pass pinned evidence, semantic quality, provenance and claim linkage",
     "two independent reviewers must each return exact unreserved accept, zero disagreements and non-empty pinned source evidence",
     "reviewers must challenge Pool/provider identity, callback caller and initiator authentication, asset/amount binding, repayment/premium, TODOs and whether candidate purpose matches source",
-    "upload exact r10 SQLite database, all reports, inspection and reviewer artifacts under mission-scoped artifact name",
+    "upload exact r11 SQLite database, all reports, inspection and reviewer artifacts under mission-scoped artifact name",
     "inspect complete task ledger and reports; no dossier or semantic audit count increment until full artifact acceptance",
     "candidate code execution, wallet access, transaction signing, deployment, live trading, cloud inference and paid inference remain disabled"
   ],
@@ -51,8 +52,8 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "triggered_after_commit": "4dfe285fcc8619392516bc69650afa93a2d999f8",
-  "updated_at_utc": "2026-11-15T16:22:00Z",
+  "triggered_after_commit": "cc8dc05c7cce19271f7b59b570621e6c2ffd1d2a",
+  "updated_at_utc": "2026-11-15T16:56:00Z",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r10-after-pr28-merge"
+  "trigger_revision": "r11-after-pr29-source-pinned-purpose-schema-and-pr30-version-bump"
 }
