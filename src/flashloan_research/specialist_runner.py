@@ -683,6 +683,39 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
         return {"claimed": len(claims), "completed": completed, "failures": failures}
     finally:
         store.close()
+def _generate_validated_output(provider: Any, prompt: str, context: dict[str, Any],
+                             required_keys: set[str], inspection: dict[str, Any], role: str,
+                             canonical_purpose_category: str | None = None) -> dict[str, Any]:
+    """Retry one correctable duplicate-claim response without weakening validation."""
+    output = provider.generate_json(prompt, context, required_keys)
+    try:
+        return validate_specialist_output(
+            output, inspection, role,
+            canonical_purpose_category=canonical_purpose_category,
+        )
+    except SpecialistTaskError as exc:
+        if "duplicate finding claim" not in str(exc):
+            raise
+        retry_context = dict(context)
+        retry_context["validation_feedback"] = (
+            "Your previous JSON was rejected because two or more findings repeated the same claim. "
+            "Regenerate the complete report. Keep only one finding for each distinct claim; "
+            "do not evade this by changing wording while describing the same fact. "
+            "If there are fewer distinct supported findings, return fewer findings. "
+            "Preserve narrow source evidence references and all required schema fields."
+        )
+        retry_context["previous_rejected_output"] = output
+        retry_prompt = prompt + (
+            "\\n\\nVALIDATION RETRY: the previous response contained duplicate finding claims. "
+            "Return a corrected complete JSON object with distinct, non-redundant findings only."
+        )
+        corrected = provider.generate_json(retry_prompt, retry_context, required_keys)
+        return validate_specialist_output(
+            corrected, inspection, role,
+            canonical_purpose_category=canonical_purpose_category,
+        )
+
+
 def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Path,
                          limit: int = 1) -> dict[str, Any]:
     timeout_seconds = int(os.getenv("FLR_MODEL_TIMEOUT_SECONDS", "900"))
@@ -751,9 +784,8 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     ),
                 }
                 required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
-                output = provider.generate_json(ROLE_PROMPTS[role], context, required_keys)
-                validated = validate_specialist_output(
-                    output, inspection, role,
+                validated = _generate_validated_output(
+                    provider, ROLE_PROMPTS[role], context, required_keys, inspection, role,
                     canonical_purpose_category=canonical_purpose_category,
                 )
                 validated["task_metadata"] = {
