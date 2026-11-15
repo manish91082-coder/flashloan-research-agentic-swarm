@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 from flashloan_research.specialist_runner import (
-    SpecialistTaskError, validate_specialist_output, _evidence_catalog,
+    SpecialistTaskError, validate_specialist_output, _generate_validated_output, _evidence_catalog,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
     ROLE_PROMPTS, _canonical_purpose_category,
 )
@@ -48,6 +48,57 @@ def sample_output(**overrides):
     }
     value.update(overrides)
     return value
+
+
+class DuplicateClaimRetryTests(unittest.TestCase):
+    def test_duplicate_claim_gets_one_corrective_retry_and_remains_strict(self):
+        class Provider:
+            def __init__(self):
+                self.calls = []
+            def generate_json(self, prompt, context, required_keys):
+                self.calls.append((prompt, context))
+                if len(self.calls) == 1:
+                    duplicate = sample_output(findings=[
+                        {"finding_id": "F-1", "claim": "Same claim.", "category": "protocol_flow",
+                         "severity": "not_applicable", "claim_status": "source_observed",
+                         "confidence": "low", "evidence_refs": ["EV00001"]},
+                        {"finding_id": "F-2", "claim": "Same claim.", "category": "protocol_flow",
+                         "severity": "not_applicable", "claim_status": "source_observed",
+                         "confidence": "low", "evidence_refs": ["EV00001"]},
+                    ])
+                    return {k: v for k, v in duplicate.items() if k in required_keys}
+                corrected = sample_output(findings=[
+                    {"finding_id": "F-1", "claim": "One distinct source claim.", "category": "protocol_flow",
+                     "severity": "not_applicable", "claim_status": "source_observed",
+                     "confidence": "low", "evidence_refs": ["EV00001"]},
+                ])
+                return {k: v for k, v in corrected.items() if k in required_keys}
+
+        provider = Provider()
+        context = {"repository": "org/repo"}
+        result = _generate_validated_output(
+            provider, "prompt", context, REQUIRED_KEYS, sample_inspection(), "protocol_specialist",
+            canonical_purpose_category="flash_loan_liquidation_bot",
+        )
+        self.assertEqual(len(provider.calls), 2)
+        self.assertIn("VALIDATION RETRY", provider.calls[1][0])
+        self.assertIn("previous_rejected_output", provider.calls[1][1])
+        self.assertEqual(len(result["findings"]), 1)
+        self.assertTrue(result["evidence_validation"]["all_findings_linked_to_accepted_evidence"])
+
+    def test_non_duplicate_validation_errors_are_not_retried(self):
+        class Provider:
+            def __init__(self): self.calls = 0
+            def generate_json(self, prompt, context, required_keys):
+                self.calls += 1
+                return {k: v for k, v in sample_output(evidence=["EV99999"]).items() if k in required_keys}
+        provider = Provider()
+        with self.assertRaisesRegex(SpecialistTaskError, "not in the pinned catalog"):
+            _generate_validated_output(
+                provider, "prompt", {}, REQUIRED_KEYS, sample_inspection(), "protocol_specialist",
+                canonical_purpose_category="flash_loan_liquidation_bot",
+            )
+        self.assertEqual(provider.calls, 1)
 
 
 class SpecialistEvidenceGateTests(unittest.TestCase):
