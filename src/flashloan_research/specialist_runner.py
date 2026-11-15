@@ -63,6 +63,9 @@ ROLE_PROMPTS = {
 REQUIRED_KEYS = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence", "review_decision", "review_disagreements"}
 ALLOWED_STATUS = {"implemented", "partial", "placeholder", "broken", "documentation_only", "unknown"}
 ALLOWED_CONFIDENCE = {"low", "medium", "high"}
+ALLOWED_REVIEW_DECISIONS = {
+    "not_applicable", "accept", "accept_with_reservations", "reject", "inconclusive"
+}
 
 
 class SpecialistTaskError(RuntimeError):
@@ -233,6 +236,8 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
     for field in ("findings", "evidence", "unknowns", "review_disagreements"):
         if not isinstance(output[field], list):
             raise SpecialistTaskError(f"{field} must be an array")
+    if output["review_decision"] not in ALLOWED_REVIEW_DECISIONS:
+        raise SpecialistTaskError("invalid review_decision")
     if role == "independent_reviewer":
         if output["review_decision"] == "not_applicable":
             raise SpecialistTaskError("independent reviewer must return an explicit review_decision")
