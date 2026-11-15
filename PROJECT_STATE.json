@@ -4,7 +4,7 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE; B3_ROLE_EXCLUSIVE_SOURCE_GROUNDED_AGENT_FORM_PILOT; SOURCE_CAPTURE_PROGRESS_TELEMETRY; JSON_SAFE_PROGRESS_STREAM; R4_LOCAL_MODEL_DIAGNOSTICS",
   "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_1055_OF_7901; 6831_PENDING; 0_LEASED; 15_EMPTY_GIT_REPOSITORY_HTTP_409_FAILURES; 762_COMPLETE_WITHIN_SCOPE; 293_COVERAGE_LIMITED; SOURCE_CAPTURE_RUN_43688785565_IN_PROGRESS; PR18_PR20_PR21_MERGED; R4_AGENT_FORM_PILOT_43688699311_IN_PROGRESS; SEMANTIC_AUDIT_NOT_YET_ACCEPTED",
-  "last_verified_at_utc": "2026-11-15T07:12:00Z",
+  "last_verified_at_utc": "2026-11-15T07:27:50Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "4d5d403121ec48c541f0fe646d76f7e90910bc36",
   "latest_ci_run": {
@@ -563,5 +563,27 @@
     "last_status_checked_at_utc": "2026-11-15T07:12:00Z"
   },
   "source_capture_pending": 6831,
-  "source_capture_status": "1,055 captured; 6,831 pending; 0 leased; 15 terminal empty-Git-repository HTTP 409 failures; 762 complete within configured scope; 293 with coverage limits; two additional 404 tree requests remain pending for retry"
+  "source_capture_status": "1,055 captured; 6,831 pending; 0 leased; 15 terminal empty-Git-repository HTTP 409 failures; 762 complete within configured scope; 293 with coverage limits; two additional 404 tree requests remain pending for retry",
+  "latest_continuation_verification": {
+    "source_parent_run_id": 43688683947,
+    "source_parent_artifact_id": 14151925155,
+    "source_parent_artifact_sha256": "0767378f72c2a05d91bd8cdd2daa979853a0ff1634d79ba7430341bd6d6e43e7",
+    "source_queue": {
+      "total": 7901,
+      "captured": 1055,
+      "pending": 6831,
+      "leased": 0,
+      "failed": 15,
+      "captured_complete_within_scope": 762,
+      "captured_with_coverage_limits": 293
+    },
+    "source_child_run_id": 43688785565,
+    "source_child_status": "in_progress_at_capture_step_no_successor_artifact_yet",
+    "semantic_pilot_run_id": 43688699311,
+    "semantic_pilot_status": "in_progress_at_serialized_specialist_evidence_reviewer_step_no_artifact_yet",
+    "r4_mission_id": "flashloan-agent-form-pilot-20261115-r4",
+    "semantic_audit_count_incremented": false,
+    "candidate_code_executed": false,
+    "verified_at_utc": "2026-11-15T07:27:50Z"
+  }
 }
