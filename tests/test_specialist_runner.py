@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 from flashloan_research.specialist_runner import (
-    SpecialistTaskError, REQUIRED_KEYS, validate_specialist_output, _generate_validated_output, _source_supported_purpose_category, _evidence_catalog,
+    SpecialistTaskError, REQUIRED_KEYS, validate_specialist_output, _generate_validated_output, _source_supported_purpose_category, _evidence_catalog, _is_retryable_specialist_error,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
     ROLE_PROMPTS, _canonical_purpose_category,
 )
@@ -51,6 +51,11 @@ def sample_output(**overrides):
 
 
 class DuplicateClaimRetryTests(unittest.TestCase):
+    def test_duplicate_claim_failure_is_retried_at_task_level_with_bounded_attempts(self):
+        self.assertTrue(_is_retryable_specialist_error(SpecialistTaskError("duplicate finding claim")))
+        self.assertTrue(_is_retryable_specialist_error(TimeoutError("model timeout")))
+        self.assertFalse(_is_retryable_specialist_error(SpecialistTaskError("invalid evidence ID")))
+
     def test_duplicate_claim_gets_one_corrective_retry_and_remains_strict(self):
         class Provider:
             def __init__(self):

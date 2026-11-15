@@ -760,6 +760,21 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
         )
 
 
+def _is_retryable_specialist_error(exc: Exception) -> bool:
+    """Retry bounded model-output failures, including duplicate claims after correction."""
+    message = str(exc)
+    error_type = type(exc).__name__
+    return (
+        error_type == "TimeoutError"
+        or error_type == "URLError"
+        or "TimeoutError" in message
+        or "URLError" in message
+        or "finish_reason=length" in message
+        or "malformed OpenAI-compatible JSON response" in message
+        or "duplicate finding claim" in message
+    )
+
+
 def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Path,
                          limit: int = 1) -> dict[str, Any]:
     timeout_seconds = int(os.getenv("FLR_MODEL_TIMEOUT_SECONDS", "900"))
@@ -866,12 +881,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     "report": str(path),
                 })
             except Exception as exc:
-                retryable = (
-                    "TimeoutError" in str(exc)
-                    or "URLError" in str(exc)
-                    or "finish_reason=length" in str(exc)
-                    or "malformed OpenAI-compatible JSON response" in str(exc)
-                )
+                retryable = _is_retryable_specialist_error(exc)
                 state = store.fail_task(
                     mission_id, task["task_id"], worker_id,
                     f"{type(exc).__name__}: {str(exc)}", retryable=retryable,
