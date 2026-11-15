@@ -155,3 +155,10 @@ The r4 semantic artifact [14152481228](https://github.com/manish91082-coder/flas
 - **Next gate:** inspect r5 artifact and every report. Specifically challenge Aave Pool pointer/callback authentication and Uniswap TODO/placeholder behavior. If any gate fails, repair and rerun fresh isolated pilot; do not generate dossiers or increment semantic audit count. Only after full semantic and reviewer acceptance implement dossier generation and reviewer-disagreement reconciliation, then enqueue the next persistent DAG batch.
 - Safety unchanged: no candidate code execution, wallets, signing, deployment, live trading, cloud inference or paid inference.
 
+
+
+## Current verified continuation (2026-11-15)
+
+Source capture [run 43697045435](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43697045435), artifact 14154119604, is independently verified at **1,394/7,901 captured**, 6,485 pending, 0 leased and 22 empty-Git-repository HTTP 409 failures. Of captured snapshots, 1,011 are complete within configured scope and 383 are coverage-limited. SQLite integrity is `ok`; checkpoint JSON and database counters agree. The next source child [43697180505](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43697180505) restored this exact checkpoint and is capturing the next batch.
+
+The r4 reviewer recovery completed but both decisions were inconclusive and manual audit found substantive reviewer errors. The r5 local-model pilot failed closed because output exceeded the 1,200-token cap and confidence was miscalibrated. PR [#24](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/24) merged bounded unique evidence outputs, conservative confidence, protocol-specific reviewer checks and mission-scoped artifacts. Fresh r6 pilot [43697270355](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43697270355) is active. No semantic audit has been accepted or counted.
