@@ -72,6 +72,40 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIn('"purpose"', Handler.body["messages"][0]["content"])
         self.assertEqual(Handler.body["temperature"], 0)
 
+    def test_model_duplicate_evidence_ids_are_stably_deduplicated(self):
+        Handler.response_content = json.dumps({
+            "summary": "Repeated model IDs should not create duplicate evidence records.",
+            "purpose": "Flash-loan liquidation prototype.",
+            "purpose_category": "flash_loan_liquidation_bot",
+            "implementation_status": "partial",
+            "findings": [{
+                "finding_id": "F-1",
+                "claim": "A callback is declared.",
+                "category": "protocol_flow",
+                "severity": "not_applicable",
+                "claim_status": "source_observed",
+                "confidence": "low",
+                "evidence_refs": ["EV00002", "EV00002", "EV00001"],
+            }],
+            "evidence": ["EV00002", "EV00002", "EV00001", "EV00002"],
+            "unknowns": ["Runtime behavior is not tested."],
+            "confidence": "low",
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "purpose_category", "implementation_status",
+            "findings", "evidence", "unknowns", "confidence",
+        }
+        result = provider.generate_json(
+            "Return unique evidence IDs.",
+            {"role": "candidate_purpose", "source_evidence_catalog": [
+                {"evidence_id": "EV00001"}, {"evidence_id": "EV00002"}
+            ]},
+            required,
+        )
+        self.assertEqual(result["evidence"], ["EV00002", "EV00001"])
+        self.assertEqual(result["findings"][0]["evidence_refs"], ["EV00002", "EV00001"])
+
     def test_full_specialist_schema_excludes_reviewer_only_fields(self):
         Handler.response_content = json.dumps({
             "summary": "Unknown until source evidence is sufficient.",
