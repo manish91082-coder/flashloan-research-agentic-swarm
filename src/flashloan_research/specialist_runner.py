@@ -352,8 +352,10 @@ def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None
     confidence = report.get("confidence")
     unknowns = report.get("unknowns")
     evidence = report.get("evidence")
-    if not isinstance(evidence, list) or not 1 <= len(evidence) <= 4:
-        raise SpecialistTaskError("evidence must contain 1..4 unique source evidence IDs")
+    if not isinstance(evidence, list) or len(evidence) > 4:
+        raise SpecialistTaskError("evidence must contain at most four unique source evidence IDs")
+    if not evidence and (status != "unknown" or confidence != "low" or report.get("findings")):
+        raise SpecialistTaskError("zero evidence requires unknown status, low confidence and no findings")
     evidence_ids = [
         item if isinstance(item, str) else item.get("evidence_id")
         for item in evidence if isinstance(item, (str, dict))
