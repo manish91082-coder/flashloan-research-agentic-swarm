@@ -351,6 +351,15 @@ def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None
     status = report.get("implementation_status")
     confidence = report.get("confidence")
     unknowns = report.get("unknowns")
+    evidence = report.get("evidence")
+    if not isinstance(evidence, list) or not 1 <= len(evidence) <= 4:
+        raise SpecialistTaskError("evidence must contain 1..4 unique source evidence IDs")
+    evidence_ids = [
+        item if isinstance(item, str) else item.get("evidence_id")
+        for item in evidence if isinstance(item, (str, dict))
+    ]
+    if len(evidence_ids) != len(evidence) or len(evidence_ids) != len(set(evidence_ids)):
+        raise SpecialistTaskError("evidence IDs must be unique and non-duplicated")
     if status not in ALLOWED_STATUS or confidence not in ALLOWED_CONFIDENCE or not isinstance(unknowns, list):
         raise SpecialistTaskError("invalid semantic quality metadata")
     if confidence == "high" and (status != "implemented" or unknowns):
@@ -364,6 +373,8 @@ def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None
         refs = finding.get("evidence_refs")
         if not isinstance(refs, list) or not refs:
             raise SpecialistTaskError(f"finding {finding.get('finding_id', '')} has no evidence_refs")
+        if len(refs) != len(set(refs)):
+            raise SpecialistTaskError("finding evidence_refs must be unique and non-duplicated")
         if len(refs) > MAX_FINDING_EVIDENCE_REFS:
             raise SpecialistTaskError(
                 f"finding evidence_refs must contain at most {MAX_FINDING_EVIDENCE_REFS} narrowly relevant IDs"
@@ -599,6 +610,36 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
         return {"claimed": len(claims), "completed": completed, "failures": failures}
     finally:
         store.close()
+def _generate_validated_output(provider: LocalOpenAICompatibleProvider, role: str,
+                             context: dict[str, Any], required_keys: set[str],
+                             inspection: dict[str, Any]) -> dict[str, Any]:
+    """Run one targeted corrective retry when deterministic semantic validation rejects model output."""
+    output = provider.generate_json(ROLE_PROMPTS[role], context, required_keys)
+    try:
+        return validate_specialist_output(output, inspection, role)
+    except SpecialistTaskError as first_error:
+        corrective_context = dict(context)
+        corrective_context["validation_feedback"] = {
+            "previous_output_rejected": True,
+            "rejected_reason": str(first_error),
+            "required_correction": (
+                "Return a new complete JSON object. Correct the deterministic validation error exactly. "
+                "Do not repeat evidence IDs. Select at most four unique evidence IDs total and use only narrowly relevant IDs. "
+                "If implementation_status is partial, placeholder, broken, documentation_only or unknown, confidence cannot be high. "
+                "If unknowns is non-empty, confidence cannot be high. Do not hide unknowns or upgrade implementation status to bypass this rule. "
+                "Keep purpose_category focused on the repository's actual primary function, not a security review topic. "
+                "Do not remove material limitations to make the output pass."
+            ),
+        }
+        revised = provider.generate_json(ROLE_PROMPTS[role], corrective_context, required_keys)
+        try:
+            return validate_specialist_output(revised, inspection, role)
+        except SpecialistTaskError as second_error:
+            raise SpecialistTaskError(
+                f"semantic validation failed after one corrective retry; first={first_error}; second={second_error}"
+            ) from second_error
+
+
 def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Path,
                          limit: int = 1) -> dict[str, Any]:
     timeout_seconds = int(os.getenv("FLR_MODEL_TIMEOUT_SECONDS", "900"))
@@ -606,7 +647,9 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
     # Preserve the existing injectable provider constructor contract used by
     # deterministic end-to-end fixtures and test doubles.
     provider.timeout_seconds = timeout_seconds
-    provider.prompt_template_version = "4.0.0-model-output-diagnostics"
+    provider.prompt_template_version = os.getenv(
+        "FLR_MODEL_PROMPT_TEMPLATE_VERSION", "5.1.0-semantic-quality-corrective-retry"
+    )
     store = MissionTaskStore(database_path)
     worker_id = f"specialist-{mission_id}"
     completed: list[dict[str, Any]] = []
@@ -659,8 +702,9 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     ),
                 }
                 required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
-                output = provider.generate_json(ROLE_PROMPTS[role], context, required_keys)
-                validated = validate_specialist_output(output, inspection, role)
+                validated = _generate_validated_output(
+                    provider, role, context, required_keys, inspection,
+                )
                 validated["task_metadata"] = {
                     "task_id": task["task_id"],
                     "task_type": task_type,
