@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from flashloan_research.mission_executor import MissionExecutor
@@ -104,6 +106,54 @@ def mission_payload():
 
 
 class MissionExecutorTests(unittest.TestCase):
+    def test_semantic_executor_blocks_after_specialist_task_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            db = root / "mission.sqlite3"
+            executor = MissionExecutor(database_path=db, artifact_root=root / "artifacts")
+            failure = {
+                "repository": "org/repo",
+                "role": "candidate_purpose",
+                "task_type": "candidate_purpose",
+                "status": "failed",
+                "error": "SpecialistTaskError: invalid evidence ID",
+            }
+            empty_batch = {
+                "mission_id": "mission-r3-test",
+                "claimed_tasks": 0,
+                "completed": [],
+                "failures": [],
+                "provider": {"provider": "local_openai_compatible", "model": "test"},
+            }
+            failed_batch = {
+                **empty_batch,
+                "claimed_tasks": 1,
+                "failures": [failure],
+            }
+            with patch.dict(os.environ, {
+                "FLR_MODEL_BASE_URL": "http://127.0.0.1:11434",
+                "FLR_MODEL_NAME": "qwen2.5:1.5b",
+            }):
+                with patch(
+                    "flashloan_research.specialist_runner.run_specialist_batch",
+                    side_effect=[failed_batch, empty_batch],
+                ):
+                    with patch(
+                        "flashloan_research.specialist_runner.run_evidence_validation_batch"
+                    ) as evidence_gate:
+                        result = executor.run_local_semantic_agents("mission-r3-test")
+            self.assertEqual(result["status"], "blocked_specialist_failures")
+            self.assertEqual(result["specialist_failures"], [failure])
+            self.assertEqual(
+                result["evidence_validation"]["status"],
+                "not_run_due_to_incomplete_specialists",
+            )
+            self.assertEqual(
+                result["independent_review"]["status"],
+                "not_started_due_to_incomplete_specialists",
+            )
+            evidence_gate.assert_not_called()
+
     def test_form_mission_runs_discovery_and_source_capture_then_blocks_ai_review_honestly(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
