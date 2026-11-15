@@ -14,6 +14,66 @@ SPEC.loader.exec_module(MODULE)
 
 
 class SourceCaptureCheckpointHelpersTests(unittest.TestCase):
+    def test_coverage_limited_truncated_tree_is_restorable_when_disclosed(self) -> None:
+        report = {
+            "candidate_code_executed": False,
+            "recursive_tree_truncated": True,
+            "tree_recovery_attempted": True,
+            "tree_recovery_complete": False,
+            "source_capture_complete_within_configured_scope": False,
+            "limitations": [
+                "GitHub returned a truncated recursive tree and bounded recovery did not complete; repository coverage is incomplete."
+            ],
+        }
+        MODULE.validate_report_invariants(report, "PrimeNumbersLabs/primefi-liquidator")
+
+    def test_incomplete_tree_recovery_cannot_claim_complete_source_scope(self) -> None:
+        report = {
+            "candidate_code_executed": False,
+            "recursive_tree_truncated": True,
+            "tree_recovery_attempted": True,
+            "tree_recovery_complete": False,
+            "source_capture_complete_within_configured_scope": True,
+            "limitations": [
+                "GitHub returned a truncated recursive tree and bounded recovery did not complete; repository coverage is incomplete."
+            ],
+        }
+        with self.assertRaisesRegex(ValueError, "cannot claim complete configured scope"):
+            MODULE.validate_report_invariants(report, "org/repo")
+
+    def test_incomplete_tree_recovery_must_be_explicitly_disclosed(self) -> None:
+        report = {
+            "candidate_code_executed": False,
+            "recursive_tree_truncated": True,
+            "tree_recovery_attempted": True,
+            "tree_recovery_complete": False,
+            "source_capture_complete_within_configured_scope": False,
+            "limitations": ["Source scope incomplete."],
+        }
+        with self.assertRaisesRegex(ValueError, "not disclosed"):
+            MODULE.validate_report_invariants(report, "org/repo")
+
+    def test_candidate_code_execution_still_fails_restore_invariant(self) -> None:
+        report = {
+            "candidate_code_executed": True,
+            "recursive_tree_truncated": False,
+            "tree_recovery_attempted": False,
+            "tree_recovery_complete": True,
+            "source_capture_complete_within_configured_scope": True,
+        }
+        with self.assertRaisesRegex(ValueError, "candidate-code execution safety invariant"):
+            MODULE.validate_report_invariants(report, "org/repo")
+
+    def test_recovery_flags_must_be_boolean_and_consistent(self) -> None:
+        report = {
+            "candidate_code_executed": False,
+            "recursive_tree_truncated": False,
+            "tree_recovery_attempted": False,
+            "tree_recovery_complete": None,
+            "source_capture_complete_within_configured_scope": True,
+        }
+        with self.assertRaisesRegex(ValueError, "missing or not boolean"):
+            MODULE.validate_report_invariants(report, "org/repo")
     def test_git_blob_sha_uses_git_object_framing(self) -> None:
         self.assertEqual(
             MODULE.git_blob_sha(b""),
