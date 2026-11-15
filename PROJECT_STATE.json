@@ -2,23 +2,23 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE; B3_ROLE_EXCLUSIVE_SOURCE_GROUNDED_AGENT_FORM_PILOT; R8_CANONICAL_PURPOSE_INHERITANCE; SOURCE_CAPTURE_CONTINUATION",
-  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_1947_OF_7901; 5923_PENDING; 0_LEASED; 31_EMPTY_GIT_REPOSITORY_HTTP_409_FAILURES; 1399_COMPLETE_WITHIN_SCOPE; 548_COVERAGE_LIMITED; SOURCE_CAPTURE_RUN_43707067434_IN_PROGRESS_FROM_CHECKPOINT_43706962454_ARTIFACT_14159475037; PR25_PR26_MERGED; R7_REJECTED_PRIMARY_PURPOSE_DISAGREEMENT; R8_RUN_43707621102_QUEUED; SEMANTIC_AUDIT_NOT_ACCEPTED",
-  "last_verified_at_utc": "2026-11-15T11:12:00Z",
+  "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R9_EXPANDED_SOURCE_CONTEXT_PILOT",
+  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_2810_CAPTURED_2031_COMPLETE_WITHIN_SCOPE_779_COVERAGE_LIMITED_5049_PENDING_42_FAILED; R9_IN_PROGRESS_AT_IMMUTABLE_SEED_RESTORE; PR27_MERGED_CI_PASS; SEMANTIC_AUDIT_NOT_ACCEPTED",
+  "last_verified_at_utc": "2026-11-15T14:24:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "dab9fc3116023b20a17bc9bfdafd1af609ea7f14",
+  "latest_commit_at_checkpoint": "893102d887735fbf5e545064081e419176582c24",
   "latest_ci_run": {
-    "run_id": 43707606855,
+    "run_id": 43723822545,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "eb0ae1d12589fb931947bc1d006883f1f7174726",
+    "head_sha": "893102d887735fbf5e545064081e419176582c24",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "PR #26 canonical-purpose inheritance and source-evidence revalidation passed on Python 3.11/3.12/3.13; merge-to-main CI also passed on all three versions."
+    "tests": "Research Engine CI passed on Python 3.11/3.12/3.13 after PR #27 merge and R9 trigger update."
   },
   "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics. Continuity docs commits 7f444f3c6484edee7d02c2c3d3cbd781e18ee7da, 64d1cee5e9e17ef36c5f8fd93e434fae9c3dc068 and d6a98b2f2b620ee9748b9e0b1fe404305f16c1e8 passed main CI; README commit 55beab7 is pending CI run 43685039602 at this checkpoint. PR #16 merged at e9ae3d67a3b8d0222d44e940f9a54c77f10d1ed7: all structured source-capture batch/candidate and GitHub API retry telemetry now goes to stderr; CLI stdout remains one machine-readable JSON summary for the Actions checkpoint parser. PR #16 CI passed Python 3.11/3.12/3.13; merge CI 43685837776 is in progress. PR #18 merged at 6de884acf5e6b8ca10db6114af63cb67f2715ddb: candidate-specific evidence-ID enums, smaller CPU model context and fail-closed specialist/evidence/reviewer stages; CI 43687345032 passed 3.11/3.12/3.13. PR #20 merged at 3c980adb585e7351dca6bb072ade4de25c8fa78b: allow explicitly disclosed recursive-tree truncation coverage debt while preserving safety/provenance checks; CI 43687501157 passed all versions. PR #21 merged at 4d5d403121ec48c541f0fe646d76f7e90910bc36: model finish-reason/content diagnostics, fenced/pre-parsed JSON handling, bounded malformed JSON/timeouts retry and fresh r4 qwen2.5:3b pilot; PR and main CI 43688699274 passed Python 3.11/3.12/3.13. PR #22 merged at ddeb3470f61fb61f389d5604508cb7a7dc7e1203: lossless compact reviewer context, strengthened adversarial review criteria, fail-closed overflow checks, exact reviewer-only SQLite recovery after revalidating all seven prior reports and positive evidence gates; separate reviewer-only recovery workflow. PR CI 43693371140 and main CI 43693473120 passed Python 3.11/3.12/3.13. PR #22 reviewer-only recovery completed in run 43693473127/artifact 14154370687. Both reviewers returned inconclusive; manual audit found Aave reviewer missed wrong Pool pointer and missing callback authentication, emitted a false direct-liquidation claim and high confidence despite partial status/unknowns; Uniswap reviewer correctly noted the unimplemented TODO but also returned high confidence with partial status/unknowns. R4 is not semantically accepted and no audit count changes. PR #23 merged at 5bff54b556cf45d482391cefbf16de746df3f2f4: strict purpose_category taxonomy, role-specific finding category/severity schema, max four narrow evidence refs, confidence calibration, seven-report purpose consensus and independent revalidation of every accepted evidence item against exact pinned source signals. CI 43695283729 passed 3.11/3.12/3.13; merge CI 43695350412 passed. Semantic pilot workflow now reads isolated mission/database/model/context from trigger and verifies immutable seed ZIP SHA-256. Fresh r5 pilot run 43695437370 restored seed, installed Agent Form and Ollama qwen2.5:3b, bootstrapped a fresh r5 DAG and is executing specialist/evidence/reviewer stages. R5 not yet accepted; no semantic audit count incremented. PR #24 merged at 72f648585e940c75eaa7ace7f539fbff08dfa1c1: bounded unique evidence arrays, bounded report fields, low/medium-only local 3B confidence, explicit duplicate/oversize validation, reviewer checks for provider identity/callback authentication/repayment/TODOs, mission-scoped artifact paths. PR CI 43696841454 and main CI 43697270352 passed Python 3.11/3.12/3.13. PR #25 merged at 17cc27b5b7fc9c5dd96be7203f005d4e8f18cca5: stable first-seen de-duplication of exact model-selected evidence IDs in report evidence and finding references; strict pinned-catalog and downstream provenance checks remain. PR CI run 43705766736 passed Python 3.11/3.12/3.13; merge completed. R6 run 43697270355 failed five UniswapFlashSwap specialist tasks due duplicate report evidence IDs; R7 trigger commit fbaa20c684baab10f2d869460d7aba78107ca0e8 created a fresh isolated mission/database/artifact root based on immutable seed run 43615137961/artifact 14121666814. R7 Actions run ID not yet independently verified; no semantic audit count incremented. PR #26 merged at eb0ae1d12589fb931947bc1d006883f1f7174726: specialists now inherit one source-pinned canonical candidate-purpose category through singleton JSON Schema enum plus deterministic validation; candidate-purpose taxonomy guidance distinguishes security tooling from security review and partial implementation; canonical purpose evidence is revalidated against exact pinned signals. CI run 43707532360 passed Python 3.11/3.12/3.13. R7 semantic pilot run 43705978769/artifact 14159470008 completed but failed both evidence gates because specialist purpose_category values disagreed; 2 purpose tasks and 12 specialist reports completed, 2 evidence gates failed, 0 independent reviewers started, no audit count incremented. Fresh R8 trigger commit 287e83225050ef4dd73d346b5be13c6194f98032 created with new mission/database/artifact root; Actions run 43707621102 queued.",
   "discovery": {
@@ -60,7 +60,26 @@
     "tree": "14de2312e96c369bcc52c9bae96215051aea22b4",
     "audit_path": "research/candidate-audits/0xnavarro__Aave-Liquiditor.md",
     "grade": "D",
-    "assessment": "Aave V3 flash-loan liquidation prototype, but wrong Pool pointer, missing callback authentication and swap, faulty monitor accounting and no monitor-to-executor wiring; static review only."
+    "assessment": "Aave V3 flash-loan liquidation prototype, but wrong Pool pointer, missing callback authentication and swap, faulty monitor accounting and no monitor-to-executor wiring; static review only.",
+    "ground_level_seed_recheck": {
+      "repositories": [
+        "0xnavarro/Aave-Liquiditor",
+        "AlbertSu123/UniswapFlashSwap"
+      ],
+      "seed_artifact_id": 14121666814,
+      "seed_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
+      "zip_crc_check": "ok",
+      "sqlite_integrity_check": "ok",
+      "aave_commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "aave_tree": "14de2312e96c369bcc52c9bae96215051aea22b4",
+      "uniswap_commit": "af0ea4d49a167523a0a21e8891716cc57fa59a30",
+      "uniswap_tree": "9281ec169a3ce0f3e259baf9322bd12b436ba47a",
+      "notes": [
+        "Aave FlashLiquidator.sol lines 71-74 assign pool=IPool(_addressProvider), requiring validation against provider interface; lines 81-90 show callback body without visible caller/initiator guards; lines 131-138 initiate flashLoanSimple.",
+        "Aave monitor positions.ts lines 185-194 uses an approximate profit formula and hardcoded ETH price 2200 marked TODO; monitor-to-executor wiring must be established from source, not assumed.",
+        "UniswapFlashSwap LiquidationOperator.sol lines 256-268 leaves callback security checks and liquidation implementation TODO; lines 287-293 call liquidationCall; lines 298-318 swap collateral to WETH; lines 324-339 calculate repayment using reserves read from wethWBTC_pair and transfer WETH to WETHUSDT_pair. Reviewer must verify pair token ordering, reserve source, token repayment and hardcoded 24e18 deduction."
+      ]
+    }
   },
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
@@ -85,7 +104,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "R8 run 43707621102 has started and is currently restoring/verifying immutable seed artifact 14121666814 (SHA-256 3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691). Wait for restore, fresh database bootstrap, 14 model tasks, both evidence gates and two independent reviewers. Verify category inheritance and source-grounded category correctness. Source capture run 43707067434 remains in progress at the 12-candidate capture step; latest durable checkpoint is run 43706962454/artifact 14159475037, SHA-256 d6680a9ec9cf325a2149fc051e3d48fc8fccf769e2e5e86b13453d402d26ea09 (1,947 captured; 5,923 pending; 0 leased; 31 terminal empty-repository failures; 1,399 complete within scope; 548 coverage-limited). Verify successor artifact before advancing queue. No dossier generation or semantic audit count increments until R8 acceptance. Candidate code execution, wallet access, signing, deployment and live trading remain disabled.",
+  "next_gate": "Poll R9 run 43723822528 and source-capture successor 43722984318. R9 must restore exact immutable seed, bootstrap fresh isolated mission DB, complete 14 model tasks, pass both evidence gates, and receive two unreserved reviewer accepts with zero disagreements and non-empty source-linked evidence. Inspect full artifact and SQLite ledger. If R9 hangs at immutable artifact restore, inspect Actions logs when available and repair downloader/workflow with CI; do not count audit. In parallel verify successor source checkpoint and integrity/hash. No dossiers or semantic audit increments until all R9 conditions pass. Candidate code execution, wallet access, signing, deployment and live trading remain disabled.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -764,5 +783,71 @@
     "semantic_audit_count_incremented": false,
     "candidate_code_executed": false,
     "verified_at_utc": "2026-11-15T08:43:00Z"
+  },
+  "phase_27": {
+    "pr": 27,
+    "url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/27",
+    "merge_commit": "36fb1333e36619af46fe1812fc3fa76c534256a0",
+    "branch": "phase-27-strict-semantic-acceptance-gates",
+    "changes": [
+      "align semantic evidence gate enum with validator output",
+      "require unreserved reviewer accept",
+      "block dossier progression on disagreements or empty reviewer evidence",
+      "add workflow contract tests"
+    ],
+    "ci": {
+      "pr_run": 43723592185,
+      "merge_run": 43723725918,
+      "python": [
+        "3.11",
+        "3.12",
+        "3.13"
+      ],
+      "conclusion": "success"
+    }
+  },
+  "source_capture": {
+    "total": 7901,
+    "captured": 2810,
+    "complete_within_configured_scope": 2031,
+    "coverage_limited": 779,
+    "pending": 5049,
+    "failed": 42,
+    "leased": 0,
+    "latest_verified_run": 43722869973,
+    "artifact_id": 14165490397,
+    "artifact_sha256": "d14ce927e317163bba1dd2d7870f3131bd931388877cc505f0904cd526922ace",
+    "sqlite_integrity_check": "ok",
+    "zip_crc_check": "ok",
+    "active_successor_run": 43722984318,
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43722984318"
+  },
+  "semantic_pilot": {
+    "r8": {
+      "run_id": 43707621102,
+      "status": "completed_failure",
+      "accepted": false,
+      "reason": "stale evidence gate enum; reviewer decisions inconclusive; no dossier and no audit count increment"
+    },
+    "r9": {
+      "mission_id": "flashloan-agent-form-pilot-20261115-r9",
+      "run_id": 43723822528,
+      "trigger_commit": "893102d887735fbf5e545064081e419176582c24",
+      "status": "in_progress",
+      "current_step": "Download and verify immutable source-capture checkpoint",
+      "seed_run_id": 43615137961,
+      "seed_artifact_id": 14121666814,
+      "seed_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
+      "context_limits": {
+        "max_files": 10,
+        "max_chars": 30000,
+        "context_lines": 40,
+        "max_reviewer_chars": 50000
+      },
+      "batch_limit": 2,
+      "model": "qwen2.5:3b",
+      "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43723822528",
+      "audit_count_incremented": false
+    }
   }
 }
