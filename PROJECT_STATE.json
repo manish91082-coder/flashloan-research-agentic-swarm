@@ -4,21 +4,14 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R12_BOUNDED_DUPLICATE_CLAIM_TASK_RETRY",
   "status": "DISCOVERY_7901; SOURCE_CAPTURE_RUN295_SUCCESS_CHILD_RUN296_ACTIVE; R12_FAILED_13_OF_14_DUPLICATE_CLAIM; PR31_NOW_MERGED; CI416_PENDING; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-15T18:12:00Z",
+  "last_verified_at_utc": "2026-11-15T18:15:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "0f54dafb48916a928d5ab633da73ca57c4c01301",
   "latest_ci_run": {
-    "run_id": 43744693568,
-    "run_number": 416,
-    "status": "in_progress",
-    "conclusion": null,
-    "head_sha": "0f54dafb48916a928d5ab633da73ca57c4c01301",
-    "matrix": [
-      "3.11",
-      "3.12",
-      "3.13"
-    ],
-    "purpose": "Validate PR #31 duplicate-claim retry classification merged to main."
+    "run_id": 43744729113,
+    "run_number": 417,
+    "conclusion": "success",
+    "head_sha": "c427ca660a3efb946d870a04e33fb8a924e347b1"
   },
   "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics. Continuity docs commits 7f444f3c6484edee7d02c2c3d3cbd781e18ee7da, 64d1cee5e9e17ef36c5f8fd93e434fae9c3dc068 and d6a98b2f2b620ee9748b9e0b1fe404305f16c1e8 passed main CI; README commit 55beab7 is pending CI run 43685039602 at this checkpoint. PR #16 merged at e9ae3d67a3b8d0222d44e940f9a54c77f10d1ed7: all structured source-capture batch/candidate and GitHub API retry telemetry now goes to stderr; CLI stdout remains one machine-readable JSON summary for the Actions checkpoint parser. PR #16 CI passed Python 3.11/3.12/3.13; merge CI 43685837776 is in progress. PR #18 merged at 6de884acf5e6b8ca10db6114af63cb67f2715ddb: candidate-specific evidence-ID enums, smaller CPU model context and fail-closed specialist/evidence/reviewer stages; CI 43687345032 passed 3.11/3.12/3.13. PR #20 merged at 3c980adb585e7351dca6bb072ade4de25c8fa78b: allow explicitly disclosed recursive-tree truncation coverage debt while preserving safety/provenance checks; CI 43687501157 passed all versions. PR #21 merged at 4d5d403121ec48c541f0fe646d76f7e90910bc36: model finish-reason/content diagnostics, fenced/pre-parsed JSON handling, bounded malformed JSON/timeouts retry and fresh r4 qwen2.5:3b pilot; PR and main CI 43688699274 passed Python 3.11/3.12/3.13. PR #22 merged at ddeb3470f61fb61f389d5604508cb7a7dc7e1203: lossless compact reviewer context, strengthened adversarial review criteria, fail-closed overflow checks, exact reviewer-only SQLite recovery after revalidating all seven prior reports and positive evidence gates; separate reviewer-only recovery workflow. PR CI 43693371140 and main CI 43693473120 passed Python 3.11/3.12/3.13. PR #22 reviewer-only recovery completed in run 43693473127/artifact 14154370687. Both reviewers returned inconclusive; manual audit found Aave reviewer missed wrong Pool pointer and missing callback authentication, emitted a false direct-liquidation claim and high confidence despite partial status/unknowns; Uniswap reviewer correctly noted the unimplemented TODO but also returned high confidence with partial status/unknowns. R4 is not semantically accepted and no audit count changes. PR #23 merged at 5bff54b556cf45d482391cefbf16de746df3f2f4: strict purpose_category taxonomy, role-specific finding category/severity schema, max four narrow evidence refs, confidence calibration, seven-report purpose consensus and independent revalidation of every accepted evidence item against exact pinned source signals. CI 43695283729 passed 3.11/3.12/3.13; merge CI 43695350412 passed. Semantic pilot workflow now reads isolated mission/database/model/context from trigger and verifies immutable seed ZIP SHA-256. Fresh r5 pilot run 43695437370 restored seed, installed Agent Form and Ollama qwen2.5:3b, bootstrapped a fresh r5 DAG and is executing specialist/evidence/reviewer stages. R5 not yet accepted; no semantic audit count incremented. PR #24 merged at 72f648585e940c75eaa7ace7f539fbff08dfa1c1: bounded unique evidence arrays, bounded report fields, low/medium-only local 3B confidence, explicit duplicate/oversize validation, reviewer checks for provider identity/callback authentication/repayment/TODOs, mission-scoped artifact paths. PR CI 43696841454 and main CI 43697270352 passed Python 3.11/3.12/3.13. PR #25 merged at 17cc27b5b7fc9c5dd96be7203f005d4e8f18cca5: stable first-seen de-duplication of exact model-selected evidence IDs in report evidence and finding references; strict pinned-catalog and downstream provenance checks remain. PR CI run 43705766736 passed Python 3.11/3.12/3.13; merge completed. R6 run 43697270355 failed five UniswapFlashSwap specialist tasks due duplicate report evidence IDs; R7 trigger commit fbaa20c684baab10f2d869460d7aba78107ca0e8 created a fresh isolated mission/database/artifact root based on immutable seed run 43615137961/artifact 14121666814. R7 Actions run ID not yet independently verified; no semantic audit count incremented. PR #26 merged at eb0ae1d12589fb931947bc1d006883f1f7174726: specialists now inherit one source-pinned canonical candidate-purpose category through singleton JSON Schema enum plus deterministic validation; candidate-purpose taxonomy guidance distinguishes security tooling from security review and partial implementation; canonical purpose evidence is revalidated against exact pinned signals. CI run 43707532360 passed Python 3.11/3.12/3.13. R7 semantic pilot run 43705978769/artifact 14159470008 completed but failed both evidence gates because specialist purpose_category values disagreed; 2 purpose tasks and 12 specialist reports completed, 2 evidence gates failed, 0 independent reviewers started, no audit count incremented. Fresh R8 trigger commit 287e83225050ef4dd73d346b5be13c6194f98032 created with new mission/database/artifact root; Actions run 43707621102 queued.",
   "discovery": {
@@ -1092,8 +1085,9 @@
     "pr_ci_conclusion": "success",
     "main_ci_run": 43744693568,
     "main_ci_status": "in_progress",
-    "change": "Introduces _is_retryable_specialist_error and classifies duplicate finding claim as retryable after the one corrective generation; strict duplicate validator unchanged; retry bounded by existing max_attempts=3.",
-    "verified_main_source": true
+    "change": "Adds bounded task-level retry for duplicate finding claim after corrective model generation; strict duplicate validator unchanged; max_attempts=3.",
+    "verified_main_source": true,
+    "main_ci_conclusion": "success"
   },
   "r12": {
     "mission_id": "flashloan-agent-form-pilot-20261115-r12",
@@ -1137,18 +1131,18 @@
       "task_type": "security_forensics",
       "role": "solidity_security",
       "task_id": "tsk-31ae4c7c7bf1fab2a5f2568b",
-      "error": "SpecialistTaskError: duplicate finding claim",
+      "error": "duplicate finding claim",
       "attempts": 1,
       "max_attempts": 3
     },
     "task_ledger_verified": true,
-    "zip_crc_check": "pass",
+    "zip_crc_check": "ok",
     "sqlite_integrity_check": "ok",
     "evidence_validation": "not_run_due_to_incomplete_specialists",
     "independent_review": "not_started_due_to_incomplete_specialists",
     "audit_acceptance": false,
     "candidate_code_executed": false,
-    "diagnosis": "R12 ran before PR #31 was merged to main; its task-level retry predicate did not yet contain duplicate finding claim. PR #31 has now been merged; R12 remains a failed historical pilot and will not be retroactively resumed. A fresh isolated pilot must verify the corrected path."
+    "diagnosis": "R12 executed before PR #31 merge; duplicate-claim task retry fix not yet present. Immutable failed pilot retained; not retroactively resumed."
   },
   "source_capture_latest": {
     "workflow_run_id": 43744043022,
@@ -1168,15 +1162,44 @@
     "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43744183276",
     "active_step": "Capture next 12 priority repositories",
     "parent_artifact_id": 14173239106,
-    "parent_artifact_sha256": "97f5626e4e11946edc2509e06e0c755d7a8f5d139bdc5b902e6c346d9e66c7cf",
-    "last_verified_at_utc": "2026-11-15T18:12:00Z"
+    "parent_artifact_sha256": "97f5626e4e11946edc2509e06e0c755d7a8f5d139bdc5b902e6c346d9e66c7cf"
   },
   "execution_diagnosis": {
-    "verified_at_utc": "2026-11-15T18:12:00Z",
-    "r12_execution_model": "Persistent task DAG with serialized CPU model requests (one task per claim); no concurrent specialist inference yet.",
+    "verified_at_utc": "2026-11-15T18:15:00Z",
+    "r12_execution_model": "Persistent task DAG with serialized CPU model requests; R12 failed on duplicate claim before task-level retry fix merged.",
     "implication": "R12 is not a concurrent agent swarm. It is a persistent task DAG with sequential local-model specialist execution and a separate evidence/reviewer gate.",
     "safety_decision": "Keep R12 artifact immutable as failed evidence. Do not alter its database or mark accepted. Run CI #416, then start a fresh isolated pilot against merged main. Do not add concurrent model workers until retry behavior is validated and latency measured.",
     "log_visibility": "Both active job-log retrieval attempts returned transient Azure BlobNotFound. This is not evidence of workflow failure; task ledger/artifacts remain unavailable.",
-    "r12_retry_finding": "R12 failed before PR #31 merge. Its artifact records duplicate finding claim at attempts=1/max_attempts=3. PR #31 was open, not merged, at R12 execution time. It has now been squash-merged; main source contains _is_retryable_specialist_error with duplicate finding claim included."
+    "r12_retry_finding": "R12 failed before PR #31 merge. Its artifact records duplicate finding claim at attempts=1/max_attempts=3. PR #31 was open, not merged, at R12 execution time. It has now been squash-merged; main source contains _is_retryable_specialist_error with duplicate finding claim included.",
+    "retry_fix_commit": "0f54dafb48916a928d5ab633da73ca57c4c01301",
+    "retry_fix_ci": {
+      "run_id": 43744693568,
+      "run_number": 416,
+      "conclusion": "success"
+    },
+    "continuity_ci": {
+      "run_id": 43744729113,
+      "run_number": 417,
+      "conclusion": "success"
+    },
+    "next_pilot": "R13 queued against merged main to verify task-level duplicate-claim retry; no acceptance assumed."
+  },
+  "r13": {
+    "mission_id": "flashloan-agent-form-pilot-20261115-r13",
+    "workflow_run_id": 43744967275,
+    "trigger_commit": "e95424b04805e1cbcb5dba5bba886c862e9ec0fb",
+    "status": "queued",
+    "seed_run_id": 43615137961,
+    "seed_artifact_id": 14121666814,
+    "seed_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
+    "model": "qwen2.5:3b",
+    "batch_limit": 2,
+    "database": "data/agentic-mission-pilot-20261115-r13.sqlite3",
+    "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r13",
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43744967275",
+    "acceptance": false,
+    "semantic_audit_count_incremented": false,
+    "duplicate_retry_runtime_verification": "pending",
+    "candidate_code_executed": false
   }
 }
