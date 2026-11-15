@@ -142,7 +142,7 @@ class LocalModelProviderTests(unittest.TestCase):
                 "finding_id": "F-1",
                 "claim": "A callback function is declared.",
                 "category": "protocol_flow",
-                "severity": "informational",
+                "severity": "not_applicable",
                 "claim_status": "source_observed",
                 "confidence": "low",
                 "evidence_refs": ["EV00002"],
@@ -174,10 +174,34 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertEqual(schema["properties"]["findings"]["items"]["properties"]["category"]["enum"], ["purpose", "protocol_flow"])
         self.assertEqual(schema["properties"]["findings"]["items"]["properties"]["evidence_refs"]["maxItems"], 4)
 
+    def test_role_specific_schema_prevents_cross_domain_findings(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "purpose_category", "implementation_status",
+            "findings", "evidence", "unknowns", "confidence",
+        }
+        provider.generate_json(
+            "Return an execution report.",
+            {"role": "execution_engineer", "source_evidence_catalog": [{"evidence_id": "EV00001"}]},
+            required,
+        )
+        props = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["findings"]["items"]["properties"]
+        self.assertEqual(props["category"]["enum"], ["execution"])
+        self.assertEqual(props["severity"]["enum"], ["not_applicable"])
+        provider.generate_json(
+            "Return a security report.",
+            {"role": "solidity_security", "source_evidence_catalog": [{"evidence_id": "EV00001"}]},
+            required,
+        )
+        props = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["findings"]["items"]["properties"]
+        self.assertEqual(props["category"]["enum"], ["security"])
+        self.assertNotIn("not_applicable", props["severity"]["enum"])
+
     def test_empty_catalog_forces_empty_evidence_and_findings(self):
         Handler.response_content = json.dumps({
             "summary": "No source evidence supplied.",
             "purpose": "unknown",
+            "purpose_category": "unknown",
             "implementation_status": "unknown",
             "findings": [],
             "evidence": [],
