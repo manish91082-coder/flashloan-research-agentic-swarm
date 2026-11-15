@@ -4,7 +4,7 @@
   "canonical_manifest": "research_runs/audit-batches/43600488013/manifest.json",
   "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
   "discovery_run_id": "43600488013",
-  "resume_from_workflow_run_id": 43630157644,
+  "resume_from_workflow_run_id": 43681954178,
   "candidate_count": 7901,
   "batch_size": 12,
   "parallel_read_only_inspections": 2,
@@ -16,17 +16,18 @@
     "live_trading": false,
     "paid_services": false
   },
-  "goal": "Resume the existing source-capture worker from immutable successful checkpoint 43630157644 / artifact 14127627316; continue 12 candidates at a time, 2 read-only inspections in parallel, verify SQLite and source blob pins, upload the successor checkpoint, and self-dispatch using the exact successor artifact ID.",
-  "resume_from_artifact_id": 14127627316,
+  "goal": "Resume the same 7,901-candidate source-capture queue from the independently verified durable checkpoint produced by workflow 43681954178 / artifact 14150708036. Restore against the latest main validator (including explicit disclosed tree-truncation coverage debt), verify SQLite and blob pins, capture the next 12 candidates with 2 read-only workers, write a durable successor artifact and self-dispatch using that exact new artifact ID. Ignore the failed child 43686765152 and its 182-byte non-checkpoint artifact 14150378595.",
+  "resume_from_artifact_id": 14150708036,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 920,
-    "pending": 6971,
+    "captured": 954,
+    "pending": 6935,
     "leased": 0,
-    "failed": 10,
-    "captured_complete_within_scope": 673,
-    "captured_with_coverage_limits": 247
+    "failed": 12,
+    "captured_complete_within_scope": 697,
+    "captured_with_coverage_limits": 257
   },
-  "download_strategy": "pinned_artifact_id_with_bounded_retry_after_x_ratelimit_reset_and_5xx_backoff",
-  "updated_at_utc": "2026-11-15T10:50:00+05:30"
+  "download_strategy": "pinned_artifact_id_with_retry_after_primary_reset_and_5xx_backoff",
+  "updated_at_utc": "2026-11-15T07:00:00Z",
+  "trigger_revision": "resume-parent-43681954178-artifact-14150708036-after-pr20-coverage-debt-fix"
 }
