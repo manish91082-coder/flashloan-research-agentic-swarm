@@ -4,21 +4,22 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R12_BOUNDED_DUPLICATE_CLAIM_TASK_RETRY",
   "status": "DISCOVERY_7901; SOURCE_CAPTURE_3424_CAPTURED_2481_COMPLETE_WITHIN_SCOPE_943_COVERAGE_LIMITED_4430_PENDING_47_FAILED; RUN293_SUCCESS_ARTIFACT_14172557143_INDEPENDENTLY_VERIFIED; PR31_MERGED_CI405_PASS; MAIN_CI408_PASS_311_312_313; R12_SPECIALIST_EVIDENCE_REVIEW_EXECUTION_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-15T17:42:00Z",
+  "last_verified_at_utc": "2026-11-15T17:43:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "d04cc95cc107bae801592e240b31d71ff16860f0",
+  "latest_commit_at_checkpoint": "53d44a4a34712a0607e98fccbd08afdcc6d3f02f",
   "latest_ci_run": {
-    "run_id": 43741821664,
+    "run_id": 43742564411,
+    "run_number": 409,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "f5c155994af437001296ae854c11e9e3cbcd6551",
+    "head_sha": "53d44a4a34712a0607e98fccbd08afdcc6d3f02f",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "Main CI run 407 passed all three Python versions. Main CI run 406 also passed all three Python versions after PROJECT_STATE update."
+    "tests": "Main CI #409 passed Python 3.11/3.12/3.13 after independently verified source-capture checkpoint was recorded."
   },
   "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics. Continuity docs commits 7f444f3c6484edee7d02c2c3d3cbd781e18ee7da, 64d1cee5e9e17ef36c5f8fd93e434fae9c3dc068 and d6a98b2f2b620ee9748b9e0b1fe404305f16c1e8 passed main CI; README commit 55beab7 is pending CI run 43685039602 at this checkpoint. PR #16 merged at e9ae3d67a3b8d0222d44e940f9a54c77f10d1ed7: all structured source-capture batch/candidate and GitHub API retry telemetry now goes to stderr; CLI stdout remains one machine-readable JSON summary for the Actions checkpoint parser. PR #16 CI passed Python 3.11/3.12/3.13; merge CI 43685837776 is in progress. PR #18 merged at 6de884acf5e6b8ca10db6114af63cb67f2715ddb: candidate-specific evidence-ID enums, smaller CPU model context and fail-closed specialist/evidence/reviewer stages; CI 43687345032 passed 3.11/3.12/3.13. PR #20 merged at 3c980adb585e7351dca6bb072ade4de25c8fa78b: allow explicitly disclosed recursive-tree truncation coverage debt while preserving safety/provenance checks; CI 43687501157 passed all versions. PR #21 merged at 4d5d403121ec48c541f0fe646d76f7e90910bc36: model finish-reason/content diagnostics, fenced/pre-parsed JSON handling, bounded malformed JSON/timeouts retry and fresh r4 qwen2.5:3b pilot; PR and main CI 43688699274 passed Python 3.11/3.12/3.13. PR #22 merged at ddeb3470f61fb61f389d5604508cb7a7dc7e1203: lossless compact reviewer context, strengthened adversarial review criteria, fail-closed overflow checks, exact reviewer-only SQLite recovery after revalidating all seven prior reports and positive evidence gates; separate reviewer-only recovery workflow. PR CI 43693371140 and main CI 43693473120 passed Python 3.11/3.12/3.13. PR #22 reviewer-only recovery completed in run 43693473127/artifact 14154370687. Both reviewers returned inconclusive; manual audit found Aave reviewer missed wrong Pool pointer and missing callback authentication, emitted a false direct-liquidation claim and high confidence despite partial status/unknowns; Uniswap reviewer correctly noted the unimplemented TODO but also returned high confidence with partial status/unknowns. R4 is not semantically accepted and no audit count changes. PR #23 merged at 5bff54b556cf45d482391cefbf16de746df3f2f4: strict purpose_category taxonomy, role-specific finding category/severity schema, max four narrow evidence refs, confidence calibration, seven-report purpose consensus and independent revalidation of every accepted evidence item against exact pinned source signals. CI 43695283729 passed 3.11/3.12/3.13; merge CI 43695350412 passed. Semantic pilot workflow now reads isolated mission/database/model/context from trigger and verifies immutable seed ZIP SHA-256. Fresh r5 pilot run 43695437370 restored seed, installed Agent Form and Ollama qwen2.5:3b, bootstrapped a fresh r5 DAG and is executing specialist/evidence/reviewer stages. R5 not yet accepted; no semantic audit count incremented. PR #24 merged at 72f648585e940c75eaa7ace7f539fbff08dfa1c1: bounded unique evidence arrays, bounded report fields, low/medium-only local 3B confidence, explicit duplicate/oversize validation, reviewer checks for provider identity/callback authentication/repayment/TODOs, mission-scoped artifact paths. PR CI 43696841454 and main CI 43697270352 passed Python 3.11/3.12/3.13. PR #25 merged at 17cc27b5b7fc9c5dd96be7203f005d4e8f18cca5: stable first-seen de-duplication of exact model-selected evidence IDs in report evidence and finding references; strict pinned-catalog and downstream provenance checks remain. PR CI run 43705766736 passed Python 3.11/3.12/3.13; merge completed. R6 run 43697270355 failed five UniswapFlashSwap specialist tasks due duplicate report evidence IDs; R7 trigger commit fbaa20c684baab10f2d869460d7aba78107ca0e8 created a fresh isolated mission/database/artifact root based on immutable seed run 43615137961/artifact 14121666814. R7 Actions run ID not yet independently verified; no semantic audit count incremented. PR #26 merged at eb0ae1d12589fb931947bc1d006883f1f7174726: specialists now inherit one source-pinned canonical candidate-purpose category through singleton JSON Schema enum plus deterministic validation; candidate-purpose taxonomy guidance distinguishes security tooling from security review and partial implementation; canonical purpose evidence is revalidated against exact pinned signals. CI run 43707532360 passed Python 3.11/3.12/3.13. R7 semantic pilot run 43705978769/artifact 14159470008 completed but failed both evidence gates because specialist purpose_category values disagreed; 2 purpose tasks and 12 specialist reports completed, 2 evidence gates failed, 0 independent reviewers started, no audit count incremented. Fresh R8 trigger commit 287e83225050ef4dd73d346b5be13c6194f98032 created with new mission/database/artifact root; Actions run 43707621102 queued.",
   "discovery": {
@@ -104,7 +105,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Inspect R12 specialist execution and final artifact. Verify 14/14 specialists, bounded duplicate-claim task retry ledger, both pinned evidence gates, two exact unreserved reviewer accepts, zero disagreements, source-linked evidence and SQLite integrity. Continue auto-dispatched source capture and independently verify each durable checkpoint.",
+  "next_gate": "Poll R12 specialist/evidence/reviewer stage and inspect final artifact/SQLite ledger; verify 14/14 specialists, retry attempts, evidence gates and exact reviewer acceptance. Poll source capture run #294 and independently verify its next checkpoint artifact.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -1102,7 +1103,7 @@
     "seed_run_id": 43615137961,
     "seed_artifact_id": 14121666814,
     "acceptance_gate": "14/14 specialists; retry duplicate finding claims within max_attempts=3 without weakening strict validation; two evidence gates; two exact unreserved independent accepts with zero disagreements and pinned evidence; no audit increment before full verification.",
-    "last_verified_step": "Immutable seed restore, Agent Form runtime, local Ollama setup and fresh isolated DAG bootstrap completed successfully; serialized specialist/evidence/reviewer pilot running."
+    "last_verified_step": "Immutable seed restore, Agent Form runtime, local Ollama setup and fresh isolated DAG bootstrap passed; specialist/evidence/reviewer execution remains in progress."
   },
   "source_capture_latest": {
     "workflow_run_id": 43739811468,
@@ -1134,5 +1135,12 @@
     },
     "candidate_code_executed": false,
     "semantic_audit_completed": false
+  },
+  "source_capture_next": {
+    "workflow_run_id": 43742206109,
+    "run_number": 294,
+    "status": "in_progress",
+    "parent_checkpoint_run": 43739811468,
+    "parent_artifact_id": 14172557143
   }
 }
