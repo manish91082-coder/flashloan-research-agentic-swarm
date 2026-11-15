@@ -72,6 +72,15 @@ _FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
         "items": {"type": "string"},
     },
     "confidence": {"type": "string", "enum": ["low", "medium", "high"]},
+    "review_decision": {
+        "type": "string",
+        "enum": ["not_applicable", "accept", "accept_with_reservations", "reject", "inconclusive"],
+    },
+    "review_disagreements": {
+        "type": "array",
+        "description": "Independent reviewer disagreements and reservations; empty for non-reviewer roles.",
+        "items": {"type": "string"},
+    },
 }
 
 
