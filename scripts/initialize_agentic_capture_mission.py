@@ -64,10 +64,10 @@ def load_reports(report_dir: Path, vault: Path, limit: int) -> list[dict[str, An
     return reports[:limit]
 
 
-def form_payload(repository_limit: int) -> dict[str, Any]:
+def form_payload(repository_limit: int, mission_id: str = MISSION_ID) -> dict[str, Any]:
     taxonomy = json.loads(Path("research/keyword-taxonomy.json").read_text(encoding="utf-8"))
     return {
-        "mission_id": MISSION_ID,
+        "mission_id": mission_id,
         "title": "Flash Loan & DeFi Autonomous Public Repository Research",
         "objective": (
             "Research the 7,901-repository public GitHub inventory discovered by the locked "
@@ -154,14 +154,17 @@ def main() -> None:
     parser.add_argument("--mission-db", type=Path, default=Path("data/agentic-mission.sqlite3"))
     parser.add_argument("--artifact-root", type=Path, default=Path("research_runs/mission"))
     parser.add_argument("--batch-limit", type=int, default=12)
+    parser.add_argument("--mission-id", default=MISSION_ID)
     args = parser.parse_args()
     if not 1 <= args.batch_limit <= 100:
         raise SystemExit("--batch-limit must be between 1 and 100")
+    if not args.mission_id or any(ch not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_" for ch in args.mission_id):
+        raise SystemExit("--mission-id must contain only letters, digits, hyphens and underscores")
 
     os.environ["FLR_DATABASE"] = str(args.mission_db)
     os.environ["FLR_SNAPSHOT_DIR"] = str(args.vault)
     reports = load_reports(args.report_dir, args.vault, args.batch_limit)
-    payload = form_payload(args.batch_limit)
+    payload = form_payload(args.batch_limit, args.mission_id)
     taxonomy = json.loads(Path("research/keyword-taxonomy.json").read_text(encoding="utf-8"))
     queue = MissionQueue(args.mission_db)
     tasks = MissionTaskStore(args.mission_db)
@@ -169,47 +172,47 @@ def main() -> None:
         try:
             queued = queue.enqueue(payload)
         except Exception as exc:
-            existing = queue.get(MISSION_ID)
+            existing = queue.get(args.mission_id)
             if not existing:
                 raise
             if existing["payload"] != payload:
                 raise SystemExit("Existing mission ID has a different form payload; refusing overwrite.") from exc
-            queued = {"mission_id": MISSION_ID, "status": existing["status"], "reused": True}
+            queued = {"mission_id": args.mission_id, "status": existing["status"], "reused": True}
 
         plan = build_mission_plan(payload, taxonomy)
         plan_result = tasks.create_plan(plan)
         worker = "agent-form-bootstrap"
-        complete_ready(tasks, MISSION_ID, "mission_plan",
+        complete_ready(tasks, args.mission_id, "mission_plan",
                        lambda task: {"status": "plan_validated", "source": "Agent Form payload"},
                        worker)
-        complete_ready(tasks, MISSION_ID, "discover_family",
+        complete_ready(tasks, args.mission_id, "discover_family",
                        lambda task: {"status": "discovery_imported_from_verified_inventory",
                                      "family_id": task["payload"]["family_id"],
                                      "source_run_id": DISCOVERY_RUN_ID,
                                      "live_discovery_repeated": False},
                        worker)
-        complete_ready(tasks, MISSION_ID, "merge_candidates",
+        complete_ready(tasks, args.mission_id, "merge_candidates",
                        lambda task: {"unique_repository_count": 7901,
                                      "source": "immutable_11_family_discovery_manifest",
                                      "candidate_purpose_verified": False},
                        worker)
-        complete_ready(tasks, MISSION_ID, "purpose_triage",
+        complete_ready(tasks, args.mission_id, "purpose_triage",
                        lambda task: {"candidate_count": 7901,
                                      "purpose_status": "purpose_unverified_until_semantic_review",
                                      "triage_basis": "discovery provenance only"},
                        worker)
 
-        expansion_claims = tasks.claim_ready(MISSION_ID, worker, limit=1,
+        expansion_claims = tasks.claim_ready(args.mission_id, worker, limit=1,
                                              lease_seconds=300,
                                              task_types={"expand_candidate_tasks"})
         if expansion_claims:
             expansion = expansion_claims[0]
             repositories = [x["repository"] for x in reports]
             expanded = tasks.expand_candidates(
-                MISSION_ID, expansion["task_id"], repositories,
+                args.mission_id, expansion["task_id"], repositories,
                 selected_roles=payload["agent_policy"]["specialists"],
             )
-            tasks.complete_task(MISSION_ID, expansion["task_id"], worker, {
+            tasks.complete_task(args.mission_id, expansion["task_id"], worker, {
                 **expanded,
                 "batch_limit": args.batch_limit,
                 "candidate_inventory_count": 7901,
@@ -221,7 +224,7 @@ def main() -> None:
             expanded = {"candidate_count": len(reports), "tasks_inserted": 0,
                         "status": "existing_expansion"}
 
-        mission_dir = args.artifact_root / MISSION_ID
+        mission_dir = args.artifact_root / args.mission_id
         inspection_dir = mission_dir / "inspections"
         inspection_dir.mkdir(parents=True, exist_ok=True)
         report_paths: dict[str, str] = {}
@@ -232,7 +235,7 @@ def main() -> None:
             report_paths[repository] = str(destination)
 
         completed_sources = complete_ready(
-            tasks, MISSION_ID, "candidate_source_capture",
+            tasks, args.mission_id, "candidate_source_capture",
             lambda task: {
                 "repository": task["payload"]["repository"],
                 "inspection_report": report_paths[task["payload"]["repository"]],
@@ -242,10 +245,10 @@ def main() -> None:
             },
             worker,
         )
-        queue.set_status(MISSION_ID, "running")
+        queue.set_status(args.mission_id, "running")
         output = {
             "status": "agent_form_mission_initialized_from_verified_capture",
-            "mission_id": MISSION_ID,
+            "mission_id": args.mission_id,
             "form_payload_accepted": True,
             "mission_queue": queued,
             "plan_tasks": len(plan),
@@ -254,7 +257,7 @@ def main() -> None:
             "candidate_task_expansion": expanded,
             "source_capture_tasks_completed": completed_sources,
             "candidate_purpose_tasks_ready": sum(
-                1 for x in tasks.list_tasks(MISSION_ID)
+                1 for x in tasks.list_tasks(args.mission_id)
                 if x["task_type"] == "candidate_purpose" and x["status"] == "pending"
             ),
             "semantic_specialists_executed": False,
