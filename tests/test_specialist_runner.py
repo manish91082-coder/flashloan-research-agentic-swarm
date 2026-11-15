@@ -4,11 +4,12 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, validate_specialist_output, _evidence_catalog,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
-    _generate_validated_output,
+    _generate_validated_output, REQUIRED_KEYS,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -92,7 +93,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
                         for i in range(5)],
         }
         output = sample_output(evidence=[f"EV{i:05d}" for i in range(1, 6)])
-        with self.assertRaisesRegex(SpecialistTaskError, "evidence must contain 1..4 unique"):
+        with self.assertRaisesRegex(SpecialistTaskError, "evidence must contain at most four unique"):
             validate_specialist_output(output, inspection, "candidate_purpose")
 
     def test_corrective_retry_repairs_high_confidence_with_unknowns(self):
