@@ -220,23 +220,44 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
         # The independent reviewer receives all claims, disagreements/unknowns, and IDs.
         # Full evidence excerpts are supplied once through verified_source_excerpts and
         # the candidate evidence catalog, rather than duplicated seven times here.
+        raw_findings = data.get("findings", [])
+        raw_evidence = data.get("evidence", [])
+        raw_unknowns = data.get("unknowns", [])
+        if not isinstance(raw_findings, list) or not isinstance(raw_evidence, list) or not isinstance(raw_unknowns, list):
+            raise SpecialistTaskError("prior specialist report has a malformed findings/evidence/unknowns array")
+        if len(raw_findings) > 30 or len(raw_evidence) > 500 or len(raw_unknowns) > 25:
+            raise SpecialistTaskError(
+                f"prior specialist report exceeds lossless reviewer-context item limits: "
+                f"findings={len(raw_findings)}, evidence={len(raw_evidence)}, unknowns={len(raw_unknowns)}"
+            )
         findings = []
-        for finding in data.get("findings", [])[:30]:
+        for finding in raw_findings:
             if not isinstance(finding, dict):
                 raise SpecialistTaskError("prior specialist report contains a malformed finding")
+            claim = finding.get("claim", "")
+            refs = finding.get("evidence_refs", [])
+            if not isinstance(claim, str) or len(claim) > 600:
+                raise SpecialistTaskError("prior finding claim exceeds the 600-character reviewer limit")
+            if not isinstance(refs, list) or len(refs) > 50:
+                raise SpecialistTaskError("prior finding evidence_refs exceed the lossless reviewer limit")
             findings.append({
                 "finding_id": str(finding.get("finding_id", ""))[:80],
-                "claim": str(finding.get("claim", ""))[:600],
+                "claim": claim,
                 "category": finding.get("category"),
                 "severity": finding.get("severity"),
                 "claim_status": finding.get("claim_status"),
                 "confidence": finding.get("confidence"),
-                "evidence_refs": list(finding.get("evidence_refs", []))[:30],
+                "evidence_refs": list(refs),
             })
-        evidence_ids = sorted({
-            item.get("evidence_id") for item in data.get("evidence", [])
-            if isinstance(item, dict) and isinstance(item.get("evidence_id"), str)
-        })
+        if any(not isinstance(item, dict) or not isinstance(item.get("evidence_id"), str)
+               for item in raw_evidence):
+            raise SpecialistTaskError("prior specialist report contains malformed accepted evidence")
+        evidence_ids = sorted({item["evidence_id"] for item in raw_evidence})
+        unknowns = []
+        for item in raw_unknowns:
+            if not isinstance(item, str) or len(item) > 500:
+                raise SpecialistTaskError("prior specialist unknown is malformed or exceeds 500 characters")
+            unknowns.append(item)
         compact = {
             "task_id": task.get("task_id"),
             "task_type": task_type,
@@ -250,7 +271,7 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
             "accepted_evidence_ids": evidence_ids,
             "accepted_evidence_count": len(data.get("evidence", [])),
             "rejected_evidence_count": len(data.get("rejected_evidence", [])),
-            "unknowns": [str(item)[:500] for item in data.get("unknowns", [])[:15]],
+            "unknowns": unknowns,
             "confidence": data.get("confidence"),
             "evidence_validation": {
                 "accepted_signal_references": validation.get("accepted_signal_references", 0),
