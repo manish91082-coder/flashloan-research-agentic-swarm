@@ -134,6 +134,22 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         with self.assertRaisesRegex(SpecialistTaskError, "not in the pinned catalog"):
             validate_specialist_output(output, self.inspection, "protocol_specialist")
 
+    def test_rejects_duplicate_report_evidence_ids(self):
+        output = sample_output(evidence=["EV00001", "EV00001"])
+        with self.assertRaisesRegex(SpecialistTaskError, "evidence IDs must be unique"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_report_evidence_over_eight_ids(self):
+        inspection = {
+            "repository": "org/repo", "commit_sha": "a" * 40, "tree_sha": "b" * 40,
+            "signals": [{"path": f"contracts/C{i}.sol", "line": i + 1,
+                         "signal": f"signal_{i}", "excerpt": f"source {i}"}
+                        for i in range(9)],
+        }
+        output = sample_output(evidence=[f"EV{i:05d}" for i in range(1, 10)], findings=[])
+        with self.assertRaisesRegex(SpecialistTaskError, "at most 8 distinct IDs"):
+            validate_specialist_output(output, inspection, "candidate_purpose")
+
     def test_rejects_finding_that_cites_unselected_or_fabricated_evidence_id(self):
         output = sample_output(evidence=["EV00001"], findings=[{
             "finding_id": "F-1", "claim": "unsupported", "category": "security",
