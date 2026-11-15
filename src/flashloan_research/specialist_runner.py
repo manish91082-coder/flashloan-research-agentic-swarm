@@ -790,8 +790,12 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 if role not in ROLE_PROMPTS:
                     raise SpecialistTaskError(f"no specialist prompt is registered for role: {role}")
                 inspection = _inspection_for(artifact_root, mission_id, repository)
-                canonical_purpose_category = None
-                if role != "candidate_purpose":
+                if role == "candidate_purpose":
+                    # Strong source-pinned protocol signals constrain the category
+                    # in the model's JSON Schema before generation. The model still
+                    # writes the purpose explanation, findings and evidence links.
+                    canonical_purpose_category = _source_supported_purpose_category(inspection)
+                else:
                     canonical_purpose_category = _canonical_purpose_category(
                         store.list_tasks(mission_id), repository, inspection,
                     )

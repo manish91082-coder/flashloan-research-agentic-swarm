@@ -168,6 +168,41 @@ class LocalModelProviderTests(unittest.TestCase):
         )
         self.assertIn("Inherited", schema["properties"]["purpose_category"]["description"])
 
+    def test_candidate_purpose_schema_constrains_source_pinned_category(self):
+        Handler.response_content = json.dumps({
+            "summary": "Source-pinned protocol signals constrain the primary category.",
+            "purpose": "Aave flash-loan liquidation bot.",
+            "purpose_category": "flash_loan_liquidation_bot",
+            "implementation_status": "partial",
+            "findings": [],
+            "evidence": ["EV00001"],
+            "unknowns": ["End-to-end runtime behavior is not established."],
+            "confidence": "low",
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "purpose_category", "implementation_status",
+            "findings", "evidence", "unknowns", "confidence",
+        }
+        provider.generate_json(
+            "Classify the candidate using pinned source signals.",
+            {
+                "role": "candidate_purpose",
+                "canonical_purpose_category": "flash_loan_liquidation_bot",
+                "source_evidence_catalog": [{"evidence_id": "EV00001"}],
+            },
+            required,
+        )
+        schema = Handler.body["response_format"]["json_schema"]["schema"]
+        self.assertEqual(
+            schema["properties"]["purpose_category"]["enum"],
+            ["flash_loan_liquidation_bot"],
+        )
+        self.assertIn(
+            "source-pinned canonical purpose category",
+            schema["properties"]["purpose_category"]["description"],
+        )
+
     def test_rejects_invalid_canonical_purpose_category_before_network_call(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
