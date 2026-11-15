@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run a fresh isolated Agent Form r8 semantic-quality pilot after canonical candidate-purpose inheritance was merged. Preserve exact evidence provenance, strict pinned-catalog membership, role-exclusive specialist outputs and fail-closed validation; do not reuse r1-r7 mission state.",
+  "purpose": "Run a fresh isolated R9 semantic-quality pilot after Phase 27 strict acceptance gates. Expand verified source context to expose complete candidate purpose and callback flow; preserve immutable seed and fail closed.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "checkpoint_artifact_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
@@ -14,21 +14,21 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
-  "mission_id": "flashloan-agent-form-pilot-20261115-r8",
-  "database": "data/agentic-mission-pilot-20261115-r8.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r8",
-  "model_timeout_seconds": 1200,
+  "mission_id": "flashloan-agent-form-pilot-20261115-r9",
+  "database": "data/agentic-mission-pilot-20261115-r9.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r9",
+  "model_timeout_seconds": 1800,
   "context_limits": {
-    "max_files": 3,
-    "max_chars": 6000,
-    "context_lines": 12,
-    "max_reviewer_chars": 18000
+    "max_files": 10,
+    "max_chars": 30000,
+    "context_lines": 40,
+    "max_reviewer_chars": 50000
   },
-  "model_max_output_tokens": 1200,
-  "output_contract_version": "5.2.0-canonical-purpose-inheritance",
+  "model_max_output_tokens": 2400,
+  "output_contract_version": "5.2.1-r9-expanded-source-context-strict-review",
   "acceptance": [
     "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814 by exact SHA-256",
-    "bootstrap a fresh isolated r8 mission database and artifact root; never reuse r1-r7 task state",
+    "bootstrap a fresh isolated r9 mission database and artifact root; never reuse r1-r7 task state",
     "complete two candidate-purpose tasks and twelve distinct specialist tasks across the same two pinned candidates",
     "classify each candidate's actual primary product/function using the explicit strict taxonomy; security_tooling is permitted only for a product whose primary function is scanning, auditing, monitoring or protecting other software, not merely a contract undergoing security review",
     "treat partial implementation and TODOs separately from intended primary purpose; do not relabel an unfinished flash-swap liquidation prototype as unrelated or security tooling solely because its callback is incomplete",
@@ -46,10 +46,12 @@
     "complete two independent adversarial reviewers with explicit decisions and disagreements",
     "reviewers must inspect lending Pool/provider identity, callback caller and initiator authentication, asset/amount binding, repayment/premium and actual callback implementation versus TODOs",
     "reviewers must challenge whether the canonical candidate-purpose category itself matches the source evidence; inherited category agreement is not proof of classification correctness",
-    "upload the exact r8 SQLite database, all r8 reports, source inspection and reviewer artifacts under mission-scoped artifact name",
+    "upload the exact r9 SQLite database, all r9 reports, source inspection and reviewer artifacts under mission-scoped artifact name",
     "inspect all output reports and the full SQLite task ledger; any quality failure blocks downstream stages",
     "do not generate dossiers or increment semantic audit counts until the full pilot artifact and reviewer reports are independently accepted",
-    "candidate code execution, wallet access, signing, deployment and live trading remain disabled; cloud and paid inference remain disabled"
+    "candidate code execution, wallet access, signing, deployment and live trading remain disabled; cloud and paid inference remain disabled",
+    "use expanded source context (up to 10 verified files, 30,000 chars, 40 lines around each signal) so candidate-purpose and reviewers inspect implementation entry points, callback bodies, README/product intent and tests rather than imports-only excerpts",
+    "strict Phase 27 workflow gate: both candidate evidence gates must pass current semantic-quality status; each reviewer must return unreserved accept with zero unresolved disagreements and non-empty source evidence"
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -60,8 +62,8 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "triggered_after_commit": "eb0ae1d12589fb931947bc1d006883f1f7174726",
-  "updated_at_utc": "2026-11-15T11:12:00Z",
+  "triggered_after_commit": "36fb1333e36619af46fe1812fc3fa76c534256a0",
+  "updated_at_utc": "2026-11-15T14:20:00Z",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r8-post-pr26-canonical-purpose-inheritance-fresh-isolated-pilot"
+  "trigger_revision": "r9-post-phase27-expanded-source-context"
 }
