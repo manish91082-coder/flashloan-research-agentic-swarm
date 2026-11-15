@@ -46,6 +46,7 @@ class LocalModelProviderTests(unittest.TestCase):
         self.url = f"http://127.0.0.1:{self.server.server_port}"
         Handler.body = None
         Handler.response_content = '{"purpose":"liquidation bot","confidence":"low"}'
+        Handler.finish_reason = "stop"
 
     def tearDown(self):
         self.server.shutdown()
@@ -211,7 +212,7 @@ class LocalModelProviderTests(unittest.TestCase):
         with self.assertRaisesRegex(ModelProviderError, "reviewer-only output fields"):
             provider.generate_json("Review.", {"repository": "org/repo"}, required)
     def test_accepts_fenced_json_model_content(self):
-        Handler.response_content = ' ```json\\n{"purpose":"liquidation bot","confidence":"low"}\\n``` '
+        Handler.response_content = ' ```json\n{"purpose":"liquidation bot","confidence":"low"}\n``` '
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         result = provider.generate_json(
             "Classify.", {"repo": "org/repo"}, {"purpose", "confidence"},
