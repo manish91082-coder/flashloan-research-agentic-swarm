@@ -325,37 +325,75 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
             try:
                 inspection = _inspection_for(artifact_root, mission_id, repository)
                 reports = []
-                for item in store.list_tasks(mission_id):
-                    if item["payload"].get("repository") != repository:
-                        continue
-                    if item["task_type"] != "candidate_purpose" and not item["task_type"].endswith("_forensics"):
-                        continue
-                    result = item.get("result") or {}
-                    report_path = result.get("report")
-                    if not report_path:
-                        raise SpecialistTaskError(
-                            f"completed specialist task has no report path: {item['task_id']}"
-                        )
+                total_accepted = 0
+                total_findings = 0
+                purpose_evidence = 0
+                prior_tasks = [
+                    item for item in store.list_tasks(mission_id)
+                    if item["payload"].get("repository") == repository
+                    and (item["task_type"] == "candidate_purpose" or item["task_type"].endswith("_forensics"))
+                ]
+                if len(prior_tasks) != 7:
+                    raise SpecialistTaskError(f"expected 7 distinct purpose/specialist tasks, found {len(prior_tasks)}")
+                seen_task_types: set[str] = set()
+                for item in prior_tasks:
+                    if item["status"] != "completed":
+                        raise SpecialistTaskError(f"required specialist task is not completed: {item['task_id']}")
+                    if item["task_type"] in seen_task_types:
+                        raise SpecialistTaskError(f"duplicate specialist task type: {item['task_type']}")
+                    seen_task_types.add(item["task_type"])
+                    report_path = (item.get("result") or {}).get("report")
+                    if not isinstance(report_path, str) or not Path(report_path).is_file():
+                        raise SpecialistTaskError(f"completed specialist task has no report: {item['task_id']}")
                     report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+                    metadata = report.get("task_metadata", {})
+                    if metadata.get("task_id") != item["task_id"] or metadata.get("task_type") != item["task_type"]:
+                        raise SpecialistTaskError("specialist report task provenance mismatch")
                     if report.get("agent_metadata", {}).get("role") != item["role"]:
                         raise SpecialistTaskError("specialist report role provenance mismatch")
-                    if report.get("evidence_validation", {}).get("inspection_commit_sha") != inspection["commit_sha"]:
+                    validation = report.get("evidence_validation", {})
+                    if validation.get("inspection_commit_sha") != inspection["commit_sha"]:
                         raise SpecialistTaskError("specialist report commit provenance mismatch")
+                    if validation.get("all_findings_linked_to_accepted_evidence") is not True:
+                        raise SpecialistTaskError("specialist report did not pass claim-to-evidence linkage")
+                    accepted = len(report.get("evidence", []))
+                    findings = len(report.get("findings", []))
+                    total_accepted += accepted
+                    total_findings += findings
+                    if item["task_type"] == "candidate_purpose":
+                        purpose_evidence = accepted
                     reports.append({
+                        "task_id": item["task_id"],
+                        "task_type": item["task_type"],
                         "role": item["role"],
                         "report": report_path,
-                        "accepted_evidence": len(report.get("evidence", [])),
+                        "accepted_evidence": accepted,
                         "rejected_evidence": len(report.get("rejected_evidence", [])),
+                        "findings": findings,
+                        "unknowns": len(report.get("unknowns", [])),
+                        "confidence": report.get("confidence"),
                     })
+                required_forensics = {"protocol_forensics", "security_forensics", "execution_forensics",
+                                     "test_forensics", "economic_forensics", "dependency_forensics"}
+                if seen_task_types != required_forensics | {"candidate_purpose"}:
+                    raise SpecialistTaskError("candidate dossier evidence gate received an incomplete role set")
+                if total_accepted == 0 or purpose_evidence == 0:
+                    raise SpecialistTaskError("candidate purpose/specialist chain has no accepted pinned-source evidence")
                 summary = {
                     "repository": repository,
                     "inspection_commit_sha": inspection["commit_sha"],
+                    "inspection_tree_sha": inspection["tree_sha"],
                     "specialist_reports_checked": reports,
-                    "evidence_gate": "structural_provenance_pass_only",
+                    "accepted_evidence_total": total_accepted,
+                    "source_linked_findings_total": total_findings,
+                    "candidate_purpose_evidence_count": purpose_evidence,
+                    "evidence_gate": "pinned_evidence_and_claim_linkage_pass",
+                    "provenance_pass": True,
+                    "claim_linkage_pass": True,
                     "limitations": [
-                        "This gate checks report structure and pinned inspection provenance.",
-                        "It does not independently prove semantic correctness or exploitability.",
-                        "The independent reviewer remains a separate mandatory task.",
+                        "The gate verifies exact source-signal IDs, report-task identity and pinned commit/tree provenance.",
+                        "It does not prove exploitability, economic feasibility or runtime behavior.",
+                        "Independent review must still challenge all material claims.",
                     ],
                 }
                 path = artifact_root / mission_id / "evidence-validation" / (
@@ -366,6 +404,7 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                 store.complete_task(mission_id, task["task_id"], worker_id, {
                     "report": str(path),
                     "specialist_reports_checked": len(reports),
+                    "accepted_evidence_total": total_accepted,
                     "evidence_gate": summary["evidence_gate"],
                 })
                 completed.append({"repository": repository, "report": str(path)})
@@ -378,7 +417,6 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
         return {"claimed": len(claims), "completed": completed, "failures": failures}
     finally:
         store.close()
-
 def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Path,
                          limit: int = 4) -> dict[str, Any]:
     timeout_seconds = int(os.getenv("FLR_MODEL_TIMEOUT_SECONDS", "120"))
