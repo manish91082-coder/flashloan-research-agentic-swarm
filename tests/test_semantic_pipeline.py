@@ -172,7 +172,7 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             ):
                 result = executor.run_local_semantic_agents(mission_id)
 
-            self.assertEqual(result["status"], "executed_with_evidence_gate")
+            self.assertEqual(result["status"], "executed_with_evidence_gate", json.dumps(result, indent=2, default=str))
             self.assertTrue(result["evidence_validation"]["completed"])
             self.assertEqual(len(FakeLocalProvider.calls), 8)
             self.assertEqual(FakeLocalProvider.reviewer_prior_count, 7)
