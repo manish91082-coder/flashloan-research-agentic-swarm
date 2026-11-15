@@ -15,11 +15,18 @@ from flashloan_research.model_provider import (
 class Handler(BaseHTTPRequestHandler):
     body = None
     response_content = '{"purpose":"liquidation bot","confidence":"low"}'
+    finish_reason = "stop"
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", "0"))
         Handler.body = json.loads(self.rfile.read(length))
-        payload = {"choices": [{"message": {"content": Handler.response_content}}]}
+        payload = {
+            "choices": [{
+                "message": {"content": Handler.response_content},
+                "finish_reason": Handler.finish_reason,
+            }],
+            "usage": {"completion_tokens": 12},
+        }
         raw = json.dumps(payload).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -203,6 +210,33 @@ class LocalModelProviderTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ModelProviderError, "reviewer-only output fields"):
             provider.generate_json("Review.", {"repository": "org/repo"}, required)
+    def test_accepts_fenced_json_model_content(self):
+        Handler.response_content = ' ```json\\n{"purpose":"liquidation bot","confidence":"low"}\\n``` '
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        result = provider.generate_json(
+            "Classify.", {"repo": "org/repo"}, {"purpose", "confidence"},
+        )
+        self.assertEqual(result["purpose"], "liquidation bot")
+
+    def test_accepts_preparsed_json_content_object(self):
+        Handler.response_content = {"purpose": "liquidation bot", "confidence": "low"}
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        result = provider.generate_json(
+            "Classify.", {"repo": "org/repo"}, {"purpose", "confidence"},
+        )
+        self.assertEqual(result["confidence"], "low")
+
+    def test_malformed_json_error_includes_finish_reason_and_content_preview(self):
+        Handler.response_content = '{"purpose":'
+        Handler.finish_reason = "length"
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        with self.assertRaisesRegex(ModelProviderError, "finish_reason.*length") as caught:
+            provider.generate_json(
+                "Classify.", {"repo": "org/repo"}, {"purpose", "confidence"},
+            )
+        self.assertIn("content_preview", str(caught.exception))
+        self.assertIn("content_chars", str(caught.exception))
+
     def test_rejects_non_loopback_model_hosts(self):
         with patch(
             "flashloan_research.model_provider.socket.getaddrinfo",
