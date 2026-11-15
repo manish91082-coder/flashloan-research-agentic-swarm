@@ -4,7 +4,7 @@
   "canonical_manifest": "research_runs/audit-batches/43600488013/manifest.json",
   "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
   "discovery_run_id": "43600488013",
-  "resume_from_workflow_run_id": 43607072905,
+  "resume_from_workflow_run_id": 43630157644,
   "candidate_count": 7901,
   "batch_size": 12,
   "parallel_read_only_inspections": 2,
@@ -16,5 +16,17 @@
     "live_trading": false,
     "paid_services": false
   },
-  "goal": "Capture immutable commit/tree-pinned source evidence for the entire discovered public repository queue, then continue into semantic specialist analysis, evidence validation, independent review and candidate dossiers."
+  "goal": "Resume the existing source-capture worker from immutable successful checkpoint 43630157644 / artifact 14127627316; continue 12 candidates at a time, 2 read-only inspections in parallel, verify SQLite and source blob pins, upload the successor checkpoint, and self-dispatch using the exact successor artifact ID.",
+  "resume_from_artifact_id": 14127627316,
+  "queue_checkpoint": {
+    "total": 7901,
+    "captured": 920,
+    "pending": 6971,
+    "leased": 0,
+    "failed": 10,
+    "captured_complete_within_scope": 673,
+    "captured_with_coverage_limits": 247
+  },
+  "download_strategy": "pinned_artifact_id_with_bounded_retry_after_x_ratelimit_reset_and_5xx_backoff",
+  "updated_at_utc": "2026-11-15T10:50:00+05:30"
 }
