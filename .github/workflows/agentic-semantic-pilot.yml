@@ -21,15 +21,18 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      FLR_DATABASE: data/agentic-mission-pilot-20261115-r2.sqlite3
+      FLR_DATABASE: data/agentic-mission-pilot-20261115-r3.sqlite3
       FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
-      FLR_ARTIFACT_ROOT: research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r2
-      FLR_MISSION_ID: flashloan-agent-form-pilot-20261115-r2
+      FLR_ARTIFACT_ROOT: research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r3
+      FLR_MISSION_ID: flashloan-agent-form-pilot-20261115-r3
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
-      FLR_MODEL_NAME: qwen2.5:3b
-      FLR_MODEL_TIMEOUT_SECONDS: '1200'
-      FLR_MODEL_MAX_FILES: '4'
-      FLR_MODEL_MAX_CONTEXT_CHARS: '10000'
+      FLR_MODEL_NAME: qwen2.5:1.5b
+      FLR_MODEL_TIMEOUT_SECONDS: '900'
+      FLR_MODEL_MAX_FILES: '3'
+      FLR_MODEL_MAX_CONTEXT_CHARS: '6000'
+      FLR_MODEL_CONTEXT_LINES: '12'
+      FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS: '9000'
+      FLR_MODEL_MAX_OUTPUT_TOKENS: '1200'
       PYTHONUNBUFFERED: '1'
     steps:
       - name: Checkout canonical research project
@@ -151,7 +154,7 @@ jobs:
           print(json.dumps(result, indent=2, sort_keys=True))
 
           if result.get("status") != "executed_with_evidence_gate":
-              raise SystemExit("Agent Form semantic pipeline did not complete its required stages.")
+              raise SystemExit("Agent Form semantic pipeline did not complete its required stages. See blocked stage and task ledger; no candidate may be counted as audited.")
           failures = [
               item for batch in result.get("specialist_batches", [])
               for item in batch.get("failures", [])
@@ -244,10 +247,10 @@ jobs:
         if: always() && steps.seed.outputs.should_run == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: flashloan-agent-form-semantic-pilot-20261115-r2
+          name: flashloan-agent-form-semantic-pilot-20261115-r3
           path: |
-            data/agentic-mission-pilot-20261115-r2.sqlite3
-            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r2/
+            data/agentic-mission-pilot-20261115-r3.sqlite3
+            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r3/
             reports-agentic-restore-verification.json
             reports-agent-form-bootstrap.json
             reports-agent-form-semantic-pilot.json

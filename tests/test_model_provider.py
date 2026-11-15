@@ -110,7 +110,7 @@ class LocalModelProviderTests(unittest.TestCase):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         provider.generate_json(
             "Review prior analysis.",
-            {"role": "independent_reviewer", "source_evidence_catalog": []},
+            {"role": "independent_reviewer", "source_evidence_catalog": [{"evidence_id": "EV00001"}]},
             required,
         )
         properties = Handler.body["response_format"]["json_schema"]["schema"]["properties"]
@@ -118,6 +118,82 @@ class LocalModelProviderTests(unittest.TestCase):
             properties["review_decision"]["enum"],
             ["accept", "accept_with_reservations", "reject", "inconclusive"],
         )
+
+    def test_evidence_schema_items_are_enum_limited_to_current_pinned_catalog(self):
+        Handler.response_content = json.dumps({
+            "summary": "Purpose observed in pinned source.",
+            "purpose": "flash loan liquidation prototype",
+            "implementation_status": "partial",
+            "findings": [{
+                "finding_id": "F-1",
+                "claim": "A callback function is declared.",
+                "category": "protocol_flow",
+                "severity": "informational",
+                "claim_status": "source_observed",
+                "confidence": "low",
+                "evidence_refs": ["EV00002"],
+            }],
+            "evidence": ["EV00002"],
+            "unknowns": ["Runtime behavior not tested."],
+            "confidence": "low",
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "implementation_status", "findings",
+            "evidence", "unknowns", "confidence",
+        }
+        catalog = [
+            {"evidence_id": "EV00001", "path": "A.sol", "line": 3},
+            {"evidence_id": "EV00002", "path": "B.sol", "line": 9},
+        ]
+        provider.generate_json(
+            "Return only evidence IDs.", {"role": "candidate_purpose",
+                                           "source_evidence_catalog": catalog}, required,
+        )
+        schema = Handler.body["response_format"]["json_schema"]["schema"]
+        self.assertEqual(schema["properties"]["evidence"]["items"]["enum"], ["EV00001", "EV00002"])
+        self.assertEqual(
+            schema["properties"]["findings"]["items"]["properties"]["evidence_refs"]["items"]["enum"],
+            ["EV00001", "EV00002"],
+        )
+        self.assertEqual(Handler.body["max_tokens"], 1200)
+
+    def test_empty_catalog_forces_empty_evidence_and_findings(self):
+        Handler.response_content = json.dumps({
+            "summary": "No source evidence supplied.",
+            "purpose": "unknown",
+            "implementation_status": "unknown",
+            "findings": [],
+            "evidence": [],
+            "unknowns": ["No source evidence catalog exists."],
+            "confidence": "low",
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "implementation_status", "findings",
+            "evidence", "unknowns", "confidence",
+        }
+        provider.generate_json(
+            "Return unknown when there is no evidence.",
+            {"role": "candidate_purpose", "source_evidence_catalog": []},
+            required,
+        )
+        schema = Handler.body["response_format"]["json_schema"]["schema"]
+        self.assertEqual(schema["properties"]["evidence"]["maxItems"], 0)
+        self.assertEqual(schema["properties"]["findings"]["maxItems"], 0)
+
+    def test_duplicate_or_malformed_catalog_evidence_ids_are_rejected(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
+        with self.assertRaisesRegex(ModelProviderError, "unique stable EV evidence IDs"):
+            provider.generate_json(
+                "Classify.",
+                {"role": "candidate_purpose", "source_evidence_catalog": [
+                    {"evidence_id": "EV00001"}, {"evidence_id": "EV00001"}
+                ]},
+                required,
+            )
+        self.assertIsNone(Handler.body)
 
     def test_reviewer_only_schema_requires_independent_reviewer_role(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")

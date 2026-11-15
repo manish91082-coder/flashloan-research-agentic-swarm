@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
+import re
 import socket
 import urllib.error
 import urllib.parse
@@ -84,8 +86,9 @@ _FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
 }
 
 
-def _output_schema(required_keys: set[str], role: str | None = None) -> dict[str, Any]:
-    """Build the exact role-aware schema; only reviewers receive reviewer-only fields."""
+def _output_schema(required_keys: set[str], role: str | None = None,
+                   evidence_ids: list[str] | None = None) -> dict[str, Any]:
+    """Build a role-aware schema with evidence references constrained to the current pinned catalog."""
     unknown = sorted(required_keys - set(_FIELD_SCHEMAS))
     if unknown:
         raise ModelProviderError(f"no output schema is defined for required keys: {unknown}")
@@ -95,11 +98,26 @@ def _output_schema(required_keys: set[str], role: str | None = None) -> dict[str
     if role == "independent_reviewer" and not reviewer_fields.issubset(required_keys):
         raise ModelProviderError("independent reviewer schema must include both reviewer-only output fields")
     keys = sorted(required_keys)
-    properties = {key: dict(_FIELD_SCHEMAS[key]) for key in keys}
+    properties = {key: copy.deepcopy(_FIELD_SCHEMAS[key]) for key in keys}
     if role == "independent_reviewer":
         properties["review_decision"]["enum"] = [
             "accept", "accept_with_reservations", "reject", "inconclusive"
         ]
+    if "evidence" in properties:
+        ids = evidence_ids or []
+        if len(ids) != len(set(ids)) or any(
+            not isinstance(item, str) or re.fullmatch(r"EV[0-9]{5}", item) is None
+            for item in ids
+        ):
+            raise ModelProviderError("source_evidence_catalog must contain unique stable EV evidence IDs")
+        if ids:
+            properties["evidence"]["items"]["enum"] = list(ids)
+            if "findings" in properties:
+                properties["findings"]["items"]["properties"]["evidence_refs"]["items"]["enum"] = list(ids)
+        else:
+            properties["evidence"]["maxItems"] = 0
+            if "findings" in properties:
+                properties["findings"]["maxItems"] = 0
     return {
         "type": "object",
         "properties": properties,
@@ -151,13 +169,24 @@ class LocalOpenAICompatibleProvider:
             raise ModelProviderError("system_prompt cannot be empty")
         if not isinstance(user_payload, dict):
             raise ModelProviderError("user_payload must be a JSON object")
-        schema = _output_schema(required_keys, role=user_payload.get("role"))
+        catalog = user_payload.get("source_evidence_catalog", [])
+        if not isinstance(catalog, list):
+            raise ModelProviderError("source_evidence_catalog must be an array")
+        evidence_ids = []
+        for item in catalog:
+            if not isinstance(item, dict) or not isinstance(item.get("evidence_id"), str):
+                raise ModelProviderError("source_evidence_catalog entries must include evidence_id strings")
+            evidence_ids.append(item["evidence_id"])
+        schema = _output_schema(
+            required_keys, role=user_payload.get("role"), evidence_ids=evidence_ids,
+        )
         contract = (
             "\n\nOUTPUT CONTRACT (mandatory): Return exactly one JSON object and no Markdown. "
             "Include every required key, use the declared types and enum values, and do not add "
             "extra top-level keys. The evidence array must contain only IDs copied from the supplied "
-            "source_evidence_catalog. Each finding must contain at least one evidence_refs ID from "
-            "that same selected evidence array. Never invent IDs, paths, line numbers, quotations, "
+            "source_evidence_catalog. The JSON Schema enum restricts evidence and evidence_refs "
+            "to IDs from this candidate's pinned catalog. Each finding must contain at least one "
+            "evidence_refs ID from that same selected evidence array. Never invent IDs, paths, line numbers, quotations, "
             "claims or vulnerabilities. If evidence does not support a finding, return findings=[]; "
             "set implementation_status=unknown and confidence=low when the repository purpose or "
             "implementation cannot be established. For every non-reviewer role set review_decision="
@@ -172,6 +201,7 @@ class LocalOpenAICompatibleProvider:
         body = {
             "model": self.model,
             "temperature": 0,
+            "max_tokens": int(os.getenv("FLR_MODEL_MAX_OUTPUT_TOKENS", "1200")),
             "response_format": {
                 "type": "json_schema",
                 "json_schema": {

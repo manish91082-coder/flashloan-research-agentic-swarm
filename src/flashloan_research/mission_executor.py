@@ -349,49 +349,109 @@ class MissionExecutor:
                 "evidence_validation": None,
                 "independent_review": None,
             }
+        from .mission_runtime import MissionTaskStore
         from .specialist_runner import run_evidence_validation_batch, run_specialist_batch
 
         specialist_batches = []
-        # Process one CPU inference at a time. Retryable timeouts return the task
-        # to pending; the durable max_attempts counter bounds retries.
         while True:
             result = run_specialist_batch(
-                mission_id, self.database_path, self.artifact_root,
-                limit=1,
+                mission_id, self.database_path, self.artifact_root, limit=1,
             )
             specialist_batches.append(result)
             if result["claimed_tasks"] == 0:
                 break
 
+        specialist_failures = [
+            item for batch in specialist_batches for item in batch.get("failures", [])
+        ]
+        store = MissionTaskStore(self.database_path)
+        try:
+            task_rows = store.list_tasks(mission_id)
+        finally:
+            store.close()
+        specialist_task_types = {
+            "candidate_purpose", "protocol_forensics", "security_forensics",
+            "execution_forensics", "test_forensics", "economic_forensics",
+            "dependency_forensics",
+        }
+        required_specialists = [
+            item for item in task_rows if item["task_type"] in specialist_task_types
+        ]
+        unresolved_specialists = [
+            {"task_id": item["task_id"], "task_type": item["task_type"],
+             "repository": item["payload"].get("repository"), "status": item["status"]}
+            for item in required_specialists if item["status"] != "completed"
+        ]
+        if specialist_failures or unresolved_specialists:
+            return {
+                "status": "blocked_specialist_failures",
+                "specialist_batches": specialist_batches,
+                "specialist_failures": specialist_failures,
+                "unresolved_specialist_tasks": unresolved_specialists,
+                "evidence_validation": {"status": "not_run_due_to_incomplete_specialists",
+                                        "claimed": 0, "completed": [], "failures": []},
+                "independent_review": {"status": "not_started_due_to_incomplete_specialists",
+                                        "completed": [], "failures": [], "claimed_tasks": 0},
+            }
+
+        expected_candidates = len({
+            item["payload"].get("repository") for item in task_rows
+            if item["task_type"] == "candidate_purpose"
+        })
         evidence = run_evidence_validation_batch(
             mission_id, self.database_path, self.artifact_root,
         )
+        evidence_completed = evidence.get("completed", [])
+        evidence_failures = evidence.get("failures", [])
+        if evidence_failures or len(evidence_completed) != expected_candidates:
+            return {
+                "status": "blocked_evidence_validation",
+                "specialist_batches": specialist_batches,
+                "specialist_failures": [],
+                "unresolved_specialist_tasks": [],
+                "evidence_validation": evidence,
+                "independent_review": {"status": "not_started_due_to_evidence_gate",
+                                        "completed": [], "failures": [], "claimed_tasks": 0},
+            }
+
         reviewer_batches = []
         while True:
             result = run_specialist_batch(
-                mission_id, self.database_path, self.artifact_root,
-                limit=1,
+                mission_id, self.database_path, self.artifact_root, limit=1,
             )
             reviewer_batches.append(result)
             if result["claimed_tasks"] == 0:
                 break
+        reviewer_completed = [
+            item for batch in reviewer_batches for item in batch.get("completed", [])
+        ]
+        reviewer_failures = [
+            item for batch in reviewer_batches for item in batch.get("failures", [])
+        ]
+        reviewer_result = {
+            "mission_id": mission_id,
+            "batches": reviewer_batches,
+            "completed": reviewer_completed,
+            "failures": reviewer_failures,
+            "claimed_tasks": sum(batch.get("claimed_tasks", 0) for batch in reviewer_batches),
+        }
+        if reviewer_failures or len(reviewer_completed) != expected_candidates:
+            return {
+                "status": "blocked_independent_review",
+                "specialist_batches": specialist_batches,
+                "specialist_failures": [],
+                "unresolved_specialist_tasks": [],
+                "evidence_validation": evidence,
+                "independent_review": reviewer_result,
+            }
         return {
             "status": "executed_with_evidence_gate",
             "specialist_batches": specialist_batches,
+            "specialist_failures": [],
+            "unresolved_specialist_tasks": [],
             "evidence_validation": evidence,
-            "independent_review": {
-                "mission_id": mission_id,
-                "batches": reviewer_batches,
-                "completed": [
-                    item for batch in reviewer_batches for item in batch.get("completed", [])
-                ],
-                "failures": [
-                    item for batch in reviewer_batches for item in batch.get("failures", [])
-                ],
-                "claimed_tasks": sum(batch.get("claimed_tasks", 0) for batch in reviewer_batches),
-            },
+            "independent_review": reviewer_result,
         }
-
     def finalize(self, mission_id: str) -> dict[str, Any]:
         store = MissionTaskStore(self.database_path)
         try:
