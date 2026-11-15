@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run an isolated Agent Form r4 source-grounded quality pilot. Keep the r3 candidate-specific pinned evidence enum and fail-closed DAG stages. Use qwen2.5:3b because the 1.5B model returned malformed JSON for both candidates; add bounded malformed-output diagnostics and one retry for truncation/JSON generation failures. Fresh task database and artifact root; preserve the immutable seed.",
+  "purpose": "Run an isolated, one-candidate source-grounded Agent Form acceptance pilot. JSON Schema constrains evidence and finding references to the exact EV identifiers in the commit-pinned catalog. Model context is reduced to two verified source files / 3,500 characters and model output is capped at 700 tokens. This pilot validates purpose, six specialist roles, the positive source-linked evidence gate and independent review before any two-candidate/global scaling.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "queue_checkpoint": {
@@ -10,24 +10,24 @@
     "leased": 0,
     "failed": 2
   },
-  "batch_limit": 2,
+  "batch_limit": 1,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
   "acceptance": [
-    "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814",
-    "bootstrap a fresh mission database and unique r4 mission ID, with no reuse of r1 or r2 failed task state",
-    "complete both candidate-purpose tasks and twelve distinct specialist tasks across two candidates",
-    "the JSON Schema evidence.items enum must contain only evidence IDs from that candidate's commit-pinned source_evidence_catalog",
-    "the JSON Schema findings[].evidence_refs.items enum must contain only IDs from the same candidate catalog",
-    "when the candidate catalog is empty, schema must force evidence=[] and findings=[]",
-    "every finding must cite at least one selected ID; source paths, numbered code lines and free-text excerpts are not evidence IDs",
-    "complete both positive evidence gates with valid source-commit provenance and task/report provenance",
-    "complete two independent reviewers with explicit decisions and retained disagreements",
-    "verify all task IDs, task types, roles, report files, commit pins, source blob provenance and reviewer decisions",
-    "executor must return a blocked stage status, and skip downstream gates, whenever an upstream specialist/evidence/reviewer stage fails or remains incomplete",
-    "inspect the complete run artifact before accepting any semantic result; do not increment semantic audit count or start global semantic scaling from this pilot",
-    "record finish_reason, content type/length, completion token count and bounded content preview when model JSON is malformed",
-    "retry timeout/truncated/malformed JSON using existing max_attempts budget; never bypass schema validation"
+    "restore and verify immutable source-capture checkpoint 43615137961 / artifact 14121666814",
+    "bootstrap a fresh SQLite mission database and unique r3 mission ID; do not reuse r1/r2 task states",
+    "run exactly one highest-priority candidate: 0xnavarro/Aave-Liquiditor",
+    "complete one candidate-purpose output and six distinct source-grounded specialist reports",
+    "the evidence JSON Schema enum must exactly match evidence IDs from that candidate's pinned source inspection",
+    "finding evidence_refs must be enum-constrained to the same pinned catalog IDs",
+    "no model output may place raw source excerpts, line-numbered text or paths in the evidence array",
+    "complete one positive candidate-purpose and specialist evidence gate with task/report/commit/tree provenance",
+    "complete one adversarial independent review with an explicit review decision and disagreements/reservations",
+    "retain intermediate retry attempts but accept only terminal task failures as failures if a bounded retry later succeeds",
+    "verify all 8 semantic tasks are complete, with exactly 7 distinct prior purpose/specialist reports available to the reviewer",
+    "inspect full artifact, model manifest, retry log, task ledger and every specialist/reviewer report before accepting the candidate",
+    "do not increment the semantic audit count from task completion alone",
+    "do not start two-candidate or global semantic scaling from this pilot"
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -39,18 +39,17 @@
     "cloud_inference": false
   },
   "triggered_after_commit": "84dc4e423d5884cb170500aec3961e22345d749f",
-  "updated_at_utc": "2026-11-15T07:15:00Z",
+  "updated_at_utc": "2026-11-15T13:10:00+05:30",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r4-qwen3b-dynamic-evidence-enum-diagnostic-json-parser",
-  "mission_id": "flashloan-agent-form-pilot-20261115-r4",
+  "trigger_revision": "r3-dynamic-evidence-enum-lean-one-candidate",
+  "mission_id": "flashloan-agent-form-pilot-20261115-r3",
   "model_runtime": "Ollama loopback-only local CPU inference on GitHub-hosted runner",
-  "model_timeout_seconds": 1200,
+  "model_timeout_seconds": 900,
   "context_limits": {
-    "max_files": 3,
-    "max_chars": 6000,
-    "context_lines": 12,
-    "max_reviewer_chars": 9000
+    "max_files": 2,
+    "max_chars": 3500,
+    "max_tokens": 700
   },
-  "output_contract_version": "4.0.0-model-output-diagnostics",
+  "output_contract_version": "3.0.0-evidence-id-enum",
   "model_max_output_tokens": 1200
 }
