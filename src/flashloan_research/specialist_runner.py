@@ -311,6 +311,39 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
         raise SpecialistTaskError("independent review context contains duplicate specialist task types")
     return reports
 
+def _validate_report_evidence_provenance(report: dict[str, Any], inspection: dict[str, Any]) -> None:
+    """Independently resolve every report evidence item and finding reference to pinned source signals."""
+    catalog = {item["evidence_id"]: item for item in _evidence_catalog(inspection)}
+    evidence = report.get("evidence")
+    if not isinstance(evidence, list):
+        raise SpecialistTaskError("report evidence must be an array")
+    selected: set[str] = set()
+    for item in evidence:
+        if not isinstance(item, dict):
+            raise SpecialistTaskError("accepted evidence entry must be a resolved object")
+        evidence_id = item.get("evidence_id")
+        source = catalog.get(evidence_id)
+        if source is None or evidence_id in selected:
+            raise SpecialistTaskError("report contains unknown or duplicate pinned evidence ID")
+        selected.add(evidence_id)
+        expected_excerpt_hash = hashlib.sha256(source["excerpt"].encode("utf-8")).hexdigest()
+        if (
+            item.get("path") != source["path"]
+            or item.get("line") != source["line"]
+            or item.get("signal") != source["signal"]
+            or item.get("excerpt") != source["excerpt"]
+            or item.get("commit_sha") != inspection.get("commit_sha")
+            or item.get("tree_sha") != inspection.get("tree_sha")
+            or item.get("excerpt_sha256") != expected_excerpt_hash
+            or item.get("evidence_status") != "exact_signal_id_resolved_to_pinned_inspection_source"
+        ):
+            raise SpecialistTaskError("report evidence does not match exact pinned source signal metadata")
+    for finding in report.get("findings", []):
+        refs = finding.get("evidence_refs", [])
+        if not refs or any(ref not in selected for ref in refs):
+            raise SpecialistTaskError("finding references evidence absent from its accepted evidence array")
+
+
 def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None:
     """Reject structurally valid but semantically misclassified or overconfident reports."""
     if report.get("purpose_category") not in ALLOWED_PURPOSE_CATEGORIES:
@@ -488,6 +521,7 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                     if report.get("agent_metadata", {}).get("role") != item["role"]:
                         raise SpecialistTaskError("specialist report role provenance mismatch")
                     _validate_semantic_quality_fields(report, item["role"])
+                    _validate_report_evidence_provenance(report, inspection)
                     purpose_categories.add(report["purpose_category"])
                     validation = report.get("evidence_validation", {})
                     if validation.get("inspection_commit_sha") != inspection["commit_sha"]:
