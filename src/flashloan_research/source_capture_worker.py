@@ -507,13 +507,29 @@ class SourceCaptureWorker:
         claimed = queue.claim_ready(run_id, worker_id, max_candidates, lease_seconds=3600)
         completed: list[dict[str, Any]] = []
         if claimed:
-            with ThreadPoolExecutor(max_workers=min(parallel, len(claimed))) as pool:
+            active_workers = min(parallel, len(claimed))
+            print(json.dumps({
+                "event": "source_capture_batch_started",
+                "run_id": run_id,
+                "claimed": len(claimed),
+                "parallel_workers": active_workers,
+                "repositories": [item["repository"] for item in claimed],
+            }, sort_keys=True), flush=True)
+            with ThreadPoolExecutor(max_workers=active_workers) as pool:
                 futures = [
                     pool.submit(self._capture_one, item, run_id, worker_id, queue)
                     for item in claimed
                 ]
                 for future in as_completed(futures):
-                    completed.append(future.result())
+                    result = future.result()
+                    completed.append(result)
+                    print(json.dumps({
+                        "event": "source_capture_candidate_finished",
+                        "run_id": run_id,
+                        **result,
+                        "completed_in_batch": len(completed),
+                        "claimed_in_batch": len(claimed),
+                    }, ensure_ascii=False, sort_keys=True), flush=True)
         return {
             "attempted_this_cycle": len(claimed),
             "results": sorted(completed, key=lambda x: x["repository"]),
