@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, validate_specialist_output, _evidence_catalog,
-    _verified_source_context, _prior_specialist_reports,
+    _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -101,6 +101,18 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(SpecialistTaskError, "1..4 narrowly relevant IDs"):
             validate_specialist_output(output, inspection, "candidate_purpose")
+
+    def test_report_evidence_provenance_rechecks_exact_signal_and_commit_tree_pins(self):
+        report = validate_specialist_output(sample_output(), self.inspection, "protocol_specialist")
+        _validate_report_evidence_provenance(report, self.inspection)
+        tampered = json.loads(json.dumps(report))
+        tampered["evidence"][0]["excerpt"] = "invented excerpt"
+        with self.assertRaisesRegex(SpecialistTaskError, "exact pinned source signal metadata"):
+            _validate_report_evidence_provenance(tampered, self.inspection)
+        wrong_pin = json.loads(json.dumps(report))
+        wrong_pin["evidence"][0]["commit_sha"] = "c" * 40
+        with self.assertRaisesRegex(SpecialistTaskError, "exact pinned source signal metadata"):
+            _validate_report_evidence_provenance(wrong_pin, self.inspection)
 
     def test_evidence_catalog_has_stable_ids_and_exact_source_coordinates(self):
         catalog = _evidence_catalog(self.inspection)
