@@ -36,6 +36,36 @@ def safe_child(root: Path, relative: str) -> Path:
     return candidate
 
 
+def validate_report_invariants(report: dict, repository: str) -> None:
+    """Validate safety and disclose incomplete tree recovery without discarding valid coverage-debt reports."""
+    if report.get("candidate_code_executed") is not False:
+        raise ValueError(f"candidate-code execution safety invariant failed: {repository}")
+    recursive_truncated = report.get("recursive_tree_truncated")
+    recovery_attempted = report.get("tree_recovery_attempted")
+    recovery_complete = report.get("tree_recovery_complete")
+    scope_complete = report.get("source_capture_complete_within_configured_scope")
+    if not all(isinstance(value, bool) for value in (
+        recursive_truncated, recovery_attempted, recovery_complete, scope_complete
+    )):
+        raise ValueError(f"tree/source coverage state is missing or not boolean: {repository}")
+    if recursive_truncated and not recovery_attempted:
+        raise ValueError(f"truncated recursive tree has no recovery attempt record: {repository}")
+    if not recursive_truncated and recovery_attempted:
+        raise ValueError(f"tree recovery was marked attempted without recursive truncation: {repository}")
+    if recovery_complete:
+        return
+    if not recursive_truncated or not recovery_attempted:
+        raise ValueError(f"incomplete tree recovery state is contradictory: {repository}")
+    if scope_complete:
+        raise ValueError(f"incomplete tree recovery cannot claim complete configured scope: {repository}")
+    limitations = report.get("limitations")
+    if not isinstance(limitations, list) or not any(
+        isinstance(item, str) and "truncated recursive tree" in item.lower()
+        and "recovery did not complete" in item.lower()
+        for item in limitations
+    ):
+        raise ValueError(f"incomplete tree recovery is not disclosed in report limitations: {repository}")
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate and restore a source-capture checkpoint artifact.")
     parser.add_argument("--artifact-root", required=True, type=Path)
@@ -102,8 +132,10 @@ def main() -> None:
                 or report.get("commit_sha") != row["commit_sha"]
                 or report.get("tree_sha") != row["tree_sha"]):
             raise SystemExit(f"Commit/tree/report identity mismatch: {row['repository']}")
-        if report.get("candidate_code_executed") is not False or report.get("tree_recovery_complete") is not True:
-            raise SystemExit(f"Safety or tree-recovery invariant failed: {row['repository']}")
+        try:
+            validate_report_invariants(report, row["repository"])
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
         for item in report.get("captured_files", []):
             blob_sha = item.get("blob_sha")
             relative = item.get("vault_relative_path")
@@ -140,6 +172,10 @@ def main() -> None:
         "total": TOTAL_CANDIDATES,
         "queue": {key: counts.get(key, 0) for key in ("pending", "leased", "captured", "failed")},
         "reports_verified": checked_reports,
+        "coverage_limited_tree_recovery_reports": sum(
+            1 for report_path in source_reports.glob("*.json")
+            if json.loads(report_path.read_text(encoding="utf-8")).get("tree_recovery_complete") is False
+        ),
         "git_blob_references_verified": checked_blob_references,
         "unique_git_blobs_verified": len(checked_unique_blobs),
         "candidate_code_executed": False,
