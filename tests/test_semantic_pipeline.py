@@ -38,7 +38,11 @@ class FakeLocalProvider:
         else:
             decision = "not_applicable"
             disagreements = []
-        return {
+        if role == "independent_reviewer":
+            assert {"review_decision", "review_disagreements"}.issubset(required_keys)
+        else:
+            assert not ({"review_decision", "review_disagreements"} & required_keys)
+        result = {
             "summary": "Fixture analysis; all material claims are linked to a pinned source signal.",
             "purpose": "flash-loan liquidation research implementation",
             "implementation_status": "partial",
@@ -57,6 +61,7 @@ class FakeLocalProvider:
             "review_decision": decision,
             "review_disagreements": disagreements,
         }
+        return {key: result[key] for key in required_keys}
 
     @staticmethod
     def assert_context(user_payload, system_prompt):
