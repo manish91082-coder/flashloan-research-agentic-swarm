@@ -175,6 +175,16 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertEqual(schema["properties"]["findings"]["items"]["properties"]["evidence_refs"]["maxItems"], 4)
 
     def test_role_specific_schema_prevents_cross_domain_findings(self):
+        Handler.response_content = json.dumps({
+            "summary": "Role-specific schema fixture.",
+            "purpose": "Flash-loan liquidation research.",
+            "purpose_category": "flash_loan_liquidation_bot",
+            "implementation_status": "partial",
+            "findings": [],
+            "evidence": ["EV00001"],
+            "unknowns": ["Runtime behavior is not tested."],
+            "confidence": "medium",
+        })
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
             "summary", "purpose", "purpose_category", "implementation_status",
