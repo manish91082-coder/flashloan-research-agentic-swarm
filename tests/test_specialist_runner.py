@@ -90,7 +90,12 @@ class DuplicateClaimRetryTests(unittest.TestCase):
         inspection = sample_inspection()
         inspection["repository"] = "0xnavarro/Aave-Liquiditor"
         inspection["captured_files"] = [{"path": "src/contracts/FlashLiquidator.sol"}]
-        inspection["signals"] = [{"signal": "aave_flash_loan_simple"}]
+        inspection["signals"] = [{
+            "path": "src/contracts/FlashLiquidator.sol",
+            "line": 131,
+            "signal": "aave_flash_loan_simple",
+            "excerpt": "pool.flashLoanSimple(asset, amount, params, 0)",
+        }]
         self.assertEqual(
             _source_supported_purpose_category(inspection), "flash_loan_liquidation_bot"
         )
