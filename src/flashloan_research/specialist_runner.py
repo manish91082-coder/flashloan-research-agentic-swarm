@@ -213,7 +213,8 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
     return reports
 
 
-def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any]) -> dict[str, Any]:
+def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any],
+                               role: str) -> dict[str, Any]:
     missing = REQUIRED_KEYS - set(output)
     if missing:
         raise SpecialistTaskError(f"specialist output missing keys: {sorted(missing)}")
@@ -221,48 +222,85 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
         raise SpecialistTaskError("invalid implementation_status")
     if output["confidence"] not in ALLOWED_CONFIDENCE:
         raise SpecialistTaskError("invalid confidence")
-    if not isinstance(output["findings"], list) or not isinstance(output["evidence"], list) or not isinstance(output["unknowns"], list):
-        raise SpecialistTaskError("findings, evidence and unknowns must be arrays")
-    valid_signals = {
-        (signal.get("path"), signal.get("line"), signal.get("signal"), signal.get("excerpt"))
-        for signal in inspection.get("signals", [])
-    }
-    accepted = []
-    rejected = []
-    for item in output["evidence"]:
-        if not isinstance(item, dict):
-            rejected.append({"item": item, "reason": "not_object"})
-            continue
-        key = (item.get("path"), item.get("line"), item.get("signal"), item.get("excerpt"))
-        if key in valid_signals:
-            excerpt = str(item.get("excerpt", ""))
-            accepted.append({
-                **item,
-                "commit_sha": inspection["commit_sha"],
-                "tree_sha": inspection["tree_sha"],
-                "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest(),
-                "evidence_status": "matched_to_pinned_inspection_signal_not_full_claim_verification",
-            })
-        else:
-            rejected.append({"item": item, "reason": "not_present_in_pinned_inspection_signals"})
+    for field in ("findings", "evidence", "unknowns", "review_disagreements"):
+        if not isinstance(output[field], list):
+            raise SpecialistTaskError(f"{field} must be an array")
+    if role == "independent_reviewer":
+        if output["review_decision"] == "not_applicable":
+            raise SpecialistTaskError("independent reviewer must return an explicit review_decision")
+    elif output["review_decision"] != "not_applicable" or output["review_disagreements"]:
+        raise SpecialistTaskError("non-reviewer role returned reviewer-only fields")
+
+    catalog = _evidence_catalog(inspection)
+    catalog_by_id = {item["evidence_id"]: item for item in catalog}
+    selected_ids: list[str] = []
+    rejected: list[dict[str, Any]] = []
+    for evidence_id in output["evidence"]:
+        if not isinstance(evidence_id, str):
+            rejected.append({"item": evidence_id, "reason": "evidence_id_must_be_string"})
+        elif evidence_id not in catalog_by_id:
+            rejected.append({"item": evidence_id, "reason": "not_present_in_pinned_evidence_catalog"})
+        elif evidence_id not in selected_ids:
+            selected_ids.append(evidence_id)
+    accepted = [
+        {
+            **catalog_by_id[evidence_id],
+            "commit_sha": inspection["commit_sha"],
+            "tree_sha": inspection["tree_sha"],
+            "excerpt_sha256": hashlib.sha256(catalog_by_id[evidence_id]["excerpt"].encode("utf-8")).hexdigest(),
+            "evidence_status": "exact_signal_id_resolved_to_pinned_inspection_source",
+        }
+        for evidence_id in selected_ids
+    ]
+
+    seen_finding_ids: set[str] = set()
+    for finding in output["findings"]:
+        if not isinstance(finding, dict):
+            raise SpecialistTaskError("each finding must be an object")
+        required_finding = {"finding_id", "claim", "category", "severity", "claim_status", "confidence", "evidence_refs"}
+        if set(finding) != required_finding:
+            raise SpecialistTaskError("finding does not match the strict finding schema")
+        finding_id = finding["finding_id"]
+        if not isinstance(finding_id, str) or not finding_id or finding_id in seen_finding_ids:
+            raise SpecialistTaskError("finding_id must be unique and non-empty")
+        seen_finding_ids.add(finding_id)
+        if not isinstance(finding["claim"], str) or not finding["claim"].strip():
+            raise SpecialistTaskError("finding claim must be non-empty text")
+        if finding["claim_status"] not in {"source_observed", "supported_inference"}:
+            raise SpecialistTaskError("invalid finding claim_status")
+        if finding["confidence"] not in ALLOWED_CONFIDENCE:
+            raise SpecialistTaskError("invalid finding confidence")
+        refs = finding["evidence_refs"]
+        if not isinstance(refs, list) or not refs:
+            raise SpecialistTaskError(f"finding {finding_id} has no evidence_refs")
+        if any(not isinstance(ref, str) or ref not in selected_ids for ref in refs):
+            raise SpecialistTaskError(f"finding {finding_id} cites evidence not selected from the pinned catalog")
+
+    if not accepted:
+        if output["findings"]:
+            raise SpecialistTaskError("model returned findings without any accepted pinned-source evidence")
+        if output["implementation_status"] != "unknown" or output["confidence"] != "low":
+            raise SpecialistTaskError("zero-evidence output must be implementation_status=unknown and confidence=low")
+    if output["confidence"] in {"medium", "high"} and not accepted:
+        raise SpecialistTaskError("medium/high confidence is forbidden without accepted pinned-source evidence")
+
     result = dict(output)
     result["evidence"] = accepted
     result["rejected_evidence"] = rejected
     result["evidence_validation"] = {
         "accepted_signal_references": len(accepted),
         "rejected_references": len(rejected),
+        "finding_count": len(output["findings"]),
+        "all_findings_linked_to_accepted_evidence": True,
         "inspection_commit_sha": inspection["commit_sha"],
         "inspection_tree_sha": inspection["tree_sha"],
         "limitations": [
-            "A matched lexical signal proves only that the excerpt exists at the pinned source location.",
-            "It does not prove the model's interpretation, vulnerability exploitability or runtime behavior.",
-            "Only captured signals are currently available to the specialist prompt; full source-aware semantic review remains a later gate.",
+            "Evidence IDs are resolved to exact source signals in the commit-pinned inspection report.",
+            "A matched signal proves excerpt provenance, not exploitability or runtime correctness.",
+            "Material claims still require full contextual review and an independent reviewer.",
         ],
     }
     return result
-
-
-
 def run_evidence_validation_batch(mission_id: str, database_path: Path,
                                  artifact_root: Path, limit: int = 12) -> dict[str, Any]:
     store = MissionTaskStore(database_path)
