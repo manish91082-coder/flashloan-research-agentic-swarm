@@ -64,7 +64,7 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIn('"purpose"', Handler.body["messages"][0]["content"])
         self.assertEqual(Handler.body["temperature"], 0)
 
-    def test_full_specialist_schema_includes_evidence_and_reviewer_contracts(self):
+    def test_full_specialist_schema_excludes_reviewer_only_fields(self):
         Handler.response_content = json.dumps({
             "summary": "Unknown until source evidence is sufficient.",
             "purpose": "unknown",
@@ -73,13 +73,11 @@ class LocalModelProviderTests(unittest.TestCase):
             "evidence": [],
             "unknowns": ["No evidence was selected."],
             "confidence": "low",
-            "review_decision": "not_applicable",
-            "review_disagreements": [],
         })
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
             "summary", "purpose", "implementation_status", "findings", "evidence",
-            "unknowns", "confidence", "review_decision", "review_disagreements",
+            "unknowns", "confidence",
         }
         result = provider.generate_json(
             "Return evidence-grounded specialist output.",
@@ -88,13 +86,47 @@ class LocalModelProviderTests(unittest.TestCase):
         )
         self.assertEqual(result["implementation_status"], "unknown")
         schema = Handler.body["response_format"]["json_schema"]["schema"]
-        self.assertIn("review_decision", schema["properties"])
-        self.assertIn("review_disagreements", schema["properties"])
+        self.assertNotIn("review_decision", schema["properties"])
+        self.assertNotIn("review_disagreements", schema["properties"])
         self.assertIn("evidence_refs", schema["properties"]["findings"]["items"]["properties"])
-        system_prompt = Handler.body["messages"][0]["content"]
-        self.assertIn("source_evidence_catalog", system_prompt)
-        self.assertIn("Never invent IDs", system_prompt)
+        self.assertIn("source_evidence_catalog", Handler.body["messages"][0]["content"])
 
+    def test_reviewer_schema_requires_explicit_review_fields_and_excludes_not_applicable(self):
+        required = {
+            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "unknowns", "confidence", "review_decision", "review_disagreements",
+        }
+        Handler.response_content = json.dumps({
+            "summary": "Independent review of prior source reports.",
+            "purpose": "liquidator",
+            "implementation_status": "partial",
+            "findings": [],
+            "evidence": ["EV00001"],
+            "unknowns": ["Runtime behavior not tested."],
+            "confidence": "low",
+            "review_decision": "accept_with_reservations",
+            "review_disagreements": ["No proof of runtime profitability."],
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        provider.generate_json(
+            "Review prior analysis.",
+            {"role": "independent_reviewer", "source_evidence_catalog": []},
+            required,
+        )
+        properties = Handler.body["response_format"]["json_schema"]["schema"]["properties"]
+        self.assertEqual(
+            properties["review_decision"]["enum"],
+            ["accept", "accept_with_reservations", "reject", "inconclusive"],
+        )
+
+    def test_reviewer_only_schema_requires_independent_reviewer_role(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "unknowns", "confidence", "review_decision", "review_disagreements",
+        }
+        with self.assertRaisesRegex(ModelProviderError, "reviewer-only output fields"):
+            provider.generate_json("Review.", {"repository": "org/repo"}, required)
     def test_rejects_non_loopback_model_hosts(self):
         with patch(
             "flashloan_research.model_provider.socket.getaddrinfo",

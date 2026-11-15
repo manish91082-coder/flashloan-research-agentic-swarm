@@ -84,19 +84,28 @@ _FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
 }
 
 
-def _output_schema(required_keys: set[str]) -> dict[str, Any]:
-    """Build the exact, bounded JSON Schema required by a specialist task."""
+def _output_schema(required_keys: set[str], role: str | None = None) -> dict[str, Any]:
+    """Build the exact role-aware schema; only reviewers receive reviewer-only fields."""
     unknown = sorted(required_keys - set(_FIELD_SCHEMAS))
     if unknown:
         raise ModelProviderError(f"no output schema is defined for required keys: {unknown}")
+    reviewer_fields = {"review_decision", "review_disagreements"}
+    if reviewer_fields & required_keys and role != "independent_reviewer":
+        raise ModelProviderError("reviewer-only output fields require the independent_reviewer role")
+    if role == "independent_reviewer" and not reviewer_fields.issubset(required_keys):
+        raise ModelProviderError("independent reviewer schema must include both reviewer-only output fields")
     keys = sorted(required_keys)
+    properties = {key: dict(_FIELD_SCHEMAS[key]) for key in keys}
+    if role == "independent_reviewer":
+        properties["review_decision"]["enum"] = [
+            "accept", "accept_with_reservations", "reject", "inconclusive"
+        ]
     return {
         "type": "object",
-        "properties": {key: _FIELD_SCHEMAS[key] for key in keys},
+        "properties": properties,
         "required": keys,
         "additionalProperties": False,
     }
-
 
 class LocalOpenAICompatibleProvider:
     """Strict local-only OpenAI-compatible chat-completions adapter.
@@ -142,7 +151,7 @@ class LocalOpenAICompatibleProvider:
             raise ModelProviderError("system_prompt cannot be empty")
         if not isinstance(user_payload, dict):
             raise ModelProviderError("user_payload must be a JSON object")
-        schema = _output_schema(required_keys)
+        schema = _output_schema(required_keys, role=user_payload.get("role"))
         contract = (
             "\n\nOUTPUT CONTRACT (mandatory): Return exactly one JSON object and no Markdown. "
             "Include every required key, use the declared types and enum values, and do not add "

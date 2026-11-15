@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run an isolated source-grounded Agent Form quality pilot with the revised evidence-ID schema, finding-to-evidence validation, distinct task-bound reports, strict zero-evidence rejection and independent review. This does not start a global semantic audit.",
+  "purpose": "Rerun the isolated source-grounded Agent Form pilot with role-conditioned output schema: specialists must emit only not_applicable reviewer fields, independent reviewers must emit one of four explicit decisions. Use a fresh SQLite DB and artifact root. Preserve the same immutable seed checkpoint.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "queue_checkpoint": {
@@ -23,7 +23,9 @@
     "complete two independent reviewers with explicit review decisions and disagreement outputs",
     "verify task IDs, task types, roles, commit pins and report paths independently",
     "inspect model manifest, task ledger, specialist reports and reviewer reports before accepting quality",
-    "do not count candidates as audited or start global semantic scaling from this pilot"
+    "do not count candidates as audited or start global semantic scaling from this pilot",
+    "non-reviewer role schema enum is exactly [not_applicable] and its review_disagreements array must have maxItems=0",
+    "reviewer schema excludes not_applicable and requires an explicit reviewer decision"
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -35,15 +37,15 @@
     "cloud_inference": false
   },
   "triggered_after_commit": "84dc4e423d5884cb170500aec3961e22345d749f",
-  "updated_at_utc": "2026-11-15T10:50:00+05:30",
+  "updated_at_utc": "2026-11-15T11:00:00+05:30",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "evidence-id-linked-claims-fresh-mission-pilot-20261115",
-  "mission_id": "flashloan-agent-form-pilot-20261115",
+  "trigger_revision": "pilot-r2-role-conditioned-json-schema-20261115",
+  "mission_id": "flashloan-agent-form-pilot-20261115-r2",
   "model_runtime": "Ollama local CPU on GitHub-hosted runner",
   "model_timeout_seconds": 1200,
   "context_limits": {
     "max_files": 4,
     "max_chars": 10000
   },
-  "output_contract_version": "2.0.0"
+  "output_contract_version": "2.1.0-role-conditioned"
 }

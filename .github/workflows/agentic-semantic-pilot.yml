@@ -21,10 +21,10 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      FLR_DATABASE: data/agentic-mission-pilot-20261115.sqlite3
+      FLR_DATABASE: data/agentic-mission-pilot-20261115-r2.sqlite3
       FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
-      FLR_ARTIFACT_ROOT: research_runs/mission-pilots/flashloan-agent-form-pilot-20261115
-      FLR_MISSION_ID: flashloan-agent-form-pilot-20261115
+      FLR_ARTIFACT_ROOT: research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r2
+      FLR_MISSION_ID: flashloan-agent-form-pilot-20261115-r2
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
       FLR_MODEL_NAME: qwen2.5:3b
       FLR_MODEL_TIMEOUT_SECONDS: '1200'
@@ -244,10 +244,10 @@ jobs:
         if: always() && steps.seed.outputs.should_run == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: flashloan-agent-form-semantic-pilot-20261115
+          name: flashloan-agent-form-semantic-pilot-20261115-r2
           path: |
-            data/agentic-mission-pilot-20261115.sqlite3
-            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115/
+            data/agentic-mission-pilot-20261115-r2.sqlite3
+            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r2/
             reports-agentic-restore-verification.json
             reports-agent-form-bootstrap.json
             reports-agent-form-semantic-pilot.json

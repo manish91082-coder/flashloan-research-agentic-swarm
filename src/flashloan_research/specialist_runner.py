@@ -60,9 +60,13 @@ ROLE_PROMPTS = {
     ),
 }
 
-REQUIRED_KEYS = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence", "review_decision", "review_disagreements"}
+REQUIRED_KEYS = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
+REVIEWER_REQUIRED_KEYS = REQUIRED_KEYS | {"review_decision", "review_disagreements"}
 ALLOWED_STATUS = {"implemented", "partial", "placeholder", "broken", "documentation_only", "unknown"}
 ALLOWED_CONFIDENCE = {"low", "medium", "high"}
+ALLOWED_REVIEW_DECISIONS = {
+    "not_applicable", "accept", "accept_with_reservations", "reject", "inconclusive"
+}
 
 
 class SpecialistTaskError(RuntimeError):
@@ -223,21 +227,25 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
     return reports
 def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any],
                                role: str) -> dict[str, Any]:
-    missing = REQUIRED_KEYS - set(output)
+    required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
+    missing = required_keys - set(output)
     if missing:
         raise SpecialistTaskError(f"specialist output missing keys: {sorted(missing)}")
+    if role != "independent_reviewer" and ({"review_decision", "review_disagreements"} & set(output)):
+        raise SpecialistTaskError("non-reviewer model output must not contain reviewer-only fields")
     if output["implementation_status"] not in ALLOWED_STATUS:
         raise SpecialistTaskError("invalid implementation_status")
     if output["confidence"] not in ALLOWED_CONFIDENCE:
         raise SpecialistTaskError("invalid confidence")
-    for field in ("findings", "evidence", "unknowns", "review_disagreements"):
+    for field in ("findings", "evidence", "unknowns"):
         if not isinstance(output[field], list):
             raise SpecialistTaskError(f"{field} must be an array")
     if role == "independent_reviewer":
-        if output["review_decision"] == "not_applicable":
-            raise SpecialistTaskError("independent reviewer must return an explicit review_decision")
-    elif output["review_decision"] != "not_applicable" or output["review_disagreements"]:
-        raise SpecialistTaskError("non-reviewer role returned reviewer-only fields")
+        for field in ("review_disagreements",):
+            if not isinstance(output[field], list):
+                raise SpecialistTaskError(f"{field} must be an array")
+        if output["review_decision"] not in ALLOWED_REVIEW_DECISIONS or output["review_decision"] == "not_applicable":
+            raise SpecialistTaskError("independent reviewer must return an explicit valid review_decision")
 
     catalog = _evidence_catalog(inspection)
     catalog_by_id = {item["evidence_id"]: item for item in catalog}
@@ -297,6 +305,9 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
         raise SpecialistTaskError("medium/high confidence is forbidden without accepted pinned-source evidence")
 
     result = dict(output)
+    if role != "independent_reviewer":
+        result["review_decision"] = "not_applicable"
+        result["review_disagreements"] = []
     result["evidence"] = accepted
     result["rejected_evidence"] = rejected
     result["evidence_validation"] = {
@@ -477,7 +488,8 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                         "return no findings, unknown status and low confidence."
                     ),
                 }
-                output = provider.generate_json(ROLE_PROMPTS[role], context, REQUIRED_KEYS)
+                required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
+                output = provider.generate_json(ROLE_PROMPTS[role], context, required_keys)
                 validated = validate_specialist_output(output, inspection, role)
                 validated["task_metadata"] = {
                     "task_id": task["task_id"],
