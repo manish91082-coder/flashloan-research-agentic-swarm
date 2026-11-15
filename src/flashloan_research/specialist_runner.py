@@ -62,9 +62,14 @@ ROLE_PROMPTS = {
         "roles have copied or repeated the same generic claim. Challenge category errors (for "
         "example, labelling ordinary purpose/dependency statements as security findings), severity "
         "inflation, unsupported high confidence, contradictions, missing callback/authentication/"
-        "repayment steps, and economic statements without numeric inputs. Distinguish source-observed "
-        "facts from inference. Preserve unresolved facts as unknown. Return an explicit review_decision "
-        "and concise, evidence-referenced review_disagreements; do not rubber-stamp."
+        "repayment steps, and economic statements without numeric inputs. Explicitly inspect whether "
+        "the configured lending Pool/provider address matches the imported protocol interface; whether "
+        "callback caller, initiator, asset and amount are authenticated/bound; whether repayment and "
+        "premium are enforced; and whether the actual callback contains executable logic rather than "
+        "a TODO or placeholder. Do not infer a missing non-flash-loan execution path unless the relevant "
+        "source has been examined. Distinguish source-observed facts from inference. Preserve unresolved "
+        "facts as unknown. Return an explicit review_decision and concise, evidence-referenced "
+        "review_disagreements; do not rubber-stamp."
     ),
 }
 
