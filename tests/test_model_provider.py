@@ -136,6 +136,56 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIn("Follow the supplied schema exactly", Handler.body["messages"][0]["content"])
         self.assertNotIn("review_decision", Handler.body["messages"][0]["content"])
 
+    def test_specialist_schema_inherits_single_canonical_purpose_category(self):
+        Handler.response_content = json.dumps({
+            "summary": "Specialist report inherits canonical repository purpose.",
+            "purpose": "Flash-loan liquidation bot.",
+            "purpose_category": "flash_loan_liquidation_bot",
+            "implementation_status": "partial",
+            "findings": [],
+            "evidence": ["EV00001"],
+            "unknowns": ["Runtime behavior is not tested."],
+            "confidence": "low",
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "purpose_category", "implementation_status",
+            "findings", "evidence", "unknowns", "confidence",
+        }
+        provider.generate_json(
+            "Return a protocol report.",
+            {
+                "role": "protocol_specialist",
+                "canonical_purpose_category": "flash_loan_liquidation_bot",
+                "source_evidence_catalog": [{"evidence_id": "EV00001"}],
+            },
+            required,
+        )
+        schema = Handler.body["response_format"]["json_schema"]["schema"]
+        self.assertEqual(
+            schema["properties"]["purpose_category"]["enum"],
+            ["flash_loan_liquidation_bot"],
+        )
+        self.assertIn("inherited", schema["properties"]["purpose_category"]["description"])
+
+    def test_rejects_invalid_canonical_purpose_category_before_network_call(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "purpose_category", "implementation_status",
+            "findings", "evidence", "unknowns", "confidence",
+        }
+        with self.assertRaisesRegex(ModelProviderError, "not in the strict purpose taxonomy"):
+            provider.generate_json(
+                "Return a specialist report.",
+                {
+                    "role": "protocol_specialist",
+                    "canonical_purpose_category": "security",
+                    "source_evidence_catalog": [],
+                },
+                required,
+            )
+        self.assertIsNone(Handler.body)
+
     def test_reviewer_schema_requires_explicit_review_fields_and_excludes_not_applicable(self):
         required = {
             "summary", "purpose", "purpose_category", "implementation_status", "findings", "evidence",
