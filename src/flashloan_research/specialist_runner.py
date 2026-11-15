@@ -399,6 +399,8 @@ def _canonical_purpose_category(task_rows: list[dict[str, Any]], repository: str
         or validation.get("all_findings_linked_to_accepted_evidence") is not True
     ):
         raise SpecialistTaskError("canonical candidate-purpose report lacks exact source provenance")
+    _validate_semantic_quality_fields(report, "candidate_purpose")
+    _validate_report_evidence_provenance(report, inspection)
     category = report.get("purpose_category")
     if category not in ALLOWED_PURPOSE_CATEGORIES:
         raise SpecialistTaskError("canonical candidate-purpose report has an invalid taxonomy category")
