@@ -236,3 +236,13 @@
 - GitHub CI validates the Bash helper syntax, compiles source and runs tests on Python 3.11/3.12/3.13. The long queue has **not** yet been resumed locally; no claim is made that 7,891 candidates have completed.
 - Required WSL operation: download artifact 14118419543 and run `bash scripts/resume_source_capture.sh <pilot-zip-path>` from the repository root with a read-only GitHub token exported in the shell.
 - No candidate code was executed. Semantic specialist analysis, evidence acceptance, independent review and dossier synthesis remain pending.
+
+
+## 2026-11-15 — source telemetry stream contract preserved
+
+- PR [#16](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/pull/16) merged at `e9ae3d67a3b8d0222d44e940f9a54c77f10d1ed7`.
+- Forensic integration review identified that PR #15's new progress events shared stdout with the CLI summary, while the Actions workflow parses `reports/source-capture-cycle.json` as one JSON document. This would have broken the future checkpoint step after candidate capture.
+- Moved source batch-start, per-candidate completion, and GitHub API retry/backoff events to stderr. The final CLI summary remains the sole JSON document on stdout.
+- Regression tests verify the source worker emits progress only on stderr and that GitHub retry telemetry is captured from stderr.
+- PR CI passed Python 3.11/3.12/3.13. Main merge CI [43685837776](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43685837776) is in progress.
+- Active source run 43681954178 and Agent Form r2 pilot 43683037797 predate this merge and remain separately in progress at the latest check. The last durable source checkpoint remains 942/7,901; no semantic audit has been accepted or counted.
