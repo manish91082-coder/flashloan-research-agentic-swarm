@@ -242,7 +242,7 @@
       "artifact_id": 14154119604,
       "artifact_name": "flashloan-source-capture-checkpoint",
       "artifact_size_bytes": 38215540,
-      "artifact_sha256": "TO_BE_FILLED_AFTER_HASH_CHECK",
+      "artifact_sha256": "982d796d98e0a06c052f06723208a78906858152bd64acb1963584ed0e91160f",
       "cycle": {
         "attempted": 12,
         "captured": 12,
@@ -360,7 +360,7 @@
     "PR #24 merged at 72f648585e940c75eaa7ace7f539fbff08dfa1c1. CI 43696841454 and main CI 43697270352 passed Python 3.11/3.12/3.13. Adds unique bounded evidence/report arrays, low/medium-only local 3B confidence, stricter output validator, targeted callback/provider/repayment/TODO review and mission-scoped artifact naming. Fresh r6 run 43697270355 launched from immutable seed."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
-  "continuity_docs_commit": "4d5d403121ec48c541f0fe646d76f7e90910bc36",
+  "continuity_docs_commit": "72f648585e940c75eaa7ace7f539fbff08dfa1c1",
   "product_direction": "FORM_DRIVEN_AUTONOMOUS_AGENTIC_RESEARCH_SWARM",
   "goal_lock": "Research Mission Form is the primary user interface; the orchestrator autonomously plans, dispatches, verifies, persists and continues research tasks.",
   "form_intake": {
