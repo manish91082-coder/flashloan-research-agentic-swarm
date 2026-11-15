@@ -85,26 +85,21 @@ _FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
 
 
 def _output_schema(required_keys: set[str], role: str | None = None) -> dict[str, Any]:
-    """Build a role-conditioned schema; review-only decisions are impossible for specialists."""
+    """Build the exact role-aware schema; only reviewers receive reviewer-only fields."""
     unknown = sorted(required_keys - set(_FIELD_SCHEMAS))
     if unknown:
         raise ModelProviderError(f"no output schema is defined for required keys: {unknown}")
-    if "review_decision" in required_keys and role not in {
-        "candidate_purpose", "protocol_specialist", "solidity_security",
-        "execution_engineer", "test_verification", "economics_quant",
-        "dependency_license", "independent_reviewer",
-    }:
-        raise ModelProviderError("a recognized specialist role is required for review-conditioned output")
+    reviewer_fields = {"review_decision", "review_disagreements"}
+    if reviewer_fields & required_keys and role != "independent_reviewer":
+        raise ModelProviderError("reviewer-only output fields require the independent_reviewer role")
+    if role == "independent_reviewer" and not reviewer_fields.issubset(required_keys):
+        raise ModelProviderError("independent reviewer schema must include both reviewer-only output fields")
     keys = sorted(required_keys)
     properties = {key: dict(_FIELD_SCHEMAS[key]) for key in keys}
-    if "review_decision" in properties:
-        if role == "independent_reviewer":
-            properties["review_decision"]["enum"] = [
-                "accept", "accept_with_reservations", "reject", "inconclusive"
-            ]
-        else:
-            properties["review_decision"]["enum"] = ["not_applicable"]
-            properties["review_disagreements"]["maxItems"] = 0
+    if role == "independent_reviewer":
+        properties["review_decision"]["enum"] = [
+            "accept", "accept_with_reservations", "reject", "inconclusive"
+        ]
     return {
         "type": "object",
         "properties": properties,
