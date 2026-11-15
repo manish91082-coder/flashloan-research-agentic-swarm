@@ -192,7 +192,7 @@ jobs:
           decisions = []
           for gate in gates:
               report = json.loads(Path(gate["report"]).read_text(encoding="utf-8"))
-              if report.get("evidence_gate") != "pinned_evidence_and_claim_linkage_pass":
+              if report.get("evidence_gate") != "pinned_evidence_semantic_quality_and_claim_linkage_pass":
                   raise SystemExit("Evidence gate did not produce the required source-linked acceptance status.")
               if report.get("provenance_pass") is not True or report.get("claim_linkage_pass") is not True:
                   raise SystemExit("Evidence provenance or finding-to-evidence linkage did not pass.")
@@ -204,10 +204,24 @@ jobs:
               decision = report.get("review_decision")
               if decision not in {"accept", "accept_with_reservations", "reject", "inconclusive"}:
                   raise SystemExit("Independent reviewer did not return an explicit valid review decision.")
+              disagreements = report.get("review_disagreements", [])
+              if decision != "accept":
+                  raise SystemExit(
+                      f"Independent review did not accept {reviewer['repository']}: {decision}. "
+                      "Reservations, rejection and inconclusive outcomes block dossier creation."
+                  )
+              if disagreements:
+                  raise SystemExit(
+                      f"Independent reviewer recorded unresolved disagreements for {reviewer['repository']}."
+                  )
+              if len(report.get("evidence", [])) <= 0:
+                  raise SystemExit(
+                      f"Independent reviewer supplied no source-linked evidence for {reviewer['repository']}."
+                  )
               decisions.append({
                   "repository": reviewer["repository"],
                   "review_decision": decision,
-                  "review_disagreements": report.get("review_disagreements", []),
+                  "review_disagreements": disagreements,
                   "accepted_evidence": len(report.get("evidence", [])),
               })
 
