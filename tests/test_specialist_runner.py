@@ -67,6 +67,11 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         self.assertEqual(result["evidence"][0]["commit_sha"], "a" * 40)
         self.assertTrue(result["evidence_validation"]["all_findings_linked_to_accepted_evidence"])
 
+    def test_rejects_any_model_evidence_id_not_in_the_pinned_catalog(self):
+        output = sample_output(evidence=["EV00001", "EV99999"])
+        with self.assertRaisesRegex(SpecialistTaskError, "not in the pinned catalog"):
+            validate_specialist_output(output, self.inspection, "protocol_specialist")
+
     def test_rejects_finding_that_cites_unselected_or_fabricated_evidence_id(self):
         output = sample_output(evidence=["EV00001"], findings=[{
             "finding_id": "F-1", "claim": "unsupported", "category": "security",
