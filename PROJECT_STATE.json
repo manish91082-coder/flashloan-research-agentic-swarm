@@ -4,7 +4,7 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE; B3_ROLE_EXCLUSIVE_SOURCE_GROUNDED_AGENT_FORM_PILOT",
   "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_SOURCE_CAPTURE_942_OF_7901; 6947_PENDING; 0_LEASED; 12_EMPTY_GIT_REPOSITORY_HTTP_409_FAILURES; 687_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 255_WITH_COVERAGE_LIMITS; PR13_AND_PR14_MERGED; ROLE_EXCLUSIVE_REVIEWER_SCHEMA; FRESH_AGENT_FORM_PILOT_R2_43683037797_RUNNING; SEMANTIC_AUDIT_NOT_YET_ACCEPTED",
-  "last_verified_at_utc": "2026-11-15T05:54:00Z",
+  "last_verified_at_utc": "2026-11-15T05:58:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "08b9f6d1f129298f7faf42b50529cbc6e14f27b0",
   "latest_ci_run": {
@@ -343,7 +343,8 @@
     "PR #13 source-capture workflow change now resumes from immutable run + artifact IDs, retries GitHub 5xx/rate-limit errors, uploads a durable successor and self-dispatches with the exact new artifact ID.",
     "Fresh isolated Agent Form pilot triggered as run 43681829089 with a new database and mission ID; latest observed at Ollama installation. Semantic audit count remains unchanged.",
     "PR #14 merged at 08b9f6d1f129298f7faf42b50529cbc6e14f27b0: specialist model output schemas now omit reviewer-only fields entirely; the independent reviewer alone receives review_decision/review_disagreements. Specialist reports receive deterministic not_applicable/empty reviewer metadata only after successful validation. r2 pilot workflow uses unique mission/database/artifact names.",
-    "PR #14 CI run 43682983408 passed Python 3.11/3.12/3.13. Main merge CI run 43683037814 passed Python 3.11/3.12/3.13."
+    "PR #14 CI run 43682983408 passed Python 3.11/3.12/3.13. Main merge CI run 43683037814 passed Python 3.11/3.12/3.13.",
+    "Fresh r2 pilot 43683037797 advanced past immutable checkpoint restore, Agent Form installation, Ollama qwen2.5:3b installation and fresh DAG bootstrap; serialized specialist/evidence/reviewer execution is now in progress. No result artifact has been accepted yet."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
   "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
@@ -449,7 +450,7 @@
     "current_pilot": {
       "run_id": 43683037797,
       "status": "in_progress",
-      "current_step": "Install local open-weight inference runtime",
+      "current_step": "Run serialized source-grounded specialist, evidence and reviewer pilot",
       "mission_id": "flashloan-agent-form-pilot-20261115-r2",
       "database": "data/agentic-mission-pilot-20261115-r2.sqlite3",
       "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r2",
@@ -460,7 +461,11 @@
       "context_limits": {
         "max_files": 4,
         "max_chars": 10000
-      }
+      },
+      "restore_status": "checkpoint_restored_and_verified",
+      "agent_form_runtime": "installed",
+      "local_inference_runtime": "Ollama qwen2.5:3b installed and service running on 127.0.0.1:11434",
+      "mission_dag": "fresh mission bootstrapped; two candidate source-capture tasks completed"
     },
     "semantic_audit_count_incremented": false,
     "candidate_code_executed": false,
