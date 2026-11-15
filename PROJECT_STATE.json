@@ -3,10 +3,10 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R10_SOURCE_PINNED_PURPOSE_AND_DUPLICATE_CLAIM_RETRY_PILOT",
-  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_3283_CAPTURED_2386_COMPLETE_WITHIN_SCOPE_897_COVERAGE_LIMITED_4572_PENDING_46_FAILED; MAIN_CI_401_PASS_311_312_313; PR29_AND_PR30_MERGED_WITH_CI_PASS; R10_FAILED_NO_AUDIT_ACCEPTANCE; R11_SEMANTIC_PILOT_IN_PROGRESS_AFTER_RESTORE_RUNTIME_AND_DAG_BOOTSTRAP",
-  "last_verified_at_utc": "2026-11-15T16:56:00Z",
+  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_3307_CAPTURED_2402_COMPLETE_WITHIN_SCOPE_905_COVERAGE_LIMITED_4548_PENDING_46_FAILED; MAIN_CI_402_PASS_311_312_313; PR29_AND_PR30_MERGED_CI_PASS; R10_FAILED_NO_AUDIT_ACCEPTANCE; R11_SPECIALIST_EVIDENCE_REVIEW_STAGE_IN_PROGRESS; RUN_284_ACTIVE",
+  "last_verified_at_utc": "2026-11-15T17:00:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "607227ced665fb46e6be055230e06cc1b6e3d127",
+  "latest_commit_at_checkpoint": "693ab6af720281204bf63d69526daa945ea31a87",
   "latest_ci_run": {
     "run_id": 43738192914,
     "event": "push",
@@ -104,7 +104,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Inspect R11 artifact and SQLite task ledger after the serialized specialist/evidence/reviewer stage. Require both candidate-purpose categories, all 12 specialist tasks, both pinned evidence gates and two exact unreserved independent reviewer accepts with zero disagreements/nonempty evidence. If any gate fails, diagnose before another pilot. In parallel continue source capture from run 282's successor and independently verify each durable checkpoint. Discovery remains 28/38 queries complete. Candidate code execution, wallet access, signing, deployment and live trading remain disabled.",
+  "next_gate": "Continue monitoring R11 serialized specialist/evidence/reviewer stage and retrieve its task ledger/artifact as soon as available. Independently verify the candidate-purpose singleton enum in the resulting task metadata/reports, then require 14/14 specialist tasks, two pinned evidence gates and two exact unreserved independent accepts with zero disagreements/nonempty source evidence. In parallel continue source capture from run 284 and independently verify each successor artifact. Discovery remains 28/38 queries complete. Candidate code execution, wallet access, signing, deployment and live trading remain disabled.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -756,8 +756,8 @@
     },
     "successor_artifact_uploaded": false
   },
-  "source_capture_pending": 4572,
-  "source_capture_status": "3,283 captured; 4,572 pending; 0 leased; 46 failed; 2,386 complete within configured scope; 897 coverage-limited. Run 281 checkpoint independently verified; run 282 completed and auto-dispatched successor.",
+  "source_capture_pending": 4548,
+  "source_capture_status": "3,307 captured; 4,548 pending; 0 leased; 46 failed; 2,402 complete within configured scope; 905 coverage-limited. Run 283 checkpoint independently verified; run 284 active successor.",
   "latest_continuation_verification": {
     "source_parent_run_id": 43695633862,
     "source_parent_artifact_id": 14153204517,
@@ -808,23 +808,23 @@
   },
   "source_capture": {
     "total": 7901,
-    "captured": 3283,
-    "complete_within_configured_scope": 2386,
-    "coverage_limited": 897,
-    "pending": 4572,
+    "captured": 3307,
+    "complete_within_configured_scope": 2402,
+    "coverage_limited": 905,
+    "pending": 4548,
     "failed": 46,
     "leased": 0,
-    "latest_verified_run": 43738052109,
-    "artifact_id": 14170858420,
-    "artifact_sha256": "ab9af78cb88ea83fd9e27607e8407d314877ead339e0bf5e2cde5d317133b6c7",
+    "latest_verified_run": 43738283588,
+    "artifact_id": 14170839049,
+    "artifact_sha256": "d62e2f5edbec6fe3eabc8933dd70e015dbfce253c60a9aae308d8c6b1245e1f2",
     "zip_crc_check": "ok",
     "sqlite_integrity_check": "ok",
-    "captured_report_identity_checks": 3283,
+    "captured_report_identity_checks": 3307,
     "missing_reports": 0,
     "report_identity_mismatches": 0,
-    "git_blob_objects_verified": 36164,
+    "git_blob_objects_verified": 36451,
     "git_blob_mismatches": 0,
-    "latest_checkpoint_note": "Run 281 artifact independently inspected. Queue reconciles to 7,901; all 3,283 captured reports are present and identity-consistent; all 36,164 source vault Git blob objects independently hash-verified. Run 282 consumed this checkpoint, completed all steps and dispatched the next successor."
+    "latest_checkpoint_note": "Run 283 artifact independently inspected. Queue reconciles to 7,901; all 3,307 captured reports are present and identity-consistent; all 36,451 source vault Git blob objects independently hash-verified. Run 284 is active successor."
   },
   "semantic_pilot": {
     "r8": {
@@ -864,24 +864,23 @@
     }
   },
   "source_capture_latest_verified": {
-    "workflow_run_id": 43738052109,
-    "run_number": 281,
+    "workflow_run_id": 43738283588,
+    "run_number": 283,
     "conclusion": "success",
-    "artifact_id": 14170858420,
-    "artifact_sha256": "ab9af78cb88ea83fd9e27607e8407d314877ead339e0bf5e2cde5d317133b6c7",
-    "captured": 3283,
-    "complete_within_scope": 2386,
-    "coverage_limited": 897,
-    "pending": 4572,
+    "artifact_id": 14170839049,
+    "artifact_sha256": "d62e2f5edbec6fe3eabc8933dd70e015dbfce253c60a9aae308d8c6b1245e1f2",
+    "captured": 3307,
+    "complete_within_scope": 2402,
+    "coverage_limited": 905,
+    "pending": 4548,
     "failed": 46,
     "leased": 0,
     "zip_crc_check": "ok",
     "sqlite_integrity_check": "ok",
-    "reports_verified": 3283,
-    "git_blob_objects_verified": 36164,
+    "reports_verified": 3307,
+    "git_blob_objects_verified": 36451,
     "report_identity_mismatches": 0,
-    "missing_reports": 0,
-    "note": "Independent archive preflight passed; run 282 completed all workflow steps and self-dispatched its successor."
+    "missing_reports": 0
   },
   "r9_latest_verified": {
     "workflow_run_id": 43723822528,
@@ -906,23 +905,23 @@
     "note": "Specialist/evidence/reviewer execution remains active; exact task outcomes not yet available."
   },
   "active_source_capture_run": {
-    "workflow_run_id": 43738175304,
-    "run_number": 282,
-    "status": "completed_success_all_steps",
-    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43738175304"
+    "workflow_run_id": 43738399926,
+    "run_number": 284,
+    "status": "in_progress",
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43738399926"
   },
   "source_capture_latest_checkpoint": {
-    "run_id": 43738052109,
-    "run_number": 281,
+    "run_id": 43738283588,
+    "run_number": 283,
     "conclusion": "success",
-    "captured": 3283,
-    "complete_within_scope": 2386,
-    "coverage_limited": 897,
-    "pending": 4572,
+    "captured": 3307,
+    "complete_within_scope": 2402,
+    "coverage_limited": 905,
+    "pending": 4548,
     "failed": 46,
     "leased": 0,
-    "artifact_id": 14170858420,
-    "artifact_sha256": "ab9af78cb88ea83fd9e27607e8407d314877ead339e0bf5e2cde5d317133b6c7"
+    "artifact_id": 14170839049,
+    "artifact_sha256": "d62e2f5edbec6fe3eabc8933dd70e015dbfce253c60a9aae308d8c6b1245e1f2"
   },
   "r9_pilot": {
     "mission_id": "flashloan-agent-form-pilot-20261115-r9",
@@ -1061,6 +1060,8 @@
     "current_step": "Run serialized source-grounded specialist, evidence and reviewer pilot",
     "semantic_audit_count_incremented": false,
     "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43738192964",
-    "note": "Fresh R11 isolated mission; source-pinned candidate-purpose categories are now constrained by singleton JSON Schema enums before generation. Specialist/evidence/reviewer stage in progress; no acceptance claimed."
+    "note": "R11 restore, Agent Form runtime, local qwen2.5:3b installation and fresh DAG bootstrap passed. Serialized specialist/evidence/reviewer stage is still in progress; no artifact or acceptance result yet.",
+    "runner_status": "in_progress",
+    "last_observed_at_utc": "2026-11-15T17:00:00Z"
   }
 }
