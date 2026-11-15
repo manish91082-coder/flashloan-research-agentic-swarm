@@ -407,6 +407,31 @@ def _canonical_purpose_category(task_rows: list[dict[str, Any]], repository: str
     return category
 
 
+def _source_supported_purpose_category(inspection: dict[str, Any]) -> str | None:
+    """Return a narrow purpose override only for paired, source-pinned protocol signals."""
+    repository = str(inspection.get("repository", "")).casefold()
+    paths = [
+        str(item.get("path", "")).casefold()
+        for item in inspection.get("captured_files", [])
+        if isinstance(item, dict)
+    ]
+    signal_names = {
+        str(item.get("signal", "")).casefold()
+        for item in inspection.get("signals", [])
+        if isinstance(item, dict)
+    }
+    has_liquidation_artifact = (
+        "liquidat" in repository or any("liquidat" in path for path in paths)
+    )
+    if not has_liquidation_artifact:
+        return None
+    if "aave_flash_loan_simple" in signal_names:
+        return "flash_loan_liquidation_bot"
+    if "uniswap_v2_flash_callback" in signal_names:
+        return "flash_swap_liquidation_bot"
+    return None
+
+
 def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None:
     """Reject structurally valid but semantically misclassified or overconfident reports."""
     if report.get("purpose_category") not in ALLOWED_PURPOSE_CATEGORIES:
@@ -535,6 +560,13 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
     if output["confidence"] in {"medium", "high"} and not accepted:
         raise SpecialistTaskError("medium/high confidence is forbidden without accepted pinned-source evidence")
     _validate_semantic_quality_fields(output, role)
+    if role == "candidate_purpose":
+        expected_purpose = _source_supported_purpose_category(inspection)
+        if expected_purpose is not None and output.get("purpose_category") != expected_purpose:
+            raise SpecialistTaskError(
+                "purpose category conflicts with source-pinned protocol signals; "
+                f"expected {expected_purpose}, received {output.get('purpose_category')}"
+            )
     if canonical_purpose_category is not None:
         if canonical_purpose_category not in ALLOWED_PURPOSE_CATEGORIES:
             raise SpecialistTaskError("canonical purpose category is outside the strict taxonomy")
@@ -694,20 +726,32 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
             canonical_purpose_category=canonical_purpose_category,
         )
     except SpecialistTaskError as exc:
-        if "duplicate finding claim" not in str(exc):
+        error_text = str(exc)
+        duplicate_claim = "duplicate finding claim" in error_text
+        purpose_mismatch = "purpose category conflicts with source-pinned protocol signals" in error_text
+        if not (duplicate_claim or purpose_mismatch):
             raise
         retry_context = dict(context)
-        retry_context["validation_feedback"] = (
-            "Your previous JSON was rejected because two or more findings repeated the same claim. "
-            "Regenerate the complete report. Keep only one finding for each distinct claim; "
-            "do not evade this by changing wording while describing the same fact. "
-            "If there are fewer distinct supported findings, return fewer findings. "
-            "Preserve narrow source evidence references and all required schema fields."
-        )
+        if duplicate_claim:
+            retry_context["validation_feedback"] = (
+                "Your previous JSON was rejected because two or more findings repeated the same claim. "
+                "Regenerate the complete report. Keep only one finding for each distinct claim; "
+                "do not evade this by changing wording while describing the same fact. "
+                "If there are fewer distinct supported findings, return fewer findings. "
+                "Preserve narrow source evidence references and all required schema fields."
+            )
+        else:
+            expected = _source_supported_purpose_category(inspection)
+            retry_context["validation_feedback"] = (
+                f"Your previous purpose_category conflicts with source-pinned protocol signals. "
+                f"The only permitted purpose_category for this candidate is {expected}. "
+                "This is a liquidation implementation, not security_tooling merely because it is "
+                "being inspected for security. Regenerate the complete report and preserve evidence links."
+            )
         retry_context["previous_rejected_output"] = output
         retry_prompt = prompt + (
-            "\\n\\nVALIDATION RETRY: the previous response contained duplicate finding claims. "
-            "Return a corrected complete JSON object with distinct, non-redundant findings only."
+            "\\n\\nVALIDATION RETRY: correct the specific validation feedback in the supplied context. "
+            "Return a complete corrected JSON object; do not weaken evidence or schema requirements."
         )
         corrected = provider.generate_json(retry_prompt, retry_context, required_keys)
         return validate_specialist_output(
