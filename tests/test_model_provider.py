@@ -89,7 +89,11 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertNotIn("review_decision", schema["properties"])
         self.assertNotIn("review_disagreements", schema["properties"])
         self.assertIn("evidence_refs", schema["properties"]["findings"]["items"]["properties"])
-        self.assertIn("source_evidence_catalog", Handler.body["messages"][0]["content"])
+        specialist_prompt = Handler.body["messages"][0]["content"]
+        self.assertIn("source_evidence_catalog", specialist_prompt)
+        self.assertIn("Do not emit either reviewer-only key", specialist_prompt)
+        self.assertNotIn("review_decision", specialist_prompt)
+        self.assertNotIn("review_disagreements", specialist_prompt)
 
     def test_reviewer_schema_requires_explicit_review_fields_and_excludes_not_applicable(self):
         required = {
@@ -118,6 +122,10 @@ class LocalModelProviderTests(unittest.TestCase):
             properties["review_decision"]["enum"],
             ["accept", "accept_with_reservations", "reject", "inconclusive"],
         )
+        reviewer_prompt = Handler.body["messages"][0]["content"]
+        self.assertIn("You are the independent reviewer", reviewer_prompt)
+        self.assertIn("review_decision", reviewer_prompt)
+        self.assertIn("review_disagreements", reviewer_prompt)
 
     def test_reviewer_only_schema_requires_independent_reviewer_role(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
