@@ -231,12 +231,60 @@ class LocalOpenAICompatibleProvider:
             raise ModelProviderError("local model response exceeded 2 MB")
         try:
             envelope = json.loads(raw.decode("utf-8"))
-            content = envelope["choices"][0]["message"]["content"]
-            result = json.loads(content)
-        except (UnicodeDecodeError, json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
-            raise ModelProviderError("model returned malformed OpenAI-compatible JSON response") from exc
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            preview = raw[:240].decode("utf-8", errors="replace").replace("\n", " ")
+            raise ModelProviderError(
+                "model returned malformed OpenAI-compatible response envelope; "
+                f"response_bytes={len(raw)} preview={preview!r}"
+            ) from exc
+        choices = envelope.get("choices") if isinstance(envelope, dict) else None
+        if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+            raise ModelProviderError(
+                "model response has no choices[0] object; "
+                f"envelope_keys={sorted(envelope) if isinstance(envelope, dict) else type(envelope).__name__}"
+            )
+        choice = choices[0]
+        message = choice.get("message")
+        finish_reason = choice.get("finish_reason")
+        content = message.get("content") if isinstance(message, dict) else None
+        usage = envelope.get("usage", {})
+        diagnostic = {
+            "finish_reason": finish_reason,
+            "content_type": type(content).__name__,
+            "content_chars": len(content) if isinstance(content, str) else None,
+            "completion_tokens": usage.get("completion_tokens") if isinstance(usage, dict) else None,
+        }
+        if isinstance(content, dict):
+            result = content
+        elif isinstance(content, str):
+            candidate = content.strip()
+            if candidate.startswith("\x60\x60\x60"):
+                parts = candidate.splitlines()
+                if parts and parts[0].startswith("\x60\x60\x60"):
+                    parts = parts[1:]
+                if parts and parts[-1].strip().startswith("\x60\x60\x60"):
+                    parts = parts[:-1]
+                if parts and parts[0].strip().lower() == "json":
+                    parts = parts[1:]
+                candidate = "\n".join(parts).strip()
+            try:
+                result = json.loads(candidate)
+            except json.JSONDecodeError as exc:
+                preview = candidate[:320].replace("\n", " ")
+                raise ModelProviderError(
+                    "model returned malformed OpenAI-compatible JSON response; "
+                    f"diagnostics={diagnostic} content_preview={preview!r}"
+                ) from exc
+        else:
+            raise ModelProviderError(
+                "model response message.content is not a JSON string/object; "
+                f"diagnostics={diagnostic}"
+            )
         if not isinstance(result, dict):
-            raise ModelProviderError("model output must be a JSON object")
+            raise ModelProviderError(
+                "model output must be a JSON object; "
+                f"diagnostics={diagnostic}"
+            )
         missing = sorted(required_keys - set(result))
         if missing:
             raise ModelProviderError(f"model output missing required keys: {missing}")
