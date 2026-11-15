@@ -280,3 +280,14 @@
 - **Next gate:** inspect r5 artifact and every report. Specifically challenge Aave Pool pointer/callback authentication and Uniswap TODO/placeholder behavior. If any gate fails, repair and rerun fresh isolated pilot; do not generate dossiers or increment semantic audit count. Only after full semantic and reviewer acceptance implement dossier generation and reviewer-disagreement reconciliation, then enqueue the next persistent DAG batch.
 - Safety unchanged: no candidate code execution, wallets, signing, deployment, live trading, cloud inference or paid inference.
 
+
+
+## 2026-11-15 — r4 rejection, r5 failure, r6 launch and source checkpoint 1,394
+
+- Independently downloaded source artifact 14154119604 from run 43697045435. Archive SHA-256: `982d796d98e0a06c052f06723208a78906858152bd64acb1963584ed0e91160f`. SQLite integrity is `ok`; queue/checkpoint counters agree: 1,394 captured, 6,485 pending, 0 leased, 22 failed; 1,011 complete within configured scope and 383 coverage-limited. The inspected 12-candidate cycle captured 12/12.
+- Source child 43697180505 restored the exact parent artifact and is processing its next 12-candidate batch; no successor count is claimed yet.
+- r4 reviewer recovery artifact 14154370687 completed both reviewers but both decisions were `inconclusive`. Manual audit found an unsupported direct-liquidation claim and missed Aave Pool/callback defects; the Uniswap reviewer correctly identified its TODO but remained overconfident. r4 rejected; no dossiers or semantic audit count increment.
+- r5 artifact 14154282972 confirmed zero purpose reports accepted: qwen2.5:3b repeated evidence IDs until `finish_reason=length` at 1,200 tokens; both candidates then returned high confidence despite partial/unknown state and were rejected. The artifact was mislabeled with r4 paths.
+- PR #24 merged at `72f648585e940c75eaa7ace7f539fbff08dfa1c1`. It bounds report evidence/findings/unknowns, requires unique evidence IDs, limits local 3B confidence to low/medium, adds Python-side overflow checks, strengthens protocol callback/provider/repayment/TODO reviewer checks, and scopes artifacts to mission identity. CI 43696841454 and main CI 43697270352 passed Python 3.11/3.12/3.13.
+- Fresh r6 pilot 43697270355 launched with a fresh mission/database/artifact root and immutable seed. It was at seed download/verification at last inspection. No r6 acceptance is claimed.
+- Safety and accounting remain unchanged: source captures are not semantic audits; candidate code not executed; no wallet/signing/deployment/live trading; no paid or cloud inference.
