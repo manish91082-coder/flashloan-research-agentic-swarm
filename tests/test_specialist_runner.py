@@ -125,7 +125,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
     def test_rejects_finding_that_cites_unselected_or_fabricated_evidence_id(self):
         output = sample_output(evidence=["EV00001"], findings=[{
             "finding_id": "F-1", "claim": "unsupported", "category": "security",
-            "severity": "high", "claim_status": "source_observed", "confidence": "high",
+            "severity": "high", "claim_status": "source_observed", "confidence": "medium",
             "evidence_refs": ["EV99999"],
         }])
         with self.assertRaisesRegex(SpecialistTaskError, "not selected from the pinned catalog"):
@@ -134,7 +134,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
     def test_rejects_finding_without_any_evidence_reference(self):
         output = sample_output(findings=[{
             "finding_id": "F-1", "claim": "unsupported", "category": "security",
-            "severity": "high", "claim_status": "supported_inference", "confidence": "high",
+            "severity": "high", "claim_status": "supported_inference", "confidence": "medium",
             "evidence_refs": [],
         }])
         with self.assertRaisesRegex(SpecialistTaskError, "has no evidence_refs"):
@@ -157,7 +157,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             validate_specialist_output(output, self.inspection, "protocol_specialist")
 
     def test_reviewer_must_return_explicit_decision(self):
-        output = sample_output(review_decision="not_applicable", review_disagreements=[])
+        output = sample_output(findings=[], review_decision="not_applicable", review_disagreements=[])
         with self.assertRaisesRegex(SpecialistTaskError, "explicit valid review_decision"):
             validate_specialist_output(output, self.inspection, "independent_reviewer")
 
