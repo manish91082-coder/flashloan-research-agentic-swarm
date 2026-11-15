@@ -362,9 +362,11 @@ def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None
         if finding.get("category") not in ROLE_FINDING_CATEGORIES.get(role, set()):
             raise SpecialistTaskError(f"finding category is not permitted for role {role}")
         refs = finding.get("evidence_refs")
-        if not isinstance(refs, list) or not refs or len(refs) > MAX_FINDING_EVIDENCE_REFS:
+        if not isinstance(refs, list) or not refs:
+            raise SpecialistTaskError(f"finding {finding.get('finding_id', '')} has no evidence_refs")
+        if len(refs) > MAX_FINDING_EVIDENCE_REFS:
             raise SpecialistTaskError(
-                f"finding evidence_refs must contain 1..{MAX_FINDING_EVIDENCE_REFS} narrowly relevant IDs"
+                f"finding evidence_refs must contain at most {MAX_FINDING_EVIDENCE_REFS} narrowly relevant IDs"
             )
         if role != "solidity_security" and finding.get("severity") != "not_applicable":
             raise SpecialistTaskError(f"severity must be not_applicable for non-security role {role}")
@@ -389,7 +391,6 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
         raise SpecialistTaskError("invalid implementation_status")
     if output["confidence"] not in ALLOWED_CONFIDENCE:
         raise SpecialistTaskError("invalid confidence")
-    _validate_semantic_quality_fields(output, role)
     for field in ("findings", "evidence", "unknowns"):
         if not isinstance(output[field], list):
             raise SpecialistTaskError(f"{field} must be an array")
@@ -456,6 +457,7 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
             raise SpecialistTaskError("zero-evidence output must be implementation_status=unknown and confidence=low")
     if output["confidence"] in {"medium", "high"} and not accepted:
         raise SpecialistTaskError("medium/high confidence is forbidden without accepted pinned-source evidence")
+    _validate_semantic_quality_fields(output, role)
 
     result = dict(output)
     if role != "independent_reviewer":
