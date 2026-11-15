@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Recover only the two r4 independent-review tasks after compacting duplicated source evidence from their seven already-completed prior reports. Reuse the exact immutable r4 SQLite and report artifacts; do not rerun any purpose/specialist task or evidence gate.",
+  "r4_run_id": 43688699311,
+  "r4_artifact_id": "14152481228",
+  "r4_artifact_sha256": "64272e84d265c887925241fa8c4a2170fe564734adf06124dc654af6fd4b32d8",
+  "r4_mission_id": "flashloan-agent-form-pilot-20261115-r4",
+  "source_seed_run_id": 43615137961,
+  "source_seed_artifact_id": "14121666814",
+  "source_seed_artifact_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
+  "expected_reviewers": 2,
+  "model": "qwen2.5:3b",
+  "model_runtime": "Ollama loopback-only local CPU inference",
+  "reviewer_context_max_chars": 18000,
+  "review_strategy": "Keep all seven distinct prior reports, every material finding and its evidence_refs; remove duplicated full source excerpts from each report and supply verified source excerpts once. Preserve task/report/role/commit/tree provenance. Fail closed if any report is missing.",
+  "recovery_invariants": [
+    "Only independent_review tasks in failed status with the exact known reviewer context cap error may be reset.",
+    "Each candidate must still have one completed candidate_purpose plus six distinct completed specialist reports.",
+    "All seven reports must match the expected task ID/type/role and pinned inspection commit/tree.",
+    "The candidate evidence_validation task and its positive provenance/claim-linkage report must already be completed.",
+    "Preserve prior reviewer attempt counters; do not reset candidate-purpose, specialist or evidence-validation tasks.",
+    "Run exactly two reviewer tasks; require explicit review decisions and capture disagreements.",
+    "Do not regenerate specialist reports or evidence gates.",
+    "Do not generate candidate dossiers or increment semantic audit count from task completion alone."
+  ],
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "created_at_local": "2026-11-15T13:30:00+05:30"
+}
