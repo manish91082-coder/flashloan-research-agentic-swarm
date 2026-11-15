@@ -1,0 +1,240 @@
+name: Agent Form Independent Reviewer Recovery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-agentic-reviewer-recovery.json'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: flashloan-agent-form-reviewer-recovery
+  cancel-in-progress: false
+
+jobs:
+  reviewer-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      FLR_DATABASE: data/agentic-mission-pilot-20261115-r4.sqlite3
+      FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
+      FLR_ARTIFACT_ROOT: research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r4
+      FLR_MISSION_ID: flashloan-agent-form-pilot-20261115-r4
+      FLR_MODEL_BASE_URL: http://127.0.0.1:11434
+      FLR_MODEL_NAME: qwen2.5:3b
+      FLR_MODEL_TIMEOUT_SECONDS: '1200'
+      FLR_MODEL_MAX_FILES: '3'
+      FLR_MODEL_MAX_CONTEXT_CHARS: '6000'
+      FLR_MODEL_CONTEXT_LINES: '12'
+      FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS: '18000'
+      FLR_MODEL_MAX_OUTPUT_TOKENS: '1200'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout canonical research project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Read immutable recovery artifact identities
+        id: recovery
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x = json.loads(Path("research_runs/trigger-agentic-reviewer-recovery.json").read_text())
+          expected = {
+              "r4_mission_id": "flashloan-agent-form-pilot-20261115-r4",
+              "r4_artifact_id": "14152481228",
+              "source_seed_artifact_id": "14121666814",
+              "expected_reviewers": 2,
+          }
+          for key, value in expected.items():
+              if str(x.get(key)) != str(value):
+                  raise SystemExit(f"Recovery trigger invariant mismatch: {key}")
+          for key in ("r4_artifact_sha256", "source_seed_artifact_sha256"):
+              value = x.get(key, "")
+              if len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
+                  raise SystemExit(f"Invalid SHA-256 in recovery trigger: {key}")
+          PY
+          echo "r4_artifact_id=$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-reviewer-recovery.json"))["r4_artifact_id"])')" >> "$GITHUB_OUTPUT"
+          echo "source_seed_artifact_id=$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-reviewer-recovery.json"))["source_seed_artifact_id"])')" >> "$GITHUB_OUTPUT"
+          echo "R4_ARTIFACT_SHA256=$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-reviewer-recovery.json"))["r4_artifact_sha256"])')" >> "$GITHUB_ENV"
+          echo "SEED_ARTIFACT_SHA256=$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-reviewer-recovery.json"))["source_seed_artifact_sha256"])')" >> "$GITHUB_ENV"
+          echo "## Recovery inputs are pinned to r4 artifact 14152481228 and immutable source seed 14121666814." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install Agent Form runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[agentic]'
+          python -m compileall -q src/flashloan_research scripts
+
+      - name: Download and verify original r4 semantic artifact
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r4-artifact"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "${{ steps.recovery.outputs.r4_artifact_id }}" \
+            --destination "$RUNNER_TEMP/r4-artifact/r4.zip" \
+            --extract-to "$RUNNER_TEMP/r4-artifact/unpacked" \
+            --max-wait-seconds 7200
+          echo "$R4_ARTIFACT_SHA256  $RUNNER_TEMP/r4-artifact/r4.zip" | sha256sum --check -
+          cp -a "$RUNNER_TEMP/r4-artifact/unpacked/." "$GITHUB_WORKSPACE/"
+          test -s "$FLR_DATABASE"
+          test -d "$FLR_ARTIFACT_ROOT"
+
+      - name: Restore and verify the immutable commit-pinned source seed
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/source-seed"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "${{ steps.recovery.outputs.source_seed_artifact_id }}" \
+            --destination "$RUNNER_TEMP/source-seed/seed.zip" \
+            --extract-to "$RUNNER_TEMP/source-seed/unpacked" \
+            --max-wait-seconds 7200
+          echo "$SEED_ARTIFACT_SHA256  $RUNNER_TEMP/source-seed/seed.zip" | sha256sum --check -
+          python scripts/restore_source_capture_checkpoint.py \
+            --artifact-root "$RUNNER_TEMP/source-seed/unpacked" \
+            --workspace "$GITHUB_WORKSPACE" \
+            | tee reports-agent-form-reviewer-source-restore.json
+          test -d "$FLR_SNAPSHOT_DIR"
+
+      - name: Install loopback-only local inference runtime
+        run: |
+          set -euo pipefail
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          bash -n "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          sudo systemctl start ollama
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$FLR_MODEL_NAME"
+          ollama show "$FLR_MODEL_NAME" --modelfile > reports-ollama-modelfile.txt
+          curl --fail --silent http://127.0.0.1:11434/api/tags > reports-ollama-model-manifest.json
+
+      - name: Requeue only verified r4 reviewer tasks
+        run: |
+          set -euo pipefail
+          python scripts/requeue_failed_reviewer_tasks.py \
+            --database "$FLR_DATABASE" \
+            --mission-id "$FLR_MISSION_ID" \
+            --expected-count 2 \
+            --workspace "$GITHUB_WORKSPACE" \
+            | tee reports-agent-form-reviewer-requeue.json
+
+      - name: Run only the requeued independent reviewers
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, sqlite3, time
+          from pathlib import Path
+          from flashloan_research.specialist_runner import run_specialist_batch
+
+          mission_id = os.environ["FLR_MISSION_ID"]
+          db = Path(os.environ["FLR_DATABASE"])
+          root = Path(os.environ["FLR_ARTIFACT_ROOT"])
+          started = time.time()
+          batches = []
+          while True:
+              result = run_specialist_batch(mission_id, db, root, limit=1)
+              batches.append(result)
+              if result["claimed_tasks"] == 0:
+                  break
+
+          con = sqlite3.connect(db)
+          con.row_factory = sqlite3.Row
+          try:
+              reviewer_rows = [dict(x) for x in con.execute(
+                  "SELECT task_id,task_type,role,status,attempts,max_attempts,error,result_json,payload_json "
+                  "FROM mission_tasks WHERE mission_id=? AND task_type='independent_review' ORDER BY task_id",
+                  (mission_id,),
+              )]
+              counts = [dict(x) for x in con.execute(
+                  "SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks "
+                  "WHERE mission_id=? GROUP BY task_type,role,status ORDER BY task_type,role,status",
+                  (mission_id,),
+              )]
+          finally:
+              con.close()
+
+          if len(reviewer_rows) != 2 or any(x["status"] != "completed" for x in reviewer_rows):
+              raise SystemExit(f"Reviewer recovery incomplete; task states: {reviewer_rows}")
+
+          decisions = []
+          for task in reviewer_rows:
+              result = json.loads(task["result_json"])
+              report_path = Path(result["report"])
+              if not report_path.is_file():
+                  raise SystemExit(f"Reviewer report missing: {report_path}")
+              report = json.loads(report_path.read_text(encoding="utf-8"))
+              if report.get("task_metadata", {}).get("task_id") != task["task_id"]:
+                  raise SystemExit("Reviewer report task identity mismatch")
+              if report.get("agent_metadata", {}).get("role") != "independent_reviewer":
+                  raise SystemExit("Reviewer report role identity mismatch")
+              decision = report.get("review_decision")
+              if decision not in {"accept", "accept_with_reservations", "reject", "inconclusive"}:
+                  raise SystemExit("Reviewer did not emit an explicit decision")
+              decisions.append({
+                  "repository": json.loads(task["payload_json"])["repository"],
+                  "review_decision": decision,
+                  "review_disagreements": report.get("review_disagreements", []),
+                  "accepted_evidence_ids": [x.get("evidence_id") for x in report.get("evidence", [])],
+                  "finding_count": len(report.get("findings", [])),
+                  "confidence": report.get("confidence"),
+                  "report": result["report"],
+              })
+
+          summary = {
+              "mission_id": mission_id,
+              "status": "reviewer_tasks_completed_pending_full_report_audit",
+              "reviewer_count": len(decisions),
+              "review_decisions": decisions,
+              "task_counts": counts,
+              "elapsed_seconds": round(time.time() - started, 2),
+              "prior_specialist_outputs_recomputed": False,
+              "evidence_gates_recomputed": False,
+              "semantic_audit_count_incremented": False,
+              "candidate_dossiers_generated": False,
+              "candidate_code_executed": False,
+              "inference_policy": "Ollama qwen2.5:3b on 127.0.0.1 only; no cloud or paid inference",
+          }
+          Path("reports-agent-form-reviewer-recovery.json").write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload recovered reviewer evidence and updated r4 database
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flashloan-agent-form-reviewer-recovery-20261115-r4
+          path: |
+            data/agentic-mission-pilot-20261115-r4.sqlite3
+            data/source-capture-pilot-vault/
+            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r4/
+            reports-agentic-restore-verification.json
+            reports-agent-form-reviewer-source-restore.json
+            reports-agent-form-reviewer-requeue.json
+            reports-agent-form-reviewer-recovery.json
+            reports-ollama-modelfile.txt
+            reports-ollama-model-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6

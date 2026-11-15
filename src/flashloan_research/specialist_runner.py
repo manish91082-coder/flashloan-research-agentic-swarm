@@ -52,11 +52,17 @@ ROLE_PROMPTS = {
         "If a license file is absent from captured files, report unknown rather than guessing."
     ),
     "independent_reviewer": (
-        "You are an adversarial independent reviewer, not a summarizer. Inspect the pinned source "
-        "evidence and every prior specialist report. For each material claim decide whether the "
-        "source actually supports it. Explicitly reject fabricated paths/lines, generic advice, "
-        "unlinked claims, overstated severity and unsupported economic conclusions. Return an "
-        "explicit review_decision and concise review_disagreements. Do not rubber-stamp."
+        "You are an adversarial independent reviewer, not a summarizer. Review all seven distinct "
+        "prior specialist roles and their complete material finding lists against the candidate's "
+        "commit-pinned source excerpts. Evidence ID existence proves provenance only; it does NOT "
+        "prove that every cited ID supports a claim. Check whether each ID actually supports the "
+        "specific finding, whether the cited IDs are unnecessarily broad, and whether different "
+        "roles have copied or repeated the same generic claim. Challenge category errors (for "
+        "example, labelling ordinary purpose/dependency statements as security findings), severity "
+        "inflation, unsupported high confidence, contradictions, missing callback/authentication/"
+        "repayment steps, and economic statements without numeric inputs. Distinguish source-observed "
+        "facts from inference. Preserve unresolved facts as unknown. Return an explicit review_decision "
+        "and concise, evidence-referenced review_disagreements; do not rubber-stamp."
     ),
 }
 
@@ -180,11 +186,12 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
     return excerpts
 
 def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
-                              inspection: dict[str, Any], max_chars: int = 24000) -> list[dict[str, Any]]:
-    """Load unique, task-pinned prior outputs for an adversarial reviewer."""
+                              inspection: dict[str, Any], max_chars: int = 18000) -> list[dict[str, Any]]:
+    """Load seven task-pinned reports in a reviewer-ready form without duplicating source blobs."""
     reports: list[dict[str, Any]] = []
     used = 0
     expected_commit = inspection.get("commit_sha")
+    expected_tree = inspection.get("tree_sha")
     for task in task_rows:
         task_type = task.get("task_type", "")
         if task.get("payload", {}).get("repository") != repository:
@@ -202,29 +209,90 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
             raise SpecialistTaskError("specialist report task provenance mismatch")
         if data.get("agent_metadata", {}).get("role") != task.get("role"):
             raise SpecialistTaskError("specialist report role provenance mismatch")
-        if data.get("evidence_validation", {}).get("inspection_commit_sha") != expected_commit:
+        validation = data.get("evidence_validation", {})
+        if validation.get("inspection_commit_sha") != expected_commit:
             raise SpecialistTaskError("specialist report commit provenance mismatch")
+        if validation.get("inspection_tree_sha") != expected_tree:
+            raise SpecialistTaskError("specialist report tree provenance mismatch")
+        if validation.get("all_findings_linked_to_accepted_evidence") is not True:
+            raise SpecialistTaskError("specialist report has no validated finding-to-evidence linkage")
+
+        # The independent reviewer receives all claims, disagreements/unknowns, and IDs.
+        # Full evidence excerpts are supplied once through verified_source_excerpts and
+        # the candidate evidence catalog, rather than duplicated seven times here.
+        raw_findings = data.get("findings", [])
+        raw_evidence = data.get("evidence", [])
+        raw_unknowns = data.get("unknowns", [])
+        if not isinstance(raw_findings, list) or not isinstance(raw_evidence, list) or not isinstance(raw_unknowns, list):
+            raise SpecialistTaskError("prior specialist report has a malformed findings/evidence/unknowns array")
+        if len(raw_findings) > 30 or len(raw_evidence) > 500 or len(raw_unknowns) > 25:
+            raise SpecialistTaskError(
+                f"prior specialist report exceeds lossless reviewer-context item limits: "
+                f"findings={len(raw_findings)}, evidence={len(raw_evidence)}, unknowns={len(raw_unknowns)}"
+            )
+        findings = []
+        for finding in raw_findings:
+            if not isinstance(finding, dict):
+                raise SpecialistTaskError("prior specialist report contains a malformed finding")
+            claim = finding.get("claim", "")
+            refs = finding.get("evidence_refs", [])
+            if not isinstance(claim, str) or len(claim) > 600:
+                raise SpecialistTaskError("prior finding claim exceeds the 600-character reviewer limit")
+            if not isinstance(refs, list) or len(refs) > 50:
+                raise SpecialistTaskError("prior finding evidence_refs exceed the lossless reviewer limit")
+            findings.append({
+                "finding_id": str(finding.get("finding_id", ""))[:80],
+                "claim": claim,
+                "category": finding.get("category"),
+                "severity": finding.get("severity"),
+                "claim_status": finding.get("claim_status"),
+                "confidence": finding.get("confidence"),
+                "evidence_refs": list(refs),
+            })
+        if any(not isinstance(item, dict) or not isinstance(item.get("evidence_id"), str)
+               for item in raw_evidence):
+            raise SpecialistTaskError("prior specialist report contains malformed accepted evidence")
+        evidence_ids = sorted({item["evidence_id"] for item in raw_evidence})
+        unknowns = []
+        for item in raw_unknowns:
+            if not isinstance(item, str) or len(item) > 500:
+                raise SpecialistTaskError("prior specialist unknown is malformed or exceeds 500 characters")
+            unknowns.append(item)
         compact = {
             "task_id": task.get("task_id"),
             "task_type": task_type,
             "role": task.get("role"),
-            "summary": data.get("summary"),
-            "purpose": data.get("purpose"),
+            "inspection_commit_sha": expected_commit,
+            "inspection_tree_sha": expected_tree,
+            "summary": str(data.get("summary", ""))[:600],
+            "purpose": str(data.get("purpose", ""))[:600],
             "implementation_status": data.get("implementation_status"),
-            "findings": data.get("findings", [])[:20],
-            "evidence": data.get("evidence", [])[:20],
-            "rejected_evidence": data.get("rejected_evidence", [])[:10],
-            "unknowns": data.get("unknowns", [])[:20],
+            "findings": findings,
+            "accepted_evidence_ids": evidence_ids,
+            "accepted_evidence_count": len(data.get("evidence", [])),
+            "rejected_evidence_count": len(data.get("rejected_evidence", [])),
+            "unknowns": unknowns,
             "confidence": data.get("confidence"),
+            "evidence_validation": {
+                "accepted_signal_references": validation.get("accepted_signal_references", 0),
+                "all_findings_linked_to_accepted_evidence": True,
+            },
         }
-        size = len(json.dumps(compact, ensure_ascii=False))
+        size = len(json.dumps(compact, ensure_ascii=False, separators=(",", ":")))
         if used + size > max_chars:
-            raise SpecialistTaskError("independent reviewer context would omit a required prior report")
+            raise SpecialistTaskError(
+                f"compact independent-review context exceeds {max_chars} characters; refusing to omit a required prior report"
+            )
         reports.append(compact)
         used += size
     if len(reports) != 7:
-        raise SpecialistTaskError(f"independent review requires 7 distinct candidate-purpose/specialist reports; got {len(reports)}")
+        raise SpecialistTaskError(
+            f"independent review requires 7 distinct candidate-purpose/specialist reports; got {len(reports)}"
+        )
+    if len({item["task_type"] for item in reports}) != 7:
+        raise SpecialistTaskError("independent review context contains duplicate specialist task types")
     return reports
+
 def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any],
                                role: str) -> dict[str, Any]:
     required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
@@ -466,7 +534,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 if role == "independent_reviewer":
                     prior = _prior_specialist_reports(
                         store.list_tasks(mission_id), repository, inspection,
-                        max_chars=int(os.getenv("FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS", "9000")),
+                        max_chars=int(os.getenv("FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS", "18000")),
                     )
                 context = {
                     "repository": repository,
