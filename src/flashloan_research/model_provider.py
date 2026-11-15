@@ -118,7 +118,9 @@ def _output_schema(required_keys: set[str], role: str | None = None,
     }
     if "findings" in properties and role in role_categories:
         properties["findings"]["items"]["properties"]["category"]["enum"] = role_categories[role]
-        if role != "solidity_security":
+        if role == "solidity_security":
+            properties["findings"]["items"]["properties"]["severity"]["enum"] = ["informational", "low", "medium", "high", "critical"]
+        else:
             properties["findings"]["items"]["properties"]["severity"]["enum"] = ["not_applicable"]
     if role == "independent_reviewer":
         properties["review_decision"]["enum"] = [
@@ -205,7 +207,7 @@ class LocalOpenAICompatibleProvider:
         role_contract = (
             "You are the independent reviewer. Return an explicit review_decision and evidence-grounded review_disagreements. Challenge each material claim; do not rubber-stamp.\n"
             if is_reviewer else
-            "This is a specialist task, not an independent review. The schema intentionally excludes review_decision and review_disagreements. Do not emit either reviewer-only key.\n"
+            "This is a specialist task, not an independent review. Follow the supplied schema exactly and emit only fields present in it.\n"
         )
         contract = (
             "\n\nOUTPUT CONTRACT (mandatory): Return exactly one JSON object and no Markdown. "
