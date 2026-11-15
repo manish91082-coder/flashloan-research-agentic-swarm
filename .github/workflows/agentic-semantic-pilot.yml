@@ -21,18 +21,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      FLR_DATABASE: data/agentic-mission-pilot-20261115-r4.sqlite3
       FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
-      FLR_ARTIFACT_ROOT: research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r4
-      FLR_MISSION_ID: flashloan-agent-form-pilot-20261115-r4
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
-      FLR_MODEL_NAME: qwen2.5:3b
-      FLR_MODEL_TIMEOUT_SECONDS: '1200'
-      FLR_MODEL_MAX_FILES: '3'
-      FLR_MODEL_MAX_CONTEXT_CHARS: '6000'
-      FLR_MODEL_CONTEXT_LINES: '12'
-      FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS: '18000'
-      FLR_MODEL_MAX_OUTPUT_TOKENS: '1200'
       PYTHONUNBUFFERED: '1'
     steps:
       - name: Checkout canonical research project
@@ -53,6 +43,17 @@ jobs:
           TRIGGER_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_run_id"])')"
           ARTIFACT_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_artifact_id"])')"
           MISSION_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["mission_id"])')"
+          DATABASE="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["database"])')"
+          ARTIFACT_ROOT="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["artifact_root"])')"
+          ARTIFACT_SHA256="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_artifact_sha256"])')"
+          MODEL="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["model"])')"
+          BATCH_LIMIT="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["batch_limit"])')"
+          MODEL_TIMEOUT="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["model_timeout_seconds"])')"
+          MAX_FILES="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["context_limits"]["max_files"])')"
+          MAX_CHARS="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["context_limits"]["max_chars"])')"
+          CONTEXT_LINES="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["context_limits"]["context_lines"])')"
+          MAX_REVIEWER_CHARS="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["context_limits"]["max_reviewer_chars"])')"
+          MAX_OUTPUT_TOKENS="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["model_max_output_tokens"])')"
           if [[ ! "$SEED_RUN_ID" =~ ^[0-9]+$ || ! "$TRIGGER_RUN_ID" =~ ^[0-9]+$ || ! "$ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
             echo "Invalid Agent Form pilot checkpoint identity." >&2
             exit 1
@@ -61,14 +62,30 @@ jobs:
             echo "Trigger checkpoint does not match the preserved immutable pilot seed; refusing to run."
             exit 1
           fi
-          if [[ "$MISSION_ID" != "$FLR_MISSION_ID" ]]; then
-            echo "Trigger mission ID does not match this isolated pilot workflow." >&2
+          if [[ ! "$ARTIFACT_SHA256" =~ ^[0-9a-f]{64}$ || "$DATABASE" != data/*.sqlite3 || "$ARTIFACT_ROOT" != research_runs/mission-pilots/* ]]; then
+            echo "Invalid artifact digest, database path or artifact root." >&2
             exit 1
           fi
+          if [[ "$BATCH_LIMIT" != "2" || "$MODEL" != "qwen2.5:3b" ]]; then
+            echo "Pilot batch/model violates the approved bounded r5 configuration." >&2
+            exit 1
+          fi
+          echo "FLR_DATABASE=$DATABASE" >> "$GITHUB_ENV"
+          echo "FLR_ARTIFACT_ROOT=$ARTIFACT_ROOT" >> "$GITHUB_ENV"
+          echo "FLR_MISSION_ID=$MISSION_ID" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_NAME=$MODEL" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_TIMEOUT_SECONDS=$MODEL_TIMEOUT" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_FILES=$MAX_FILES" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_CONTEXT_CHARS=$MAX_CHARS" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_CONTEXT_LINES=$CONTEXT_LINES" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS=$MAX_REVIEWER_CHARS" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_OUTPUT_TOKENS=$MAX_OUTPUT_TOKENS" >> "$GITHUB_ENV"
           echo "should_run=true" >> "$GITHUB_OUTPUT"
           echo "run_id=$TRIGGER_RUN_ID" >> "$GITHUB_OUTPUT"
           echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
+          echo "artifact_sha256=$ARTIFACT_SHA256" >> "$GITHUB_OUTPUT"
           echo "mission_id=$MISSION_ID" >> "$GITHUB_OUTPUT"
+          echo "batch_limit=$BATCH_LIMIT" >> "$GITHUB_OUTPUT"
           echo "Agent Form pilot seed: $TRIGGER_RUN_ID / artifact $ARTIFACT_ID / mission $MISSION_ID" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Download and verify immutable source-capture checkpoint
@@ -82,6 +99,7 @@ jobs:
             --destination "$RUNNER_TEMP/agentic-pilot-checkpoint/source-capture.zip" \
             --extract-to "$RUNNER_TEMP/agentic-pilot-checkpoint/unpacked" \
             --max-wait-seconds 7200
+          echo "${{ steps.seed.outputs.artifact_sha256 }}  $RUNNER_TEMP/agentic-pilot-checkpoint/source-capture.zip" | sha256sum --check -
           python scripts/restore_source_capture_checkpoint.py \
             --artifact-root "$RUNNER_TEMP/agentic-pilot-checkpoint/unpacked" \
             --workspace "$GITHUB_WORKSPACE" \
@@ -124,7 +142,7 @@ jobs:
             --vault "$FLR_SNAPSHOT_DIR" \
             --mission-db "$FLR_DATABASE" \
             --artifact-root "$FLR_ARTIFACT_ROOT" \
-            --batch-limit 2 \
+            --batch-limit "${{ steps.seed.outputs.batch_limit }}" \
             --mission-id "$FLR_MISSION_ID" \
             | tee reports-agent-form-bootstrap.json
 
