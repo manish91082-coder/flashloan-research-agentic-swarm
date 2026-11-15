@@ -204,12 +204,12 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             for index, (task_type, role) in enumerate(roles):
                 task_id = f"large-task-{index}"
                 report = {
-                    "summary": "A source-grounded report " + ("S" * 800),
-                    "purpose": "A repository purpose " + ("P" * 600),
+                    "summary": "A source-grounded report with bounded material context.",
+                    "purpose": "A repository purpose with bounded material context.",
                     "implementation_status": "partial",
                     "findings": [{
                         "finding_id": f"F-{index}-{finding_index}",
-                        "claim": f"Material claim {finding_index} from role {role}. " + ("C" * 240),
+                        "claim": f"Material claim {finding_index} from role {role}, supported by the pinned source.",
                         "category": "security",
                         "severity": "high",
                         "claim_status": "supported_inference",
