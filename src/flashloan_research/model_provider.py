@@ -232,7 +232,7 @@ class LocalOpenAICompatibleProvider:
         try:
             envelope = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            preview = raw[:240].decode("utf-8", errors="replace").replace("\\n", " ")
+            preview = raw[:240].decode("utf-8", errors="replace").replace("\n", " ")
             raise ModelProviderError(
                 "model returned malformed OpenAI-compatible response envelope; "
                 f"response_bytes={len(raw)} preview={preview!r}"
@@ -258,19 +258,19 @@ class LocalOpenAICompatibleProvider:
             result = content
         elif isinstance(content, str):
             candidate = content.strip()
-            if candidate.startswith("\\x60\\x60\\x60"):
+            if candidate.startswith("\x60\x60\x60"):
                 parts = candidate.splitlines()
-                if parts and parts[0].startswith("\\x60\\x60\\x60"):
+                if parts and parts[0].startswith("\x60\x60\x60"):
                     parts = parts[1:]
-                if parts and parts[-1].strip().startswith("\\x60\\x60\\x60"):
+                if parts and parts[-1].strip().startswith("\x60\x60\x60"):
                     parts = parts[:-1]
                 if parts and parts[0].strip().lower() == "json":
                     parts = parts[1:]
-                candidate = "\\n".join(parts).strip()
+                candidate = "\n".join(parts).strip()
             try:
                 result = json.loads(candidate)
             except json.JSONDecodeError as exc:
-                preview = candidate[:320].replace("\\n", " ")
+                preview = candidate[:320].replace("\n", " ")
                 raise ModelProviderError(
                     "model returned malformed OpenAI-compatible JSON response; "
                     f"diagnostics={diagnostic} content_preview={preview!r}"
