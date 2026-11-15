@@ -109,16 +109,13 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
     def test_canonical_purpose_loader_requires_exact_completed_task_and_source_pins(self):
         with tempfile.TemporaryDirectory() as tmp:
             task_id = "purpose-task-1"
-            report = {
-                "purpose_category": "flash_loan_liquidation_bot",
-                "task_metadata": {"task_id": task_id, "task_type": "candidate_purpose"},
-                "agent_metadata": {"role": "candidate_purpose"},
-                "evidence_validation": {
-                    "inspection_commit_sha": self.inspection["commit_sha"],
-                    "inspection_tree_sha": self.inspection["tree_sha"],
-                    "all_findings_linked_to_accepted_evidence": True,
-                },
+            report = validate_specialist_output(
+                sample_output(), self.inspection, "candidate_purpose",
+            )
+            report["task_metadata"] = {
+                "task_id": task_id, "task_type": "candidate_purpose",
             }
+            report["agent_metadata"] = {"role": "candidate_purpose"}
             path = Path(tmp) / "purpose.json"
             path.write_text(json.dumps(report), encoding="utf-8")
             task = {
