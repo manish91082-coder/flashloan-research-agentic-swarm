@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 from flashloan_research.specialist_runner import (
-    SpecialistTaskError, REQUIRED_KEYS, validate_specialist_output, _generate_validated_output, _evidence_catalog,
+    SpecialistTaskError, REQUIRED_KEYS, validate_specialist_output, _generate_validated_output, _source_supported_purpose_category, _evidence_catalog,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
     ROLE_PROMPTS, _canonical_purpose_category,
 )
@@ -85,6 +85,38 @@ class DuplicateClaimRetryTests(unittest.TestCase):
         self.assertIn("previous_rejected_output", provider.calls[1][1])
         self.assertEqual(len(result["findings"]), 1)
         self.assertTrue(result["evidence_validation"]["all_findings_linked_to_accepted_evidence"])
+
+    def test_source_pinned_aave_liquidation_signal_rejects_security_tooling_and_retries(self):
+        inspection = sample_inspection()
+        inspection["repository"] = "0xnavarro/Aave-Liquiditor"
+        inspection["captured_files"] = [{"path": "src/contracts/FlashLiquidator.sol"}]
+        inspection["signals"] = [{"signal": "aave_flash_loan_simple"}]
+        self.assertEqual(
+            _source_supported_purpose_category(inspection), "flash_loan_liquidation_bot"
+        )
+        class Provider:
+            def __init__(self): self.calls = []
+            def generate_json(self, prompt, context, required_keys):
+                self.calls.append((prompt, context))
+                category = "security_tooling" if len(self.calls) == 1 else "flash_loan_liquidation_bot"
+                result = sample_output(purpose_category=category)
+                return {k: v for k, v in result.items() if k in required_keys}
+        provider = Provider()
+        result = _generate_validated_output(
+            provider, "purpose prompt", {}, REQUIRED_KEYS, inspection, "candidate_purpose"
+        )
+        self.assertEqual(len(provider.calls), 2)
+        self.assertIn("only permitted purpose_category", provider.calls[1][1]["validation_feedback"])
+        self.assertEqual(result["purpose_category"], "flash_loan_liquidation_bot")
+
+    def test_source_pinned_uniswap_liquidation_signal_maps_to_flash_swap_liquidation(self):
+        inspection = sample_inspection()
+        inspection["repository"] = "AlbertSu123/UniswapFlashSwap"
+        inspection["captured_files"] = [{"path": "contracts/LiquidationOperator.sol"}]
+        inspection["signals"] = [{"signal": "uniswap_v2_flash_callback"}]
+        self.assertEqual(
+            _source_supported_purpose_category(inspection), "flash_swap_liquidation_bot"
+        )
 
     def test_non_duplicate_validation_errors_are_not_retried(self):
         class Provider:
