@@ -173,6 +173,11 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertEqual(Handler.body["max_tokens"], 1200)
         self.assertEqual(schema["properties"]["findings"]["items"]["properties"]["category"]["enum"], ["purpose", "protocol_flow"])
         self.assertEqual(schema["properties"]["findings"]["items"]["properties"]["evidence_refs"]["maxItems"], 4)
+        self.assertTrue(schema["properties"]["findings"]["items"]["properties"]["evidence_refs"]["uniqueItems"])
+        self.assertEqual(schema["properties"]["findings"]["maxItems"], 6)
+        self.assertEqual(schema["properties"]["evidence"]["maxItems"], 8)
+        self.assertTrue(schema["properties"]["evidence"]["uniqueItems"])
+        self.assertEqual(schema["properties"]["confidence"]["enum"], ["low", "medium"])
 
     def test_role_specific_schema_prevents_cross_domain_findings(self):
         Handler.response_content = json.dumps({

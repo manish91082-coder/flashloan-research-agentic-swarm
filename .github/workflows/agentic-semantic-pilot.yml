@@ -67,7 +67,7 @@ jobs:
             exit 1
           fi
           if [[ "$BATCH_LIMIT" != "2" || "$MODEL" != "qwen2.5:3b" ]]; then
-            echo "Pilot batch/model violates the approved bounded r5 configuration." >&2
+            echo "Pilot batch/model violates the approved bounded local-model configuration." >&2
             exit 1
           fi
           echo "FLR_DATABASE=$DATABASE" >> "$GITHUB_ENV"
@@ -85,6 +85,8 @@ jobs:
           echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
           echo "artifact_sha256=$ARTIFACT_SHA256" >> "$GITHUB_OUTPUT"
           echo "mission_id=$MISSION_ID" >> "$GITHUB_OUTPUT"
+          echo "database=$DATABASE" >> "$GITHUB_OUTPUT"
+          echo "artifact_root=$ARTIFACT_ROOT" >> "$GITHUB_OUTPUT"
           echo "batch_limit=$BATCH_LIMIT" >> "$GITHUB_OUTPUT"
           echo "Agent Form pilot seed: $TRIGGER_RUN_ID / artifact $ARTIFACT_ID / mission $MISSION_ID" >> "$GITHUB_STEP_SUMMARY"
 
@@ -265,10 +267,10 @@ jobs:
         if: always() && steps.seed.outputs.should_run == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: flashloan-agent-form-semantic-pilot-20261115-r4
+          name: flashloan-agent-form-semantic-pilot-${{ steps.seed.outputs.mission_id }}
           path: |
-            data/agentic-mission-pilot-20261115-r4.sqlite3
-            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r4/
+            ${{ steps.seed.outputs.database }}
+            ${{ steps.seed.outputs.artifact_root }}/
             reports-agentic-restore-verification.json
             reports-agent-form-bootstrap.json
             reports-agent-form-semantic-pilot.json

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run a fresh isolated Agent Form r5 semantic-quality pilot. Apply strict purpose taxonomy, role-specific finding categories, calibrated confidence, narrow evidence references and independent evidence provenance revalidation. Preserve immutable source seed and do not reuse any r1-r4 mission database.",
+  "purpose": "Run a fresh isolated Agent Form r6 bounded-output semantic-quality pilot. Enforce compact unique evidence arrays, low/medium-only model confidence, mission-scoped artifact upload, source-provenance checks and targeted adversarial callback review. Preserve the immutable source seed; never reuse r1-r5 databases.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "checkpoint_artifact_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
@@ -14,9 +14,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
-  "mission_id": "flashloan-agent-form-pilot-20261115-r5",
-  "database": "data/agentic-mission-pilot-20261115-r5.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r5",
+  "mission_id": "flashloan-agent-form-pilot-20261115-r6",
+  "database": "data/agentic-mission-pilot-20261115-r6.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r6",
   "model_timeout_seconds": 1200,
   "context_limits": {
     "max_files": 3,
@@ -25,19 +25,20 @@
     "max_reviewer_chars": 18000
   },
   "model_max_output_tokens": 1200,
-  "output_contract_version": "5.0.0-semantic-quality-gates",
+  "output_contract_version": "5.1.0-bounded-model-output",
   "acceptance": [
     "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814 by exact SHA-256",
-    "bootstrap a fresh isolated r5 mission database and artifact root; do not reuse r1-r4 task state",
+    "bootstrap a fresh isolated r6 mission database and artifact root; do not reuse r1-r5 task state",
     "complete two candidate-purpose tasks and twelve distinct specialist tasks across the same two pinned candidates",
-    "require one strict purpose_category enum from the allowed taxonomy and prohibit review-topic labels as primary repository purpose",
-    "require role-specific finding category enums and severity=not_applicable for non-security specialists",
-    "limit every finding to at most four narrowly relevant evidence IDs",
-    "forbid high confidence unless implementation_status is implemented and unknowns is empty",
+    "enforce strict primary purpose taxonomy and role-specific finding categories",
+    "limit each finding to four unique relevant evidence IDs and each report to eight unique evidence IDs, six findings and eight unknowns",
+    "permit only low or medium model confidence; reserve any high-confidence assertion for subsequent human audit",
     "require all seven reports for each candidate to agree on purpose_category",
     "independently re-resolve every accepted evidence ID, excerpt, path, line, commit and tree against the pinned inspection catalog",
     "complete both positive semantic-quality and evidence-provenance gates",
     "complete two independent adversarial reviewers with explicit decisions and disagreements",
+    "reviewers must inspect lending Pool/provider identity, callback caller and initiator authentication, asset/amount binding, repayment/premium and actual callback implementation versus TODOs",
+    "upload the exact r6 SQLite database, all r6 reports, source inspection and reviewer artifacts under mission-scoped artifact name",
     "inspect all output reports and the full SQLite task ledger; any quality failure blocks downstream stages",
     "do not generate dossiers or increment semantic audit counts until the full pilot artifact and reviewer reports are independently accepted",
     "candidate code execution, wallet access, signing, deployment and live trading remain disabled; cloud and paid inference remain disabled"
@@ -51,8 +52,8 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "triggered_after_commit": "5bff54b556cf45d482391cefbf16de746df3f2f4",
-  "updated_at_utc": "2026-11-15T08:38:00Z",
+  "triggered_after_commit": "99747774a92b586bfebb0f6a240bf873d7f5ab3d",
+  "updated_at_utc": "2026-11-15T08:55:00Z",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r5-semantic-quality-gates-purpose-role-confidence-evidence-provenance"
+  "trigger_revision": "r6-bounded-unique-output-low-medium-confidence-dynamic-artifact-targeted-review"
 }
