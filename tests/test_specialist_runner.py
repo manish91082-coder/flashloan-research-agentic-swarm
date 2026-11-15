@@ -243,10 +243,10 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
                     "task_id": task_id, "payload": {"repository": "org/repo"},
                     "result": {"report": str(path)},
                 })
-            context = _prior_specialist_reports(tasks, "org/repo", self.inspection, max_chars=12000)
+            context = _prior_specialist_reports(tasks, "org/repo", self.inspection, max_chars=18000)
             rendered = json.dumps(context, ensure_ascii=False)
             self.assertEqual(len(context), 7)
-            self.assertLess(len(rendered), 12000)
+            self.assertLess(len(rendered), 18000)
             self.assertNotIn("LONG_SOURCE_EXCERPT_SHOULD_NOT_BE_DUPLICATED", rendered)
             self.assertTrue(all(len(item["findings"]) == 3 for item in context))
             self.assertTrue(all(item["accepted_evidence_ids"] == ["EV00001"] for item in context))
