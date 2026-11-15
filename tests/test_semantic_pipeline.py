@@ -44,13 +44,14 @@ class FakeLocalProvider:
             assert not ({"review_decision", "review_disagreements"} & required_keys)
         result = {
             "summary": "Fixture analysis; all material claims are linked to a pinned source signal.",
-            "purpose": "flash-loan liquidation research implementation",
+            "purpose": "Flash-loan liquidation research implementation.",
+            "purpose_category": "flash_loan_liquidation_bot",
             "implementation_status": "partial",
             "findings": [{
                 "finding_id": f"F-{role}",
                 "claim": "The pinned source excerpt contains the executeOperation callback declaration.",
-                "category": "protocol_flow",
-                "severity": "informational",
+                "category": category_by_role[role],
+                "severity": "high" if role == "solidity_security" else "not_applicable",
                 "claim_status": "source_observed",
                 "confidence": "low",
                 "evidence_refs": [evidence],
@@ -180,7 +181,11 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
                 for call in FakeLocalProvider.calls
             ))
             gate = json.loads(Path(result["evidence_validation"]["completed"][0]["report"]).read_text())
-            self.assertEqual(gate["evidence_gate"], "pinned_evidence_and_claim_linkage_pass")
+            self.assertEqual(gate["evidence_gate"], "pinned_evidence_semantic_quality_and_claim_linkage_pass")
+            self.assertTrue(gate["semantic_quality_pass"])
+            self.assertTrue(gate["role_category_pass"])
+            self.assertTrue(gate["confidence_calibration_pass"])
+            self.assertTrue(gate["purpose_consensus_pass"])
             self.assertGreater(gate["accepted_evidence_total"], 0)
             self.assertGreater(gate["candidate_purpose_evidence_count"], 0)
             reviewer = result["independent_review"]["completed"][0]
