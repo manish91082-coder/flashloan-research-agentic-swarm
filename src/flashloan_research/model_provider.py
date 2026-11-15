@@ -104,6 +104,7 @@ def _output_schema(required_keys: set[str], role: str | None = None) -> dict[str
             ]
         else:
             properties["review_decision"]["enum"] = ["not_applicable"]
+            properties["review_disagreements"]["maxItems"] = 0
     return {
         "type": "object",
         "properties": properties,
