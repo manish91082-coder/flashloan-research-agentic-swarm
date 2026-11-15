@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 from flashloan_research.source_capture_worker import (
@@ -133,6 +135,27 @@ class SourceCaptureWorkerTests(unittest.TestCase):
                 self.assertTrue(all(Path(row["report_path"]).is_file() for row in rows))
             finally:
                 queue.close()
+
+    def test_capture_cycle_emits_batch_start_and_per_candidate_progress(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = write_manifest(root)
+            worker = SourceCaptureWorker(
+                database_path=root / "state.sqlite3",
+                snapshot_dir=root / "snapshots",
+                output_dir=root / "reports",
+                pipeline_factory=FakePipeline,
+            )
+            output = io.StringIO()
+            with redirect_stdout(output):
+                result = worker.run_once(manifest, root, max_candidates=2, parallel=2)
+            events = [json.loads(line) for line in output.getvalue().splitlines() if line.strip()]
+            self.assertEqual(events[0]["event"], "source_capture_batch_started")
+            finished = [event for event in events if event["event"] == "source_capture_candidate_finished"]
+            self.assertEqual(len(finished), 2)
+            self.assertTrue(all(event["status"] == "captured" for event in finished))
+            self.assertTrue(all(event["completed_in_batch"] >= 1 for event in finished))
+            self.assertEqual(result["attempted_this_cycle"], 2)
 
     def test_transient_failure_is_retryable_and_then_captured(self):
         with tempfile.TemporaryDirectory() as tmp:
