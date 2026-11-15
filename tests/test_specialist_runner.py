@@ -36,7 +36,7 @@ def sample_output(**overrides):
             "finding_id": "F-1",
             "claim": "The repository defines an executeOperation callback.",
             "category": "protocol_flow",
-            "severity": "informational",
+            "severity": "not_applicable",
             "claim_status": "source_observed",
             "confidence": "medium",
             "evidence_refs": ["EV00001"],
