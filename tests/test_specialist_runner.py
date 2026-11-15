@@ -29,7 +29,8 @@ def sample_inspection():
 def sample_output(**overrides):
     value = {
         "summary": "The supplied source shows an executeOperation callback entry point.",
-        "purpose": "liquidation executor",
+        "purpose": "Flash-loan liquidation executor.",
+        "purpose_category": "flash_loan_liquidation_bot",
         "implementation_status": "partial",
         "findings": [{
             "finding_id": "F-1",
@@ -51,6 +52,55 @@ def sample_output(**overrides):
 class SpecialistEvidenceGateTests(unittest.TestCase):
     def setUp(self):
         self.inspection = sample_inspection()
+
+    def test_rejects_role_inappropriate_finding_category(self):
+        output = sample_output(findings=[{
+            "finding_id": "F-1", "claim": "A security flaw exists.",
+            "category": "security", "severity": "high",
+            "claim_status": "supported_inference", "confidence": "medium",
+            "evidence_refs": ["EV00001"],
+        }])
+        with self.assertRaisesRegex(SpecialistTaskError, "category is not permitted"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_security_severity_on_non_security_role(self):
+        output = sample_output(findings=[{
+            "finding_id": "F-1", "claim": "A liquidation callback is declared.",
+            "category": "protocol_flow", "severity": "high",
+            "claim_status": "source_observed", "confidence": "medium",
+            "evidence_refs": ["EV00001"],
+        }])
+        with self.assertRaisesRegex(SpecialistTaskError, "severity must be not_applicable"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_high_confidence_when_unknowns_remain_or_status_is_partial(self):
+        output = sample_output(confidence="high")
+        with self.assertRaisesRegex(SpecialistTaskError, "high confidence requires implemented status"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_invalid_purpose_category(self):
+        output = sample_output(purpose_category="security")
+        with self.assertRaisesRegex(SpecialistTaskError, "invalid or missing purpose_category"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_finding_with_more_than_four_evidence_references(self):
+        inspection = {
+            "repository": "org/repo", "commit_sha": "a" * 40, "tree_sha": "b" * 40,
+            "signals": [{"path": f"contracts/C{i}.sol", "line": i + 1,
+                         "signal": f"signal_{i}", "excerpt": f"source {i}"}
+                        for i in range(5)],
+        }
+        output = sample_output(
+            evidence=[f"EV{i:05d}" for i in range(1, 6)],
+            findings=[{
+                "finding_id": "F-1", "claim": "A bounded source claim.",
+                "category": "protocol_flow", "severity": "not_applicable",
+                "claim_status": "source_observed", "confidence": "medium",
+                "evidence_refs": [f"EV{i:05d}" for i in range(1, 6)],
+            }],
+        )
+        with self.assertRaisesRegex(SpecialistTaskError, "1..4 narrowly relevant IDs"):
+            validate_specialist_output(output, inspection, "candidate_purpose")
 
     def test_evidence_catalog_has_stable_ids_and_exact_source_coordinates(self):
         catalog = _evidence_catalog(self.inspection)
