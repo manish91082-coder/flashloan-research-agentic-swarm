@@ -38,6 +38,16 @@ class FakeLocalProvider:
         else:
             decision = "not_applicable"
             disagreements = []
+        category_by_role = {
+            "candidate_purpose": "purpose",
+            "protocol_specialist": "protocol_flow",
+            "solidity_security": "security",
+            "execution_engineer": "execution",
+            "test_verification": "testing",
+            "economics_quant": "economics",
+            "dependency_license": "dependency_license",
+            "independent_reviewer": "review_challenge",
+        }
         if role == "independent_reviewer":
             assert {"review_decision", "review_disagreements"}.issubset(required_keys)
         else:
