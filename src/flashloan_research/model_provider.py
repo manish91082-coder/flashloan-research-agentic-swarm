@@ -84,19 +84,32 @@ _FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
 }
 
 
-def _output_schema(required_keys: set[str]) -> dict[str, Any]:
-    """Build the exact, bounded JSON Schema required by a specialist task."""
+def _output_schema(required_keys: set[str], role: str | None = None) -> dict[str, Any]:
+    """Build a role-conditioned schema; review-only decisions are impossible for specialists."""
     unknown = sorted(required_keys - set(_FIELD_SCHEMAS))
     if unknown:
         raise ModelProviderError(f"no output schema is defined for required keys: {unknown}")
+    if "review_decision" in required_keys and role not in {
+        "candidate_purpose", "protocol_specialist", "solidity_security",
+        "execution_engineer", "test_verification", "economics_quant",
+        "dependency_license", "independent_reviewer",
+    }:
+        raise ModelProviderError("a recognized specialist role is required for review-conditioned output")
     keys = sorted(required_keys)
+    properties = {key: dict(_FIELD_SCHEMAS[key]) for key in keys}
+    if "review_decision" in properties:
+        if role == "independent_reviewer":
+            properties["review_decision"]["enum"] = [
+                "accept", "accept_with_reservations", "reject", "inconclusive"
+            ]
+        else:
+            properties["review_decision"]["enum"] = ["not_applicable"]
     return {
         "type": "object",
-        "properties": {key: _FIELD_SCHEMAS[key] for key in keys},
+        "properties": properties,
         "required": keys,
         "additionalProperties": False,
     }
-
 
 class LocalOpenAICompatibleProvider:
     """Strict local-only OpenAI-compatible chat-completions adapter.
@@ -142,7 +155,7 @@ class LocalOpenAICompatibleProvider:
             raise ModelProviderError("system_prompt cannot be empty")
         if not isinstance(user_payload, dict):
             raise ModelProviderError("user_payload must be a JSON object")
-        schema = _output_schema(required_keys)
+        schema = _output_schema(required_keys, role=user_payload.get("role"))
         contract = (
             "\n\nOUTPUT CONTRACT (mandatory): Return exactly one JSON object and no Markdown. "
             "Include every required key, use the declared types and enum values, and do not add "
