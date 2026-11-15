@@ -22,6 +22,10 @@ class SemanticPilotWorkflowContractTests(unittest.TestCase):
         self.assertIn("${{ steps.seed.outputs.artifact_root }}/", workflow)
         self.assertNotIn("data/agentic-mission-pilot-20261115-r4.sqlite3", workflow)
         self.assertNotIn("flashloan-agent-form-pilot-20261115-r4/", workflow)
+        self.assertIn('report.get("evidence_gate") != "pinned_evidence_semantic_quality_and_claim_linkage_pass"', workflow)
+        self.assertIn('if decision != "accept":', workflow)
+        self.assertIn('if disagreements:', workflow)
+        self.assertIn('Independent review did not accept', workflow)
 
 
 if __name__ == "__main__":
