@@ -246,3 +246,14 @@
 - Regression tests verify the source worker emits progress only on stderr and that GitHub retry telemetry is captured from stderr.
 - PR CI passed Python 3.11/3.12/3.13. Main merge CI [43685837776](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43685837776) is in progress.
 - Active source run 43681954178 and Agent Form r2 pilot 43683037797 predate this merge and remain separately in progress at the latest check. The last durable source checkpoint remains 942/7,901; no semantic audit has been accepted or counted.
+
+
+## 2026-11-15 — source checkpoint 1,055 and Agent Form r4 launch
+
+- Independently downloaded and inspected source artifact 14151925155 from run 43688683947. Its checkpoint JSON and SQLite queue agree: 1,055 captured, 6,831 pending, 0 leased, 15 failed; coverage split is 762 complete within configured scope and 293 coverage-limited.
+- The 12-item cycle in that artifact contained 10 successful captures and two HTTP 404 Git-tree lookups left pending/retryable. Existing 15 failed records remain empty-Git-repository HTTP 409 source-availability cases.
+- Successor workflow 43688785565 restored the exact parent checkpoint and was in its next 12-candidate capture step at the latest verification. No successor artifact/count is claimed until its checkpoint upload is inspected.
+- r3 semantic pilot 43687345074 was not accepted: qwen2.5:1.5b returned malformed OpenAI-compatible JSON for both candidate-purpose requests. Its artifact 14150952579 confirms that no specialist, evidence or reviewer gate passed.
+- PR #21 merged at 4d5d403121ec48c541f0fe646d76f7e90910bc36. It returns inference to qwen2.5:3b, adds bounded malformed-output diagnostics and fenced/pre-parsed JSON handling, and retries malformed/truncated JSON/timeouts only within the existing attempt budget. CI 43688699274 passed on Python 3.11/3.12/3.13.
+- Fresh r4 Agent Form pilot 43688699311 was launched with a new database and mission ID, the immutable 268-candidate seed, qwen2.5:3b, reduced source context and a 1,200-token output cap. Restore/runtime/bootstrap passed; the semantic specialist/evidence/reviewer step was still running at the latest verification. No r4 quality pass or audit count is claimed.
+- Research scope and safety invariants remain unchanged: no candidate code execution, wallet access, signing, deployment, live trading, paid inference or cloud inference.
