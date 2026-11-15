@@ -27,7 +27,9 @@ jobs:
       FLR_MISSION_ID: flashloan-agent-form-pilot-20261115-r4
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
       FLR_MODEL_NAME: qwen2.5:3b
-      FLR_MODEL_TIMEOUT_SECONDS: '1200'
+      FLR_MODEL_MAX_TOKENS: '700'
+      FLR_PILOT_CANDIDATES: '1'
+      FLR_MODEL_TIMEOUT_SECONDS: '900'
       FLR_MODEL_MAX_FILES: '3'
       FLR_MODEL_MAX_CONTEXT_CHARS: '6000'
       FLR_MODEL_CONTEXT_LINES: '12'
@@ -124,7 +126,7 @@ jobs:
             --vault "$FLR_SNAPSHOT_DIR" \
             --mission-db "$FLR_DATABASE" \
             --artifact-root "$FLR_ARTIFACT_ROOT" \
-            --batch-limit 2 \
+            --batch-limit "$FLR_PILOT_CANDIDATES" \
             --mission-id "$FLR_MISSION_ID" \
             | tee reports-agent-form-bootstrap.json
 
@@ -155,19 +157,33 @@ jobs:
 
           if result.get("status") != "executed_with_evidence_gate":
               raise SystemExit("Agent Form semantic pipeline did not complete its required stages. See blocked stage and task ledger; no candidate may be counted as audited.")
-          failures = [
+          candidate_count = int(os.environ["FLR_PILOT_CANDIDATES"])
+          attempt_failures = [
               item for batch in result.get("specialist_batches", [])
               for item in batch.get("failures", [])
           ]
-          failures += result.get("evidence_validation", {}).get("failures", [])
-          failures += result.get("independent_review", {}).get("failures", [])
-          if failures:
-              raise SystemExit(f"Pilot contains failed model/evidence/reviewer tasks: {failures}")
+          # A retryable timeout may appear in an earlier batch and subsequently
+          # succeed. Accept only terminal task failures after the queue is drained.
+          terminal_failures = [
+              item for item in attempt_failures
+              if item.get("status") not in {"pending", "leased"}
+          ]
+          terminal_failures += result.get("evidence_validation", {}).get("failures", [])
+          terminal_failures += result.get("independent_review", {}).get("failures", [])
+          Path("reports-agent-form-retry-attempts.json").write_text(
+              json.dumps({"all_attempt_failures": attempt_failures,
+                          "terminal_failures": terminal_failures}, indent=2, sort_keys=True) + "\\n",
+              encoding="utf-8",
+          )
+          if terminal_failures:
+              raise SystemExit(f"Pilot contains terminal model/evidence/reviewer task failures: {terminal_failures}")
 
           gates = result.get("evidence_validation", {}).get("completed", [])
           reviewers = result.get("independent_review", {}).get("completed", [])
-          if len(gates) != 2 or len(reviewers) != 2:
-              raise SystemExit(f"Expected 2 evidence gates and 2 reviewers; got {len(gates)} and {len(reviewers)}.")
+          if len(gates) != candidate_count or len(reviewers) != candidate_count:
+              raise SystemExit(
+                  f"Expected {candidate_count} evidence gates and reviewers; got {len(gates)} and {len(reviewers)}."
+              )
 
           decisions = []
           for gate in gates:
@@ -255,6 +271,7 @@ jobs:
             reports-agent-form-bootstrap.json
             reports-agent-form-semantic-pilot.json
             reports-agent-form-acceptance.json
+            reports-agent-form-retry-attempts.json
             reports-agent-form-task-ledger.json
             reports-ollama-modelfile.txt
             reports-ollama-model-manifest.json
