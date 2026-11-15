@@ -177,7 +177,7 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
 
 def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
                               inspection: dict[str, Any], max_chars: int = 24000) -> list[dict[str, Any]]:
-    """Load actual completed specialist analysis for independent review, not just file paths."""
+    """Load unique, task-pinned prior outputs for an adversarial reviewer."""
     reports: list[dict[str, Any]] = []
     used = 0
     expected_commit = inspection.get("commit_sha")
@@ -190,29 +190,37 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
         if task.get("status") != "completed":
             raise SpecialistTaskError(f"prior specialist task is not completed: {task.get('task_id')}")
         report_path = (task.get("result") or {}).get("report")
-        if not isinstance(report_path, str) or not report_path:
-            raise SpecialistTaskError(f"specialist report path missing: {task.get('task_id')}")
+        if not isinstance(report_path, str) or not report_path or not Path(report_path).is_file():
+            raise SpecialistTaskError(f"specialist report missing: {task.get('task_id')}")
         data = json.loads(Path(report_path).read_text(encoding="utf-8"))
+        metadata = data.get("task_metadata", {})
+        if metadata.get("task_id") != task.get("task_id") or metadata.get("task_type") != task_type:
+            raise SpecialistTaskError("specialist report task provenance mismatch")
         if data.get("agent_metadata", {}).get("role") != task.get("role"):
             raise SpecialistTaskError("specialist report role provenance mismatch")
         if data.get("evidence_validation", {}).get("inspection_commit_sha") != expected_commit:
             raise SpecialistTaskError("specialist report commit provenance mismatch")
-        compact = {"task_type": task_type, "role": task.get("role"),
-                   "summary": data.get("summary"), "purpose": data.get("purpose"),
-                   "implementation_status": data.get("implementation_status"),
-                   "findings": data.get("findings", [])[:20], "evidence": data.get("evidence", [])[:20],
-                   "rejected_evidence": data.get("rejected_evidence", [])[:10],
-                   "unknowns": data.get("unknowns", [])[:20], "confidence": data.get("confidence")}
+        compact = {
+            "task_id": task.get("task_id"),
+            "task_type": task_type,
+            "role": task.get("role"),
+            "summary": data.get("summary"),
+            "purpose": data.get("purpose"),
+            "implementation_status": data.get("implementation_status"),
+            "findings": data.get("findings", [])[:20],
+            "evidence": data.get("evidence", [])[:20],
+            "rejected_evidence": data.get("rejected_evidence", [])[:10],
+            "unknowns": data.get("unknowns", [])[:20],
+            "confidence": data.get("confidence"),
+        }
         size = len(json.dumps(compact, ensure_ascii=False))
         if used + size > max_chars:
-            reports.append({"task_type": task_type, "role": task.get("role"), "omitted": True,
-                            "reason": "review_context_character_budget"})
-            break
+            raise SpecialistTaskError("independent reviewer context would omit a required prior report")
         reports.append(compact)
         used += size
+    if len(reports) != 7:
+        raise SpecialistTaskError(f"independent review requires 7 distinct candidate-purpose/specialist reports; got {len(reports)}")
     return reports
-
-
 def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any],
                                role: str) -> dict[str, Any]:
     missing = REQUIRED_KEYS - set(output)
