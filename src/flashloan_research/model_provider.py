@@ -102,8 +102,10 @@ _FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
 
 
 def _output_schema(required_keys: set[str], role: str | None = None,
-                   evidence_ids: list[str] | None = None) -> dict[str, Any]:
-    """Build a role-aware schema with evidence references constrained to the current pinned catalog."""
+                   evidence_ids: list[str] | None = None,
+                   canonical_purpose_category: str | None = None) -> dict[str, Any]:
+    """Build a role-aware schema with pinned evidence and inherited primary purpose."""
+
     unknown = sorted(required_keys - set(_FIELD_SCHEMAS))
     if unknown:
         raise ModelProviderError(f"no output schema is defined for required keys: {unknown}")
@@ -130,6 +132,15 @@ def _output_schema(required_keys: set[str], role: str | None = None,
             properties["findings"]["items"]["properties"]["severity"]["enum"] = ["informational", "low", "medium", "high", "critical"]
         else:
             properties["findings"]["items"]["properties"]["severity"]["enum"] = ["not_applicable"]
+    if canonical_purpose_category is not None:
+        allowed_purposes = _FIELD_SCHEMAS["purpose_category"]["enum"]
+        if canonical_purpose_category not in allowed_purposes:
+            raise ModelProviderError("canonical_purpose_category is not in the strict purpose taxonomy")
+        if "purpose_category" in properties:
+            properties["purpose_category"]["enum"] = [canonical_purpose_category]
+            properties["purpose_category"]["description"] = (
+                "Inherited from the completed candidate-purpose task. Do not reclassify the repository."
+            )
     if role == "independent_reviewer":
         properties["review_decision"]["enum"] = [
             "accept", "accept_with_reservations", "reject", "inconclusive"
@@ -232,7 +243,10 @@ class LocalOpenAICompatibleProvider:
                 raise ModelProviderError("source_evidence_catalog entries must include evidence_id strings")
             evidence_ids.append(item["evidence_id"])
         schema = _output_schema(
-            required_keys, role=user_payload.get("role"), evidence_ids=evidence_ids,
+            required_keys,
+            role=user_payload.get("role"),
+            evidence_ids=evidence_ids,
+            canonical_purpose_category=user_payload.get("canonical_purpose_category"),
         )
         is_reviewer = user_payload.get("role") == "independent_reviewer"
         role_contract = (
@@ -244,6 +258,7 @@ class LocalOpenAICompatibleProvider:
             "\n\nOUTPUT CONTRACT (mandatory): Return exactly one JSON object and no Markdown. "
             "Include every required key, use the declared types and enum values, and do not add extra keys. "
             "purpose_category must classify the repository's actual primary function; never use a review topic such as security as the repository purpose. "
+            "For non-purpose specialist roles, purpose_category is inherited from the completed candidate-purpose task and the schema restricts it to that exact value; do not reclassify it. "
             "Finding category is role-restricted by the schema. Non-security roles must use severity=not_applicable. "
             "Return at most six distinct findings, eight distinct report-level evidence IDs and eight unknowns. "
             "Never repeat an evidence ID; select only the smallest set that directly supports the claims. "
