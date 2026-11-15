@@ -156,6 +156,29 @@ def _output_schema(required_keys: set[str], role: str | None = None,
         "additionalProperties": False,
     }
 
+def _deduplicate_model_evidence_ids(result: dict[str, Any]) -> dict[str, Any]:
+    """Remove exact repeated model-selected IDs without inventing or remapping evidence.
+
+    Small local models may ignore JSON Schema uniqueItems. Stable de-duplication is
+    semantics-preserving for identifier sets; the specialist validator still checks
+    every retained ID against the pinned catalog and verifies each finding linkage.
+    Malformed/non-string values are left untouched so downstream validation fails closed.
+    """
+    evidence = result.get("evidence")
+    if isinstance(evidence, list) and all(isinstance(item, str) for item in evidence):
+        result["evidence"] = list(dict.fromkeys(evidence))
+
+    findings = result.get("findings")
+    if isinstance(findings, list):
+        for finding in findings:
+            if not isinstance(finding, dict):
+                continue
+            refs = finding.get("evidence_refs")
+            if isinstance(refs, list) and all(isinstance(item, str) for item in refs):
+                finding["evidence_refs"] = list(dict.fromkeys(refs))
+    return result
+
+
 class LocalOpenAICompatibleProvider:
     """Strict local-only OpenAI-compatible chat-completions adapter.
 
@@ -321,6 +344,7 @@ class LocalOpenAICompatibleProvider:
                 "model output must be a JSON object; "
                 f"diagnostics={diagnostic}"
             )
+        result = _deduplicate_model_evidence_ids(result)
         missing = sorted(required_keys - set(result))
         if missing:
             raise ModelProviderError(f"model output missing required keys: {missing}")
