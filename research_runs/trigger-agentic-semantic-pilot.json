@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run a fresh isolated Agent Form r7 semantic-quality pilot after merged stable normalization of repeated model-selected evidence IDs. Preserve exact evidence provenance, strict pinned-catalog membership and fail-closed validation; do not reuse r1-r6 mission state.",
+  "purpose": "Run a fresh isolated Agent Form r8 semantic-quality pilot after canonical candidate-purpose inheritance was merged. Preserve exact evidence provenance, strict pinned-catalog membership, role-exclusive specialist outputs and fail-closed validation; do not reuse r1-r7 mission state.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "checkpoint_artifact_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
@@ -14,9 +14,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
-  "mission_id": "flashloan-agent-form-pilot-20261115-r7",
-  "database": "data/agentic-mission-pilot-20261115-r7.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r7",
+  "mission_id": "flashloan-agent-form-pilot-20261115-r8",
+  "database": "data/agentic-mission-pilot-20261115-r8.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r8",
   "model_timeout_seconds": 1200,
   "context_limits": {
     "max_files": 3,
@@ -25,22 +25,28 @@
     "max_reviewer_chars": 18000
   },
   "model_max_output_tokens": 1200,
-  "output_contract_version": "5.1.1-stable-evidence-id-normalization",
+  "output_contract_version": "5.2.0-canonical-purpose-inheritance",
   "acceptance": [
     "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814 by exact SHA-256",
-    "bootstrap a fresh isolated r7 mission database and artifact root; never reuse r1-r6 task state",
+    "bootstrap a fresh isolated r8 mission database and artifact root; never reuse r1-r7 task state",
     "complete two candidate-purpose tasks and twelve distinct specialist tasks across the same two pinned candidates",
+    "classify each candidate's actual primary product/function using the explicit strict taxonomy; security_tooling is permitted only for a product whose primary function is scanning, auditing, monitoring or protecting other software, not merely a contract undergoing security review",
+    "treat partial implementation and TODOs separately from intended primary purpose; do not relabel an unfinished flash-swap liquidation prototype as unrelated or security tooling solely because its callback is incomplete",
+    "use the completed, task-pinned candidate-purpose report as the sole canonical primary purpose classification for each candidate",
+    "for every downstream specialist and independent reviewer task, load and verify the canonical purpose report task ID, role, commit SHA, tree SHA and accepted evidence provenance; constrain purpose_category to that exact value in JSON Schema and deterministic validation",
+    "fail closed if canonical purpose report is missing, duplicated, malformed, wrong-task, wrong-commit/tree, has invalid category or lacks valid pinned evidence provenance",
     "stably normalize exact repeated string evidence IDs in report evidence and finding evidence_refs, preserving first-seen order without inventing or remapping IDs",
     "keep malformed/non-string evidence values fail-closed and retain strict pinned-catalog membership, evidence provenance and finding-to-evidence linkage validation",
     "enforce strict primary purpose taxonomy, role-specific finding categories and non-security severity=not_applicable",
     "limit each finding to four unique relevant evidence IDs and each report to eight unique evidence IDs, six findings and eight unknowns",
     "permit only low or medium model confidence; reserve any high-confidence assertion for subsequent human audit",
-    "require all seven reports for each candidate to agree on purpose_category",
+    "require all seven reports for each candidate to carry the exact canonical purpose_category",
     "independently re-resolve every accepted evidence ID, excerpt, path, line, commit and tree against the pinned inspection catalog",
     "complete both positive semantic-quality and evidence-provenance gates",
     "complete two independent adversarial reviewers with explicit decisions and disagreements",
     "reviewers must inspect lending Pool/provider identity, callback caller and initiator authentication, asset/amount binding, repayment/premium and actual callback implementation versus TODOs",
-    "upload the exact r7 SQLite database, all r7 reports, source inspection and reviewer artifacts under mission-scoped artifact name",
+    "reviewers must challenge whether the canonical candidate-purpose category itself matches the source evidence; inherited category agreement is not proof of classification correctness",
+    "upload the exact r8 SQLite database, all r8 reports, source inspection and reviewer artifacts under mission-scoped artifact name",
     "inspect all output reports and the full SQLite task ledger; any quality failure blocks downstream stages",
     "do not generate dossiers or increment semantic audit counts until the full pilot artifact and reviewer reports are independently accepted",
     "candidate code execution, wallet access, signing, deployment and live trading remain disabled; cloud and paid inference remain disabled"
@@ -54,8 +60,8 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "triggered_after_commit": "17cc27b5b7fc9c5dd96be7203f005d4e8f18cca5",
-  "updated_at_utc": "2026-11-15T08:55:00Z",
+  "triggered_after_commit": "eb0ae1d12589fb931947bc1d006883f1f7174726",
+  "updated_at_utc": "2026-11-15T11:12:00Z",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r7-post-merge-stable-dedup-fresh-isolated-pilot"
+  "trigger_revision": "r8-post-pr26-canonical-purpose-inheritance-fresh-isolated-pilot"
 }
