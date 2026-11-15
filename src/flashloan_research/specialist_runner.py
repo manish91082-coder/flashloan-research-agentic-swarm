@@ -250,6 +250,10 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
             rejected.append({"item": evidence_id, "reason": "not_present_in_pinned_evidence_catalog"})
         elif evidence_id not in selected_ids:
             selected_ids.append(evidence_id)
+    if rejected:
+        raise SpecialistTaskError(
+            f"model returned evidence IDs that are not in the pinned catalog: {rejected[:5]}"
+        )
     accepted = [
         {
             **catalog_by_id[evidence_id],
