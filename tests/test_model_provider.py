@@ -166,7 +166,7 @@ class LocalModelProviderTests(unittest.TestCase):
             schema["properties"]["purpose_category"]["enum"],
             ["flash_loan_liquidation_bot"],
         )
-        self.assertIn("inherited", schema["properties"]["purpose_category"]["description"])
+        self.assertIn("Inherited", schema["properties"]["purpose_category"]["description"])
 
     def test_rejects_invalid_canonical_purpose_category_before_network_call(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
