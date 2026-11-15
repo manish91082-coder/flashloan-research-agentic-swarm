@@ -70,6 +70,10 @@ def _is_rate_limited(status: int, body: str) -> bool:
     )
 
 
+def _is_retryable_server_error(status: int) -> bool:
+    return status in {500, 502, 503, 504}
+
+
 def download_artifact(
     repository: str,
     artifact_id: int,
@@ -134,19 +138,26 @@ def download_artifact(
             return target
         except urllib.error.HTTPError as exc:
             body = exc.read(16_384).decode("utf-8", errors="replace")
-            if not _is_rate_limited(exc.code, body):
+            rate_limited = _is_rate_limited(exc.code, body)
+            transient_server_error = _is_retryable_server_error(exc.code)
+            if not rate_limited and not transient_server_error:
                 raise ArtifactDownloadError(
                     f"GitHub artifact download failed with HTTP {exc.code}: {body[:1000]}"
                 ) from exc
             remaining = deadline - clock_fn()
             if remaining <= 0:
+                reason = "API rate limit" if rate_limited else "transient server error"
                 raise ArtifactDownloadError(
-                    f"artifact API rate limit remained active after {max_wait_seconds} seconds: {body[:500]}"
+                    f"artifact {reason} persisted after {max_wait_seconds} seconds: {body[:500]}"
                 ) from exc
-            delay = min(_rate_limit_delay(exc.headers, body, attempt, clock_fn()), remaining)
+            if rate_limited:
+                delay = min(_rate_limit_delay(exc.headers, body, attempt, clock_fn()), remaining)
+                label = "GitHub artifact API rate-limited"
+            else:
+                delay = min(float(min(300, 5 * (2 ** min(attempt - 1, 5)))), remaining)
+                label = f"GitHub artifact endpoint returned HTTP {exc.code}"
             print(
-                f"GitHub artifact API rate-limited (attempt {attempt}); "
-                f"retrying in {int(delay)} seconds.",
+                f"{label} (attempt {attempt}); retrying in {int(delay)} seconds.",
                 flush=True,
             )
             partial.unlink(missing_ok=True)
