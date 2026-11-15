@@ -6,7 +6,7 @@ import io
 import json
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr
 from dataclasses import replace
 from email.message import Message
 from io import BytesIO
@@ -113,7 +113,7 @@ class ExtendedRegressionTests(unittest.TestCase):
             clock=lambda: 1000.0,
         )
         output = io.StringIO()
-        with redirect_stdout(output):
+        with redirect_stderr(output):
             self.assertEqual(client.get("/rate-limit"), {"ok": True})
         self.assertEqual(calls, 2)
         self.assertEqual(sleeps, [1001])

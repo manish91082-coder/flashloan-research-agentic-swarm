@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import random
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -80,7 +81,7 @@ class GitHubClient:
                     "rate_limit_reset": reset,
                     "retry_after": retry_after,
                     "sleep_seconds": delay,
-                }, sort_keys=True), flush=True)
+                }, sort_keys=True), file=sys.stderr, flush=True)
                 self.sleep(delay)
             except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
                 last_error = exc
@@ -94,7 +95,7 @@ class GitHubClient:
                     "attempt": attempt + 1,
                     "max_attempts": self.settings.max_retries + 1,
                     "sleep_seconds": round(delay, 2),
-                }, sort_keys=True), flush=True)
+                }, sort_keys=True), file=sys.stderr, flush=True)
                 self.sleep(delay)
         raise GitHubAPIError(f"GitHub API request failed: {last_error}")
 

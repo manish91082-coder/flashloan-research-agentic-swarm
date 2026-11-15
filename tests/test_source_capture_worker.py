@@ -5,7 +5,7 @@ import io
 import json
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 from flashloan_research.source_capture_worker import (
@@ -146,10 +146,12 @@ class SourceCaptureWorkerTests(unittest.TestCase):
                 output_dir=root / "reports",
                 pipeline_factory=FakePipeline,
             )
-            output = io.StringIO()
-            with redirect_stdout(output):
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
                 result = worker.run_once(manifest, root, max_candidates=2, parallel=2)
-            events = [json.loads(line) for line in output.getvalue().splitlines() if line.strip()]
+            self.assertEqual(stdout.getvalue(), "")
+            events = [json.loads(line) for line in stderr.getvalue().splitlines() if line.strip()]
             self.assertEqual(events[0]["event"], "source_capture_batch_started")
             finished = [event for event in events if event["event"] == "source_capture_candidate_finished"]
             self.assertEqual(len(finished), 2)
