@@ -3,10 +3,10 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R10_SOURCE_PINNED_PURPOSE_AND_DUPLICATE_CLAIM_RETRY_PILOT",
-  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_2893_CAPTURED_2093_COMPLETE_WITHIN_SCOPE_800_COVERAGE_LIMITED_4965_PENDING_43_FAILED; R9_FAILED_DUPLICATE_CLAIM_AND_PURPOSE_CLASSIFICATION_DEFECTS; PR28_MERGED_CI_PASS_311_312_313; R10_TRIGGERED_SEMANTIC_AUDIT_NOT_ACCEPTED",
+  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_2893_CAPTURED_2093_COMPLETE_WITHIN_SCOPE_800_COVERAGE_LIMITED_4965_PENDING_43_FAILED; R9_FAILED_DUPLICATE_CLAIM_AND_PURPOSE_CLASSIFICATION_DEFECTS; PR28_MERGED_CI_PASS_311_312_313; R10_TRIGGERED_SEMANTIC_AUDIT_NOT_ACCEPTED; R10_SEED_ARCHIVE_INDEPENDENT_PREFLIGHT_PASS_268_REPORTS_3527_BLOB_REFERENCES_RUNNER_RESTORE_PENDING",
   "last_verified_at_utc": "2026-11-15T16:22:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "9065accbf27c4c7cd30424f3a4ee9d320da78181",
+  "latest_commit_at_checkpoint": "55dba6056c4cad550cb56084d73d9734e70983cf",
   "latest_ci_run": {
     "run_id": 43733950800,
     "event": "pull_request",
@@ -937,6 +937,23 @@
     "seed_artifact_id": 14121666814,
     "model": "qwen2.5:3b",
     "batch_limit": 2,
-    "semantic_audit_count_incremented": false
+    "semantic_audit_count_incremented": false,
+    "runner_status": "in_progress",
+    "current_blocking_step": "Download and verify immutable source-capture checkpoint",
+    "independent_seed_preflight": {
+      "artifact_id": 14121666814,
+      "expected_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
+      "observed_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
+      "zip_crc_check": "ok",
+      "sqlite_integrity_check": "ok",
+      "queue_total": 7901,
+      "queue_captured": 268,
+      "queue_pending": 7631,
+      "queue_failed": 2,
+      "reports_identity_verified": 268,
+      "git_blob_references_verified": 3527,
+      "validation_errors": 0,
+      "status": "independent_archive_preflight_passed; GitHub runner restore step still pending"
+    }
   }
 }
