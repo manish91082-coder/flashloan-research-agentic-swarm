@@ -2,25 +2,25 @@
   "project": "Flash Loan Research Agentic Swarm",
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
-  "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE; B3_ROLE_EXCLUSIVE_SOURCE_GROUNDED_AGENT_FORM_PILOT",
-  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_SOURCE_CAPTURE_942_OF_7901; 6947_PENDING; 0_LEASED; 12_EMPTY_GIT_REPOSITORY_HTTP_409_FAILURES; 687_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 255_WITH_COVERAGE_LIMITS; PR13_AND_PR14_MERGED; ROLE_EXCLUSIVE_REVIEWER_SCHEMA; FRESH_AGENT_FORM_PILOT_R2_43683037797_RUNNING; SEMANTIC_AUDIT_NOT_YET_ACCEPTED",
-  "last_verified_at_utc": "2026-11-15T05:58:00Z",
+  "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE; B3_ROLE_EXCLUSIVE_SOURCE_GROUNDED_AGENT_FORM_PILOT; SOURCE_CAPTURE_PROGRESS_TELEMETRY",
+  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_SOURCE_CAPTURE_942_OF_7901; 6947_PENDING; 0_LEASED; 12_EMPTY_GIT_REPOSITORY_HTTP_409_FAILURES; 687_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 255_WITH_COVERAGE_LIMITS; PR13_PR14_PR15_MERGED; ROLE_EXCLUSIVE_REVIEWER_SCHEMA; SOURCE_CAPTURE_TELEMETRY_MERGED; FRESH_AGENT_FORM_PILOT_R2_43683037797_RUNNING; SEMANTIC_AUDIT_NOT_YET_ACCEPTED",
+  "last_verified_at_utc": "2026-11-15T06:18:03.402Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "08b9f6d1f129298f7faf42b50529cbc6e14f27b0",
+  "latest_commit_at_checkpoint": "a54019a4f6e95cd657e94b79cc3a0712be2bc976",
   "latest_ci_run": {
-    "run_id": 43683037814,
+    "run_id": 43684603884,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "08b9f6d1f129298f7faf42b50529cbc6e14f27b0",
+    "head_sha": "a54019a4f6e95cd657e94b79cc3a0712be2bc976",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "Main CI after PR #14 merge passed standard-library tests, compileall and WSL resume-helper syntax validation on Python 3.11/3.12/3.13."
+    "tests": "PR #15 merge commit CI passed source-capture progress events, GitHub API retry telemetry, standard-library tests, compileall and WSL resume-helper syntax on Python 3.11/3.12/3.13."
   },
-  "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814).",
+  "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics.",
   "discovery": {
     "snapshot_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
     "snapshot_commit": "231f47f0ada252a921a065da935720873f397bef",
@@ -65,8 +65,8 @@
   "architecture": {
     "research_engine": "Python deterministic public GitHub acquisition and source evidence capture",
     "database": "SQLite WAL, mission queue plus idempotent task DAG and leases",
-    "orchestration_phase_b": "LangGraph checkpointed graph and SQLite DAG. Deterministic public GitHub discovery/source capture runs on a GitHub-hosted self-chaining pipeline. Local open-weight inference is loopback-only and CPU-only in a bounded semantic pilot. PR #13 enforces exact source evidence IDs, finding-to-evidence links, per-task report provenance, serialized leases and fail-closed zero-evidence gates. PR #14 removes reviewer-only fields from specialist model schemas entirely; only the independent reviewer receives explicit review-decision/disagreement fields, with reviewer metadata injected deterministically for specialist reports. Fresh live pilot artifacts must be inspected before semantic audit counts move.",
-    "scheduling": "GitHub Actions for CI and bounded taxonomy discovery; persistent local/WSL workers for source-capture queue and future local-model inference",
+    "orchestration_phase_b": "LangGraph checkpointed graph and SQLite DAG. Deterministic public GitHub discovery/source capture runs on a GitHub-hosted self-chaining pipeline. Local open-weight inference is loopback-only and CPU-only in a bounded semantic pilot. PR #13 enforces exact source evidence IDs, finding-to-evidence links, per-task report provenance, serialized leases and fail-closed zero-evidence gates. PR #14 removes reviewer-only fields from specialist model schemas entirely; only the independent reviewer receives explicit review-decision/disagreement fields, with reviewer metadata injected deterministically for specialist reports. Fresh live pilot artifacts must be inspected before semantic audit counts move. PR #15 adds batch-start/per-candidate completion events and structured retry/backoff telemetry to source capture; the currently running source workflow predates this observability merge, so it does not emit these new events.",
+    "scheduling": "GitHub Actions for CI, discovery and self-chaining commit-pinned source capture; structured per-candidate/retry telemetry is merged for future source runs; a separate GitHub-hosted workflow runs bounded Ollama CPU pilot and Agent Form evidence/reviewer gates. No local WSL/laptop dependency on the primary path.",
     "n8n": "optional notifications/approval UI only",
     "schedule": "GitHub Actions for CI, 11-family discovery, and self-chaining bounded source capture; next phase must integrate Agent Form mission/task DAG with hosted loopback-only open-weight inference pilot."
   },
@@ -85,7 +85,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Continue source capture from immutable checkpoint run 43681894031 / artifact 14148553489. Latest durable queue: 7,901 total / 942 captured / 6,947 pending / 0 leased / 12 terminal empty-Git-repository HTTP 409 failures; 687 complete within configured source scope and 255 coverage-limited. The latest successful 12-item cycle is workflow 43681894031; its successor 43681954178 restored the exact run/artifact pair and is in the next capture batch. Separately, prior r1 pilot 43681829089 failed closed on both candidate-purpose outputs because a shared JSON Schema exposed reviewer-only values to specialists; no specialist/evidence/reviewer candidate acceptance or semantic count was recorded. PR #14 merged at 08b9f6d1f129298f7faf42b50529cbc6e14f27b0; specialists now receive only seven common output fields, and the independent reviewer alone receives reviewer decision/disagreement fields. Fresh r2 pilot 43683037797 uses mission flashloan-agent-form-pilot-20261115-r2, fresh SQLite/artifact paths, and preserved seed 43615137961 / artifact 14121666814; it has restored the source checkpoint, installed Agent Form and is installing local qwen2.5:3b on loopback Ollama. Require two candidate-purpose outputs, twelve distinct specialists, two positive evidence gates with linked source findings, and two explicit independent reviewer decisions. Inspect the complete artifact before any semantic audit count changes. After acceptance, implement candidate dossier generator and reviewer-disagreement reconciliation; enqueue next priority candidate batch in persistent mission DAG; continue source capture and semantic audit as separate pipelines; reconcile 7,901 candidates, incomplete discovery queries, empty repos and retry debt; produce final classification, architecture comparison, security findings and economic feasibility matrix. Research-only: no candidate code execution, wallet, signing, deployment, live trading, paid or cloud inference, and no laptop/WSL task required.",
+  "next_gate": "Continue the locked public GitHub flash-loan/liquidation repository research mission. Latest durable source checkpoint remains run 43681894031 / artifact 14148553489, SHA-256 dfb9b9a57c60e7ea708d5d85d93df416f251c889343ec508a8f2be27cef2e1a: 7,901 total / 942 captured / 6,947 pending / 0 leased / 12 terminal empty-Git-repository HTTP 409 failures; 687 complete within configured source scope and 255 coverage-limited. The prior 12-item cycle contained 11 successful captures and 1 empty-repository failure (not 10/2). Successor source run 43681954178 restored the immutable checkpoint and remains in its capture step; no newer durable artifact is available yet. PR #15 merged at a54019a4f6e95cd657e94b79cc3a0712be2bc976; it adds structured batch-start, per-candidate completion and GitHub API retry telemetry for subsequent source runs, but the active source run predates this change. PR #13 and #14 remain the evidence-ID and role-exclusive output quality gates. Fresh r2 pilot 43683037797 uses mission flashloan-agent-form-pilot-20261115-r2, a fresh SQLite DB/artifact root and immutable seed run 43615137961 / artifact 14121666814; restore, Agent Form/Ollama install and fresh DAG bootstrap passed, and serialized specialist/evidence/reviewer execution is still in progress. Require both candidate-purpose tasks, twelve distinct specialist reports, two positive evidence gates with claim-linked source evidence, and two explicit independent-review decisions; inspect the complete artifact before semantic audit counts change. After acceptance, implement candidate dossier generation and reviewer-disagreement reconciliation; enqueue the next priority batch into the persistent mission DAG; keep source capture and semantic audit separate; reconcile 7,901 candidates, 10 incomplete discovery query templates, empty repositories and retries; then deliver final repository classification, architecture comparison, source-grounded security findings and economic feasibility matrix. Safety remains research-only: no candidate code execution, wallet/signing/deployment/live trading, cloud or paid inference, and no laptop/WSL user task.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -245,8 +245,8 @@
       "artifact_sha256": "dfb9b9a57c60e7ea708d5d85d93df416f251c889343ec508a8f2be27cef2e1a",
       "cycle": {
         "attempted": 12,
-        "captured": 10,
-        "failed": 2
+        "captured": 11,
+        "failed": 1
       },
       "queue": {
         "total": 7901,
@@ -344,10 +344,11 @@
     "Fresh isolated Agent Form pilot triggered as run 43681829089 with a new database and mission ID; latest observed at Ollama installation. Semantic audit count remains unchanged.",
     "PR #14 merged at 08b9f6d1f129298f7faf42b50529cbc6e14f27b0: specialist model output schemas now omit reviewer-only fields entirely; the independent reviewer alone receives review_decision/review_disagreements. Specialist reports receive deterministic not_applicable/empty reviewer metadata only after successful validation. r2 pilot workflow uses unique mission/database/artifact names.",
     "PR #14 CI run 43682983408 passed Python 3.11/3.12/3.13. Main merge CI run 43683037814 passed Python 3.11/3.12/3.13.",
-    "Fresh r2 pilot 43683037797 advanced past immutable checkpoint restore, Agent Form installation, Ollama qwen2.5:3b installation and fresh DAG bootstrap; serialized specialist/evidence/reviewer execution is now in progress. No result artifact has been accepted yet."
+    "Fresh r2 pilot 43683037797 advanced past immutable checkpoint restore, Agent Form installation, Ollama qwen2.5:3b installation and fresh DAG bootstrap; serialized specialist/evidence/reviewer execution is now in progress. No result artifact has been accepted yet.",
+    "PR #15 merged at a54019a4f6e95cd657e94b79cc3a0712be2bc976: source-capture workflow now emits structured batch-start and per-candidate completion events; GitHub API rate-limit, 5xx and network retry/backoff waits emit structured telemetry without secrets. Tests assert both telemetry contracts. PR and merge CI run 43684603884 passed Python 3.11/3.12/3.13."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
-  "continuity_docs_commit": "5ed8b2bbdcc64b91b7d15fe1288921d6c7e6477d",
+  "continuity_docs_commit": "pending_same_update",
   "product_direction": "FORM_DRIVEN_AUTONOMOUS_AGENTIC_RESEARCH_SWARM",
   "goal_lock": "Research Mission Form is the primary user interface; the orchestrator autonomously plans, dispatches, verifies, persists and continues research tasks.",
   "form_intake": {
@@ -465,7 +466,10 @@
       "restore_status": "checkpoint_restored_and_verified",
       "agent_form_runtime": "installed",
       "local_inference_runtime": "Ollama qwen2.5:3b installed and service running on 127.0.0.1:11434",
-      "mission_dag": "fresh mission bootstrapped; two candidate source-capture tasks completed"
+      "mission_dag": "fresh mission bootstrapped; two candidate source-capture tasks completed",
+      "last_status_checked_at_utc": "2026-11-15T06:18:03.402Z",
+      "accepted": false,
+      "artifact_uploaded": false
     },
     "semantic_audit_count_incremented": false,
     "candidate_code_executed": false,
@@ -486,8 +490,11 @@
     "uses_pinned_artifact_id": true,
     "previous_cycle": {
       "attempted": 12,
-      "captured": 10,
-      "failed": 2
-    }
+      "captured": 11,
+      "failed": 1
+    },
+    "telemetry_in_current_run": false,
+    "telemetry_effective_from": "next source-capture workflow run after PR #15 merge",
+    "last_status_checked_at_utc": "2026-11-15T06:18:03.402Z"
   }
 }
