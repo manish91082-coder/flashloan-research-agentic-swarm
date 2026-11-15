@@ -15,7 +15,7 @@
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
   "acceptance": [
     "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814",
-    "bootstrap a fresh mission database and unique r3 mission ID, with no reuse of r1 or r2 failed task state",
+    "bootstrap a fresh mission database and unique r4 mission ID, with no reuse of r1 or r2 failed task state",
     "complete both candidate-purpose tasks and twelve distinct specialist tasks across two candidates",
     "the JSON Schema evidence.items enum must contain only evidence IDs from that candidate's commit-pinned source_evidence_catalog",
     "the JSON Schema findings[].evidence_refs.items enum must contain only IDs from the same candidate catalog",
@@ -39,7 +39,7 @@
     "cloud_inference": false
   },
   "triggered_after_commit": "84dc4e423d5884cb170500aec3961e22345d749f",
-  "updated_at_utc": "2026-11-15T07:10:00Z",
+  "updated_at_utc": "2026-11-15T07:15:00Z",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
   "trigger_revision": "r4-qwen3b-dynamic-evidence-enum-diagnostic-json-parser",
   "mission_id": "flashloan-agent-form-pilot-20261115-r4",
