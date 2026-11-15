@@ -117,6 +117,8 @@ class LocalModelProviderTests(unittest.TestCase):
         )
         specialist_enum = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["review_decision"]["enum"]
         self.assertEqual(specialist_enum, ["not_applicable"])
+        specialist_schema = Handler.body["response_format"]["json_schema"]["schema"]["properties"]
+        self.assertEqual(specialist_schema["review_disagreements"]["maxItems"], 0)
 
         Handler.response_content = json.dumps({
             "summary": "Independent review of prior source reports.",
@@ -135,6 +137,8 @@ class LocalModelProviderTests(unittest.TestCase):
         reviewer_enum = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["review_decision"]["enum"]
         self.assertEqual(reviewer_enum, ["accept", "accept_with_reservations", "reject", "inconclusive"])
         self.assertNotIn("not_applicable", reviewer_enum)
+        reviewer_schema = Handler.body["response_format"]["json_schema"]["schema"]["properties"]
+        self.assertNotIn("maxItems", reviewer_schema["review_disagreements"])
 
     def test_full_output_schema_requires_a_recognized_role(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
