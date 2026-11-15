@@ -8,6 +8,7 @@ from pathlib import Path
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, validate_specialist_output, _evidence_catalog,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
+    _generate_validated_output,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -83,24 +84,51 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         with self.assertRaisesRegex(SpecialistTaskError, "invalid or missing purpose_category"):
             validate_specialist_output(output, self.inspection, "candidate_purpose")
 
-    def test_rejects_finding_with_more_than_four_evidence_references(self):
+    def test_rejects_more_than_four_total_evidence_ids(self):
         inspection = {
             "repository": "org/repo", "commit_sha": "a" * 40, "tree_sha": "b" * 40,
             "signals": [{"path": f"contracts/C{i}.sol", "line": i + 1,
                          "signal": f"signal_{i}", "excerpt": f"source {i}"}
                         for i in range(5)],
         }
-        output = sample_output(
-            evidence=[f"EV{i:05d}" for i in range(1, 6)],
-            findings=[{
-                "finding_id": "F-1", "claim": "A bounded source claim.",
-                "category": "protocol_flow", "severity": "not_applicable",
-                "claim_status": "source_observed", "confidence": "medium",
-                "evidence_refs": [f"EV{i:05d}" for i in range(1, 6)],
-            }],
-        )
-        with self.assertRaisesRegex(SpecialistTaskError, "at most 4 narrowly relevant IDs"):
+        output = sample_output(evidence=[f"EV{i:05d}" for i in range(1, 6)])
+        with self.assertRaisesRegex(SpecialistTaskError, "evidence must contain 1..4 unique"):
             validate_specialist_output(output, inspection, "candidate_purpose")
+
+    def test_corrective_retry_repairs_high_confidence_with_unknowns(self):
+        class SequenceProvider:
+            identity = SimpleNamespace(provider="test", model="fixture", prompt_template_version="5.1")
+            def __init__(self):
+                self.outputs = [sample_output(confidence="high"), sample_output(confidence="medium")]
+                self.payloads = []
+            def generate_json(self, system_prompt, payload, required_keys):
+                self.payloads.append(payload)
+                return self.outputs.pop(0)
+
+        provider = SequenceProvider()
+        result = _generate_validated_output(
+            provider, "candidate_purpose", {"repository": "org/repo"},
+            REQUIRED_KEYS, self.inspection,
+        )
+        self.assertEqual(result["confidence"], "medium")
+        self.assertEqual(len(provider.payloads), 2)
+        self.assertIn("validation_feedback", provider.payloads[1])
+        self.assertIn("high confidence", provider.payloads[1]["validation_feedback"]["rejected_reason"])
+
+    def test_corrective_retry_fails_closed_if_model_repeats_invalid_confidence(self):
+        class SequenceProvider:
+            identity = SimpleNamespace(provider="test", model="fixture", prompt_template_version="5.1")
+            def __init__(self):
+                self.outputs = [sample_output(confidence="high"), sample_output(confidence="high")]
+            def generate_json(self, system_prompt, payload, required_keys):
+                return self.outputs.pop(0)
+
+        with self.assertRaisesRegex(SpecialistTaskError, "after one corrective retry"):
+            _generate_validated_output(
+                SequenceProvider(), "candidate_purpose", {"repository": "org/repo"},
+                REQUIRED_KEYS, self.inspection,
+            )
+
 
     def test_report_evidence_provenance_rechecks_exact_signal_and_commit_tree_pins(self):
         report = validate_specialist_output(sample_output(), self.inspection, "protocol_specialist")
