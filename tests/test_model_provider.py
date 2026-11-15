@@ -203,6 +203,66 @@ class LocalModelProviderTests(unittest.TestCase):
             )
         self.assertIsNone(Handler.body)
 
+    def test_evidence_arrays_are_enum_constrained_to_pinned_catalog_ids(self):
+        Handler.response_content = json.dumps({
+            "summary": "Source-grounded callback purpose.",
+            "purpose": "liquidation executor",
+            "implementation_status": "partial",
+            "findings": [{
+                "finding_id": "F-1",
+                "claim": "The source defines an execution callback.",
+                "category": "protocol_flow",
+                "severity": "informational",
+                "claim_status": "source_observed",
+                "confidence": "low",
+                "evidence_refs": ["EV00001"],
+            }],
+            "evidence": ["EV00001"],
+            "unknowns": ["Runtime execution not tested."],
+            "confidence": "low",
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "unknowns", "confidence",
+        }
+        catalog = [
+            {"evidence_id": "EV00001", "path": "src/Liquidator.sol", "line": 42, "signal": "executeOperation"},
+            {"evidence_id": "EV00002", "path": "src/Liquidator.sol", "line": 57, "signal": "flashLoan"},
+        ]
+        provider.generate_json(
+            "Classify purpose.", {"role": "candidate_purpose", "source_evidence_catalog": catalog}, required,
+        )
+        props = Handler.body["response_format"]["json_schema"]["schema"]["properties"]
+        self.assertEqual(props["evidence"]["items"]["enum"], ["EV00001", "EV00002"])
+        self.assertEqual(
+            props["findings"]["items"]["properties"]["evidence_refs"]["items"]["enum"],
+            ["EV00001", "EV00002"],
+        )
+        self.assertEqual(Handler.body["max_tokens"], 700)
+
+    def test_empty_catalog_schema_forbids_evidence_and_findings(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "unknowns", "confidence",
+        }
+        Handler.response_content = json.dumps({
+            "summary": "No source signal is available.",
+            "purpose": "unknown",
+            "implementation_status": "unknown",
+            "findings": [],
+            "evidence": [],
+            "unknowns": ["No eligible source signal was captured."],
+            "confidence": "low",
+        })
+        provider.generate_json(
+            "Classify.", {"role": "candidate_purpose", "source_evidence_catalog": []}, required,
+        )
+        props = Handler.body["response_format"]["json_schema"]["schema"]["properties"]
+        self.assertEqual(props["evidence"]["maxItems"], 0)
+        self.assertEqual(props["findings"]["maxItems"], 0)
+
     def test_reviewer_only_schema_requires_independent_reviewer_role(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
