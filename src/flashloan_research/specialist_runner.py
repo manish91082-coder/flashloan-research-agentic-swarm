@@ -16,38 +16,38 @@ from .storage import write_json
 
 ROLE_PROMPTS = {
     "candidate_purpose": (
-        "Classify the repository's actual purpose from its pinned source files. Identify the "
+        "Classify the repository's actual purpose from its pinned source files and select exactly one purpose_category from the strict taxonomy. Identify the "
         "main executable entry points and implemented protocol flow. Distinguish working code "
         "from TODOs, comments, examples and README claims. Do not grade security or economics "
         "unless directly established. If the supplied source is insufficient, return unknown."
     ),
     "protocol_specialist": (
-        "Analyze the actual protocol integration and end-to-end call flow: provider entry point, "
+        "Use purpose_category consistently with the candidate-purpose report. Analyze the actual protocol integration and end-to-end call flow: provider entry point, "
         "callback, initiator and asset binding, debt/collateral handling, repayment and premium. "
         "Name only behavior visible in the supplied source excerpts. Mark omitted stages unknown."
     ),
     "solidity_security": (
-        "Perform source-grounded Solidity security triage: callback caller authentication, "
+        "Use purpose_category consistently with the candidate-purpose report. Perform source-grounded Solidity security triage: callback caller authentication, "
         "initiator binding, asset/amount binding, access control, reentrancy, token handling, "
         "oracle assumptions and repayment. A signal is not proof of exploitability. Cite evidence IDs."
     ),
     "execution_engineer": (
-        "Assess executable transaction flow from source: contract entry points, provider callback, "
+        "Use purpose_category consistently with the candidate-purpose report. Assess executable transaction flow from source: contract entry points, provider callback, "
         "DEX route, atomicity, approvals, slippage bounds, revert handling and execution wiring. "
         "Do not infer runtime success from a function name or TODO."
     ),
     "test_verification": (
-        "Assess actual test/CI files supplied: test cases, assertions, fixtures, mocks, fork tests, "
+        "Use purpose_category consistently with the candidate-purpose report. Assess actual test/CI files supplied: test cases, assertions, fixtures, mocks, fork tests, "
         "coverage limitations and CI configuration. A test filename or dependency is not proof a "
         "behavior is tested. Missing test evidence must remain unknown."
     ),
     "economics_quant": (
-        "Assess only source-visible economic formulas: liquidation eligibility, debt/collateral "
+        "Use purpose_category consistently with the candidate-purpose report. Assess only source-visible economic formulas: liquidation eligibility, debt/collateral "
         "arithmetic, bonus, flash premium, swap fees, gas inputs, slippage and net-profit gate. "
         "Never invent market prices, gas quotes or profitability. Missing inputs remain unknown."
     ),
     "dependency_license": (
-        "Assess dependencies, version pins, build configuration and license evidence from supplied "
+        "Use purpose_category consistently with the candidate-purpose report. Assess dependencies, version pins, build configuration and license evidence from supplied "
         "source/metadata. Do not infer license from a badge, README statement or package name. "
         "If a license file is absent from captured files, report unknown rather than guessing."
     ),
@@ -527,12 +527,18 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                     "accepted_evidence_total": total_accepted,
                     "source_linked_findings_total": total_findings,
                     "candidate_purpose_evidence_count": purpose_evidence,
-                    "evidence_gate": "pinned_evidence_and_claim_linkage_pass",
+                    "evidence_gate": "pinned_evidence_semantic_quality_and_claim_linkage_pass",
                     "provenance_pass": True,
                     "claim_linkage_pass": True,
+                    "semantic_quality_pass": True,
+                    "role_category_pass": True,
+                    "confidence_calibration_pass": True,
+                    "purpose_consensus_pass": True,
+                    "purpose_category": next(iter(purpose_categories)),
                     "limitations": [
                         "The gate verifies exact source-signal IDs, report-task identity and pinned commit/tree provenance.",
-                        "It does not prove exploitability, economic feasibility or runtime behavior.",
+                        "The gate rejects role-category inflation, overbroad evidence lists, incompatible high confidence and disagreement on primary purpose taxonomy.",
+                        "It still does not prove exploitability, economic feasibility or runtime behavior; independent review must challenge claim semantics.",
                         "Independent review must still challenge all material claims.",
                     ],
                 }
