@@ -43,8 +43,6 @@ def sample_output(**overrides):
         "evidence": ["EV00001"],
         "unknowns": ["Runtime behavior has not been executed."],
         "confidence": "medium",
-        "review_decision": "not_applicable",
-        "review_disagreements": [],
     }
     value.update(overrides)
     return value
@@ -65,6 +63,8 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         self.assertEqual(len(result["evidence"]), 1)
         self.assertEqual(result["evidence"][0]["evidence_id"], "EV00001")
         self.assertEqual(result["evidence"][0]["commit_sha"], "a" * 40)
+        self.assertEqual(result["review_decision"], "not_applicable")
+        self.assertEqual(result["review_disagreements"], [])
         self.assertTrue(result["evidence_validation"]["all_findings_linked_to_accepted_evidence"])
 
     def test_rejects_any_model_evidence_id_not_in_the_pinned_catalog(self):
@@ -101,9 +101,14 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         with self.assertRaisesRegex(SpecialistTaskError, "zero-evidence output"):
             validate_specialist_output(invalid, self.inspection, "economics_quant")
 
+    def test_specialist_model_output_must_not_include_reviewer_only_fields(self):
+        output = sample_output(review_decision="not_applicable", review_disagreements=[])
+        with self.assertRaisesRegex(SpecialistTaskError, "must not contain reviewer-only fields"):
+            validate_specialist_output(output, self.inspection, "protocol_specialist")
+
     def test_reviewer_must_return_explicit_decision(self):
-        output = sample_output(review_decision="not_applicable")
-        with self.assertRaisesRegex(SpecialistTaskError, "explicit review_decision"):
+        output = sample_output(review_decision="not_applicable", review_disagreements=[])
+        with self.assertRaisesRegex(SpecialistTaskError, "explicit valid review_decision"):
             validate_specialist_output(output, self.inspection, "independent_reviewer")
 
     def test_verified_source_context_loads_hash_verified_bounded_excerpts(self):
