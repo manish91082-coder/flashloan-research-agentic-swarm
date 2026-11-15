@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run fresh isolated R12 semantic-quality pilot after PR #31 bounded duplicate-claim task retry fix. Preserve immutable seed and fail closed.",
+  "purpose": "Run fresh isolated R13 semantic-quality pilot against merged bounded duplicate-claim task retry fix. Preserve immutable source seed and fail closed.",
   "checkpoint_run_id": 43615137961,
   "checkpoint_artifact_id": 14121666814,
   "checkpoint_artifact_sha256": "3e5e9008cfee7d6e6b1623cea46120e8734920412cbdac232a0303a5a5561691",
@@ -14,9 +14,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434",
-  "mission_id": "flashloan-agent-form-pilot-20261115-r12",
-  "database": "data/agentic-mission-pilot-20261115-r12.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r12",
+  "mission_id": "flashloan-agent-form-pilot-20261115-r13",
+  "database": "data/agentic-mission-pilot-20261115-r13.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r13",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -28,21 +28,19 @@
   "output_contract_version": "5.3.0-source-pinned-candidate-purpose-schema+bounded-task-retry",
   "acceptance": [
     "restore and verify immutable source checkpoint run 43615137961 artifact 14121666814 by exact SHA-256",
-    "bootstrap a fresh isolated r11 mission database and artifact root; never reuse r1-r10 task state",
+    "bootstrap fresh isolated R13 database and artifact root; never reuse R1-R12 task state",
     "complete two candidate-purpose tasks and twelve distinct specialist tasks across the same two pinned candidates",
-    "before candidate-purpose model generation, source-pinned Aave liquidation path plus aave_flash_loan_simple signal must constrain JSON Schema purpose_category enum to exactly flash_loan_liquidation_bot",
-    "before candidate-purpose model generation, source-pinned Uniswap liquidation operator path plus uniswap_v2_flash_callback signal must constrain JSON Schema purpose_category enum to exactly flash_swap_liquidation_bot",
-    "candidate-purpose model must still generate its purpose explanation, implementation status, findings, evidence selections and unknowns; no post-generation category rewrite or silent validator bypass",
-    "independent source-signal validator must still verify the emitted category; if a model response violates the singleton enum, fail closed after bounded corrective validation",
-    "duplicate finding claim must receive one bounded corrective model retry; if the corrected output still fails, the specialist task must be re-queued and retried within the existing max_attempts=3 bound; strict validation remains fail-closed and no silent deduplication is allowed",
-    "all seven reports per candidate must inherit the exact task-pinned canonical purpose category and exact commit/tree evidence provenance",
-    "all 14 specialist tasks must complete; both candidate evidence gates must pass pinned evidence, semantic quality, provenance and claim linkage",
-    "two independent reviewers must each return exact unreserved accept, zero disagreements and non-empty pinned source evidence",
-    "reviewers must challenge Pool/provider identity, callback caller and initiator authentication, asset/amount binding, repayment/premium, TODOs and whether candidate purpose matches source",
-    "upload exact r11 SQLite database, all reports, inspection and reviewer artifacts under mission-scoped artifact name",
-    "inspect complete task ledger and reports; no dossier or semantic audit count increment until full artifact acceptance",
+    "source-pinned candidate purpose categories remain singleton schema enums and independent source-signal validation remains enabled",
+    "duplicate finding claim receives one bounded corrective model retry; if still invalid, task-level retry is re-queued and retried within max_attempts=3",
+    "strict duplicate validator remains fail-closed; no silent deduplication or post-generation category rewrite",
+    "inspect SQLite attempts/status for any duplicate-claim retry and confirm bounded attempts",
+    "all 14 specialist tasks complete; both evidence gates pass pinned evidence, semantic quality, provenance and claim linkage",
+    "two independent reviewers each return exact unreserved accept, zero disagreements and non-empty pinned source evidence",
+    "reviewers challenge Pool/provider identity, callback caller and initiator authentication, asset/amount binding, repayment/premium, TODOs and candidate purpose",
+    "upload exact R13 database, all reports, inspection and reviewer artifacts",
+    "no dossier or semantic audit count increment until full artifact acceptance",
     "candidate code execution, wallet access, transaction signing, deployment, live trading, cloud inference and paid inference remain disabled",
-    "if duplicate-claim output remains invalid after the in-call correction, task-level retry must be observed in SQLite attempts/status and either complete successfully or exhaust its explicit three-attempt bound without bypassing evidence validation"
+    "if duplicate-claim output does not recur, record that bounded retry path was not exercised; do not claim runtime retry success solely from unit tests"
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -53,8 +51,8 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "triggered_after_commit": "866dd3daca3f37ab816a79e501e9aad3a0f9e786",
-  "updated_at_utc": "2026-11-15T17:35:00Z",
+  "triggered_after_commit": "0f54dafb48916a928d5ab633da73ca57c4c01301",
+  "updated_at_utc": "2026-11-15T18:15:00Z",
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r12-after-pr31-bounded-duplicate-claim-task-retry"
+  "trigger_revision": "r13-after-merged-pr31-duplicate-claim-task-retry"
 }
