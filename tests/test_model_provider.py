@@ -99,7 +99,7 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertNotIn("review_disagreements", schema["properties"])
         self.assertIn("evidence_refs", schema["properties"]["findings"]["items"]["properties"])
         self.assertIn("source_evidence_catalog", Handler.body["messages"][0]["content"])
-        self.assertIn("Do not emit either reviewer-only key", Handler.body["messages"][0]["content"])
+        self.assertIn("Follow the supplied schema exactly", Handler.body["messages"][0]["content"])
         self.assertNotIn("review_decision", Handler.body["messages"][0]["content"])
 
     def test_reviewer_schema_requires_explicit_review_fields_and_excludes_not_applicable(self):
