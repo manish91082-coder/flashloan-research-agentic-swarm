@@ -439,7 +439,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
     # Preserve the existing injectable provider constructor contract used by
     # deterministic end-to-end fixtures and test doubles.
     provider.timeout_seconds = timeout_seconds
-    provider.prompt_template_version = "3.0.0-dynamic-evidence-enum"
+    provider.prompt_template_version = "4.0.0-model-output-diagnostics"
     store = MissionTaskStore(database_path)
     worker_id = f"specialist-{mission_id}"
     completed: list[dict[str, Any]] = []
@@ -524,7 +524,12 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     "report": str(path),
                 })
             except Exception as exc:
-                retryable = "TimeoutError" in str(exc) or "URLError" in str(exc)
+                retryable = (
+                    "TimeoutError" in str(exc)
+                    or "URLError" in str(exc)
+                    or "finish_reason=length" in str(exc)
+                    or "malformed OpenAI-compatible JSON response" in str(exc)
+                )
                 state = store.fail_task(
                     mission_id, task["task_id"], worker_id,
                     f"{type(exc).__name__}: {str(exc)}", retryable=retryable,
