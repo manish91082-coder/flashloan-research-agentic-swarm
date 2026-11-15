@@ -139,6 +139,9 @@ def _output_schema(required_keys: set[str], role: str | None = None,
         if "purpose_category" in properties:
             properties["purpose_category"]["enum"] = [canonical_purpose_category]
             properties["purpose_category"]["description"] = (
+                "Constrained by a source-pinned canonical purpose category. Preserve this exact value; "
+                "the model must still explain the purpose and support its claims with pinned evidence."
+                if role == "candidate_purpose" else
                 "Inherited from the completed candidate-purpose task. Do not reclassify the repository."
             )
     if role == "independent_reviewer":
@@ -258,7 +261,8 @@ class LocalOpenAICompatibleProvider:
             "\n\nOUTPUT CONTRACT (mandatory): Return exactly one JSON object and no Markdown. "
             "Include every required key, use the declared types and enum values, and do not add extra keys. "
             "purpose_category must classify the repository's actual primary function; never use a review topic such as security as the repository purpose. "
-            "For non-purpose specialist roles, purpose_category is inherited from the completed candidate-purpose task and the schema restricts it to that exact value; do not reclassify it. "
+            "For candidate-purpose roles, source-pinned protocol signals may constrain purpose_category to one exact value in the schema; still explain the repository's purpose and cite evidence. "
+            "For downstream specialist roles, purpose_category is inherited from the completed candidate-purpose task and the schema restricts it to that exact value; do not reclassify it. "
             "Finding category is role-restricted by the schema. Non-security roles must use severity=not_applicable. "
             "Return at most six distinct findings, eight distinct report-level evidence IDs and eight unknowns. "
             "Never repeat an evidence ID; select only the smallest set that directly supports the claims. "
