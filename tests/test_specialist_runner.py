@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, validate_specialist_output, _evidence_catalog,
-    _verified_source_context, _prior_specialist_reports,
+    _model_evidence_catalog, _verified_source_context, _prior_specialist_reports,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -57,6 +57,16 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         self.assertEqual(catalog[0]["evidence_id"], "EV00001")
         self.assertEqual(catalog[0]["path"], "contracts/Liquidator.sol")
         self.assertEqual(catalog[0]["line"], 42)
+
+    def test_model_catalog_exposes_ids_and_coordinates_without_source_excerpt(self):
+        catalog = _model_evidence_catalog(self.inspection)
+        self.assertEqual(catalog, [{
+            "evidence_id": "EV00001",
+            "path": "contracts/Liquidator.sol",
+            "line": 42,
+            "signal": "executeOperation",
+        }])
+        self.assertNotIn("excerpt", catalog[0])
 
     def test_accepts_only_catalog_id_and_attaches_commit_provenance(self):
         result = validate_specialist_output(sample_output(), self.inspection, "protocol_specialist")
