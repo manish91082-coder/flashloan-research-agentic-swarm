@@ -54,6 +54,7 @@ jobs:
           CONTEXT_LINES="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["context_limits"]["context_lines"])')"
           MAX_REVIEWER_CHARS="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["context_limits"]["max_reviewer_chars"])')"
           MAX_OUTPUT_TOKENS="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["model_max_output_tokens"])')"
+          PROMPT_VERSION="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["output_contract_version"])')"
           if [[ ! "$SEED_RUN_ID" =~ ^[0-9]+$ || ! "$TRIGGER_RUN_ID" =~ ^[0-9]+$ || ! "$ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
             echo "Invalid Agent Form pilot checkpoint identity." >&2
             exit 1
@@ -80,6 +81,7 @@ jobs:
           echo "FLR_MODEL_CONTEXT_LINES=$CONTEXT_LINES" >> "$GITHUB_ENV"
           echo "FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS=$MAX_REVIEWER_CHARS" >> "$GITHUB_ENV"
           echo "FLR_MODEL_MAX_OUTPUT_TOKENS=$MAX_OUTPUT_TOKENS" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_PROMPT_TEMPLATE_VERSION=$PROMPT_VERSION" >> "$GITHUB_ENV"
           echo "should_run=true" >> "$GITHUB_OUTPUT"
           echo "run_id=$TRIGGER_RUN_ID" >> "$GITHUB_OUTPUT"
           echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
@@ -190,10 +192,17 @@ jobs:
           decisions = []
           for gate in gates:
               report = json.loads(Path(gate["report"]).read_text(encoding="utf-8"))
-              if report.get("evidence_gate") != "pinned_evidence_and_claim_linkage_pass":
-                  raise SystemExit("Evidence gate did not produce the required source-linked acceptance status.")
-              if report.get("provenance_pass") is not True or report.get("claim_linkage_pass") is not True:
-                  raise SystemExit("Evidence provenance or finding-to-evidence linkage did not pass.")
+              if report.get("evidence_gate") != "pinned_evidence_semantic_quality_and_claim_linkage_pass":
+                  raise SystemExit("Evidence gate did not produce the required semantic-quality and source-linkage acceptance status.")
+              if (
+                  report.get("provenance_pass") is not True
+                  or report.get("claim_linkage_pass") is not True
+                  or report.get("semantic_quality_pass") is not True
+                  or report.get("role_category_pass") is not True
+                  or report.get("confidence_calibration_pass") is not True
+                  or report.get("purpose_consensus_pass") is not True
+              ):
+                  raise SystemExit("Evidence provenance, semantic quality or finding-to-evidence linkage did not pass.")
               if report.get("accepted_evidence_total", 0) <= 0 or report.get("candidate_purpose_evidence_count", 0) <= 0:
                   raise SystemExit("Candidate gate contains zero accepted evidence.")
 
@@ -265,10 +274,10 @@ jobs:
         if: always() && steps.seed.outputs.should_run == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: flashloan-agent-form-semantic-pilot-20261115-r4
+          name: flashloan-agent-form-semantic-pilot-${{ steps.seed.outputs.mission_id }}
           path: |
-            data/agentic-mission-pilot-20261115-r4.sqlite3
-            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r4/
+            ${{ steps.seed.outputs.database }}
+            ${{ steps.seed.outputs.artifact_root }}/
             reports-agentic-restore-verification.json
             reports-agent-form-bootstrap.json
             reports-agent-form-semantic-pilot.json
