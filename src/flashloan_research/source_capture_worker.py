@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import sqlite3
+import sys
 import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -514,7 +515,7 @@ class SourceCaptureWorker:
                 "claimed": len(claimed),
                 "parallel_workers": active_workers,
                 "repositories": [item["repository"] for item in claimed],
-            }, sort_keys=True), flush=True)
+            }, sort_keys=True), file=sys.stderr, flush=True)
             with ThreadPoolExecutor(max_workers=active_workers) as pool:
                 futures = [
                     pool.submit(self._capture_one, item, run_id, worker_id, queue)
@@ -529,7 +530,7 @@ class SourceCaptureWorker:
                         **result,
                         "completed_in_batch": len(completed),
                         "claimed_in_batch": len(claimed),
-                    }, ensure_ascii=False, sort_keys=True), flush=True)
+                    }, ensure_ascii=False, sort_keys=True), file=sys.stderr, flush=True)
         return {
             "attempted_this_cycle": len(claimed),
             "results": sorted(completed, key=lambda x: x["repository"]),
