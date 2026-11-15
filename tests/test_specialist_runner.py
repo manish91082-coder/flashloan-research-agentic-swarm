@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, validate_specialist_output, _evidence_catalog,
-    _verified_source_context, _prior_specialist_reports,
+    _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -29,13 +29,14 @@ def sample_inspection():
 def sample_output(**overrides):
     value = {
         "summary": "The supplied source shows an executeOperation callback entry point.",
-        "purpose": "liquidation executor",
+        "purpose": "Flash-loan liquidation executor.",
+        "purpose_category": "flash_loan_liquidation_bot",
         "implementation_status": "partial",
         "findings": [{
             "finding_id": "F-1",
             "claim": "The repository defines an executeOperation callback.",
             "category": "protocol_flow",
-            "severity": "informational",
+            "severity": "not_applicable",
             "claim_status": "source_observed",
             "confidence": "medium",
             "evidence_refs": ["EV00001"],
@@ -51,6 +52,67 @@ def sample_output(**overrides):
 class SpecialistEvidenceGateTests(unittest.TestCase):
     def setUp(self):
         self.inspection = sample_inspection()
+
+    def test_rejects_role_inappropriate_finding_category(self):
+        output = sample_output(findings=[{
+            "finding_id": "F-1", "claim": "A security flaw exists.",
+            "category": "security", "severity": "high",
+            "claim_status": "supported_inference", "confidence": "medium",
+            "evidence_refs": ["EV00001"],
+        }])
+        with self.assertRaisesRegex(SpecialistTaskError, "category is not permitted"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_security_severity_on_non_security_role(self):
+        output = sample_output(findings=[{
+            "finding_id": "F-1", "claim": "A liquidation callback is declared.",
+            "category": "protocol_flow", "severity": "high",
+            "claim_status": "source_observed", "confidence": "medium",
+            "evidence_refs": ["EV00001"],
+        }])
+        with self.assertRaisesRegex(SpecialistTaskError, "severity must be not_applicable"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_high_confidence_when_unknowns_remain_or_status_is_partial(self):
+        output = sample_output(confidence="high")
+        with self.assertRaisesRegex(SpecialistTaskError, "high confidence requires implemented status"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_invalid_purpose_category(self):
+        output = sample_output(purpose_category="security")
+        with self.assertRaisesRegex(SpecialistTaskError, "invalid or missing purpose_category"):
+            validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_rejects_finding_with_more_than_four_evidence_references(self):
+        inspection = {
+            "repository": "org/repo", "commit_sha": "a" * 40, "tree_sha": "b" * 40,
+            "signals": [{"path": f"contracts/C{i}.sol", "line": i + 1,
+                         "signal": f"signal_{i}", "excerpt": f"source {i}"}
+                        for i in range(5)],
+        }
+        output = sample_output(
+            evidence=[f"EV{i:05d}" for i in range(1, 6)],
+            findings=[{
+                "finding_id": "F-1", "claim": "A bounded source claim.",
+                "category": "protocol_flow", "severity": "not_applicable",
+                "claim_status": "source_observed", "confidence": "medium",
+                "evidence_refs": [f"EV{i:05d}" for i in range(1, 6)],
+            }],
+        )
+        with self.assertRaisesRegex(SpecialistTaskError, "at most 4 narrowly relevant IDs"):
+            validate_specialist_output(output, inspection, "candidate_purpose")
+
+    def test_report_evidence_provenance_rechecks_exact_signal_and_commit_tree_pins(self):
+        report = validate_specialist_output(sample_output(), self.inspection, "protocol_specialist")
+        _validate_report_evidence_provenance(report, self.inspection)
+        tampered = json.loads(json.dumps(report))
+        tampered["evidence"][0]["excerpt"] = "invented excerpt"
+        with self.assertRaisesRegex(SpecialistTaskError, "exact pinned source signal metadata"):
+            _validate_report_evidence_provenance(tampered, self.inspection)
+        wrong_pin = json.loads(json.dumps(report))
+        wrong_pin["evidence"][0]["commit_sha"] = "c" * 40
+        with self.assertRaisesRegex(SpecialistTaskError, "exact pinned source signal metadata"):
+            _validate_report_evidence_provenance(wrong_pin, self.inspection)
 
     def test_evidence_catalog_has_stable_ids_and_exact_source_coordinates(self):
         catalog = _evidence_catalog(self.inspection)
@@ -75,7 +137,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
     def test_rejects_finding_that_cites_unselected_or_fabricated_evidence_id(self):
         output = sample_output(evidence=["EV00001"], findings=[{
             "finding_id": "F-1", "claim": "unsupported", "category": "security",
-            "severity": "high", "claim_status": "source_observed", "confidence": "high",
+            "severity": "high", "claim_status": "source_observed", "confidence": "medium",
             "evidence_refs": ["EV99999"],
         }])
         with self.assertRaisesRegex(SpecialistTaskError, "not selected from the pinned catalog"):
@@ -84,7 +146,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
     def test_rejects_finding_without_any_evidence_reference(self):
         output = sample_output(findings=[{
             "finding_id": "F-1", "claim": "unsupported", "category": "security",
-            "severity": "high", "claim_status": "supported_inference", "confidence": "high",
+            "severity": "high", "claim_status": "supported_inference", "confidence": "medium",
             "evidence_refs": [],
         }])
         with self.assertRaisesRegex(SpecialistTaskError, "has no evidence_refs"):
@@ -107,7 +169,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             validate_specialist_output(output, self.inspection, "protocol_specialist")
 
     def test_reviewer_must_return_explicit_decision(self):
-        output = sample_output(review_decision="not_applicable", review_disagreements=[])
+        output = sample_output(findings=[], review_decision="not_applicable", review_disagreements=[])
         with self.assertRaisesRegex(SpecialistTaskError, "explicit valid review_decision"):
             validate_specialist_output(output, self.inspection, "independent_reviewer")
 

@@ -76,6 +76,7 @@ class LocalModelProviderTests(unittest.TestCase):
         Handler.response_content = json.dumps({
             "summary": "Unknown until source evidence is sufficient.",
             "purpose": "unknown",
+            "purpose_category": "unknown",
             "implementation_status": "unknown",
             "findings": [],
             "evidence": [],
@@ -84,7 +85,7 @@ class LocalModelProviderTests(unittest.TestCase):
         })
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
-            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "summary", "purpose", "purpose_category", "implementation_status", "findings", "evidence",
             "unknowns", "confidence",
         }
         result = provider.generate_json(
@@ -98,15 +99,18 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertNotIn("review_disagreements", schema["properties"])
         self.assertIn("evidence_refs", schema["properties"]["findings"]["items"]["properties"])
         self.assertIn("source_evidence_catalog", Handler.body["messages"][0]["content"])
+        self.assertIn("Follow the supplied schema exactly", Handler.body["messages"][0]["content"])
+        self.assertNotIn("review_decision", Handler.body["messages"][0]["content"])
 
     def test_reviewer_schema_requires_explicit_review_fields_and_excludes_not_applicable(self):
         required = {
-            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "summary", "purpose", "purpose_category", "implementation_status", "findings", "evidence",
             "unknowns", "confidence", "review_decision", "review_disagreements",
         }
         Handler.response_content = json.dumps({
             "summary": "Independent review of prior source reports.",
             "purpose": "liquidator",
+            "purpose_category": "flash_loan_liquidation_bot",
             "implementation_status": "partial",
             "findings": [],
             "evidence": ["EV00001"],
@@ -126,17 +130,19 @@ class LocalModelProviderTests(unittest.TestCase):
             properties["review_decision"]["enum"],
             ["accept", "accept_with_reservations", "reject", "inconclusive"],
         )
+        self.assertIn("You are the independent reviewer", Handler.body["messages"][0]["content"])
 
     def test_evidence_schema_items_are_enum_limited_to_current_pinned_catalog(self):
         Handler.response_content = json.dumps({
             "summary": "Purpose observed in pinned source.",
-            "purpose": "flash loan liquidation prototype",
+            "purpose": "Flash-loan liquidation prototype.",
+            "purpose_category": "flash_loan_liquidation_bot",
             "implementation_status": "partial",
             "findings": [{
                 "finding_id": "F-1",
                 "claim": "A callback function is declared.",
                 "category": "protocol_flow",
-                "severity": "informational",
+                "severity": "not_applicable",
                 "claim_status": "source_observed",
                 "confidence": "low",
                 "evidence_refs": ["EV00002"],
@@ -147,7 +153,7 @@ class LocalModelProviderTests(unittest.TestCase):
         })
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
-            "summary", "purpose", "implementation_status", "findings",
+            "summary", "purpose", "purpose_category", "implementation_status", "findings",
             "evidence", "unknowns", "confidence",
         }
         catalog = [
@@ -165,11 +171,47 @@ class LocalModelProviderTests(unittest.TestCase):
             ["EV00001", "EV00002"],
         )
         self.assertEqual(Handler.body["max_tokens"], 1200)
+        self.assertEqual(schema["properties"]["findings"]["items"]["properties"]["category"]["enum"], ["purpose", "protocol_flow"])
+        self.assertEqual(schema["properties"]["findings"]["items"]["properties"]["evidence_refs"]["maxItems"], 4)
+
+    def test_role_specific_schema_prevents_cross_domain_findings(self):
+        Handler.response_content = json.dumps({
+            "summary": "Role-specific schema fixture.",
+            "purpose": "Flash-loan liquidation research.",
+            "purpose_category": "flash_loan_liquidation_bot",
+            "implementation_status": "partial",
+            "findings": [],
+            "evidence": ["EV00001"],
+            "unknowns": ["Runtime behavior is not tested."],
+            "confidence": "medium",
+        })
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        required = {
+            "summary", "purpose", "purpose_category", "implementation_status",
+            "findings", "evidence", "unknowns", "confidence",
+        }
+        provider.generate_json(
+            "Return an execution report.",
+            {"role": "execution_engineer", "source_evidence_catalog": [{"evidence_id": "EV00001"}]},
+            required,
+        )
+        props = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["findings"]["items"]["properties"]
+        self.assertEqual(props["category"]["enum"], ["execution"])
+        self.assertEqual(props["severity"]["enum"], ["not_applicable"])
+        provider.generate_json(
+            "Return a security report.",
+            {"role": "solidity_security", "source_evidence_catalog": [{"evidence_id": "EV00001"}]},
+            required,
+        )
+        props = Handler.body["response_format"]["json_schema"]["schema"]["properties"]["findings"]["items"]["properties"]
+        self.assertEqual(props["category"]["enum"], ["security"])
+        self.assertNotIn("not_applicable", props["severity"]["enum"])
 
     def test_empty_catalog_forces_empty_evidence_and_findings(self):
         Handler.response_content = json.dumps({
             "summary": "No source evidence supplied.",
             "purpose": "unknown",
+            "purpose_category": "unknown",
             "implementation_status": "unknown",
             "findings": [],
             "evidence": [],
@@ -178,7 +220,7 @@ class LocalModelProviderTests(unittest.TestCase):
         })
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
-            "summary", "purpose", "implementation_status", "findings",
+            "summary", "purpose", "purpose_category", "implementation_status", "findings",
             "evidence", "unknowns", "confidence",
         }
         provider.generate_json(
@@ -192,7 +234,7 @@ class LocalModelProviderTests(unittest.TestCase):
 
     def test_duplicate_or_malformed_catalog_evidence_ids_are_rejected(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
-        required = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
+        required = {"summary", "purpose", "purpose_category", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
         with self.assertRaisesRegex(ModelProviderError, "unique stable EV evidence IDs"):
             provider.generate_json(
                 "Classify.",
@@ -206,7 +248,7 @@ class LocalModelProviderTests(unittest.TestCase):
     def test_reviewer_only_schema_requires_independent_reviewer_role(self):
         provider = LocalOpenAICompatibleProvider(self.url, "test-model")
         required = {
-            "summary", "purpose", "implementation_status", "findings", "evidence",
+            "summary", "purpose", "purpose_category", "implementation_status", "findings", "evidence",
             "unknowns", "confidence", "review_decision", "review_disagreements",
         }
         with self.assertRaisesRegex(ModelProviderError, "reviewer-only output fields"):

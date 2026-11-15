@@ -16,38 +16,38 @@ from .storage import write_json
 
 ROLE_PROMPTS = {
     "candidate_purpose": (
-        "Classify the repository's actual purpose from its pinned source files. Identify the "
+        "Classify the repository's actual purpose from its pinned source files and select exactly one purpose_category from the strict taxonomy. Identify the "
         "main executable entry points and implemented protocol flow. Distinguish working code "
         "from TODOs, comments, examples and README claims. Do not grade security or economics "
         "unless directly established. If the supplied source is insufficient, return unknown."
     ),
     "protocol_specialist": (
-        "Analyze the actual protocol integration and end-to-end call flow: provider entry point, "
+        "Use purpose_category consistently with the candidate-purpose report. Analyze the actual protocol integration and end-to-end call flow: provider entry point, "
         "callback, initiator and asset binding, debt/collateral handling, repayment and premium. "
         "Name only behavior visible in the supplied source excerpts. Mark omitted stages unknown."
     ),
     "solidity_security": (
-        "Perform source-grounded Solidity security triage: callback caller authentication, "
+        "Use purpose_category consistently with the candidate-purpose report. Perform source-grounded Solidity security triage: callback caller authentication, "
         "initiator binding, asset/amount binding, access control, reentrancy, token handling, "
         "oracle assumptions and repayment. A signal is not proof of exploitability. Cite evidence IDs."
     ),
     "execution_engineer": (
-        "Assess executable transaction flow from source: contract entry points, provider callback, "
+        "Use purpose_category consistently with the candidate-purpose report. Assess executable transaction flow from source: contract entry points, provider callback, "
         "DEX route, atomicity, approvals, slippage bounds, revert handling and execution wiring. "
         "Do not infer runtime success from a function name or TODO."
     ),
     "test_verification": (
-        "Assess actual test/CI files supplied: test cases, assertions, fixtures, mocks, fork tests, "
+        "Use purpose_category consistently with the candidate-purpose report. Assess actual test/CI files supplied: test cases, assertions, fixtures, mocks, fork tests, "
         "coverage limitations and CI configuration. A test filename or dependency is not proof a "
         "behavior is tested. Missing test evidence must remain unknown."
     ),
     "economics_quant": (
-        "Assess only source-visible economic formulas: liquidation eligibility, debt/collateral "
+        "Use purpose_category consistently with the candidate-purpose report. Assess only source-visible economic formulas: liquidation eligibility, debt/collateral "
         "arithmetic, bonus, flash premium, swap fees, gas inputs, slippage and net-profit gate. "
         "Never invent market prices, gas quotes or profitability. Missing inputs remain unknown."
     ),
     "dependency_license": (
-        "Assess dependencies, version pins, build configuration and license evidence from supplied "
+        "Use purpose_category consistently with the candidate-purpose report. Assess dependencies, version pins, build configuration and license evidence from supplied "
         "source/metadata. Do not infer license from a badge, README statement or package name. "
         "If a license file is absent from captured files, report unknown rather than guessing."
     ),
@@ -66,10 +66,27 @@ ROLE_PROMPTS = {
     ),
 }
 
-REQUIRED_KEYS = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
+REQUIRED_KEYS = {"summary", "purpose", "purpose_category", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
 REVIEWER_REQUIRED_KEYS = REQUIRED_KEYS | {"review_decision", "review_disagreements"}
 ALLOWED_STATUS = {"implemented", "partial", "placeholder", "broken", "documentation_only", "unknown"}
 ALLOWED_CONFIDENCE = {"low", "medium", "high"}
+ALLOWED_PURPOSE_CATEGORIES = {
+    "flash_loan_liquidation_bot", "flash_swap_liquidation_bot",
+    "flash_loan_arbitrage", "flash_swap_arbitrage",
+    "lending_protocol", "flash_loan_provider", "liquidation_library_or_sdk",
+    "educational_example_or_lab", "security_tooling", "unrelated", "unknown",
+}
+ROLE_FINDING_CATEGORIES = {
+    "candidate_purpose": {"purpose", "protocol_flow"},
+    "protocol_specialist": {"protocol_flow"},
+    "solidity_security": {"security"},
+    "execution_engineer": {"execution"},
+    "test_verification": {"testing"},
+    "economics_quant": {"economics"},
+    "dependency_license": {"dependency_license"},
+    "independent_reviewer": {"review_challenge"},
+}
+MAX_FINDING_EVIDENCE_REFS = 4
 ALLOWED_REVIEW_DECISIONS = {
     "not_applicable", "accept", "accept_with_reservations", "reject", "inconclusive"
 }
@@ -266,6 +283,7 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
             "inspection_tree_sha": expected_tree,
             "summary": str(data.get("summary", ""))[:600],
             "purpose": str(data.get("purpose", ""))[:600],
+            "purpose_category": data.get("purpose_category"),
             "implementation_status": data.get("implementation_status"),
             "findings": findings,
             "accepted_evidence_ids": evidence_ids,
@@ -292,6 +310,74 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
     if len({item["task_type"] for item in reports}) != 7:
         raise SpecialistTaskError("independent review context contains duplicate specialist task types")
     return reports
+
+def _validate_report_evidence_provenance(report: dict[str, Any], inspection: dict[str, Any]) -> None:
+    """Independently resolve every report evidence item and finding reference to pinned source signals."""
+    catalog = {item["evidence_id"]: item for item in _evidence_catalog(inspection)}
+    evidence = report.get("evidence")
+    if not isinstance(evidence, list):
+        raise SpecialistTaskError("report evidence must be an array")
+    selected: set[str] = set()
+    for item in evidence:
+        if not isinstance(item, dict):
+            raise SpecialistTaskError("accepted evidence entry must be a resolved object")
+        evidence_id = item.get("evidence_id")
+        source = catalog.get(evidence_id)
+        if source is None or evidence_id in selected:
+            raise SpecialistTaskError("report contains unknown or duplicate pinned evidence ID")
+        selected.add(evidence_id)
+        expected_excerpt_hash = hashlib.sha256(source["excerpt"].encode("utf-8")).hexdigest()
+        if (
+            item.get("path") != source["path"]
+            or item.get("line") != source["line"]
+            or item.get("signal") != source["signal"]
+            or item.get("excerpt") != source["excerpt"]
+            or item.get("commit_sha") != inspection.get("commit_sha")
+            or item.get("tree_sha") != inspection.get("tree_sha")
+            or item.get("excerpt_sha256") != expected_excerpt_hash
+            or item.get("evidence_status") != "exact_signal_id_resolved_to_pinned_inspection_source"
+        ):
+            raise SpecialistTaskError("report evidence does not match exact pinned source signal metadata")
+    for finding in report.get("findings", []):
+        refs = finding.get("evidence_refs", [])
+        if not refs or any(ref not in selected for ref in refs):
+            raise SpecialistTaskError("finding references evidence absent from its accepted evidence array")
+
+
+def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None:
+    """Reject structurally valid but semantically misclassified or overconfident reports."""
+    if report.get("purpose_category") not in ALLOWED_PURPOSE_CATEGORIES:
+        raise SpecialistTaskError("invalid or missing purpose_category")
+    status = report.get("implementation_status")
+    confidence = report.get("confidence")
+    unknowns = report.get("unknowns")
+    if status not in ALLOWED_STATUS or confidence not in ALLOWED_CONFIDENCE or not isinstance(unknowns, list):
+        raise SpecialistTaskError("invalid semantic quality metadata")
+    if confidence == "high" and (status != "implemented" or unknowns):
+        raise SpecialistTaskError("high confidence requires implemented status and zero unresolved unknowns")
+    seen_claims: set[str] = set()
+    for finding in report.get("findings", []):
+        if not isinstance(finding, dict):
+            raise SpecialistTaskError("finding must be an object")
+        if finding.get("category") not in ROLE_FINDING_CATEGORIES.get(role, set()):
+            raise SpecialistTaskError(f"finding category is not permitted for role {role}")
+        refs = finding.get("evidence_refs")
+        if not isinstance(refs, list) or not refs:
+            raise SpecialistTaskError(f"finding {finding.get('finding_id', '')} has no evidence_refs")
+        if len(refs) > MAX_FINDING_EVIDENCE_REFS:
+            raise SpecialistTaskError(
+                f"finding evidence_refs must contain at most {MAX_FINDING_EVIDENCE_REFS} narrowly relevant IDs"
+            )
+        if role != "solidity_security" and finding.get("severity") != "not_applicable":
+            raise SpecialistTaskError(f"severity must be not_applicable for non-security role {role}")
+        if finding.get("confidence") == "high" and (status != "implemented" or unknowns):
+            raise SpecialistTaskError("high-confidence finding is incompatible with partial/unknown implementation or unresolved unknowns")
+        claim = finding.get("claim", "").strip().casefold()
+        if claim and claim in seen_claims:
+            raise SpecialistTaskError("duplicate finding claim")
+        if claim:
+            seen_claims.add(claim)
+
 
 def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any],
                                role: str) -> dict[str, Any]:
@@ -371,6 +457,7 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
             raise SpecialistTaskError("zero-evidence output must be implementation_status=unknown and confidence=low")
     if output["confidence"] in {"medium", "high"} and not accepted:
         raise SpecialistTaskError("medium/high confidence is forbidden without accepted pinned-source evidence")
+    _validate_semantic_quality_fields(output, role)
 
     result = dict(output)
     if role != "independent_reviewer":
@@ -419,6 +506,7 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                 if len(prior_tasks) != 7:
                     raise SpecialistTaskError(f"expected 7 distinct purpose/specialist tasks, found {len(prior_tasks)}")
                 seen_task_types: set[str] = set()
+                purpose_categories: set[str] = set()
                 for item in prior_tasks:
                     if item["status"] != "completed":
                         raise SpecialistTaskError(f"required specialist task is not completed: {item['task_id']}")
@@ -434,6 +522,9 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                         raise SpecialistTaskError("specialist report task provenance mismatch")
                     if report.get("agent_metadata", {}).get("role") != item["role"]:
                         raise SpecialistTaskError("specialist report role provenance mismatch")
+                    _validate_semantic_quality_fields(report, item["role"])
+                    _validate_report_evidence_provenance(report, inspection)
+                    purpose_categories.add(report["purpose_category"])
                     validation = report.get("evidence_validation", {})
                     if validation.get("inspection_commit_sha") != inspection["commit_sha"]:
                         raise SpecialistTaskError("specialist report commit provenance mismatch")
@@ -460,6 +551,8 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                                      "test_forensics", "economic_forensics", "dependency_forensics"}
                 if seen_task_types != required_forensics | {"candidate_purpose"}:
                     raise SpecialistTaskError("candidate dossier evidence gate received an incomplete role set")
+                if len(purpose_categories) != 1:
+                    raise SpecialistTaskError("specialist reports disagree on primary purpose_category; reviewer reconciliation required")
                 if total_accepted == 0 or purpose_evidence == 0:
                     raise SpecialistTaskError("candidate purpose/specialist chain has no accepted pinned-source evidence")
                 summary = {
@@ -470,12 +563,18 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
                     "accepted_evidence_total": total_accepted,
                     "source_linked_findings_total": total_findings,
                     "candidate_purpose_evidence_count": purpose_evidence,
-                    "evidence_gate": "pinned_evidence_and_claim_linkage_pass",
+                    "evidence_gate": "pinned_evidence_semantic_quality_and_claim_linkage_pass",
                     "provenance_pass": True,
                     "claim_linkage_pass": True,
+                    "semantic_quality_pass": True,
+                    "role_category_pass": True,
+                    "confidence_calibration_pass": True,
+                    "purpose_consensus_pass": True,
+                    "purpose_category": next(iter(purpose_categories)),
                     "limitations": [
                         "The gate verifies exact source-signal IDs, report-task identity and pinned commit/tree provenance.",
-                        "It does not prove exploitability, economic feasibility or runtime behavior.",
+                        "The gate rejects role-category inflation, overbroad evidence lists, incompatible high confidence and disagreement on primary purpose taxonomy.",
+                        "It still does not prove exploitability, economic feasibility or runtime behavior; independent review must challenge claim semantics.",
                         "Independent review must still challenge all material claims.",
                     ],
                 }
