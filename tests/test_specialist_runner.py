@@ -8,7 +8,7 @@ from pathlib import Path
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, validate_specialist_output, _evidence_catalog,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
-    ROLE_PROMPTS,
+    ROLE_PROMPTS, _canonical_purpose_category,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -86,6 +86,55 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         output = sample_output(confidence="high")
         with self.assertRaisesRegex(SpecialistTaskError, "high confidence requires implemented status"):
             validate_specialist_output(output, self.inspection, "candidate_purpose")
+
+    def test_candidate_purpose_prompt_distinguishes_security_tooling_from_review_topic(self):
+        prompt = ROLE_PROMPTS["candidate_purpose"]
+        self.assertIn("NOT a liquidation contract", prompt)
+        self.assertIn("flash_swap_liquidation_bot", prompt)
+        self.assertIn("Classify intended primary function even when implementation is partial", prompt)
+
+    def test_specialist_output_must_inherit_canonical_candidate_purpose(self):
+        output = sample_output(purpose_category="security_tooling")
+        with self.assertRaisesRegex(SpecialistTaskError, "differs from the completed candidate-purpose"):
+            validate_specialist_output(
+                output, self.inspection, "protocol_specialist",
+                canonical_purpose_category="flash_loan_liquidation_bot",
+            )
+        accepted = validate_specialist_output(
+            sample_output(), self.inspection, "protocol_specialist",
+            canonical_purpose_category="flash_loan_liquidation_bot",
+        )
+        self.assertEqual(accepted["purpose_category"], "flash_loan_liquidation_bot")
+
+    def test_canonical_purpose_loader_requires_exact_completed_task_and_source_pins(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            task_id = "purpose-task-1"
+            report = {
+                "purpose_category": "flash_loan_liquidation_bot",
+                "task_metadata": {"task_id": task_id, "task_type": "candidate_purpose"},
+                "agent_metadata": {"role": "candidate_purpose"},
+                "evidence_validation": {
+                    "inspection_commit_sha": self.inspection["commit_sha"],
+                    "inspection_tree_sha": self.inspection["tree_sha"],
+                    "all_findings_linked_to_accepted_evidence": True,
+                },
+            }
+            path = Path(tmp) / "purpose.json"
+            path.write_text(json.dumps(report), encoding="utf-8")
+            task = {
+                "task_type": "candidate_purpose", "status": "completed",
+                "task_id": task_id, "payload": {"repository": "org/repo"},
+                "result": {"report": str(path)},
+            }
+            self.assertEqual(
+                _canonical_purpose_category([task], "org/repo", self.inspection),
+                "flash_loan_liquidation_bot",
+            )
+            wrong_pin = json.loads(json.dumps(report))
+            wrong_pin["evidence_validation"]["inspection_tree_sha"] = "c" * 40
+            path.write_text(json.dumps(wrong_pin), encoding="utf-8")
+            with self.assertRaisesRegex(SpecialistTaskError, "lacks exact source provenance"):
+                _canonical_purpose_category([task], "org/repo", self.inspection)
 
     def test_rejects_invalid_purpose_category(self):
         output = sample_output(purpose_category="security")
