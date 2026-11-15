@@ -4,23 +4,23 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_CHECKPOINTED_MISSION_RUNTIME_AND_PERSISTENT_SOURCE_CAPTURE; B3_ROLE_EXCLUSIVE_SOURCE_GROUNDED_AGENT_FORM_PILOT; SOURCE_CAPTURE_PROGRESS_TELEMETRY",
   "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; AUTONOMOUS_SOURCE_CAPTURE_942_OF_7901; 6947_PENDING; 0_LEASED; 12_EMPTY_GIT_REPOSITORY_HTTP_409_FAILURES; 687_COMPLETE_WITHIN_CONFIGURED_SOURCE_SCOPE; 255_WITH_COVERAGE_LIMITS; PR13_PR14_PR15_MERGED; ROLE_EXCLUSIVE_REVIEWER_SCHEMA; SOURCE_CAPTURE_TELEMETRY_MERGED; FRESH_AGENT_FORM_PILOT_R2_43683037797_RUNNING; SEMANTIC_AUDIT_NOT_YET_ACCEPTED",
-  "last_verified_at_utc": "2026-11-15T06:18:03.402Z",
+  "last_verified_at_utc": "2026-11-15T06:22:12.855Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "a54019a4f6e95cd657e94b79cc3a0712be2bc976",
+  "latest_commit_at_checkpoint": "55beab7eed730f819eee44995a95d85b83bf3645",
   "latest_ci_run": {
-    "run_id": 43684603884,
+    "run_id": 43685003334,
     "event": "push",
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "a54019a4f6e95cd657e94b79cc3a0712be2bc976",
+    "head_sha": "d6a98b2f2b620ee9748b9e0b1fe404305f16c1e8",
     "matrix": [
       "3.11",
       "3.12",
       "3.13"
     ],
-    "tests": "PR #15 merge commit CI passed source-capture progress events, GitHub API retry telemetry, standard-library tests, compileall and WSL resume-helper syntax on Python 3.11/3.12/3.13."
+    "tests": "Continuity documentation update CI passed on Python 3.11/3.12/3.13; PR #15 main merge CI 43684603884 also passed all versions. README update at 55beab7 is the current main head; its CI run 43685039602 was in progress at last check."
   },
-  "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics.",
+  "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics. Continuity docs commits 7f444f3c6484edee7d02c2c3d3cbd781e18ee7da, 64d1cee5e9e17ef36c5f8fd93e434fae9c3dc068 and d6a98b2f2b620ee9748b9e0b1fe404305f16c1e8 passed main CI; README commit 55beab7 is pending CI run 43685039602 at this checkpoint.",
   "discovery": {
     "snapshot_path": "research_runs/mission/2026-11-14/discovery-43600488013-1.json",
     "snapshot_commit": "231f47f0ada252a921a065da935720873f397bef",
@@ -345,10 +345,11 @@
     "PR #14 merged at 08b9f6d1f129298f7faf42b50529cbc6e14f27b0: specialist model output schemas now omit reviewer-only fields entirely; the independent reviewer alone receives review_decision/review_disagreements. Specialist reports receive deterministic not_applicable/empty reviewer metadata only after successful validation. r2 pilot workflow uses unique mission/database/artifact names.",
     "PR #14 CI run 43682983408 passed Python 3.11/3.12/3.13. Main merge CI run 43683037814 passed Python 3.11/3.12/3.13.",
     "Fresh r2 pilot 43683037797 advanced past immutable checkpoint restore, Agent Form installation, Ollama qwen2.5:3b installation and fresh DAG bootstrap; serialized specialist/evidence/reviewer execution is now in progress. No result artifact has been accepted yet.",
-    "PR #15 merged at a54019a4f6e95cd657e94b79cc3a0712be2bc976: source-capture workflow now emits structured batch-start and per-candidate completion events; GitHub API rate-limit, 5xx and network retry/backoff waits emit structured telemetry without secrets. Tests assert both telemetry contracts. PR and merge CI run 43684603884 passed Python 3.11/3.12/3.13."
+    "PR #15 merged at a54019a4f6e95cd657e94b79cc3a0712be2bc976: source-capture workflow now emits structured batch-start and per-candidate completion events; GitHub API rate-limit, 5xx and network retry/backoff waits emit structured telemetry without secrets. Tests assert both telemetry contracts. PR and merge CI run 43684603884 passed Python 3.11/3.12/3.13.",
+    "Synchronized PROJECT_STATE.json, NEXT_ACTIONS.md, RESEARCH_CHANGELOG.md and README.md to PR #15 merge and the latest 942-source checkpoint. Audited checkpoint artifact 14148553489 directly: the 12-item cycle was 11 captured / 1 failed, correcting the previous prose-only 10/2 summary; SQLite queue counters match."
   ],
   "code_commit_under_test": "f442ff12fbbf17e3092b94385363dc7c5329cfa8",
-  "continuity_docs_commit": "pending_same_update",
+  "continuity_docs_commit": "55beab7eed730f819eee44995a95d85b83bf3645",
   "product_direction": "FORM_DRIVEN_AUTONOMOUS_AGENTIC_RESEARCH_SWARM",
   "goal_lock": "Research Mission Form is the primary user interface; the orchestrator autonomously plans, dispatches, verifies, persists and continues research tasks.",
   "form_intake": {
