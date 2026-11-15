@@ -15,40 +15,52 @@ from .storage import write_json
 
 
 ROLE_PROMPTS = {
+    "candidate_purpose": (
+        "Classify the repository's actual purpose from its pinned source files. Identify the "
+        "main executable entry points and implemented protocol flow. Distinguish working code "
+        "from TODOs, comments, examples and README claims. Do not grade security or economics "
+        "unless directly established. If the supplied source is insufficient, return unknown."
+    ),
     "protocol_specialist": (
-        "Determine the repository's actual protocol purpose and implemented call flow. "
-        "Separate implemented behavior from README claims, TODOs and placeholders. "
-        "Use only supplied pinned-source signals. Do not invent source lines."
+        "Analyze the actual protocol integration and end-to-end call flow: provider entry point, "
+        "callback, initiator and asset binding, debt/collateral handling, repayment and premium. "
+        "Name only behavior visible in the supplied source excerpts. Mark omitted stages unknown."
     ),
     "solidity_security": (
-        "Perform a cautious Solidity security triage for flash-loan callbacks, caller/initiator "
-        "authentication, asset/amount binding, reentrancy, access control, token handling and "
-        "repayment accounting. A signal is not proof of a vulnerability. State what source is missing."
+        "Perform source-grounded Solidity security triage: callback caller authentication, "
+        "initiator binding, asset/amount binding, access control, reentrancy, token handling, "
+        "oracle assumptions and repayment. A signal is not proof of exploitability. Cite evidence IDs."
     ),
     "execution_engineer": (
-        "Assess transaction execution architecture, callback flow, DEX routing, atomicity, "
-        "slippage controls, MEV/relay assumptions and failure handling from supplied evidence only."
+        "Assess executable transaction flow from source: contract entry points, provider callback, "
+        "DEX route, atomicity, approvals, slippage bounds, revert handling and execution wiring. "
+        "Do not infer runtime success from a function name or TODO."
     ),
     "test_verification": (
-        "Assess test and CI evidence. Distinguish actual assertions/coverage from test names, "
-        "mock-only tests, commented tests and absent evidence."
+        "Assess actual test/CI files supplied: test cases, assertions, fixtures, mocks, fork tests, "
+        "coverage limitations and CI configuration. A test filename or dependency is not proof a "
+        "behavior is tested. Missing test evidence must remain unknown."
     ),
     "economics_quant": (
-        "Assess liquidation eligibility, debt/collateral arithmetic, flash premium, swap fees, "
-        "gas, slippage and net-profit accounting. Do not claim profitability without measured inputs."
+        "Assess only source-visible economic formulas: liquidation eligibility, debt/collateral "
+        "arithmetic, bonus, flash premium, swap fees, gas inputs, slippage and net-profit gate. "
+        "Never invent market prices, gas quotes or profitability. Missing inputs remain unknown."
     ),
     "dependency_license": (
-        "Assess dependency and license evidence. Do not infer a license from a badge or README "
-        "unless the actual license file/metadata is supplied."
+        "Assess dependencies, version pins, build configuration and license evidence from supplied "
+        "source/metadata. Do not infer license from a badge, README statement or package name. "
+        "If a license file is absent from captured files, report unknown rather than guessing."
     ),
     "independent_reviewer": (
-        "Independently challenge the prior specialist outputs. Reject claims unsupported by "
-        "the supplied pinned-source signals. Identify contradictions, missing evidence and "
-        "claims that must remain unknown."
+        "You are an adversarial independent reviewer, not a summarizer. Inspect the pinned source "
+        "evidence and every prior specialist report. For each material claim decide whether the "
+        "source actually supports it. Explicitly reject fabricated paths/lines, generic advice, "
+        "unlinked claims, overstated severity and unsupported economic conclusions. Return an "
+        "explicit review_decision and concise review_disagreements. Do not rubber-stamp."
     ),
 }
 
-REQUIRED_KEYS = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence"}
+REQUIRED_KEYS = {"summary", "purpose", "implementation_status", "findings", "evidence", "unknowns", "confidence", "review_decision", "review_disagreements"}
 ALLOWED_STATUS = {"implemented", "partial", "placeholder", "broken", "documentation_only", "unknown"}
 ALLOWED_CONFIDENCE = {"low", "medium", "high"}
 
