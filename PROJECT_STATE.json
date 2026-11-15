@@ -3,8 +3,8 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R12_BOUNDED_DUPLICATE_CLAIM_TASK_RETRY",
-  "status": "PR31_MERGED_CI405_PASS; MAIN_CI406_407_PASS_311_312_313; R12_IN_PROGRESS_IMMUTABLE_SEED_RESTORE; R11_FAILED_NO_AUDIT_ACCEPTANCE; SOURCE_CAPTURE_RUN293_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-15T17:36:00Z",
+  "status": "DISCOVERY_7901; SOURCE_CAPTURE_3424_CAPTURED_2481_COMPLETE_WITHIN_SCOPE_943_COVERAGE_LIMITED_4430_PENDING_47_FAILED; RUN293_SUCCESS_ARTIFACT_14172557143_INDEPENDENTLY_VERIFIED; PR31_MERGED_CI405_PASS; MAIN_CI408_PASS_311_312_313; R12_SPECIALIST_EVIDENCE_REVIEW_EXECUTION_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
+  "last_verified_at_utc": "2026-11-15T17:42:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "d04cc95cc107bae801592e240b31d71ff16860f0",
   "latest_ci_run": {
@@ -104,7 +104,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Monitor R12 immutable checkpoint restore, Agent Form/Ollama setup, DAG bootstrap and full 14-specialist/evidence/reviewer run; independently verify artifact SHA-256, SQLite integrity, task retries, all report provenance, both evidence gates and both reviewer decisions. Continue source capture run #293 and verify its checkpoint artifact independently.",
+  "next_gate": "Inspect R12 specialist execution and final artifact. Verify 14/14 specialists, bounded duplicate-claim task retry ledger, both pinned evidence gates, two exact unreserved reviewer accepts, zero disagreements, source-linked evidence and SQLite integrity. Continue auto-dispatched source capture and independently verify each durable checkpoint.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -1094,13 +1094,45 @@
     "mission_id": "flashloan-agent-form-pilot-20261115-r12",
     "workflow_run_id": 43741821650,
     "head_sha": "f5c155994af437001296ae854c11e9e3cbcd6551",
-    "status": "in_progress",
+    "status": "specialist_evidence_review_execution_in_progress",
     "last_step": "Download and verify immutable source-capture checkpoint",
     "database": "data/agentic-mission-pilot-20261115-r12.sqlite3",
     "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261115-r12",
     "model": "qwen2.5:3b",
     "seed_run_id": 43615137961,
     "seed_artifact_id": 14121666814,
-    "acceptance_gate": "14/14 specialists; retry duplicate finding claims within max_attempts=3 without weakening strict validation; two evidence gates; two exact unreserved independent accepts with zero disagreements and pinned evidence; no audit increment before full verification."
+    "acceptance_gate": "14/14 specialists; retry duplicate finding claims within max_attempts=3 without weakening strict validation; two evidence gates; two exact unreserved independent accepts with zero disagreements and pinned evidence; no audit increment before full verification.",
+    "last_verified_step": "Immutable seed restore, Agent Form runtime, local Ollama setup and fresh isolated DAG bootstrap completed successfully; serialized specialist/evidence/reviewer pilot running."
+  },
+  "source_capture_latest": {
+    "workflow_run_id": 43739811468,
+    "run_number": 293,
+    "conclusion": "success",
+    "artifact_id": 14172557143,
+    "artifact_sha256": "7bc80d21243c3d781295558134c4e7be9ec693d3047bc874d5d1569fcf1352ff",
+    "artifact_size_bytes": 89976586,
+    "zip_crc": "pass",
+    "sqlite_integrity": "ok",
+    "queue": {
+      "total": 7901,
+      "captured": 3424,
+      "complete_within_configured_scope": 2481,
+      "coverage_limited": 943,
+      "pending": 4430,
+      "failed": 47,
+      "leased": 0
+    },
+    "captured_reports": 3424,
+    "missing_reports": 0,
+    "identity_mismatches": 0,
+    "vault_object_files": 37846,
+    "vault_object_hash_mismatches": 0,
+    "restore_verification": {
+      "reports_verified": 3412,
+      "git_blob_references_verified": 48119,
+      "unique_git_blobs_verified": 37600
+    },
+    "candidate_code_executed": false,
+    "semantic_audit_completed": false
   }
 }
