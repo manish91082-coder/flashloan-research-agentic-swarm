@@ -17,17 +17,19 @@ concurrency:
 jobs:
   semantic-pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 360
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
-      FLR_DATABASE: data/agentic-mission.sqlite3
+      FLR_DATABASE: data/agentic-mission-pilot-20261115.sqlite3
       FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
+      FLR_ARTIFACT_ROOT: research_runs/mission-pilots/flashloan-agent-form-pilot-20261115
+      FLR_MISSION_ID: flashloan-agent-form-pilot-20261115
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
       FLR_MODEL_NAME: qwen2.5:3b
-      FLR_MODEL_TIMEOUT_SECONDS: '600'
-      FLR_MODEL_MAX_FILES: '5'
-      FLR_MODEL_MAX_CONTEXT_CHARS: '18000'
+      FLR_MODEL_TIMEOUT_SECONDS: '1200'
+      FLR_MODEL_MAX_FILES: '4'
+      FLR_MODEL_MAX_CONTEXT_CHARS: '10000'
       PYTHONUNBUFFERED: '1'
     steps:
       - name: Checkout canonical research project
@@ -47,20 +49,26 @@ jobs:
           SEED_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json"))["seed_run_id"])')"
           TRIGGER_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_run_id"])')"
           ARTIFACT_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["checkpoint_artifact_id"])')"
+          MISSION_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json"))["mission_id"])')"
           if [[ ! "$SEED_RUN_ID" =~ ^[0-9]+$ || ! "$TRIGGER_RUN_ID" =~ ^[0-9]+$ || ! "$ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
-            echo "Invalid Agent Form pilot checkpoint ID." >&2
+            echo "Invalid Agent Form pilot checkpoint identity." >&2
             exit 1
           fi
           if [[ "$SEED_RUN_ID" != "$TRIGGER_RUN_ID" ]]; then
-            echo "Trigger checkpoint does not match the preserved Agent Form pilot seed; refusing to run."
+            echo "Trigger checkpoint does not match the preserved immutable pilot seed; refusing to run."
+            exit 1
+          fi
+          if [[ "$MISSION_ID" != "$FLR_MISSION_ID" ]]; then
+            echo "Trigger mission ID does not match this isolated pilot workflow." >&2
             exit 1
           fi
           echo "should_run=true" >> "$GITHUB_OUTPUT"
           echo "run_id=$TRIGGER_RUN_ID" >> "$GITHUB_OUTPUT"
           echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
-          echo "Agent Form pilot seed checkpoint: $TRIGGER_RUN_ID (artifact $ARTIFACT_ID)" >> "$GITHUB_STEP_SUMMARY"
+          echo "mission_id=$MISSION_ID" >> "$GITHUB_OUTPUT"
+          echo "Agent Form pilot seed: $TRIGGER_RUN_ID / artifact $ARTIFACT_ID / mission $MISSION_ID" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Download verified source-capture checkpoint
+      - name: Download and verify immutable source-capture checkpoint
         if: steps.seed.outputs.should_run == 'true'
         run: |
           set -euo pipefail
@@ -103,19 +111,21 @@ jobs:
           ollama show "$FLR_MODEL_NAME" --modelfile > reports-ollama-modelfile.txt
           curl --fail --silent http://127.0.0.1:11434/api/tags > reports-ollama-model-manifest.json
 
-      - name: Bootstrap Agent Form mission DAG from verified capture reports
+      - name: Bootstrap a fresh isolated Agent Form mission DAG
         if: steps.seed.outputs.should_run == 'true'
         run: |
           set -euo pipefail
+          test ! -e "$FLR_DATABASE"
           python scripts/initialize_agentic_capture_mission.py \
             --report-dir reports/source-capture/43600488013 \
-            --vault data/source-capture-pilot-vault \
+            --vault "$FLR_SNAPSHOT_DIR" \
             --mission-db "$FLR_DATABASE" \
-            --artifact-root research_runs/mission \
+            --artifact-root "$FLR_ARTIFACT_ROOT" \
             --batch-limit 2 \
+            --mission-id "$FLR_MISSION_ID" \
             | tee reports-agent-form-bootstrap.json
 
-      - name: Run bounded loopback-only specialist, evidence and reviewer pilot
+      - name: Run serialized source-grounded specialist, evidence and reviewer pilot
         if: steps.seed.outputs.should_run == 'true'
         run: |
           set -euo pipefail
@@ -124,55 +134,104 @@ jobs:
           from pathlib import Path
           from flashloan_research.mission_executor import MissionExecutor
 
+          mission_id = os.environ["FLR_MISSION_ID"]
+          artifact_root = Path(os.environ["FLR_ARTIFACT_ROOT"])
           started = time.time()
           executor = MissionExecutor(
               database_path=Path(os.environ["FLR_DATABASE"]),
-              artifact_root=Path("research_runs/mission"),
+              artifact_root=artifact_root,
           )
-          result = executor.run_local_semantic_agents("flashloan-research-43600488013")
+          result = executor.run_local_semantic_agents(mission_id)
           result["elapsed_seconds"] = round(time.time() - started, 2)
           result["candidate_code_executed"] = False
-          result["model_endpoint_policy"] = "127.0.0.1 loopback only; no cloud inference"
+          result["model_endpoint_policy"] = "127.0.0.1 loopback only; no cloud or paid inference"
           Path("reports-agent-form-semantic-pilot.json").write_text(
               json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
           )
           print(json.dumps(result, indent=2, sort_keys=True))
+
           if result.get("status") != "executed_with_evidence_gate":
               raise SystemExit("Agent Form semantic pipeline did not complete its required stages.")
-          if any(batch.get("failures") for batch in result.get("specialist_batches", [])):
-              raise SystemExit("One or more specialist tasks failed; pilot is not a pass.")
-          if result.get("evidence_validation", {}).get("failures"):
-              raise SystemExit("Evidence validation task failed; pilot is not a pass.")
-          if result.get("independent_review", {}).get("failures"):
-              raise SystemExit("Independent reviewer task failed; pilot is not a pass.")
-          reviewed = len(result.get("independent_review", {}).get("completed", []))
-          validated = len(result.get("evidence_validation", {}).get("completed", []))
-          if reviewed != 2 or validated != 2:
-              raise SystemExit(f"Expected 2 evidence gates and 2 independent reviews; got {validated} and {reviewed}.")
+          failures = [
+              item for batch in result.get("specialist_batches", [])
+              for item in batch.get("failures", [])
+          ]
+          failures += result.get("evidence_validation", {}).get("failures", [])
+          failures += result.get("independent_review", {}).get("failures", [])
+          if failures:
+              raise SystemExit(f"Pilot contains failed model/evidence/reviewer tasks: {failures}")
+
+          gates = result.get("evidence_validation", {}).get("completed", [])
+          reviewers = result.get("independent_review", {}).get("completed", [])
+          if len(gates) != 2 or len(reviewers) != 2:
+              raise SystemExit(f"Expected 2 evidence gates and 2 reviewers; got {len(gates)} and {len(reviewers)}.")
+
+          decisions = []
+          for gate in gates:
+              report = json.loads(Path(gate["report"]).read_text(encoding="utf-8"))
+              if report.get("evidence_gate") != "pinned_evidence_and_claim_linkage_pass":
+                  raise SystemExit("Evidence gate did not produce the required source-linked acceptance status.")
+              if report.get("provenance_pass") is not True or report.get("claim_linkage_pass") is not True:
+                  raise SystemExit("Evidence provenance or finding-to-evidence linkage did not pass.")
+              if report.get("accepted_evidence_total", 0) <= 0 or report.get("candidate_purpose_evidence_count", 0) <= 0:
+                  raise SystemExit("Candidate gate contains zero accepted evidence.")
+
+          for reviewer in reviewers:
+              report = json.loads(Path(reviewer["report"]).read_text(encoding="utf-8"))
+              decision = report.get("review_decision")
+              if decision not in {"accept", "accept_with_reservations", "reject", "inconclusive"}:
+                  raise SystemExit("Independent reviewer did not return an explicit valid review decision.")
+              decisions.append({
+                  "repository": reviewer["repository"],
+                  "review_decision": decision,
+                  "review_disagreements": report.get("review_disagreements", []),
+                  "accepted_evidence": len(report.get("evidence", [])),
+              })
+
+          import sqlite3
+          con = sqlite3.connect(os.environ["FLR_DATABASE"])
+          con.row_factory = sqlite3.Row
+          try:
+              rows = con.execute(
+                  "SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks WHERE mission_id=? GROUP BY task_type,role,status",
+                  (mission_id,),
+              ).fetchall()
+          finally:
+              con.close()
+          counts = [dict(row) for row in rows]
+          Path("reports-agent-form-acceptance.json").write_text(
+              json.dumps({"review_decisions": decisions, "task_counts": counts,
+                          "semantic_audit_count_incremented": False,
+                          "candidate_code_executed": False}, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps({"review_decisions": decisions, "task_counts": counts}, indent=2))
           PY
 
-      - name: Generate Agent Form pilot quality and task ledger
+      - name: Generate Agent Form pilot task ledger
         if: always() && steps.seed.outputs.should_run == 'true'
         run: |
           python - <<'PY'
           import json, os, sqlite3
           from pathlib import Path
           db = Path(os.environ["FLR_DATABASE"])
-          summary = {"mission_id": "flashloan-research-43600488013", "database_exists": db.is_file()}
+          mission_id = os.environ["FLR_MISSION_ID"]
+          summary = {"mission_id": mission_id, "database_exists": db.is_file()}
           if db.is_file():
               con = sqlite3.connect(db)
               con.row_factory = sqlite3.Row
               try:
                   summary["mission"] = dict(con.execute(
                       "SELECT mission_id,title,status,rejection_reason FROM research_missions WHERE mission_id=?",
-                      (summary["mission_id"],)
+                      (mission_id,)
                   ).fetchone() or {})
                   rows = con.execute(
                       "SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks WHERE mission_id=? GROUP BY task_type,role,status ORDER BY task_type,role,status",
-                      (summary["mission_id"],)
+                      (mission_id,)
                   ).fetchall()
                   summary["task_counts"] = [dict(x) for x in rows]
                   summary["candidate_code_executed"] = False
+                  summary["semantic_audit_count_incremented"] = False
               finally:
                   con.close()
           Path("reports-agent-form-task-ledger.json").write_text(
@@ -185,13 +244,14 @@ jobs:
         if: always() && steps.seed.outputs.should_run == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: flashloan-agent-form-semantic-pilot
+          name: flashloan-agent-form-semantic-pilot-20261115
           path: |
-            data/agentic-mission.sqlite3
-            research_runs/mission/flashloan-research-43600488013/
+            data/agentic-mission-pilot-20261115.sqlite3
+            research_runs/mission-pilots/flashloan-agent-form-pilot-20261115/
             reports-agentic-restore-verification.json
             reports-agent-form-bootstrap.json
             reports-agent-form-semantic-pilot.json
+            reports-agent-form-acceptance.json
             reports-agent-form-task-ledger.json
             reports-ollama-modelfile.txt
             reports-ollama-model-manifest.json
