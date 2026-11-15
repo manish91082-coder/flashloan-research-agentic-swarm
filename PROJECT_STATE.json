@@ -3,10 +3,10 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R10_SOURCE_PINNED_PURPOSE_AND_DUPLICATE_CLAIM_RETRY_PILOT",
-  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_3143_CAPTURED_2281_COMPLETE_WITHIN_SCOPE_862_COVERAGE_LIMITED_4713_PENDING_45_FAILED; PR28_MERGED_CI_PASS_311_312_313; MAIN_CI_393_PASS_311_312_313; R10_SEED_RESTORE_RUNTIME_AND_DAG_BOOTSTRAP_PASS_SPECIALIST_EVIDENCE_REVIEW_STAGE_IN_PROGRESS; SEMANTIC_AUDIT_NOT_ACCEPTED",
-  "last_verified_at_utc": "2026-11-15T16:40:37Z",
+  "status": "DISCOVERY_7901_CANDIDATES_28_OF_38_QUERIES_COMPLETE_10_INCOMPLETE; SOURCE_CAPTURE_3203_CAPTURED_2328_COMPLETE_WITHIN_SCOPE_875_COVERAGE_LIMITED_4653_PENDING_45_FAILED; MAIN_CI_394_PASS_311_312_313; SOURCE_CAPTURE_RUN_274_CHECKPOINT_INDEPENDENTLY_VERIFIED; RUN_275_ACTIVE; R10_RESTORE_RUNTIME_DAG_BOOTSTRAP_PASS_SEMANTIC_STAGE_DELAYED_UNRESOLVED_NO_AUDIT_ACCEPTED",
+  "last_verified_at_utc": "2026-11-15T16:45:49Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "0808540202b4134bb04d597055a764d515cf1728",
+  "latest_commit_at_checkpoint": "2a3eb0cf0bee03cf261d72d0289026f40022f841",
   "latest_ci_run": {
     "run_id": 43735996474,
     "event": "push",
@@ -104,7 +104,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Complete R10 serialized specialist/evidence/reviewer stage; inspect task ledger and reports for 14/14 tasks, both source-pinned candidate-purpose classifications, two passing evidence gates and two independent unreserved accepts with zero disagreements and nonempty source evidence. In parallel continue source-capture self-chain from run 271, independently verify each durable checkpoint and preserve the distinction between captured, complete-within-scope and coverage-limited. Do not increment semantic audit counts or create accepted dossiers until all R10 gates pass. Discovery remains 28/38 queries complete. Candidate code execution, wallet access, signing, deployment and live trading remain disabled.",
+  "next_gate": "Continue source-capture self-chain from run 275 and independently validate each successor artifact. Investigate R10's unusually long serialized specialist/evidence/reviewer step: restore, runtime install and DAG bootstrap passed, but the step has remained in_progress since 16:21:23Z and no artifact is available. Retrieve logs when available; do not duplicate or count R10. If the job reaches a terminal failure, inspect its task ledger/artifact, identify the precise failure and fix before a fresh bounded pilot. Do not increment semantic audit counts or create accepted dossiers until 14/14 specialist tasks, both pinned evidence gates and two unreserved independent accepts with zero disagreements/nonempty evidence all pass. Discovery remains 28/38 queries complete. Candidate code execution, wallet access, signing, deployment and live trading remain disabled.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -756,8 +756,8 @@
     },
     "successor_artifact_uploaded": false
   },
-  "source_capture_pending": 4713,
-  "source_capture_status": "3,143 captured; 4,713 pending; 0 leased; 45 failed; 2,281 complete within configured scope; 862 coverage-limited. Run 269 checkpoint independently verified; run 270 completed successfully and self-dispatched run 271.",
+  "source_capture_pending": 4653,
+  "source_capture_status": "3,203 captured; 4,653 pending; 0 leased; 45 failed; 2,328 complete within configured scope; 875 coverage-limited. Run 274 checkpoint independently verified; run 275 active successor.",
   "latest_continuation_verification": {
     "source_parent_run_id": 43695633862,
     "source_parent_artifact_id": 14153204517,
@@ -808,23 +808,23 @@
   },
   "source_capture": {
     "total": 7901,
-    "captured": 3143,
-    "complete_within_configured_scope": 2281,
-    "coverage_limited": 862,
-    "pending": 4713,
+    "captured": 3203,
+    "complete_within_configured_scope": 2328,
+    "coverage_limited": 875,
+    "pending": 4653,
     "failed": 45,
     "leased": 0,
-    "latest_verified_run": 43736527161,
-    "artifact_id": 14171055188,
-    "artifact_sha256": "7b575ea30678fe4a6d0ada19d562c45537868cfaef2596762d26fd2c02bab16f",
+    "latest_verified_run": 43737165175,
+    "artifact_id": 14170584038,
+    "artifact_sha256": "31c8faa77001805b4842fa0b4fa1895981f44e4dddbff377dbf14c16c7d7f468",
     "zip_crc_check": "ok",
     "sqlite_integrity_check": "ok",
-    "captured_report_identity_checks": 3143,
+    "captured_report_identity_checks": 3203,
     "missing_reports": 0,
     "report_identity_mismatches": 0,
-    "git_blob_objects_verified": 34687,
+    "git_blob_objects_verified": 35367,
     "git_blob_mismatches": 0,
-    "latest_checkpoint_note": "Run 269 artifact independently inspected; queue counts reconcile to 7,901; run 270 consumed this checkpoint and completed successfully, then run 271 began from its successor checkpoint."
+    "latest_checkpoint_note": "Run 274 artifact independently inspected. Queue reconciles to 7,901; all 3,203 captured reports are present and identity-consistent; all 35,367 source vault Git blob objects independently hash-verified. Run 275 is the active successor."
   },
   "semantic_pilot": {
     "r8": {
@@ -855,24 +855,24 @@
     }
   },
   "source_capture_latest_verified": {
-    "workflow_run_id": 43736527161,
-    "run_number": 269,
+    "workflow_run_id": 43737165175,
+    "run_number": 274,
     "conclusion": "success",
-    "artifact_id": 14171055188,
-    "artifact_sha256": "7b575ea30678fe4a6d0ada19d562c45537868cfaef2596762d26fd2c02bab16f",
-    "captured": 3143,
-    "complete_within_scope": 2281,
-    "coverage_limited": 862,
-    "pending": 4713,
+    "artifact_id": 14170584038,
+    "artifact_sha256": "31c8faa77001805b4842fa0b4fa1895981f44e4dddbff377dbf14c16c7d7f468",
+    "captured": 3203,
+    "complete_within_scope": 2328,
+    "coverage_limited": 875,
+    "pending": 4653,
     "failed": 45,
     "leased": 0,
     "zip_crc_check": "ok",
     "sqlite_integrity_check": "ok",
-    "reports_verified": 3143,
-    "git_blob_objects_verified": 34687,
+    "reports_verified": 3203,
+    "git_blob_objects_verified": 35367,
     "report_identity_mismatches": 0,
     "missing_reports": 0,
-    "note": "Independent local archive preflight passed. Run 270 restored this artifact, completed next 12-candidate capture and durable checkpoint, retired consumed artifact after successor upload, and dispatched run 271."
+    "note": "Independent archive preflight passed. Run 275 is the next self-dispatched continuation."
   },
   "r9_latest_verified": {
     "workflow_run_id": 43723822528,
@@ -897,31 +897,23 @@
     "note": "Specialist/evidence/reviewer execution remains active; exact task outcomes not yet available."
   },
   "active_source_capture_run": {
-    "workflow_run_id": 43736794942,
-    "run_number": 271,
+    "workflow_run_id": 43737284215,
+    "run_number": 275,
     "status": "in_progress",
-    "active_step": "Capture next 12 priority repositories",
-    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43736794942"
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43737284215"
   },
   "source_capture_latest_checkpoint": {
-    "run_id": 43736655739,
-    "run_number": 270,
+    "run_id": 43737165175,
+    "run_number": 274,
     "conclusion": "success",
-    "captured": "successor checkpoint produced; artifact consumed by run 271",
-    "parent_run_id": 43736527161,
-    "parent_artifact_id": 14171055188,
-    "queue_before_next_cycle": {
-      "captured": 3143,
-      "complete_within_scope": 2281,
-      "coverage_limited": 862,
-      "pending": 4713,
-      "failed": 45,
-      "leased": 0,
-      "total": 7901
-    },
-    "artifact_id": null,
-    "artifact_sha256": null,
-    "note": "Run 270 completed all steps including SQLite checkpoint, durable artifact upload, retirement of consumed parent artifact, and auto-dispatch of run 271. Artifact ID is no longer listed after run 271 consumed it."
+    "captured": 3203,
+    "complete_within_scope": 2328,
+    "coverage_limited": 875,
+    "pending": 4653,
+    "failed": 45,
+    "leased": 0,
+    "artifact_id": 14170584038,
+    "artifact_sha256": "31c8faa77001805b4842fa0b4fa1895981f44e4dddbff377dbf14c16c7d7f468"
   },
   "r9_pilot": {
     "mission_id": "flashloan-agent-form-pilot-20261115-r9",
@@ -980,6 +972,8 @@
     "semantic_stage": "in_progress",
     "latest_observed_at_utc": "2026-11-15T16:40:37Z",
     "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43735008562",
-    "note": "Immutable seed restore, Agent Form runtime, local qwen2.5:3b Ollama runtime, and fresh isolated mission DAG bootstrap all passed. Serialized specialist/evidence/reviewer stage is active; no result artifact yet."
+    "note": "Immutable seed restore, Agent Form runtime, local qwen2.5:3b Ollama runtime, and fresh isolated mission DAG bootstrap all passed. Serialized specialist/evidence/reviewer stage is active; no result artifact yet.",
+    "last_verified_at_utc": "2026-11-15T16:45:49Z",
+    "observation": "Step has remained in_progress since 16:21:23Z; logs/artifacts are not currently retrievable through the connector. Treat as delayed/unresolved, not as a pass or failure. Do not launch duplicate pilot while original job remains active."
   }
 }
