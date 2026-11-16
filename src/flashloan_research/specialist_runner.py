@@ -297,7 +297,7 @@ _SPECIALIST_TOPIC_TERMS = {
 
 def _normalise_semantic_text(value: str) -> str:
     """Normalize camelCase and punctuation so source identifiers match prose terms."""
-    with_word_boundaries = re.sub(r"([a-z0-9])([A-Z])", r"\\1 \\2", value)
+    with_word_boundaries = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", value)
     return " ".join(re.findall(r"[a-z0-9]+", with_word_boundaries.casefold()))
 
 
