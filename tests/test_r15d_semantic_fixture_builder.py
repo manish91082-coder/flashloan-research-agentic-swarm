@@ -1,8 +1,10 @@
 import hashlib
 import unittest
+import tempfile
+from pathlib import Path
 
 from scripts.build_r15d_semantic_fixtures import (
-    EXPECTED, extract_excerpt, git_blob_sha, require_complete_function, verify_source,
+    EXPECTED, build, extract_excerpt, git_blob_sha, require_complete_function, verify_source,
 )
 
 
@@ -53,6 +55,14 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
         ):
             with self.assertRaises(ValueError):
                 require_complete_function(bad, "function executeOperation(")
+
+    def test_full_build_emits_six_hashed_source_pinned_cases(self):
+        with tempfile.TemporaryDirectory() as temp:
+            result = build(output_dir=Path(temp))
+            self.assertEqual(result["status"], "built_pending_independent_adjudication")
+            self.assertEqual(len(result["cases"]), 6)
+            self.assertTrue(all(len(case["excerpt_sha256"]) == 64 for case in result["cases"]))
+            self.assertEqual(result["cases"][1]["id"], "NAV-02")
 
     def test_git_blob_hash_is_git_object_hash(self):
         self.assertEqual(git_blob_sha(b"abc"), hashlib.sha1(b"blob 3\0abc").hexdigest())
