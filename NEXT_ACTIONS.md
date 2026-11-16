@@ -415,3 +415,22 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Verifier CI `43931290013` and full repository CI `43931290296`, `43931352330` passed Python 3.11/3.12/3.13.
 - This accepts only narrow negative-control reviewer compliance. It does not establish semantic accuracy, vulnerability detection quality or production readiness. No dossier is approved.
 - Next: create a separate source-pinned and independently adjudicated semantic benchmark with positive and negative cases, exact source path/line/excerpt hashes, rationale, applicability labels (`present`, `absent`, `not_applicable`, `unknown`) and blinded adjudication. Score provenance, claim support, protocol coverage, false critical claims, unknown handling, confidence calibration and verdict calibration separately. Keep held-out cases out of prompt tuning. No broad candidate processing or semantic audit increment until this benchmark passes.
+
+
+## R15D provenance recheck and validator-hardening checkpoint — 2026-11-17
+
+- Reopened canonical `main`; `NEXT_ACTIONS.md` blob SHA remains `0fbe756ad2009e67bf6b7776b7f9736bead9190d`, matching the prior checkpoint. Canonical repository and branch unchanged.
+- Re-downloaded fixture artifact `14262528859`; independently recomputed ZIP SHA-256 `264e121033653d4c19566433c9a2f522176952adcb319fa3c7550967cc4bfb6a`, matching the frozen artifact record.
+- Re-fetched both exact pinned source files. Git blob SHA-1s match NAV `32c5e42920517fa1b93540a94e5d4dd95de94e1a` and COB `daa5716e80f203ff9ba34868e4693db382774ab8`. Compared all six artifact excerpt texts with the pinned source line ranges: NAV-01 81–111, NAV-02 81–111, NAV-03 71–74, COB-01 191–204, COB-02 206–243, COB-03 73; all six match exactly.
+- The blind packet remains blank with six cases, two empty reviewer slots each, no expected labels and no model outputs. No human adjudication is evidenced; no labels or identities were added.
+- Validator review identified a remaining control gap: it checks that evidence reference lists are non-empty, but does not bind references to the case's pinned path/range/excerpt SHA; it also does not ensure consensus label agrees with unanimous reviewer labels or the third adjudicator's decision. This must be repaired before any freeze can be accepted.
+- CI status for docs checkpoint commit `49d39f8a40441dff6744fb670e5d4f9a2e4ece59` is not established by legacy commit-status endpoint (empty status list); do not claim its workflow is green without Actions run/job evidence.
+- Safety/accounting unchanged: no candidate execution, wallet, signing, deployment, live trading, paid/cloud inference; all dossiers pending; semantic audit increment zero.
+
+### Next actions
+
+1. Harden adjudication validation so every reviewer and third-adjudicator evidence record includes at least one exact case-pinned path, line range and excerpt SHA-256 reference; enforce consensus label consistency with unanimous reviews or the distinct third adjudicator.
+2. Add a separate fail-closed freeze command that validates the complete packet and provenance, writes a new immutable ground-truth manifest without modifying the blank input packet, and emits its SHA-256. Add tests proving invalid evidence, inconsistent consensus, missing third adjudication and attempted overwrite all fail.
+3. Trigger and inspect full Python 3.11/3.12/3.13 CI before accepting the validator/freeze implementation.
+4. Keep all six human review slots blank until actual independent human submissions exist. This is the only remaining non-automatable dependency; do not synthesize or infer human decisions.
+5. After real reviews and a successful freeze only, create held-out semantic cases and authorize a bounded benchmark. Until then, no model inference, dossier approval or semantic audit increment.
