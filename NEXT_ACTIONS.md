@@ -342,3 +342,12 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Dedicated verifier regression run `43928167221` passed Python 3.11, 3.12, 3.13.
 - General repository CI `43928167286` remained in progress at this checkpoint. Wait for all matrix jobs to pass before creating revision 4 trigger.
 - Next: confirm general CI; then bump challenger workflow/trigger to revision 4 with same 4,096 output cap and reason documenting that revision 3 never reached inference. Inspect resulting artifact and verify raw response finish reason, complete JSON decision, exact raw request/response/exchange hashes, source pins, model digest, pending dossiers and zero semantic increment.
+
+## R15D revision 4 execution started — 2026-11-16
+
+- Verifier regression CI `43928167221` green on Python 3.11/3.12/3.13.
+- Full repository CI `43928167286` green on Python 3.11/3.12/3.13.
+- Revision 3 run `43927768598` failed before inference at compileall due to earlier malformed test fixture; 979-byte artifact is a failure-only artifact, not benchmark evidence.
+- Revision 4 workflow `43928314376` triggered after CI passed. It uses same model digest, frozen R15C/source artifacts, source pins and packet fingerprints, 16,384 context, 4,096 max output.
+- Workflow commit `15d53b26fd78a88b97637ee0966eb3f9bac6345e`; trigger commit `88d83dfc0609c4595184ab69fc68c0f94d336815`.
+- Current status at checkpoint: challenger job in progress. Next: inspect every step, then artifact hash, raw response completion and decision, request/response/exchange hashes, frozen pins, safety ledger, pending dossiers and zero semantic increment.
