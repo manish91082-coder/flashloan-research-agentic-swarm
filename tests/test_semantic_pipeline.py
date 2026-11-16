@@ -33,8 +33,8 @@ class FakeLocalProvider:
         role = user_payload["role"]
         if role == "independent_reviewer":
             self.__class__.reviewer_prior_count = len(user_payload["prior_specialist_outputs"])
-            decision = "accept_with_reservations"
-            disagreements = ["Runtime behavior and realized profitability are not established by static source excerpts."]
+            decision = "inconclusive"
+            disagreements = ["The supplied callback declaration does not establish Pool caller authentication, initiator binding, or repayment and premium handling."]
         else:
             decision = "not_applicable"
             disagreements = []
@@ -56,8 +56,8 @@ class FakeLocalProvider:
             "summary": "Fixture analysis; all material claims are linked to a pinned source signal.",
             "purpose": "Flash-loan liquidation research implementation.",
             "purpose_category": "flash_loan_liquidation_bot",
-            "implementation_status": "partial",
-            "findings": [{
+            "implementation_status": "unknown" if role == "independent_reviewer" else "partial",
+            "findings": [] if role == "independent_reviewer" else [{
                 "finding_id": f"F-{role}",
                 "claim": "The pinned source excerpt contains the executeOperation callback declaration.",
                 "category": category_by_role[role],
@@ -67,7 +67,7 @@ class FakeLocalProvider:
                 "evidence_refs": [evidence],
             }],
             "evidence": [evidence],
-            "unknowns": ["No live execution or profitability proof."],
+            "unknowns": ["Pool caller authentication, initiator binding and repayment behavior are not established by the supplied callback declaration."] if role == "independent_reviewer" else ["No live execution or profitability proof."],
             "confidence": "low",
             "review_decision": decision,
             "review_disagreements": disagreements,
@@ -182,7 +182,7 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             ):
                 result = executor.run_local_semantic_agents(mission_id)
 
-            self.assertEqual(result["status"], "executed_with_evidence_gate", json.dumps(result, indent=2, default=str))
+            self.assertEqual(result["status"], "blocked_independent_review", json.dumps(result, indent=2, default=str))
             self.assertTrue(result["evidence_validation"]["completed"])
             self.assertEqual(len(FakeLocalProvider.calls), 8)
             self.assertEqual(FakeLocalProvider.reviewer_prior_count, 7)
@@ -200,8 +200,10 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             self.assertGreater(gate["candidate_purpose_evidence_count"], 0)
             reviewer = result["independent_review"]["completed"][0]
             reviewer_report = json.loads(Path(reviewer["report"]).read_text())
-            self.assertEqual(reviewer_report["review_decision"], "accept_with_reservations")
+            self.assertEqual(reviewer_report["review_decision"], "inconclusive")
             self.assertTrue(reviewer_report["review_disagreements"])
+            self.assertEqual(reviewer_report["findings"], [])
+            self.assertEqual(reviewer_report["implementation_status"], "unknown")
 
             store = MissionTaskStore(database)
             try:
@@ -215,7 +217,7 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
                 self.assertEqual(statuses["economic_forensics"], "completed")
                 self.assertEqual(statuses["dependency_forensics"], "completed")
                 self.assertEqual(statuses["evidence_validation"], "completed")
-                self.assertEqual(statuses["independent_review"], "completed")
+                self.assertEqual(statuses["independent_review"], "failed")
                 self.assertEqual(statuses["candidate_dossier"], "pending")
                 report_paths = [
                     row["result"]["report"] for row in rows
