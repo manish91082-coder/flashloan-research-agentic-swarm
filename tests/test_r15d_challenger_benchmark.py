@@ -28,7 +28,7 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
             response = json.dumps({
                 "choices": [{
                     "finish_reason": "stop",
-                        "message": {"content": json.dumps({"review_decision": "inconclusive"})},
+                        "message": {"content": json.dumps({"review_decision": decisions[index]})},
                 }]
             })
             response_sha = hashlib.sha256(response.encode()).hexdigest()
@@ -189,8 +189,13 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
             }),
         )
         report = json.loads(path.read_text(encoding="utf-8"))
-        report["reviewer_outcomes"][0]["response_sha256"] = hashlib.sha256(
-            json.loads(exchange_path.read_text(encoding="utf-8"))["exchange"]["response_raw"].encode()
+        exchange_doc = json.loads(exchange_path.read_text(encoding="utf-8"))
+        response_sha = hashlib.sha256(exchange_doc["exchange"]["response_raw"].encode()).hexdigest()
+        exchange_doc["exchange"]["response_sha256"] = response_sha
+        exchange_path.write_text(json.dumps(exchange_doc), encoding="utf-8")
+        report["reviewer_outcomes"][0]["response_sha256"] = response_sha
+        report["reviewer_outcomes"][0]["exchange_file_sha256"] = hashlib.sha256(
+            exchange_path.read_bytes()
         ).hexdigest()
         path.write_text(json.dumps(report), encoding="utf-8")
         with patch.dict(EXPECTED_INPUTS, pins, clear=True):
