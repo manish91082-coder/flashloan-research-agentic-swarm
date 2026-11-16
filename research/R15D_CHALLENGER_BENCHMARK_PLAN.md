@@ -93,3 +93,12 @@ After this benchmark, any broader semantic quality evaluation must use separatel
 - Latest fixture repair commit: `af0df0d40834092735ace7f98f000a79ae731012`.
 - Revision 3 workflow run `43927768598` did not reach inference: test syntax compilation failed before the benchmark. Its tiny artifact is not a benchmark result.
 - Do not trigger revision 4 until general CI is green. Then update workflow/trigger revision and rerun the exact pinned benchmark with output ceiling 4,096.
+
+## Revision 4 launched after green verifier and repository CI
+
+- Dedicated verifier regression CI run `43928167221`: all three Python versions passed.
+- General repository CI run `43928167286`: all three Python versions passed.
+- The intervening revision 3 workflow `43927768598` failed at compileall before any inference because it checked out the earlier malformed test fixture. Its 979-byte artifact is not a benchmark.
+- Revision 4 trigger requires verifier/test CI to be green, uses exact same Qwen3.5 4B digest, same R15C and source-vault artifacts, same frozen source pins and input packet hashes, same 16,384 context and 4,096 output cap.
+- Revision 4 workflow: [43928314376](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43928314376). At checkpoint, benchmark job had started; final restoration/inference/acceptance/artifact status is pending.
+- Workflow commit: `15d53b26fd78a88b97637ee0966eb3f9bac6345e`; trigger commit: `88d83dfc0609c4595184ab69fc68c0f94d336815`.
