@@ -1,3 +1,23 @@
+## Latest authoritative continuation checkpoint — R15D challenger verifier repair (2026-11-16)
+
+- **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
+- **Frozen baseline remains unchanged:** R15C evaluation artifact 14229725407; source-vault artifact 14196365507. Candidate source commit/tree pins and both frozen packet SHA-256 values remain fixed in the challenger protocol.
+- **Qwen3.5 4B inference run:** [43913169300](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43913169300), artifact 14248019054, ZIP SHA-256 `a596abcd93101fb1507db1abdcfcc33a36c09f389534f1e999b8fc1e21e3c830`.
+- **Observed model decisions:** both deliberately insufficient packets received the model's own `inconclusive` verdict. Both inference tasks completed; exact challenger digest and source/evaluation restore checks passed. Dossiers remained pending, semantic audit increment 0, and all prohibited actions remained false.
+- **Why acceptance initially failed:** verifier resolved a same-basename file through recursive search and could select the normalized `inspections/` record instead of the raw `model_exchanges/` exchange. The failure was `raw exchange file hash mismatch`; it was a verifier path-selection defect, not a false model verdict.
+- **Repair commits:** `3ee1e425c1d3344fd7cc3632e8d956b56cd83d7c` pins raw exchange reads to `model_exchanges/`; `2a022259f1d796d75b84c19708f1ea8cc16cf3cc` adds a same-basename collision regression test.
+- **Dedicated regression CI added:** `2a91e97bafd94ad3c8b4651559fce9db2cee2061`, workflow `.github/workflows/r15d-challenger-verifier-ci.yml`, Python 3.11/3.12/3.13. CI execution/result is not yet confirmed at this checkpoint.
+- **Interpretation:** preliminary 2/2 negative-control compliance only. It is not a semantic quality pass, vulnerability-detection validation, candidate approval, or production readiness.
+- **Safety/accounting:** candidate code not executed; no wallet access, transaction signing, deployment, or live trading; no paid/cloud inference; semantic audit increment remains zero.
+
+### Immediate next actions
+
+1. Verify the dedicated CI workflow actually triggers and all three Python matrix jobs pass. If the workflow does not trigger, inspect GitHub Actions event/permissions and correct the trigger, not the model.
+2. Re-run the corrected verifier against the retained challenger artifact/report without repeating inference. Confirm raw exchange file, request and response hashes; source pins; packet hashes; model digest; dossier status; and safety invariants.
+3. Publish an R15D challenger results record with artifact digest and exact verifier result.
+4. Build an adjudicated semantic benchmark with positive and negative examples, protocol-specific evidence anchors, and independent ground-truth labels. Include callback authentication, initiator binding, Pool/provider wiring, premium repayment, token flow, liquidity/fee/gas constraints, and false-positive controls where supported by pinned source.
+5. Only after independent adjudication and reproducible scoring, decide whether to proceed to a fresh isolated semantic pilot. Keep R15C and both candidate dossiers immutable/pending until then.
+
 ## Latest authoritative continuation checkpoint — R15D baseline execution active (2026-11-16 15:32 UTC)
 
 - **Canonical project:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
