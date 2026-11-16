@@ -85,8 +85,9 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIsInstance(exchange, dict)
         self.assertEqual(
             exchange["request_sha256"],
-            hashlib.sha256(json.dumps(exchange["request"]).encode("utf-8")).hexdigest(),
+            hashlib.sha256(exchange["request_raw"].encode("utf-8")).hexdigest(),
         )
+        self.assertEqual(json.loads(exchange["request_raw"]), exchange["request"])
         self.assertEqual(
             exchange["response_sha256"],
             hashlib.sha256(exchange["response_raw"].encode("utf-8")).hexdigest(),
