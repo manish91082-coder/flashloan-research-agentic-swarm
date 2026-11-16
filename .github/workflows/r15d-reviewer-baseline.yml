@@ -60,6 +60,7 @@ jobs:
           assert trigger["source_seed_artifact_sha256"] == "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad"
           assert trigger["model_tag"] == manifest["model"]["tag"]
           assert trigger["model_digest"] == manifest["model"]["digest"]
+          assert trigger["manifest_blob_sha"] == "c5966272ea95aa55cc3ccc0ed0ff6e01819ee717"
           assert trigger["request_context_tokens"] == 16384
           assert trigger["max_output_tokens"] == 2400
           for key in ("evaluation_artifact_id", "source_seed_artifact_id"):
@@ -70,6 +71,11 @@ jobs:
                   if isinstance(value, (str, int, float, bool)):
                       out.write(f"{key}={str(value).lower() if isinstance(value, bool) else value}\n")
           PY
+          ACTUAL_MANIFEST_BLOB_SHA="$(git hash-object research/R15C_EVALUATION_PACKET_MANIFEST.json)"
+          if [[ "$ACTUAL_MANIFEST_BLOB_SHA" != "${{ steps.pins.outputs.manifest_blob_sha }}" ]]; then
+            echo "R15C manifest blob SHA differs from the pinned evaluation manifest." >&2
+            exit 1
+          fi
           echo "FLR_MODEL_NAME=${{ steps.pins.outputs.model_tag }}" >> "$GITHUB_ENV"
 
       - name: Download and verify immutable source-vault checkpoint
