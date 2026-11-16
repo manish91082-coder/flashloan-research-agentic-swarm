@@ -493,3 +493,15 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Actions run 43946228412 covers the UTC freeze-time fix; at this checkpoint it was still in progress. The later consensus-status commits have their own pending CI run; do not claim these latest changes are green until all three jobs are inspected.
 - The original blind packet remains byte-identical at blob b9dac92fb354eea8abfddb04b68b1a2d7c9a604b. No human reviewer identities, labels, rationales or timestamps have been added. Freeze utility remains unused. Semantic audit increment zero; dossiers pending; safety invariants unchanged.
 - Next: inspect the active CI runs for the UTC freeze timestamp and consensus-status changes. Then re-open all modified code/tests and the blind packet at latest main. Continue static audit for fail-closed gaps; no freeze or model inference until real independent reviews exist.
+
+
+## R15D post-green static audit — identity normalization and canonical freeze input — 2026-11-17
+
+- Consensus-status validator change and its regression test passed their complete Python 3.11/3.12/3.13 matrices: runs 43946324932 and 43946344837. Python 3.11 fixture build/upload also passed in each applicable run.
+- Further static review identified two additional hardening opportunities and implemented them:
+  1. Reviewer IDs are now stripped before distinctness checks, preventing whitespace variants from masquerading as independent reviewers. Regression test added.
+  2. Freeze now accepts only the designated blind packet type in `pending_independent_review` state, with pre-freeze flags intact (`ground_truth_frozen=false`, reviewer output hidden, model inference unauthorized). Regression test added.
+- Commits: normalized reviewer identity validator ac766f298e0e1b131f2d1d99d95c4d8c6452225; test 0ff550f7c76da7863e163362a13ee524f5c3d80e; canonical packet freeze gate 83bdbc2ae1bac910c187f579673f0c84f7f8a751; test f8dbe246a930266c92213f6a46d9e115ab6c2a3f.
+- These newest changes are not yet CI-verified at this checkpoint. New Actions runs must be inspected before claiming pass.
+- Blind packet source remains unchanged at blob b9dac92fb354eea8abfddb04b68b1a2d7c9a604b. No reviewer data invented, no freeze run, semantic audit increment zero, dossiers pending, all safety invariants false.
+- Next: verify new CI matrices, then continue validator/freeze edge-case audit. Preserve no-inference-before-independent-ground-truth rule.
