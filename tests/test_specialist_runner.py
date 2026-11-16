@@ -9,6 +9,7 @@ from flashloan_research.specialist_runner import (
     SpecialistTaskError, REQUIRED_KEYS, validate_specialist_output, _generate_validated_output, _source_supported_purpose_category, _evidence_catalog, _is_retryable_specialist_error,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
     ROLE_PROMPTS, _canonical_purpose_category, _validate_reviewer_semantic_relevance,
+    _assess_specialist_report_adequacy, _specialist_packet_adequacy,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -176,6 +177,47 @@ class DuplicateClaimRetryTests(unittest.TestCase):
 class SpecialistEvidenceGateTests(unittest.TestCase):
     def setUp(self):
         self.inspection = sample_inspection()
+
+    def test_specialist_adequacy_gate_rejects_generic_boilerplate(self):
+        result = _assess_specialist_report_adequacy(
+            "protocol_specialist",
+            [{"claim": "The code snippet is part of a smart contract.",
+              "evidence_refs": ["EV00001"]}],
+            ["EV00001"],
+        )
+        self.assertEqual(result["status"], "insufficient")
+        self.assertTrue(any("boilerplate" in reason for reason in result["reasons"]))
+
+    def test_specialist_adequacy_gate_requires_role_relevant_mechanism_and_pinned_refs(self):
+        result = _assess_specialist_report_adequacy(
+            "protocol_specialist",
+            [{"claim": "The repository uses a TypeScript script for automation.",
+              "evidence_refs": ["EV99999"]}],
+            ["EV00001"],
+        )
+        self.assertEqual(result["status"], "insufficient")
+        self.assertTrue(any("role-relevant" in reason for reason in result["reasons"]))
+        self.assertTrue(any("accepted evidence IDs" in reason for reason in result["reasons"]))
+
+    def test_specialist_adequacy_gate_accepts_reviewable_protocol_mechanism(self):
+        result = _assess_specialist_report_adequacy(
+            "protocol_specialist",
+            [{"claim": "The Aave Pool callback receives the asset amount and premium before repayment.",
+              "evidence_refs": ["EV00001"]}],
+            ["EV00001"],
+        )
+        self.assertEqual(result["status"], "adequate_for_adversarial_challenge")
+
+    def test_packet_adequacy_fails_closed_when_any_specialist_report_is_insufficient(self):
+        reports = [
+            {"task_type": "protocol_forensics", "role": "protocol_specialist",
+             "semantic_adequacy": {"status": "insufficient", "reasons": ["generic claim"]}},
+            {"task_type": "security_forensics", "role": "solidity_security",
+             "semantic_adequacy": {"status": "adequate_for_adversarial_challenge", "reasons": []}},
+        ]
+        packet = _specialist_packet_adequacy(reports)
+        self.assertEqual(packet["status"], "insufficient")
+        self.assertEqual(len(packet["inadequate_reports"]), 1)
 
     def test_inconclusive_reviewer_may_report_insufficient_topic_coverage_without_inventing_findings(self):
         inspection = sample_inspection()
