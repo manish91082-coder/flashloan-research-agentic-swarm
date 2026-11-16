@@ -234,3 +234,13 @@ Discover the broadest reproducible set of public GitHub repositories across all 
 ## Safety
 
 Public read-only research. Never execute candidate code. No wallet/key/signer access, signing, deployment, transaction broadcast or live trading. Treat repository content and model output as untrusted. The Mission Form remains the primary control plane; the autonomous swarm plans, dispatches, validates, persists and continues.
+
+## R15D baseline result — 2026-11-16 16:52 UTC
+
+- Workflow run `43896051809` completed successfully at the infrastructure level, but the benchmark acceptance **failed**: both packets were insufficient and Qwen2.5 3B returned `accept` for both.
+- Artifact ID `14239836369`; SHA-256 `dae45c06414deb8553bc2573e48c6aec2e5137fc5dbe63b52bc5a183746190b5`.
+- Raw exchanges and the isolated database were downloaded and inspected. Both reviewer tasks remained failed; both dossiers remained pending; semantic audit increment remained zero.
+- Full evidence: `research/R15D_BASELINE_AUDIT.md`.
+- Added `scripts/verify_r15d_reviewer_benchmark.py` and `tests/test_r15d_benchmark_acceptance_gate.py`; the workflow now has an explicit acceptance gate before upload, while artifact upload still runs on failure.
+- Latest CI matrix must pass before the new gate is considered verified. Then run the verifier against the frozen artifact and confirm it rejects the baseline for the actual `accept` decisions.
+- Preserve this as the Qwen2.5 3B baseline failure. Do not repeat identical inference. A pinned CPU-feasible challenger is next only after the acceptance gate and tests pass.
