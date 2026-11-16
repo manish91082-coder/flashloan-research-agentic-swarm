@@ -41,7 +41,7 @@
       "repository": "0xnavarro/Aave-Liquiditor",
       "path": "src/contracts/FlashLiquidator.sol",
       "line_start": 81,
-      "line_end": 110,
+      "line_end": 111,
       "proposition": "Callback accepts flash-loan arguments, decodes liquidation params, approves the pool, calls liquidationCall, checks repayment balance and returns true.",
       "expected_label": "present",
       "boundary": "Does not establish callback authentication."
