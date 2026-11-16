@@ -176,6 +176,14 @@ jobs:
             --model-manifest reports-ollama-model-manifest.json \
             | tee reports-r15d-reviewer-baseline-summary.json
 
+      - name: Enforce benchmark acceptance and raw-exchange integrity
+        if: success()
+        run: |
+          set -euo pipefail
+          python scripts/verify_r15d_reviewer_benchmark.py \
+            --report research_runs/benchmarks/r15d-reviewer-baseline/flashloan-agent-form-pilot-20261116-r15c/r15d-reviewer-baseline-report.json \
+            --expected-reviewers 2
+
       - name: Upload R15D baseline benchmark evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
