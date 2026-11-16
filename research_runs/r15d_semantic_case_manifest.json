@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "r15d-semantic-source-facts-v1",
+  "status": "design_only_excerpt_hashes_and_adjudication_pending",
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "candidates": [
+    {
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "commit_sha": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "tree_sha": "14de2312e96c369bcc52c9bae96215051aea22b4",
+      "files": [
+        {
+          "path": "src/contracts/FlashLiquidator.sol",
+          "git_blob_sha1": "32c5e42920517fa1b93540a94e5d4dd95de94e1a"
+        }
+      ]
+    },
+    {
+      "repository": "cobibean/aave-liquidator-bot",
+      "commit_sha": "3159c15f4dcfb0df215b4c3024f47753a1133b84",
+      "tree_sha": "1a9ee7218304b95654385fc11f255a7c5d532bc4",
+      "files": [
+        {
+          "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+          "git_blob_sha1": "daa5716e80f203ff9ba34868e4693db382774ab8"
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "NAV-01",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "line_start": 81,
+      "line_end": 110,
+      "proposition": "Callback accepts flash-loan arguments, decodes liquidation params, approves the pool, calls liquidationCall, checks repayment balance and returns true.",
+      "expected_label": "present",
+      "boundary": "Does not establish callback authentication."
+    },
+    {
+      "id": "NAV-02",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "line_start": 81,
+      "line_end": 110,
+      "proposition": "No explicit msg.sender-to-pool or initiator-to-self require/check occurs inside this complete callback body.",
+      "expected_label": "absent",
+      "boundary": "Absence scoped only to this complete function body; inherited behavior is outside this proposition."
+    },
+    {
+      "id": "NAV-03",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "line_start": 71,
+      "line_end": 74,
+      "proposition": "Constructor passes _addressProvider to the base provider constructor and assigns pool = IPool(_addressProvider).",
+      "expected_label": "present",
+      "boundary": "Assignment fact only; correctness requires separate dependency/API adjudication."
+    },
+    {
+      "id": "COB-01",
+      "repository": "cobibean/aave-liquidator-bot",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "line_start": 191,
+      "line_end": 204,
+      "proposition": "executeOperation checks msg.sender equals aavePool and initiator equals this before decoding params and liquidationCall.",
+      "expected_label": "present",
+      "boundary": "Does not generalize to all external entry points."
+    },
+    {
+      "id": "COB-02",
+      "repository": "cobibean/aave-liquidator-bot",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "line_start": 206,
+      "line_end": 243,
+      "proposition": "Callback computes amountOwed, adds floor to requiredBalance and reverts when debtBalance is below requiredBalance before repayment approval.",
+      "expected_label": "present",
+      "boundary": "Does not establish net economic profitability after all costs."
+    },
+    {
+      "id": "COB-03",
+      "repository": "cobibean/aave-liquidator-bot",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "line_start": 73,
+      "line_end": 73,
+      "proposition": "Stored minProfit is initialized to zero.",
+      "expected_label": "present",
+      "boundary": "Do not infer that per-call floor is always zero."
+    }
+  ],
+  "adjudication": {
+    "independent_reviewers_required": 2,
+    "third_adjudicator_on_disagreement": true,
+    "model_output_hidden_until_ground_truth_frozen": true,
+    "excerpt_sha256_status": "pending_builder",
+    "adjudication_status": "pending"
+  }
+}
