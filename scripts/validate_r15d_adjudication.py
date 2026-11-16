@@ -102,6 +102,8 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
         if all(complete) and len(set(ids)) != 2:
             errors.append(f"{cid}: reviewer IDs must be distinct")
         for index, review in enumerate(reviews):
+            if isinstance(review, dict) and review.get("reviewer_id") and not _review_complete(review):
+                errors.append(f"{cid}: reviewer {index + 1} submission is pending or invalid; verify required fields and UTC completion timestamp")
             if isinstance(review, dict) and _review_complete(review) and not _has_pinned_evidence(case, review):
                 errors.append(f"{cid}: reviewer {index + 1} lacks exact pinned path/range/excerpt SHA-256 evidence")
         if any(complete) and not all(complete):
