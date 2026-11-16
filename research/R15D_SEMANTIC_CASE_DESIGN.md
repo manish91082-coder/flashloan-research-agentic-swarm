@@ -31,7 +31,7 @@ The Git blob identifiers are from the immutable source-capture manifest. Before 
 | NAV-03 | FlashLiquidator.sol:71-74 | The constructor initializes the base receiver with IPoolAddressesProvider(_addressProvider), then assigns pool = IPool(_addressProvider). | present | This is an assignment fact. Whether the cast/address is semantically correct requires provider/API context and separate adjudication. |
 | COB-01 | AaveLiquidatorSwapRouter02.sol:191-204 | executeOperation explicitly requires msg.sender == address(aavePool) and initiator == address(this) before decoding params and calling liquidationCall. | present | Do not generalize to all external entry points. |
 | COB-02 | AaveLiquidatorSwapRouter02.sol:206-243 | The callback computes amountOwed = debtAmount + premium, requiredBalance = amountOwed + floor, and reverts if debtBalance is below requiredBalance before approving repayment. | present | This proves the coded balance condition, not economic profitability after all off-chain costs. |
-| COB-03 | AaveLiquidatorSwapRouter02.sol:73, 123-126, 130-152 | Stored minProfit initializes to zero, can be changed by onlyOwner setMinProfit, and the per-call entry point uses the greater of its argument and stored floor. | present | Do not claim a positive default profit floor. Distinguish stored default from caller-supplied per-call floor. |
+| COB-03 | AaveLiquidatorSwapRouter02.sol:73 | The stored `minProfit` state variable is initialized to zero. | present | This is only the declared default value; it does not establish the floor applied by every entry point. |
 
 ## 4. Required fixture structure
 
