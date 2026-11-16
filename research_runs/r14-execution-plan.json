@@ -2,27 +2,27 @@
   "schema_version": "1.0",
   "record_type": "semantic_pilot_execution_plan",
   "mission_id": "flashloan-agent-form-pilot-20261116-r14",
-  "status": "READY_TO_RETRY_R14_WITH_VERIFIED_CHECKPOINT_384",
+  "status": "R14_RETRY_READY_WITH_VERIFIED_CHECKPOINT_393_AND_REVIEWER_CORRECTION_5_5_0",
   "branch": "main",
-  "reviewer_gate_version": "5.4.0-candidate-specific-semantic-review-gate",
+  "reviewer_gate_version": "5.5.0-reviewer-semantic-correction-retry",
   "model": "qwen2.5:3b",
   "inference_policy": "Ollama on GitHub-hosted runner, CPU-only, loopback 127.0.0.1:11434; no cloud or paid inference",
   "batch_limit": 2,
   "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
   "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14",
   "checkpoint": {
-    "source_capture_run_id": 43795802487,
-    "artifact_id": 14193319569,
-    "artifact_sha256": "d7560418a924d0261c0c7196a34d150b548c34a2398d20f467e989996fa9a7da",
+    "source_capture_run_id": 43799361897,
+    "artifact_id": 14196365507,
+    "artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
     "mission_run_id": 43600488013,
     "queue": {
       "total": 7901,
-      "captured": 4505,
-      "pending": 3340,
+      "captured": 4612,
+      "pending": 3232,
       "leased": 0,
-      "failed": 56,
-      "captured_complete_within_scope": 3263,
-      "captured_with_coverage_limits": 1242
+      "failed": 57,
+      "captured_complete_within_scope": 3338,
+      "captured_with_coverage_limits": 1274
     },
     "verification": {
       "workflow_conclusion": "success",
@@ -30,24 +30,24 @@
       "sha256_verified": true,
       "zip_crc": "ok",
       "sqlite_integrity": "ok",
-      "reports_verified": 4505,
+      "reports_verified": 4612,
       "report_identity_mismatches": 0,
-      "git_blob_references_verified": 62771,
-      "unique_git_blobs_verified": 48906,
+      "git_blob_references_verified": 50268,
+      "unique_git_blobs_verified": 50268,
       "blob_mismatches": 0,
       "queue_accounting_total": 7901
     }
   },
   "acceptance_gates": [
     "Use a fresh isolated R14 database and artifact root; never reuse R13 or earlier pilot databases",
-    "Verify immutable source-capture checkpoint identity and exact SHA-256 before restore",
-    "Complete 2/2 candidate-purpose tasks and 12/12 specialist tasks",
+    "Verify immutable source-capture checkpoint run 43799361897, artifact 14196365507 and exact SHA-256 before restore",
+    "Complete 2/2 candidate-purpose tasks and 12/12 distinct specialist tasks",
     "Pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
-    "Complete 2/2 independent candidate-specific reviews using reviewer semantic gate v5.4.0",
-    "Both reviewers must return exact unreserved accept, zero disagreements, and non-empty source-pinned evidence",
-    "Reject generic/off-topic claims and opaque disagreement identifiers",
-    "Verify all task counts and report-to-source provenance from the uploaded SQLite database and artifacts",
-    "Increment no dossier or semantic audit count until every gate passes"
+    "Complete 2/2 independent candidate-specific reviews using reviewer gate v5.5.0-reviewer-semantic-correction-retry",
+    "Both reviewers must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence",
+    "Reject generic/off-topic claims, unsupported claims, confidence inflation and opaque disagreement identifiers",
+    "Verify all task counts, attempts and report-to-source provenance from uploaded SQLite database and artifacts",
+    "Do not increment dossier or semantic audit count until every gate passes"
   ],
   "non_claims": [
     "Do not claim duplicate-claim runtime retry was exercised unless a real duplicate-claim failure is observed and retried within max_attempts=3",
@@ -63,6 +63,6 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "trigger_policy": "Trigger only after updating the R14 seed and trigger payload with this exact immutable checkpoint identity; the seed is pinned to protect it from source-capture artifact retirement.",
-  "next_action": "Retry R14 with verified checkpoint workflow run 43795802487 / artifact 14193319569 after adding bounded Ollama registry retries."
+  "trigger_policy": "Trigger only after run 23 reaches a terminal state; then update trigger with the exact immutable checkpoint identity and new isolated mission run.",
+  "next_action": "Wait for legacy R14 run 23 to finish; then trigger a fresh isolated R14 execution using checkpoint 393 and reviewer correction v5.5.0."
 }
