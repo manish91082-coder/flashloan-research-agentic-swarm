@@ -323,3 +323,13 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - New challenger workflow run: `43924552748` — [GitHub Actions](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43924552748).
 - The workflow validated revision-2 trigger and immutable model-pin artifact successfully. Source-vault restore is currently in progress; frozen packet restore, runtime install, exact-digest inference, acceptance verification and artifact upload are pending.
 - Do not interpret an in-progress run as a completed benchmark. Next checkpoint is the completed job plus artifact ID/SHA-256 and independent offline verification of both request bodies.
+
+## R15D revision 2 forensic result; revision 3 started
+
+- Run `43924552748` completed source-vault restore, frozen-packet restore, exact model digest check and both reviewer inference tasks. Acceptance failed, artifact uploaded.
+- Artifact `14256136974`, SHA-256 `b83fd56f2d30316f4ba2577261fb484c85b8e374f5b5add2cc07315cd84bf9bf`.
+- Independent artifact audit: both exchange outer hashes and exact raw request/request hash/parsed request checks passed. First candidate raw response has `finish_reason=length` and malformed/truncated JSON; second candidate response finished with `stop` and produced `inconclusive`. Thus the missing decision is due to output truncation, not a request hash issue. Never translate a truncated response into an inconclusive verdict.
+- Verifier now independently parses raw response, requires `finish_reason=stop`, checks complete JSON object and compares report output with raw response. Added a truncation negative test.
+- Revision 3 is a completion-integrity rerun with max output 4,096 (previously 2,400); all source/model/input pins and 16,384 context stay unchanged. This is not a model-quality comparison.
+- Verifier `02ed5098bee35c1ef245a8e9447fe58c04bb412e`; regression test `bd65309014ce776c1e61d8e5d1fadf2e49bed829`; workflow `dba0278c21b3fa36b3e1f46e028c8f03b54ab71c`; trigger `d1d630f6e43676e8402601141c309144f8a07294`.
+- Next: confirm CI and revision-3 benchmark execution, inspect the artifact, independently verify response completion and exact request/response/exchange hashes. Only then begin semantic benchmark design.
