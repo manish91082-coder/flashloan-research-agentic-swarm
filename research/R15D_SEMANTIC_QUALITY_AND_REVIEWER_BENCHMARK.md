@@ -194,9 +194,22 @@ The local provider now retains the exact request body, request SHA-256, raw Open
 
 The specialist adequacy gate is deterministic lexical/evidence-reference triage, not a semantic theorem prover. Shared role-specific tokens in a claim and excerpt do not prove that the claim is true. The independent reviewer still has to inspect full pinned source context, and the frozen evaluation packet still needs independent adjudication. The gate is designed to detect obvious boilerplate, off-topic claims and citation mismatch early, and to force uncertainty rather than false approval when specialist input is inadequate.
 
+### Frozen-packet baseline workflow
+
+A dedicated workflow and runner now replay only the two failed R15C independent-review tasks:
+
+- Workflow: `.github/workflows/r15d-reviewer-baseline.yml`
+- Runner: `scripts/run_r15d_reviewer_benchmark.py`
+- Trigger: `research_runs/trigger-r15d-reviewer-baseline.json`
+- Current run: [43896051809](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43896051809), currently in reviewer replay at the latest checkpoint.
+- It downloads and SHA-verifies both immutable artifacts, restores/verifies the source vault, checks R15C inspection/report hashes and blob identities, copies the R15C SQLite database, resets only two reviewer tasks in that copy, and runs local Ollama CPU inference with one task/model at a time.
+- It captures the full request body, raw response envelope and their SHA-256 fingerprints before validation. The original R15C DB, reports and dossier tasks are not modified.
+- Model identity is fail-closed against the exact R15C Qwen2.5 3B digest. A moved tag is not silently substituted.
+- The initial workflow attempt (run 43895783297) failed in step-output propagation before artifact download/inference. The output handoff was corrected using `GITHUB_ENV`; the second run passed pin validation, source restoration, packet integrity and model digest verification. The active inference outcome remains pending and must not be reported as success until terminal.
+
 ### Exact next sequence
 
-1. Build the frozen R15C evaluation packet from artifact 14229725407; verify the artifact SHA-256, SQLite integrity, task ledger, report hashes and exact source pins.
+1. Complete run 43896051809 and independently inspect its uploaded baseline report and raw exchanges.
 2. Add the two R15C failure classes as immutable regression fixtures and score the new deterministic gates against them.
 3. Verify model manifests and runner limits before any challenger inference; keep Qwen2.5 3B as baseline and use one model loaded at a time.
 4. Run baseline reviewer benchmark on the same frozen packet; retain raw outputs, normalized reports, packet fingerprints, model manifests and validator outcomes.
