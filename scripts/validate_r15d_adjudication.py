@@ -123,6 +123,9 @@ def validate(packet: object, require_complete: bool = False) -> dict:
         if not isinstance(reviews, list) or len(reviews) != 2:
             errors.append(f"{cid}: exactly two independent reviewer slots required")
             continue
+        for index, review in enumerate(reviews):
+            if not isinstance(review, dict):
+                errors.append(f"{cid}: reviewer slot {index + 1} must be an object")
         complete = [_review_complete(review) for review in reviews]
         ids = [review.get("reviewer_id").strip() for review in reviews if isinstance(review, dict) and isinstance(review.get("reviewer_id"), str)]
         if all(complete) and len(set(ids)) != 2:
