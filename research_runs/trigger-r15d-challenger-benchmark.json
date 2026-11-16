@@ -1,0 +1,14 @@
+{
+  "revision": 1,
+  "benchmark_id": "r15d-reviewer-challenger-qwen35-4b-r15c-frozen-packet",
+  "model_tag": "qwen3.5:4b",
+  "model_digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+  "model_pin_artifact_id": 14248935964,
+  "model_pin_artifact_sha256": "f857347f60035334927d3c543305b9102944b5da5e6059bc3e6754c6b675c06c",
+  "evaluation_artifact_id": 14229725407,
+  "evaluation_artifact_sha256": "98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3",
+  "source_seed_artifact_id": 14196365507,
+  "source_seed_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
+  "context_tokens": 16384,
+  "max_output_tokens": 2400
+}
