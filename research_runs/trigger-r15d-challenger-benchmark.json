@@ -1,5 +1,5 @@
 {
-  "revision": 4,
+  "revision": 5,
   "benchmark_id": "r15d-reviewer-challenger-qwen35-4b-r15c-frozen-packet",
   "model_tag": "qwen3.5:4b",
   "model_digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
@@ -12,7 +12,7 @@
   "context_tokens": 16384,
   "max_output_tokens": 4096,
   "capture_protocol_revision": 2,
-  "run_reason": "first-inference-after-raw-response-verifier-and-fixture-ci-green",
-  "prior_attempt_artifact_id": 14256647825,
-  "prior_attempt_artifact_sha256": "b5519bba8abfa69a1d826eb645f6f8eed464c44638dfacbbdbc23b6f1343a6e3"
+  "run_reason": "rerun-after-reviewer-task-completion-contract-fix-and-ledger-gate",
+  "prior_attempt_artifact_id": 14258126229,
+  "prior_attempt_artifact_sha256": "eeb121fe20df2171f5874dbb70c8976a4f95d0b3706aaa2bd8357206c518913e"
 }
