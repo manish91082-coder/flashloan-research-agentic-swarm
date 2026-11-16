@@ -1,18 +1,18 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14 Agent Form semantic quality pilot pinned to the latest durable source-capture checkpoint. Artifact preservation is enforced by matching this seed workflow_run_id to the next source-capture continuation's consumed resume_run_id.",
-  "seed_run_id": 43796011625,
+  "purpose": "R14 Agent Form semantic quality pilot pinned to independently verified source-capture checkpoint 393. Preserve this exact checkpoint while seed or trigger references its run/artifact identity.",
+  "seed_run_id": 43799361897,
   "batch_limit": 2,
   "model_runtime": "Ollama local CPU",
   "model": "qwen2.5:3b",
   "endpoint_policy": "http://127.0.0.1:11434 only; loopback-only; no cloud inference",
   "acceptance_gates": [
-    "restore exact source-capture workflow run 43794531352 artifact 14193398742 using SHA-256 036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8",
-    "validate all 4,421 report identities and all 61,673 pinned Git blob references; no mismatches",
+    "restore exact source-capture workflow run 43799361897 artifact 14196365507 using SHA-256 0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
+    "validate ZIP CRC, SQLite integrity, all 4,612 report identities and all 50,268 unique Git blob references; no missing blobs or mismatches",
     "validate Agent Form mission payload and fresh isolated R14 task DAG",
     "complete 2 candidate-purpose tasks and 12 specialist tasks across the same two pinned candidates",
     "pass both candidate-specific pinned-evidence semantic gates",
-    "run independent candidate-specific reviewer gate v5.4.0 on both candidates",
+    "run independent candidate-specific reviewer gate v5.5.0-reviewer-semantic-correction-retry on both candidates",
     "require exact unreserved accept, zero disagreements and non-empty source-pinned evidence from both reviewers",
     "do not create dossiers or increment semantic audit count until every gate passes"
   ],
@@ -25,27 +25,28 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "updated_at_utc": "2026-11-14T16:21:30Z",
-  "seed_artifact_id": 14194108090,
-  "seed_artifact_sha256": "4a2fceec8b588b9cbe6136974a3b1372594484ef64f4b3c35c01ff1c3ab6fd25",
+  "updated_at_utc": "2026-11-16T03:46:00Z",
+  "seed_artifact_id": 14196365507,
+  "seed_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4517,
-    "pending": 3328,
+    "captured": 4612,
+    "pending": 3232,
     "leased": 0,
-    "failed": 56,
-    "captured_complete_within_scope": 3269,
-    "captured_with_coverage_limits": 1248
+    "failed": 57,
+    "captured_complete_within_scope": 3338,
+    "captured_with_coverage_limits": 1274
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4517,
+    "reports_verified": 4612,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 63001,
-    "unique_git_blobs_verified": 49119,
-    "blob_mismatches": 0
+    "git_blob_references_verified": 50268,
+    "unique_git_blobs_verified": 50268,
+    "blob_mismatches": 0,
+    "queue_accounting_total": 7901
   },
   "artifact_preservation_policy": "The autonomous source-capture workflow now reads the latest main-branch seed and trigger pins before retiring an artifact. Preserve this artifact while either file references its exact workflow run or artifact ID."
 }
