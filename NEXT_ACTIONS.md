@@ -1,3 +1,22 @@
+## Latest authoritative continuation checkpoint — blind adjudication workflow scaffold verified (2026-11-16)
+
+- **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`; current implementation head `36c7feedbd60f33d6b78765e284992f2e1fa1cc6`.
+- **Blind packet committed:** `research_runs/r15d_adjudication/blind_adjudication_packet.json` at commit `f9b50a6146d33370da771d9733c4b17aa9c3afcb`. It contains the six bounded propositions, exact source pins and excerpt SHA-256s, two blank independent reviewer slots per case, third-adjudicator slots, and consensus/freeze controls. Expected labels and model outputs are intentionally omitted.
+- **Protocol committed:** `research/R15D_BLIND_ADJUDICATION_PROTOCOL.md` at `5f7e42834420c8fee524203c334346b9bf5b8c1a`. It specifies independent blind review, evidence scope, unknown handling, disagreement escalation, freeze checklist and no model-output exposure before freeze.
+- **Fail-closed validator:** `scripts/validate_r15d_adjudication.py` and `tests/test_r15d_adjudication_validator.py`, latest code/test commit `36c7feedbd60f33d6b78765e284992f2e1fa1cc6`. It checks exactly six cases, two complete distinct reviewer identities, permitted labels, rationale/evidence/confidence/timestamp/independence attestation, third adjudication on disagreement, and explicit consensus. It does not generate labels or freeze the packet.
+- **CI:** protocol documentation run [43941981270](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43941981270) passed Python 3.11/3.12/3.13. Latest implementation run [43942022279](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43942022279) passed all three Python versions; fixture build and artifact upload ran successfully on Python 3.11 only.
+- **Adjudication status:** no human reviewer records have been supplied. The packet remains blank/pending; no consensus labels are fabricated, no ground truth is frozen, and model inference is not authorized.
+- **Safety/accounting:** candidate code execution, wallet access, signing, deployment, live trading, paid inference and cloud inference remain false. Candidate dossiers remain pending; semantic audit increment remains zero.
+
+### Immediate next actions
+
+1. Keep the blank packet immutable as the adjudication input template. Collect two independent reviewer submissions per case without exposing expected labels or model output.
+2. Validate the completed submissions with `python scripts/validate_r15d_adjudication.py --require-complete` on GitHub CI. Resolve disagreements through a distinct third reviewer.
+3. Verify reviewer evidence references against the exact excerpt hashes and source pins, then publish a separately hashed frozen ground-truth manifest. Do not edit the original blank packet.
+4. Only after freeze, create held-out positive/negative/unknown cases and authorize a model benchmark. Until then, keep inference disabled and audit counters unchanged.
+
+---
+
 ## Latest authoritative continuation checkpoint — R15D semantic fixture artifact generated and audited (2026-11-16)
 
 - **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
