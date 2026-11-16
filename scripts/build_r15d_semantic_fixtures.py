@@ -75,7 +75,7 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
         if repo in identities or repo not in SOURCES:
             raise ValueError(f"duplicate or unapproved candidate: {repo}")
         identities[repo] = candidate
-        verify_source(repo, SOURCES[repo].read_bytes(), candidate["files"][0])
+        verify_source(repo, SOURCES[repo].read_bytes(), {\n            **candidate["files"][0],\n            "commit_sha": candidate["commit_sha"],\n            "tree_sha": candidate["tree_sha"],\n        })
     if set(identities) != set(EXPECTED):
         raise ValueError("candidate set differs from the two approved source pins")
 
