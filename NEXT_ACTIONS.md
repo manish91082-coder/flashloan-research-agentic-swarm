@@ -244,3 +244,13 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Added `scripts/verify_r15d_reviewer_benchmark.py` and `tests/test_r15d_benchmark_acceptance_gate.py`; the workflow now has an explicit acceptance gate before upload, while artifact upload still runs on failure.
 - Latest CI matrix must pass before the new gate is considered verified. Then run the verifier against the frozen artifact and confirm it rejects the baseline for the actual `accept` decisions.
 - Preserve this as the Qwen2.5 3B baseline failure. Do not repeat identical inference. A pinned CPU-feasible challenger is next only after the acceptance gate and tests pass.
+
+## R15D challenger pin verified — 2026-11-16
+
+- Qwen3.5 4B identity-only pin succeeded: tag `qwen3.5:4b`, digest `d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04`, Q4_K_M, 4.2B parameters, 3,324,173,934 bytes.
+- Pin artifact ID `14248935964`, SHA-256 `f857347f60035334927d3c543305b9102944b5da5e6059bc3e6754c6b675c06c`. No inference occurred in the pin workflow.
+- Challenger runner now accepts an optional identity-only model pin and explicitly sets the exact model tag. Baseline behavior remains tied to the frozen R15C manifest.
+- Added fail-closed challenger verifier and regression tests. Latest CI run `43913098301` passed all Python 3.11/3.12/3.13 jobs.
+- Challenger protocol and exact packet fingerprints: `research/R15D_CHALLENGER_BENCHMARK_PLAN.md`.
+- Challenger workflow run `43913169300` is active. It restores the pinned source vault and R15C packet successfully; runtime installation and inference are the remaining steps.
+- Do not report challenger quality until the run finishes and its artifact is downloaded, hash-checked, and reviewed. Preserve both dossiers pending and semantic audit increment zero.
