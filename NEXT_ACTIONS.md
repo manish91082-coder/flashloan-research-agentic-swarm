@@ -1,3 +1,23 @@
+## Latest authoritative continuation checkpoint — R15D semantic fixture artifact generated and audited (2026-11-16)
+
+- **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
+- **Workflow commit:** `546a51bbd16eca889d7bde4b13d903c7fc3bbeeb`; Research Engine CI run [43940526371](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43940526371) completed successfully on Python 3.11/3.12/3.13.
+- **Fixture build:** Python 3.11 step built six source-pinned cases with status `built_pending_independent_adjudication`; builder-reported manifest SHA-256 `2c0eb9ef589963ad48f430eeb838c416f90251a73b9ad876f201be20e6eda305`.
+- **Artifact:** ID `14262528859`, name `r15d-semantic-fixtures-546a51bbd16eca889d7bde4b13d903c7fc3bbeeb`, ZIP SHA-256 `264e121033653d4c19566433c9a2f522176952adcb319fa3c7550967cc4bfb6a`, 4,669 bytes, expires 2027-02-14. Downloaded ZIP independently and recomputed its SHA-256; it matches both GitHub artifact metadata and the upload log.
+- **Artifact contents:** six excerpt files plus `fixture_manifest.json`. Independently recomputed manifest SHA-256 and all six excerpt byte counts/SHA-256 values; all match manifest. NAV-01 and NAV-02 both cover lines 81–111; NAV-02 contains the complete function signature/body and balanced braces. NAV-03 71–74; COB-01 191–204; COB-02 206–243; COB-03 73.
+- **Source pins and boundaries:** NAV source commit/tree `9197ee3002d7d9b35e9c2da324128a38f7569038` / `14de2312e96c369bcc52c9bae96215051aea22b4`; COB source commit/tree `3159c15f4dcfb0df215b4c3024f47753a1133b84` / `1a9ee7218304b95654385fc11f255a7c5d532bc4`. Claims remain narrowly scoped; no vulnerability verdict is implied.
+- **Audit limitation:** ZIP and internal excerpt hashes are independently verified. The builder and source-fixture regression suite ran green, but the independent human/adjudicator ground-truth stage has NOT run. The manifest remains `built_pending_independent_adjudication`; do not freeze adjudication or run semantic inference yet.
+- **Safety/accounting:** candidate code execution false; wallet access, transaction signing, deployment, live trading, paid inference and cloud inference all false. Candidate dossiers remain pending; semantic audit increment remains zero.
+
+### Immediate next actions
+
+1. Independently re-open the exact source fixture files and verify their Git blob SHA-1 values against the pinned Git objects, then cross-check each excerpt byte-for-byte against the pinned source lines. Preserve the existing ZIP unchanged.
+2. Run two independent blind adjudications over the six propositions, with model output hidden; use a third adjudicator on any disagreement. Record rationales and adjudication evidence.
+3. Freeze the manifest only after independent agreement and provenance checks. Then prepare held-out positive/negative semantic cases before any model inference.
+4. Keep semantic audit increment zero and dossiers pending until the benchmark's independent acceptance gates pass.
+
+---
+
 ## Latest authoritative continuation checkpoint — exact request-byte provenance (2026-11-16)
 
 - **Canonical project:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
