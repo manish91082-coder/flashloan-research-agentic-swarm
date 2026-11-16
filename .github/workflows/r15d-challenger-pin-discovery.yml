@@ -1,0 +1,85 @@
+name: R15D Challenger Model Pin Discovery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-r15d-challenger-pin.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r15d-challenger-pin-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  discover-model-pin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout canonical research repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install CPU-only Ollama and pull challenger tag without inference
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          trigger = json.loads(Path("research_runs/trigger-r15d-challenger-pin.json").read_text())
+          assert trigger["model_tag"] == "qwen3.5:4b"
+          assert trigger["purpose"] == "identity_discovery_only_no_inference"
+          PY
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          bash -n "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          sudo systemctl start ollama
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          ollama pull qwen3.5:4b
+          curl --fail --silent http://127.0.0.1:11434/api/tags > r15d-challenger-ollama-tags.json
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+          tags = json.loads(Path("r15d-challenger-ollama-tags.json").read_text()).get("models", [])
+          matches = [m for m in tags if m.get("name") == "qwen3.5:4b"]
+          if len(matches) != 1:
+              raise SystemExit("Expected exactly one qwen3.5:4b tag in Ollama manifest.")
+          model = matches[0]
+          digest = model.get("digest", "")
+          details = model.get("details", {})
+          if not re.fullmatch(r"[0-9a-f]{64}", digest):
+              raise SystemExit("Ollama did not return a valid 64-character manifest digest.")
+          if details.get("quantization_level") != "Q4_K_M":
+              raise SystemExit(f"Unexpected challenger quantization: {details.get('quantization_level')!r}")
+          params = details.get("parameter_size", "")
+          if "4" not in params:
+              raise SystemExit(f"Unexpected challenger parameter size: {params!r}")
+          report = {
+              "status": "identity_discovered_no_inference",
+              "tag": model["name"],
+              "digest": digest,
+              "size_bytes": model.get("size"),
+              "details": details,
+              "purpose": "pin candidate identity before isolated benchmark; no model inference performed",
+          }
+          Path("r15d-challenger-model-pin.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\\n")
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload challenger model identity evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: r15d-challenger-model-pin-${{ github.run_id }}
+          path: |
+            r15d-challenger-ollama-tags.json
+            r15d-challenger-model-pin.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
