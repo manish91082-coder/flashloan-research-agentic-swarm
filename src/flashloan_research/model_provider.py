@@ -280,6 +280,12 @@ class LocalOpenAICompatibleProvider:
             "model": self.model,
             "temperature": 0,
             "max_tokens": int(os.getenv("FLR_MODEL_MAX_OUTPUT_TOKENS", "1200")),
+            # Ollama defaults to a small context window on many installs. The
+            # reviewer receives pinned excerpts plus seven bounded specialist
+            # summaries, so make the context budget explicit and testable.
+            "options": {
+                "num_ctx": int(os.getenv("FLR_MODEL_CONTEXT_TOKENS", "8192")),
+            },
             "response_format": {
                 "type": "json_schema",
                 "json_schema": {
