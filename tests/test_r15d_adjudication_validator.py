@@ -1,7 +1,6 @@
 import copy
 import json
 import unittest
-from pathlib import Path
 
 from scripts.validate_r15d_adjudication import DEFAULT_PACKET, validate
 
@@ -10,12 +9,15 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
     def setUp(self):
         self.packet = json.loads(DEFAULT_PACKET.read_text(encoding="utf-8"))
 
-    def completed_review(self, reviewer_id, label="present"):
+    def evidence(self, case):
+        return [f'{case["path"]}:{case["line_start"]}-{case["line_end"]}#sha256:{case["excerpt_sha256"]}']
+
+    def completed_review(self, case, reviewer_id, label="present"):
         return {
             "reviewer_id": reviewer_id,
             "label": label,
             "rationale": "The cited source lines directly support this bounded proposition.",
-            "evidence_references": ["pinned-file.sol:10-12#sha256:example"],
+            "evidence_references": self.evidence(case),
             "confidence": 0.9,
             "completed_at": "2026-11-17T00:00:00Z",
             "independence_attestation": True,
@@ -30,7 +32,8 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
     def test_duplicate_reviewer_identity_rejected(self):
         packet = copy.deepcopy(self.packet)
         case = packet["cases"][0]
-        case["reviewers"] = [self.completed_review("reviewer-a"), self.completed_review("reviewer-a")]
+        case["reviewers"] = [self.completed_review(case, "reviewer-a"), self.completed_review(case, "reviewer-a")]
+        case["consensus"] = {"status": "adjudicated", "label": "present", "rationale": "same", "disagreement": False}
         result = validate(packet)
         self.assertFalse(result["valid"])
         self.assertTrue(any("distinct" in error for error in result["errors"]))
@@ -38,7 +41,7 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
     def test_disagreement_requires_third_independent_adjudicator(self):
         packet = copy.deepcopy(self.packet)
         case = packet["cases"][0]
-        case["reviewers"] = [self.completed_review("reviewer-a", "present"), self.completed_review("reviewer-b", "unknown")]
+        case["reviewers"] = [self.completed_review(case, "reviewer-a", "present"), self.completed_review(case, "reviewer-b", "unknown")]
         case["consensus"] = {"status": "pending", "label": "present", "rationale": "reconciled", "disagreement": True}
         result = validate(packet)
         self.assertFalse(result["valid"])
@@ -47,20 +50,31 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
     def test_disagreement_rejects_reused_third_reviewer(self):
         packet = copy.deepcopy(self.packet)
         case = packet["cases"][0]
-        case["reviewers"] = [self.completed_review("reviewer-a", "present"), self.completed_review("reviewer-b", "unknown")]
-        case["third_adjudicator"] = self.completed_review("reviewer-a", "present")
-        case["consensus"] = {"status": "adjudicated", "label": "present", "rationale": "Third reviewer resolved the disagreement.", "disagreement": True}
+        case["reviewers"] = [self.completed_review(case, "reviewer-a", "present"), self.completed_review(case, "reviewer-b", "unknown")]
+        case["third_adjudicator"] = self.completed_review(case, "reviewer-a", "present")
+        case["consensus"] = {"status": "adjudicated", "label": "present", "rationale": "Third reviewer resolved it.", "disagreement": True}
         result = validate(packet)
         self.assertFalse(result["valid"])
         self.assertTrue(any("third adjudicator must be distinct" in error for error in result["errors"]))
 
-    def test_agreement_still_requires_explicit_consensus(self):
+    def test_unanimous_consensus_must_match_reviewers(self):
         packet = copy.deepcopy(self.packet)
         case = packet["cases"][0]
-        case["reviewers"] = [self.completed_review("reviewer-a"), self.completed_review("reviewer-b")]
+        case["reviewers"] = [self.completed_review(case, "reviewer-a", "present"), self.completed_review(case, "reviewer-b", "present")]
+        case["consensus"] = {"status": "adjudicated", "label": "absent", "rationale": "incorrect", "disagreement": False}
         result = validate(packet)
         self.assertFalse(result["valid"])
-        self.assertTrue(any("consensus label and rationale" in error for error in result["errors"]))
+        self.assertTrue(any("unanimous reviewer labels" in error for error in result["errors"]))
+
+    def test_evidence_must_match_exact_case_pin(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [self.completed_review(case, "reviewer-a"), self.completed_review(case, "reviewer-b")]
+        case["reviewers"][0]["evidence_references"] = ["pinned-file.sol:10-12#sha256:" + "0" * 64]
+        case["consensus"] = {"status": "adjudicated", "label": "present", "rationale": "agreement", "disagreement": False}
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("exact pinned" in error for error in result["errors"]))
 
 
 if __name__ == "__main__":
