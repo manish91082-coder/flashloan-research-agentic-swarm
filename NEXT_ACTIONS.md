@@ -295,3 +295,15 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Challenger protocol and exact packet fingerprints: `research/R15D_CHALLENGER_BENCHMARK_PLAN.md`.
 - Challenger workflow run `43913169300` is active. It restores the pinned source vault and R15C packet successfully; runtime installation and inference are the remaining steps.
 - Do not report challenger quality until the run finishes and its artifact is downloaded, hash-checked, and reviewed. Preserve both dossiers pending and semantic audit increment zero.
+
+## R15D raw-exchange verifier regression hardening — 2026-11-16
+
+- Re-inspected the canonical `main` branch before continuing. Provider captures the exact serialized HTTP request bytes as `request_raw`; its SHA-256 is computed over those exact bytes. The verifier independently parses those bytes, compares the parsed object with the stored request object, and checks request/response fingerprints.
+- Found a defect in the prior raw-request tampering regression test: it modified the raw exchange but did not refresh the outer `exchange_file_sha256` in the report. The verifier therefore correctly stopped at the outer file-hash check before reaching the intended raw-request/parsed-object mismatch assertion.
+- Corrected the test to refresh the outer exchange-file hash after mutation, so the assertion now exercises the intended inner validation.
+- Added five fail-closed regression cases: missing raw request, malformed raw request JSON, request fingerprint mismatch, response fingerprint mismatch, and outer exchange-file hash mismatch.
+- Commit: `9fed6c52b5a7cfa520f7365439c401a0d1c535d0`.
+- Dedicated verifier CI workflow: `.github/workflows/r15d-challenger-verifier-ci.yml`; it is configured for Python 3.11, 3.12 and 3.13 and should trigger on this test-file commit.
+- **CI status is not yet independently confirmed.** Do not run the corrected capture-protocol benchmark until all three matrix jobs pass and the final verifier/test files are re-inspected.
+- Next: obtain the workflow run/job results; repair any failures; then run a new Qwen3.5 4B capture-protocol benchmark against the exact existing model digest, source pins and frozen packet hashes. The earlier challenger artifact remains immutable forensic evidence and cannot be retroactively repaired.
+- Semantic audit increment remains zero; candidate dossiers remain pending. No candidate code execution, wallet access, signing, deployment, live trading, paid inference or cloud inference.
