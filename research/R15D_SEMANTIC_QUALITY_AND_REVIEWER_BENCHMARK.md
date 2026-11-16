@@ -57,7 +57,7 @@ The gate must reject or mark insufficient:
 - repeated boilerplate or duplicate findings;
 - candidate-purpose summaries presented as security findings.
 
-A reviewer must receive an explicit insufficiency state when the specialist packet is inadequate. It must be allowed to return `insufficient_evidence` or `inconclusive`; it must not invent risks to satisfy a minimum finding count.
+A reviewer must receive an explicit insufficiency state when the specialist packet is inadequate. It must be allowed to return the schema-supported `inconclusive` verdict; it must not invent risks to satisfy a minimum finding count.
 
 ### C. Protocol-specific review contract
 
