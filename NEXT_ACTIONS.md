@@ -333,3 +333,12 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Revision 3 is a completion-integrity rerun with max output 4,096 (previously 2,400); all source/model/input pins and 16,384 context stay unchanged. This is not a model-quality comparison.
 - Verifier `02ed5098bee35c1ef245a8e9447fe58c04bb412e`; regression test `bd65309014ce776c1e61d8e5d1fadf2e49bed829`; workflow `dba0278c21b3fa36b3e1f46e028c8f03b54ab71c`; trigger `d1d630f6e43676e8402601141c309144f8a07294`.
 - Next: confirm CI and revision-3 benchmark execution, inspect the artifact, independently verify response completion and exact request/response/exchange hashes. Only then begin semantic benchmark design.
+
+## R15D verifier regression repair checkpoint — 2026-11-16
+
+- Revision 3 workflow `43927768598` failed before inference because a malformed test string prevented compileall; artifact `14256647825` is only a small failure artifact, not a benchmark.
+- Dedicated verifier CI had follow-up failures due to fixture consistency: baseline test response did not match its report-side parsed output, and truncation test changed raw response without updating embedded/report response hashes and outer exchange file hash.
+- Repaired fixtures in commit `af0df0d40834092735ace7f98f000a79ae731012`.
+- Dedicated verifier regression run `43928167221` passed Python 3.11, 3.12, 3.13.
+- General repository CI `43928167286` remained in progress at this checkpoint. Wait for all matrix jobs to pass before creating revision 4 trigger.
+- Next: confirm general CI; then bump challenger workflow/trigger to revision 4 with same 4,096 output cap and reason documenting that revision 3 never reached inference. Inspect resulting artifact and verify raw response finish reason, complete JSON decision, exact raw request/response/exchange hashes, source pins, model digest, pending dossiers and zero semantic increment.
