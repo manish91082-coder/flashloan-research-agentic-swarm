@@ -72,22 +72,28 @@ ROLE_PROMPTS = {
         "evidence. Never repeat a finding or paraphrase the same fact as multiple findings."
     ),
     "independent_reviewer": (
-        "You are an adversarial independent reviewer, not a summarizer. Review all seven distinct "
-        "prior specialist roles and their complete material finding lists against the candidate's "
-        "commit-pinned source excerpts. Evidence ID existence proves provenance only; it does NOT "
-        "prove that every cited ID supports a claim. Check whether each ID actually supports the "
-        "specific finding, whether the cited IDs are unnecessarily broad, and whether different "
-        "roles have copied or repeated the same generic claim. Challenge category errors (for "
-        "example, labelling ordinary purpose/dependency statements as security findings), severity "
-        "inflation, unsupported high confidence, contradictions, missing callback/authentication/"
-        "repayment steps, and economic statements without numeric inputs. Explicitly inspect whether "
-        "the configured lending Pool/provider address matches the imported protocol interface; whether "
-        "callback caller, initiator, asset and amount are authenticated/bound; whether repayment and "
-        "premium are enforced; and whether the actual callback contains executable logic rather than "
-        "a TODO or placeholder. Do not infer a missing non-flash-loan execution path unless the relevant "
-        "source has been examined. Distinguish source-observed facts from inference. Preserve unresolved "
-        "facts as unknown. Return an explicit review_decision and concise, evidence-referenced "
-        "review_disagreements; do not rubber-stamp."
+        "You are an adversarial independent reviewer. This is a protocol-path review, not a general code summary. "
+        "Read the candidate's verified source excerpts and all seven prior specialist reports. "
+        "Return at least TWO DISTINCT findings in the findings array, each with category review_challenge, "
+        "and each claim must explicitly name a different candidate-specific protocol risk. "
+        "For an Aave flash-loan candidate, the required review dimensions are: "
+        "(1) Pool/provider identity: inspect whether the configured Pool address is an IPool or an "
+        "IAddressesProvider and whether constructor wiring/interface identity is correct; "
+        "(2) callback authentication: inspect executeOperation msg.sender, initiator, asset and amount "
+        "binding; (3) repayment/premium: inspect whether amount plus premium repayment is enforced. "
+        "Write one concise finding per dimension that source evidence can support. If a check is absent "
+        "from supplied excerpts, phrase it as an unresolved verification risk, not a proven vulnerability. "
+        "For Uniswap V2 candidates, separately inspect uniswapV2Call implementation versus TODO/placeholder, "
+        "pair/factory authentication and sender binding, token0/token1 ordering and reserve source, and repayment. "
+        "Each finding claim MUST include the exact technical terms for its dimension (for example "
+        "Pool/IPool, executeOperation/msg.sender/initiator, or repayment/premium) so the deterministic "
+        "relevance gate can identify its topic. Cite only supplied commit-pinned evidence IDs. "
+        "Do not substitute framework, language, dependency or generic testing observations for protocol risks. "
+        "Evidence ID existence proves provenance only, not claim support. Challenge unsupported specialist "
+        "claims, duplicate claims, severity inflation, contradictions and unsupported confidence. "
+        "Distinguish source_observed facts from supported_inference and unknowns. "
+        "Return explicit review_decision and evidence-referenced review_disagreements. "
+        "Use accept only when no material unresolved disagreement remains; otherwise do not rubber-stamp."
     ),
 }
 
@@ -505,9 +511,13 @@ def _validate_reviewer_semantic_relevance(output: dict[str, Any], inspection: di
         if any(term in claims for term in terms)
     ]
     if len(covered) < required_groups:
+        preview = [
+            str(item.get("claim", ""))[:180]
+            for item in findings if isinstance(item, dict)
+        ][:6]
         raise SpecialistTaskError(
             "independent reviewer findings are not semantically relevant to candidate protocol risks; "
-            f"covered={covered}, required_at_least={required_groups}"
+            f"covered={covered}, required_at_least={required_groups}, claim_preview={preview}"
         )
     disagreements = output.get("review_disagreements", [])
     for item in disagreements:
