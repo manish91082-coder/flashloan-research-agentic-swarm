@@ -8,7 +8,7 @@ from pathlib import Path
 from flashloan_research.specialist_runner import (
     SpecialistTaskError, REQUIRED_KEYS, validate_specialist_output, _generate_validated_output, _source_supported_purpose_category, _evidence_catalog, _is_retryable_specialist_error,
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
-    ROLE_PROMPTS, _canonical_purpose_category,
+    ROLE_PROMPTS, _canonical_purpose_category, _validate_reviewer_semantic_relevance,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -177,6 +177,32 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
     def setUp(self):
         self.inspection = sample_inspection()
 
+    def test_inconclusive_reviewer_may_report_insufficient_topic_coverage_without_inventing_findings(self):
+        inspection = sample_inspection()
+        inspection["repository"] = "0xnavarro/Aave-Liquiditor"
+        inspection["signals"] = [{"signal": "aave_flash_loan_simple"}]
+        output = sample_output(
+            findings=[],
+            evidence=["EV00001"],
+            review_decision="inconclusive",
+            review_disagreements=["The supplied excerpts do not establish the callback authentication path."],
+            unknowns=["Pool/IPool wiring and callback authentication are not established by the supplied excerpts."],
+        )
+        _validate_reviewer_semantic_relevance(output, inspection)
+
+    def test_reviewer_accept_requires_protocol_topic_coverage(self):
+        inspection = sample_inspection()
+        inspection["repository"] = "0xnavarro/Aave-Liquiditor"
+        inspection["signals"] = [{"signal": "aave_flash_loan_simple"}]
+        output = sample_output(
+            findings=[],
+            evidence=["EV00001"],
+            review_decision="accept",
+            review_disagreements=[],
+        )
+        with self.assertRaisesRegex(SpecialistTaskError, "not semantically relevant"):
+            _validate_reviewer_semantic_relevance(output, inspection)
+
     def test_independent_reviewer_prompt_checks_callback_auth_and_placeholder_logic(self):
         prompt = ROLE_PROMPTS["independent_reviewer"]
         self.assertIn("callback authentication", prompt)
@@ -189,6 +215,8 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         self.assertIn("executeOperation/msg.sender/initiator:", prompt)
         self.assertIn("repayment/premium:", prompt)
         self.assertIn("Do not begin with a repository summary", prompt)
+        self.assertIn("Do not force a fixed finding count", prompt)
+        self.assertIn("zero findings is valid", prompt)
 
     def test_rejects_role_inappropriate_finding_category(self):
         output = sample_output(findings=[{
