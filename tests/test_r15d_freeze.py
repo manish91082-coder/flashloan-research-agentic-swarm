@@ -57,6 +57,17 @@ class R15DFreezeTests(unittest.TestCase):
                 freeze(DEFAULT_PACKET, output, "2026-11-17T00:00:00Z")
             self.assertFalse(output.exists())
 
+    def test_invalid_or_non_utc_freeze_timestamp_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "blind.json"
+            output = Path(tmp) / "frozen.json"
+            source.write_text(json.dumps(self.complete_packet()), encoding="utf-8")
+            for timestamp in ("yesterday", "2026-11-17T05:30:00+05:30"):
+                with self.subTest(timestamp=timestamp):
+                    with self.assertRaises(ValueError):
+                        freeze(source, output, timestamp)
+                    self.assertFalse(output.exists())
+
     def test_existing_frozen_manifest_cannot_be_overwritten(self):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "blind.json"
