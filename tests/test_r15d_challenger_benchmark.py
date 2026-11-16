@@ -5,8 +5,11 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from scripts.verify_r15d_challenger_benchmark import ChallengerGateError, EXPECTED_INPUTS, EXPECTED_MODEL, verify
+from scripts.verify_r15d_challenger_benchmark import (
+    ChallengerGateError, EXPECTED_INPUTS, EXPECTED_MODEL, verify,
+)
 
 
 class ChallengerBenchmarkGateTests(unittest.TestCase):
@@ -14,12 +17,34 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
         temp = tempfile.TemporaryDirectory()
         root = Path(temp.name)
         outcomes = []
-        for index, (repo, pin) in enumerate(EXPECTED_INPUTS.items()):
-            response = json.dumps({"choices": [{"finish_reason": "stop", "message": {"content": json.dumps({"review_decision": decisions[index]})}}]})
+        test_pins = {}
+        for index, (repo, original_pin) in enumerate(EXPECTED_INPUTS.items()):
+            pin = dict(original_pin)
+            user_content = f"frozen-{index}"
+            pin["packet_sha256"] = hashlib.sha256(user_content.encode()).hexdigest()
+            test_pins[repo] = pin
+            response = json.dumps({
+                "choices": [{
+                    "finish_reason": "stop",
+                    "message": {"content": json.dumps({"review_decision": decisions[index]})},
+                }]
+            })
             response_sha = hashlib.sha256(response.encode()).hexdigest()
-            request = {"messages": [{"role": "system", "content": "system"}, {"role": "user", "content": f"frozen-{index}"}]}
+            request = {
+                "messages": [
+                    {"role": "system", "content": "system"},
+                    {"role": "user", "content": user_content},
+                ]
+            }
             request_sha = hashlib.sha256(json.dumps(request).encode()).hexdigest()
-            exchange = {"exchange": {"request": request, "request_sha256": request_sha, "response_raw": response, "response_sha256": response_sha}}
+            exchange = {
+                "exchange": {
+                    "request": request,
+                    "request_sha256": request_sha,
+                    "response_raw": response,
+                    "response_sha256": response_sha,
+                }
+            }
             name = f"exchange-{index}.json"
             (root / name).write_text(json.dumps(exchange), encoding="utf-8")
             outcomes.append({
@@ -36,7 +61,11 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
             })
         report = {
             "status": "completed",
-            "model": {"tag": EXPECTED_MODEL["tag"], "digest": EXPECTED_MODEL["digest"], "quantization": EXPECTED_MODEL["quantization"]},
+            "model": {
+                "tag": EXPECTED_MODEL["tag"],
+                "digest": EXPECTED_MODEL["digest"],
+                "quantization": EXPECTED_MODEL["quantization"],
+            },
             "reviewer_outcomes": outcomes,
             "acceptance": {
                 "reviewer_exchanges_captured": True,
@@ -54,28 +83,31 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
         }
         path = root / "report.json"
         path.write_text(json.dumps(report), encoding="utf-8")
-        return temp, path
+        return temp, path, test_pins
 
     def test_accepts_two_inconclusive_reviews_on_exact_frozen_packets(self):
-        tmp, path = self.fixture(["inconclusive", "inconclusive"])
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
         self.addCleanup(tmp.cleanup)
-        self.assertEqual(verify(path)["status"], "accepted")
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            self.assertEqual(verify(path)["status"], "accepted")
 
     def test_rejects_accept_on_inadequate_packet(self):
-        tmp, path = self.fixture(["accept", "inconclusive"])
+        tmp, path, pins = self.fixture(["accept", "inconclusive"])
         self.addCleanup(tmp.cleanup)
-        with self.assertRaisesRegex(ChallengerGateError, "requires model's own inconclusive"):
-            verify(path)
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "requires model's own inconclusive"):
+                verify(path)
 
     def test_rejects_changed_input_packet(self):
-        tmp, path = self.fixture(["inconclusive", "inconclusive"])
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
         self.addCleanup(tmp.cleanup)
         report = json.loads(path.read_text())
         report["reviewer_outcomes"][0]["input_packet_sha256"] = "0" * 64
         path.write_text(json.dumps(report))
-        with self.assertRaisesRegex(ChallengerGateError, "differs from frozen baseline"):
-            verify(path)
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "differs from frozen baseline"):
+                verify(path)
 
 
-if ( __name__ == "__main__"):
+if __name__ == "__main__":
     unittest.main()
