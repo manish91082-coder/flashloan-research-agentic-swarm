@@ -178,9 +178,12 @@ jobs:
         if: success()
         run: |
           set -euo pipefail
-          PILOT_SEED_RUN_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json")).get("seed_run_id", ""))')"
-          PILOT_SEED_ARTIFACT_ID="$(python -c 'import json; print(json.load(open("research_runs/agentic-pilot-seed.json")).get("seed_artifact_id", ""))')"
-          PILOT_TRIGGER_ARTIFACT_ID="$(python -c 'import json; print(json.load(open("research_runs/trigger-agentic-semantic-pilot.json")).get("checkpoint_artifact_id", ""))')"
+          # Read the latest main-branch pin, not the possibly stale workflow checkout.
+          gh api "repos/$GITHUB_REPOSITORY/contents/research_runs/agentic-pilot-seed.json" --jq '.content' | base64 --decode > "$RUNNER_TEMP/agentic-pilot-seed-live.json"
+          gh api "repos/$GITHUB_REPOSITORY/contents/research_runs/trigger-agentic-semantic-pilot.json" --jq '.content' | base64 --decode > "$RUNNER_TEMP/agentic-pilot-trigger-live.json"
+          PILOT_SEED_RUN_ID="$(python -c 'import json; print(json.load(open("'"$RUNNER_TEMP"'/agentic-pilot-seed-live.json")).get("seed_run_id", ""))')"
+          PILOT_SEED_ARTIFACT_ID="$(python -c 'import json; print(json.load(open("'"$RUNNER_TEMP"'/agentic-pilot-seed-live.json")).get("seed_artifact_id", ""))')"
+          PILOT_TRIGGER_ARTIFACT_ID="$(python -c 'import json; print(json.load(open("'"$RUNNER_TEMP"'/agentic-pilot-trigger-live.json")).get("checkpoint_artifact_id", ""))')"
           if [[ "$RESUME_RUN_ID" == "$PILOT_SEED_RUN_ID" || "$RESUME_ARTIFACT_ID" == "$PILOT_SEED_ARTIFACT_ID" || "$RESUME_ARTIFACT_ID" == "$PILOT_TRIGGER_ARTIFACT_ID" ]]; then
             echo "Preserving source checkpoint artifact $RESUME_ARTIFACT_ID because it is pinned by the Agent Form seed or semantic-pilot trigger."
           elif [[ -n "$RESUME_ARTIFACT_ID" ]]; then
