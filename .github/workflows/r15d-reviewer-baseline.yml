@@ -1,0 +1,186 @@
+name: R15D Frozen-Packet Reviewer Baseline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-r15d-reviewer-baseline.json'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: r15d-reviewer-baseline-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  reviewer-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      FLR_MODEL_BASE_URL: http://127.0.0.1:11434
+      FLR_MODEL_MAX_PARALLEL_TASKS: '1'
+      FLR_MODEL_CONTEXT_TOKENS: '16384'
+      FLR_MODEL_MAX_OUTPUT_TOKENS: '2400'
+      FLR_MODEL_TIMEOUT_SECONDS: '1800'
+      FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS: '18000'
+      FLR_MODEL_MAX_FILES: '10'
+      FLR_MODEL_MAX_CONTEXT_CHARS: '30000'
+      FLR_MODEL_CONTEXT_LINES: '40'
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout canonical research repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Read frozen R15C and source-vault artifact pins
+        id: pins
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          trigger = json.loads(Path("research_runs/trigger-r15d-reviewer-baseline.json").read_text())
+          manifest = json.loads(Path("research/R15C_EVALUATION_PACKET_MANIFEST.json").read_text())
+          assert trigger["mission_id"] == manifest["mission"]["id"]
+          assert trigger["evaluation_artifact_id"] == manifest["artifact"]["artifact_id"]
+          assert trigger["evaluation_artifact_sha256"] == manifest["artifact"]["sha256"]
+          assert trigger["source_seed_artifact_id"] == 14196365507
+          assert trigger["source_seed_artifact_sha256"] == "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad"
+          assert trigger["model_tag"] == manifest["model"]["tag"]
+          assert trigger["model_digest"] == manifest["model"]["digest"]
+          assert trigger["request_context_tokens"] == 16384
+          assert trigger["max_output_tokens"] == 2400
+          for key in ("evaluation_artifact_id", "source_seed_artifact_id"):
+              assert isinstance(trigger[key], int) and trigger[key] > 0
+          print(json.dumps(trigger, indent=2, sort_keys=True))
+          with open("${GITHUB_OUTPUT}", "a", encoding="utf-8") as out:
+              for key, value in trigger.items():
+                  if isinstance(value, (str, int, float, bool)):
+                      out.write(f"{key}={str(value).lower() if isinstance(value, bool) else value}\n")
+          PY
+          echo "FLR_MODEL_NAME=${{ steps.pins.outputs.model_tag }}" >> "$GITHUB_ENV"
+
+      - name: Download and verify immutable source-vault checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r15d-source-seed"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "${{ steps.pins.outputs.source_seed_artifact_id }}" \
+            --destination "$RUNNER_TEMP/r15d-source-seed/source-vault.zip" \
+            --extract-to "$RUNNER_TEMP/r15d-source-seed/unpacked" \
+            --max-wait-seconds 7200
+          echo "${{ steps.pins.outputs.source_seed_artifact_sha256 }}  $RUNNER_TEMP/r15d-source-seed/source-vault.zip" | sha256sum --check -
+          python scripts/restore_source_capture_checkpoint.py \
+            --artifact-root "$RUNNER_TEMP/r15d-source-seed/unpacked" \
+            --workspace "$GITHUB_WORKSPACE" \
+            | tee reports-r15d-source-restore-verification.json
+
+      - name: Download and verify immutable R15C evaluation packet
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r15d-evaluation"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "${{ steps.pins.outputs.evaluation_artifact_id }}" \
+            --destination "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" \
+            --extract-to "$RUNNER_TEMP/r15d-evaluation/unpacked" \
+            --max-wait-seconds 7200
+          echo "${{ steps.pins.outputs.evaluation_artifact_sha256 }}  $RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" | sha256sum --check -
+          unzip -t "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip"
+          unzip -q "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" -d "$GITHUB_WORKSPACE"
+          python - <<'PY'
+          import json, sqlite3
+          from pathlib import Path
+          manifest = json.loads(Path("research/R15C_EVALUATION_PACKET_MANIFEST.json").read_text())
+          db = Path("data/agentic-mission-pilot-20261116-r15c.sqlite3")
+          con = sqlite3.connect(f"file:{db}?immutable=1", uri=True)
+          try:
+              assert con.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+              assert con.execute("SELECT COUNT(*) FROM mission_tasks").fetchone()[0] == manifest["mission"]["task_count"]
+          finally:
+              con.close()
+          print("Frozen R15C database and mission ledger verified.")
+          PY
+
+      - name: Install Agent Form runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[agentic]'
+          python -m compileall -q src/flashloan_research scripts tests
+
+      - name: Install CPU-only local Ollama and pin exact baseline model digest
+        run: |
+          set -euo pipefail
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          bash -n "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          sudo systemctl start ollama
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          PULL_OK=0
+          for attempt in 1 2 3 4 5; do
+            if ollama pull "$FLR_MODEL_NAME"; then PULL_OK=1; break; fi
+            if (( attempt < 5 )); then sleep $((15 * (2 ** (attempt - 1))); fi
+          done
+          if (( PULL_OK != 1 )); then
+            echo "Exact baseline model could not be pulled; no benchmark inference was started." >&2
+            exit 1
+          fi
+          ollama show "$FLR_MODEL_NAME" --modelfile > reports-ollama-modelfile.txt
+          curl --fail --silent http://127.0.0.1:11434/api/tags > reports-ollama-model-manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          expected = json.loads(Path("research/R15C_EVALUATION_PACKET_MANIFEST.json").read_text())["model"]
+          actual = json.loads(Path("reports-ollama-model-manifest.json").read_text())["models"]
+          matches = [m for m in actual if m.get("name") == expected["tag"]]
+          if len(matches) != 1 or matches[0].get("digest") != expected["digest"]:
+              raise SystemExit("Ollama tag digest differs from immutable R15C baseline; refusing model substitution.")
+          if matches[0].get("details", {}).get("quantization_level") != expected["quantization"]:
+              raise SystemExit("Ollama quantization differs from R15C baseline.")
+          print("Exact Qwen2.5 3B baseline digest verified.")
+          PY
+
+      - name: Replay only two reviewer tasks on a fresh isolated database
+        run: |
+          set -euo pipefail
+          python scripts/run_r15d_reviewer_benchmark.py \
+            --workspace "$GITHUB_WORKSPACE" \
+            --eval-root "$GITHUB_WORKSPACE" \
+            --database data/r15d-reviewer-benchmark.sqlite3 \
+            --artifact-root research_runs/benchmarks/r15d-reviewer-baseline \
+            --model-manifest reports-ollama-model-manifest.json \
+            | tee reports-r15d-reviewer-baseline-summary.json
+
+      - name: Upload R15D baseline benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: r15d-reviewer-baseline-${{ github.run_id }}
+          path: |
+            data/r15d-reviewer-benchmark.sqlite3
+            research_runs/benchmarks/r15d-reviewer-baseline/
+            reports-r15d-source-restore-verification.json
+            reports-r15d-reviewer-baseline-summary.json
+            reports-ollama-modelfile.txt
+            reports-ollama-model-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
