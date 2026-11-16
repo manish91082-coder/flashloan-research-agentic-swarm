@@ -116,15 +116,70 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
                 verify(path)
 
 
+    def _rewrite_exchange(self, path, pins, mutate, update_report_hash=True):
+        exchange_path = path.parent / "model_exchanges" / "candidate-0.json"
+        exchange = json.loads(exchange_path.read_text(encoding="utf-8"))
+        mutate(exchange["exchange"])
+        exchange_path.write_text(json.dumps(exchange), encoding="utf-8")
+        if update_report_hash:
+            report = json.loads(path.read_text(encoding="utf-8"))
+            report["reviewer_outcomes"][0]["exchange_file_sha256"] = hashlib.sha256(
+                exchange_path.read_bytes()
+            ).hexdigest()
+            path.write_text(json.dumps(report), encoding="utf-8")
+        return exchange_path
+
     def test_rejects_raw_request_bytes_tampering(self):
         tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
         self.addCleanup(tmp.cleanup)
-        exchange_path = path.parent / "model_exchanges" / "candidate-0.json"
-        exchange = json.loads(exchange_path.read_text())
-        exchange["exchange"]["request_raw"] = exchange["exchange"]["request_raw"].replace('"system"', '"tampered"')
-        exchange_path.write_text(json.dumps(exchange), encoding="utf-8")
+        self._rewrite_exchange(
+            path, pins,
+            lambda exchange: exchange.update({
+                "request_raw": exchange["request_raw"].replace('"system"', '"tampered"')
+            }),
+        )
         with patch.dict(EXPECTED_INPUTS, pins, clear=True):
             with self.assertRaisesRegex(ChallengerGateError, "raw request and parsed request object differ"):
+                verify(path)
+
+    def test_rejects_missing_raw_request(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        self._rewrite_exchange(path, pins, lambda exchange: exchange.pop("request_raw"))
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "exact raw request body missing"):
+                verify(path)
+
+    def test_rejects_malformed_raw_request_json(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        self._rewrite_exchange(path, pins, lambda exchange: exchange.update({"request_raw": "{bad json"}))
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "raw request JSON is invalid"):
+                verify(path)
+
+    def test_rejects_request_fingerprint_mismatch(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        self._rewrite_exchange(path, pins, lambda exchange: exchange.update({"request_sha256": "0" * 64}))
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "request fingerprint mismatch"):
+                verify(path)
+
+    def test_rejects_response_fingerprint_mismatch(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        self._rewrite_exchange(path, pins, lambda exchange: exchange.update({"response_raw": exchange["response_raw"] + "x"}))
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "response fingerprint mismatch"):
+                verify(path)
+
+    def test_rejects_exchange_file_hash_mismatch(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        self._rewrite_exchange(path, pins, lambda exchange: exchange.update({"request_raw": exchange["request_raw"] + " "}), update_report_hash=False)
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "raw exchange file hash mismatch"):
                 verify(path)
 
 
