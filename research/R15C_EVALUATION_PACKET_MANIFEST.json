@@ -260,7 +260,8 @@
     "R15D adequacy is a regression assessment only; R15C remains immutable."
   ],
   "r15d_adequacy_replay": {
-    "implementation_commit": "fdbb40d06404dc4cfdaae8b203e408736424edde",
+    "implementation_commit": "026e63ce4acee710e19317f92d42b0fced7169be",
+    "regression_test_commit": "7c3e3784eaa4646ff80296fa20146a290932bb6b",
     "assessed_specialist_reports": 14,
     "adequate_reports": 0,
     "insufficient_reports": 14,
@@ -278,9 +279,10 @@
     ],
     "rejection_reason_counts": {
       "no_role_relevant_technical_mechanism": 29,
-      "no_shared_role_specific_anchor_in_cited_excerpt": 9
+      "no_shared_role_specific_anchor_in_cited_excerpt": 6
     },
-    "interpretation": "The legacy evidence-validation gate accepted provenance and claim linkage, but the new specialist adequacy triage found all 14 reports insufficient for adversarial challenge. This is a deterministic lexical/evidence-anchor regression result, not a semantic proof.",
+    "normalization": "camelCase identifiers and punctuation are normalized before matching, reducing false mismatches such as healthFactor versus health factor.",
+    "interpretation": "The legacy evidence-validation gate accepted provenance and claim linkage, but the new specialist adequacy triage found all 14 reports insufficient for adversarial challenge. This is deterministic lexical/evidence-anchor triage, not semantic proof.",
     "no_mutation_of_r15c": true
   }
 }
