@@ -12,6 +12,7 @@ from .storage import git_blob_sha
 from .mission_runtime import MissionTaskStore
 from .model_provider import LocalOpenAICompatibleProvider, ModelProviderError
 from .storage import write_json
+from .solidity_review import deterministic_protocol_review
 
 
 ROLE_PROMPTS = {
@@ -160,6 +161,29 @@ def _evidence_catalog(inspection: dict[str, Any]) -> list[dict[str, Any]]:
             "excerpt": excerpt,
         })
     return catalog
+
+
+def _deterministic_review_with_catalog(inspection: dict[str, Any], excerpts: list[dict[str, Any]]) -> dict[str, Any]:
+    """Attach catalog IDs only where a pinned signal line overlaps a verified excerpt."""
+    review = deterministic_protocol_review(str(inspection.get("repository", "")), excerpts)
+    catalog = _evidence_catalog(inspection)
+    for topic in review.get("topics", {}).values():
+        resolved: list[str] = []
+        for excerpt in excerpts:
+            if not isinstance(excerpt, dict):
+                continue
+            path = excerpt.get("path")
+            start, end = excerpt.get("start_line"), excerpt.get("end_line")
+            if not isinstance(path, str) or not isinstance(start, int) or not isinstance(end, int):
+                continue
+            for item in catalog:
+                if item["path"] == path and start <= item["line"] <= end:
+                    resolved.append(item["evidence_id"])
+        topic["evidence_ids"] = sorted(set(resolved))
+    review["evidence_resolution"] = "exact_path_and_line_overlap_with_pinned_catalog"
+    review["inspection_commit_sha"] = inspection.get("commit_sha")
+    review["inspection_tree_sha"] = inspection.get("tree_sha")
+    return review
 
 
 def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | None = None,
@@ -987,6 +1011,14 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                         "max_chars": int(os.getenv("FLR_MODEL_MAX_CONTEXT_CHARS", "6000")),
                         "context_lines": int(os.getenv("FLR_MODEL_CONTEXT_LINES", "12")),
                     }
+                verified_excerpts = _verified_source_context(
+                    inspection,
+                    **reviewer_source_limits,
+                )
+                deterministic_review = (
+                    _deterministic_review_with_catalog(inspection, verified_excerpts)
+                    if role == "independent_reviewer" else None
+                )
                 context = {
                     "repository": repository,
                     "reviewer_focus": reviewer_focus,
@@ -996,10 +1028,8 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     "tree_sha": inspection["tree_sha"],
                     "source_files_captured": inspection.get("captured_files", []),
                     "source_evidence_catalog": reviewer_catalog,
-                    "verified_source_excerpts": _verified_source_context(
-                        inspection,
-                        **reviewer_source_limits,
-                    ),
+                    "verified_source_excerpts": verified_excerpts,
+                    "deterministic_protocol_review": deterministic_review,
                     "prior_specialist_outputs": prior,
                     "canonical_purpose_category": canonical_purpose_category,
                     "instruction": (
