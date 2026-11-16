@@ -219,6 +219,15 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         self.assertEqual(result["status"], "insufficient")
         self.assertTrue(any("shared role-specific technical anchor" in reason for reason in result["reasons"]))
 
+    def test_specialist_adequacy_normalizes_camel_case_source_identifiers(self):
+        result = _assess_specialist_report_adequacy(
+            "protocol_specialist",
+            [{"claim": "The Aave Pool callback reads the health factor before repayment.",
+              "evidence_refs": ["EV00001"]}],
+            [{"evidence_id": "EV00001", "excerpt": "IPool pool; uint256 healthFactor; executeOperation callback"}],
+        )
+        self.assertEqual(result["status"], "adequate_for_adversarial_challenge")
+
     def test_packet_adequacy_fails_closed_when_any_specialist_report_is_insufficient(self):
         reports = [
             {"task_type": "protocol_forensics", "role": "protocol_specialist",
