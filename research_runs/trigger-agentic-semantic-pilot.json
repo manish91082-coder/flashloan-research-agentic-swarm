@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "R15B deterministic protocol review pilot with topic-specific pinned evidence resolution and bounded two-worker local inference; immutable checkpoint 393; isolated fresh mission.",
+  "purpose": "R15C semantic reviewer-context and context-window correction pilot; immutable checkpoint 393; bounded two-worker local inference; isolated fresh mission.",
   "checkpoint_run_id": 43799361897,
   "checkpoint_artifact_id": 14196365507,
   "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
@@ -28,9 +28,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r15b",
-  "database": "data/agentic-mission-pilot-20261116-r15b.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r15b",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r15c",
+  "database": "data/agentic-mission-pilot-20261116-r15c.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r15c",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -39,15 +39,17 @@
     "max_reviewer_chars": 18000
   },
   "model_max_output_tokens": 2400,
-  "output_contract_version": "5.9.0-topic-specific-deterministic-review-bounded-parallel",
+  "output_contract_version": "5.10.0-lossless-review-context-16k-context",
   "acceptance": [
     "Restore exact immutable source-capture checkpoint run 43799361897 artifact 14196365507 using pinned SHA-256.",
-    "Fresh isolated R15B mission database and artifact root; do not reuse R14I, R15A or any prior pilot state.",
+    "Fresh isolated R15C mission database and artifact root; do not reuse R14I, R15A, R15B or any prior pilot state.",
     "Complete 2 candidate-purpose tasks and 12 specialist tasks against the same two pinned repositories.",
     "Pass both candidate-specific evidence gates with source provenance and finding-to-evidence linkage.",
     "Provide deterministic Aave/Uniswap protocol observations in reviewer context; resolve each topic only to exact pinned catalog evidence matching exact source path, overlapping line range and topic-specific signal allowlist.",
     "Use bounded two-worker execution only for independently claimable ready tasks; preserve durable dependency ordering, task leases, evidence gates and reviewer fail-closed behavior.",
-    "Run two independent candidate reviewers only after both candidate evidence gates pass; both must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence before dossier or audit increment.",
+    "Preserve all seven prior specialist reports, every finding claim, evidence references and unknowns in independent-review context; compact only redundant summary/purpose prose and never truncate claims.",
+    "Use 16384-token local model context for reviewers; retain CPU-only loopback Ollama and bounded two-worker inference.",
+    "Both independent reviewers must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence before dossier creation or audit increment.",
     "Candidate source code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled."
   ],
   "safety": {
@@ -60,8 +62,8 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r15b-topic-signal-evidence-resolution-bounded-parallel-two-workers",
-  "retry_note": "R15B supersedes R15A with topic-specific Aave evidence mapping, dedicated aave_pool_provider_wiring signal, and bounded two-worker dependency-aware specialist/reviewer scheduling. Ollama NUM_PARALLEL=2 on the CPU-only runner; no candidate code execution, cloud or paid inference. Exact checkpoint 393 remains immutable.",
+  "trigger_revision": "r15c-lossless-reviewer-context-compaction-16k-context-bounded-parallel",
+  "retry_note": "R15C corrects R15B reviewer blockers. Compact redundant summary/purpose prose from 600 to 240 characters while preserving every finding, evidence reference, unknown and all seven task reports. Increase local Ollama request context from 8192 to 16384 tokens to prevent reviewer prompt/source truncation. Keep two bounded workers, exact topic-specific evidence resolution, and all fail-closed gates. Immutable checkpoint #393 unchanged.",
   "previous_attempt": {
     "run_id": 43837561939,
     "artifact_id": null,
