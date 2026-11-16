@@ -32,7 +32,7 @@ jobs:
       - name: Validate WSL resume helper syntax
         run: bash -n scripts/resume_source_capture.sh
       - name: Compile source
-        run: python -m compileall -q src tests
+        run: python -m compileall -q src tests scripts
       - name: Run standard-library tests
         env:
           PYTHONPATH: src
