@@ -76,6 +76,15 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertTrue(any("pending" in error for error in result["errors"]))
 
+    def test_pending_consensus_cannot_be_treated_as_adjudicated(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [self.completed_review(case, "reviewer-a"), self.completed_review(case, "reviewer-b")]
+        case["consensus"] = {"status": "pending", "label": "present", "rationale": "not finalized", "disagreement": False}
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("consensus must be adjudicated" in error for error in result["errors"]))
+
     def test_source_pin_tampering_rejected(self):
         packet = copy.deepcopy(self.packet)
         packet["cases"][0]["commit_sha"] = "0" * 40
