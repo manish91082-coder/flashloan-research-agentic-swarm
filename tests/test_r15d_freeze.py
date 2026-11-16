@@ -68,6 +68,20 @@ class R15DFreezeTests(unittest.TestCase):
                         freeze(source, output, timestamp)
                     self.assertFalse(output.exists())
 
+    def test_noncanonical_packet_state_cannot_freeze(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "blind.json"
+            output = root / "frozen.json"
+            for field, value in (("status", "frozen_ground_truth"), ("packet_type", "ordinary_report")):
+                packet = self.complete_packet()
+                packet[field] = value
+                source.write_text(json.dumps(packet), encoding="utf-8")
+                with self.subTest(field=field):
+                    with self.assertRaises(ValueError):
+                        freeze(source, output, "2026-11-17T00:00:00Z")
+                    self.assertFalse(output.exists())
+
     def test_existing_frozen_manifest_cannot_be_overwritten(self):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "blind.json"
