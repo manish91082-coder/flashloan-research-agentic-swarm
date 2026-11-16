@@ -142,6 +142,36 @@ class DuplicateClaimRetryTests(unittest.TestCase):
             )
         self.assertEqual(provider.calls, 1)
 
+    def test_unselected_finding_evidence_gets_one_strict_corrective_retry(self):
+        class Provider:
+            def __init__(self): self.calls = []
+            def generate_json(self, prompt, context, required_keys):
+                self.calls.append((prompt, context))
+                output = sample_output(
+                    findings=[{
+                        "finding_id": "F-1", "claim": "The supplied source shows a test pre-check.",
+                        "category": "testing", "severity": "not_applicable",
+                        "claim_status": "supported_inference", "confidence": "low",
+                        "evidence_refs": ["EV00002"] if len(self.calls) == 1 else ["EV00001"],
+                    }],
+                    evidence=["EV00001"],
+                    implementation_status="partial",
+                    confidence="low",
+                )
+                return {k: v for k, v in output.items() if k in required_keys}
+
+        provider = Provider()
+        result = _generate_validated_output(
+            provider, "test prompt", {}, REQUIRED_KEYS, sample_inspection(), "test_verification",
+            canonical_purpose_category="flash_loan_liquidation_bot",
+        )
+        self.assertEqual(len(provider.calls), 2)
+        feedback = provider.calls[1][1]["validation_feedback"]
+        self.assertIn("Allowed IDs for this candidate", feedback)
+        self.assertIn("EV00001", feedback)
+        self.assertEqual(result["findings"][0]["evidence_refs"], ["EV00001"])
+        self.assertTrue(result["evidence_validation"]["all_findings_linked_to_accepted_evidence"])
+
 
 class SpecialistEvidenceGateTests(unittest.TestCase):
     def setUp(self):
