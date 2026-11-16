@@ -28,5 +28,7 @@
     "enforce_inconclusive_for_inadequate_specialist_packet": true,
     "candidate_dossiers_must_remain_pending": true,
     "semantic_audit_increment": 0
-  }
+  },
+  "trigger_revision": 2,
+  "note": "First attempt stopped at pin-output wiring before any artifact download or inference; corrected environment propagation. This is the same frozen packet and model."
 }
