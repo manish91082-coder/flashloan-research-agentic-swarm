@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
   "purpose": "R14 strict semantic-quality pilot from independently verified and artifact-retirement-pinned source-capture checkpoint 379. Fail closed on any task, evidence or reviewer gate.",
-  "checkpoint_run_id": 43795642245,
-  "checkpoint_artifact_id": 14193879641,
-  "checkpoint_artifact_sha256": "3bd0e53d1248a26afc8de3a2e935e689ff5d18f0e9ea1c1a08c05fbffab971ba",
+  "checkpoint_run_id": 43795802487,
+  "checkpoint_artifact_id": 14193319569,
+  "checkpoint_artifact_sha256": "d7560418a924d0261c0c7196a34d150b548c34a2398d20f467e989996fa9a7da",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
@@ -61,6 +61,6 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14-retry-with-verified-checkpoint-383-and-bounded-ollama-backoff",
+  "trigger_revision": "r14-pinned-checkpoint-384-before-self-chain-retirement",
   "retry_note": "Checkpoint 383 is independently verified and protected by the source-capture workflow's live main-branch pin check. Prior R14 attempt reached model install but Ollama registry returned HTTP 503; workflow now retries five times with exponential backoff."
 }
