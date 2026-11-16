@@ -74,6 +74,12 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
                 "quantization": EXPECTED_MODEL["quantization"],
             },
             "reviewer_outcomes": outcomes,
+            "task_ledger": [
+                {"task_type": "independent_review", "status": "completed"},
+                {"task_type": "independent_review", "status": "completed"},
+                {"task_type": "candidate_dossier", "status": "pending"},
+                {"task_type": "candidate_dossier", "status": "pending"},
+            ],
             "acceptance": {
                 "reviewer_exchanges_captured": True,
                 "both_packets_expected_insufficient": True,
@@ -97,6 +103,16 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         with patch.dict(EXPECTED_INPUTS, pins, clear=True):
             self.assertEqual(verify(path)["status"], "accepted")
+
+    def test_rejects_failed_reviewer_task_even_when_model_decision_is_inconclusive(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        report = json.loads(path.read_text())
+        report["task_ledger"][0]["status"] = "failed"
+        path.write_text(json.dumps(report))
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "review tasks must be completed"):
+                verify(path)
 
     def test_rejects_accept_on_inadequate_packet(self):
         tmp, path, pins = self.fixture(["accept", "inconclusive"])
