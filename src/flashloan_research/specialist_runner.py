@@ -72,7 +72,7 @@ ROLE_PROMPTS = {
         "evidence. Never repeat a finding or paraphrase the same fact as multiple findings."
     ),
     "independent_reviewer": (
-        "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts. "
+        "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts. Explicitly audit callback authentication. "
         "Do NOT summarize the repository. Return exactly three distinct review_challenge findings for Aave candidates, "
         "one per topic, and cite only evidence IDs shown in the compact catalog. "
         "Finding 1 claim MUST begin 'Pool/IPool:' and state what constructor wiring actually does: compare the "
@@ -950,7 +950,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 if role == "independent_reviewer":
                     prior = _prior_specialist_reports(
                         store.list_tasks(mission_id), repository, inspection,
-                        max_chars=int(os.getenv("FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS", "6000")),
+                        max_chars=int(os.getenv("FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS", "18000")),
                     )
                 reviewer_focus = []
                 if role == "independent_reviewer":
