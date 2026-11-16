@@ -36,7 +36,7 @@
     "max_files": 10,
     "max_chars": 30000,
     "context_lines": 40,
-    "max_reviewer_chars": 50000
+    "max_reviewer_chars": 6000
   },
   "model_max_output_tokens": 2400,
   "output_contract_version": "5.7.0-structured-protocol-topic-reviewer",
