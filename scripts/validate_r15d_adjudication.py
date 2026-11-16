@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,6 +11,29 @@ DEFAULT_PACKET = ROOT / "research_runs/r15d_adjudication/blind_adjudication_pack
 ALLOWED = {"present", "absent", "not_applicable", "unknown"}
 EXPECTED_CASES = {"NAV-01", "NAV-02", "NAV-03", "COB-01", "COB-02", "COB-03"}
 EVIDENCE_RE = re.compile(r"^(?P<path>.+):(?P<start>[1-9][0-9]*)(?:-(?P<end>[1-9][0-9]*))?#sha256:(?P<sha>[0-9a-f]{64})$")
+EXPECTED_ARTIFACT = {
+    "artifact_id": 14262528859,
+    "artifact_zip_sha256": "264e121033653d4c19566433c9a2f522176952adcb319fa3c7550967cc4bfb6a",
+    "manifest_sha256": "2c0eb9ef589963ad48f430eeb838c416f90251a73b9ad876f201be20e6eda305",
+}
+EXPECTED_PINS = {
+    "NAV-01": ("0xnavarro/Aave-Liquiditor", "9197ee3002d7d9b35e9c2da324128a38f7569038", "14de2312e96c369bcc52c9bae96215051aea22b4", "src/contracts/FlashLiquidator.sol", "32c5e42920517fa1b93540a94e5d4dd95de94e1a", 81, 111, "5f8ff797cf26a007c55f881f18525385f95d96abec21dabd4ebbdc5323ac1db2"),
+    "NAV-02": ("0xnavarro/Aave-Liquiditor", "9197ee3002d7d9b35e9c2da324128a38f7569038", "14de2312e96c369bcc52c9bae96215051aea22b4", "src/contracts/FlashLiquidator.sol", "32c5e42920517fa1b93540a94e5d4dd95de94e1a", 81, 111, "5f8ff797cf26a007c55f881f18525385f95d96abec21dabd4ebbdc5323ac1db2"),
+    "NAV-03": ("0xnavarro/Aave-Liquiditor", "9197ee3002d7d9b35e9c2da324128a38f7569038", "14de2312e96c369bcc52c9bae96215051aea22b4", "src/contracts/FlashLiquidator.sol", "32c5e42920517fa1b93540a94e5d4dd95de94e1a", 71, 74, "36a6f1bb80d8f530620294d0d490cd63aaf15688c85bb25454cf017049211ffb"),
+    "COB-01": ("cobibean/aave-liquidator-bot", "3159c15f4dcfb0df215b4c3024f47753a1133b84", "1a9ee7218304b95654385fc11f255a7c5d532bc4", "contracts/AaveLiquidatorSwapRouter02.sol", "daa5716e80f203ff9ba34868e4693db382774ab8", 191, 204, "9d35f17a6f8f688a2549fc78fa6fd59550a5e11e675c341d47c05aaa007ec266"),
+    "COB-02": ("cobibean/aave-liquidator-bot", "3159c15f4dcfb0df215b4c3024f47753a1133b84", "1a9ee7218304b95654385fc11f255a7c5d532bc4", "contracts/AaveLiquidatorSwapRouter02.sol", "daa5716e80f203ff9ba34868e4693db382774ab8", 206, 243, "fa52b7179aff62497e4ec4416443c9325094c17ea2e0499f8f371134d8ae26c3"),
+    "COB-03": ("cobibean/aave-liquidator-bot", "3159c15f4dcfb0df215b4c3024f47753a1133b84", "1a9ee7218304b95654385fc11f255a7c5d532bc4", "contracts/AaveLiquidatorSwapRouter02.sol", "daa5716e80f203ff9ba34868e4693db382774ab8", 73, 73, "eb45789c4bb160055dcc0dc23ba204d5151ba0bbd05b61b62186ff050f55de1d"),
+}
+
+
+def _valid_timestamp(value: object) -> bool:
+    if not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return parsed.tzinfo is not None and parsed.utcoffset() == timezone.utc.utcoffset(parsed)
+    except ValueError:
+        return False
 
 
 def _review_complete(review: dict) -> bool:
@@ -24,30 +48,21 @@ def _review_complete(review: dict) -> bool:
         and isinstance(review.get("confidence"), (int, float))
         and not isinstance(review.get("confidence"), bool)
         and 0 <= review["confidence"] <= 1
-        and isinstance(review.get("completed_at"), str)
-        and bool(review["completed_at"].strip())
+        and _valid_timestamp(review.get("completed_at"))
         and review.get("independence_attestation") is True
     )
 
 
 def _has_pinned_evidence(case: dict, review: dict) -> bool:
-    expected = {
-        "path": case.get("path"),
-        "start": str(case.get("line_start")),
-        "end": str(case.get("line_end")),
-        "sha": case.get("excerpt_sha256"),
-    }
     for reference in review.get("evidence_references", []):
         if not isinstance(reference, str):
             continue
         match = EVIDENCE_RE.fullmatch(reference.strip())
-        if not match:
-            continue
-        if (
-            match.group("path") == expected["path"]
-            and match.group("start") == expected["start"]
-            and (match.group("end") or match.group("start")) == expected["end"]
-            and match.group("sha") == expected["sha"]
+        if match and (
+            match.group("path") == case["path"]
+            and match.group("start") == str(case["line_start"])
+            and (match.group("end") or match.group("start")) == str(case["line_end"])
+            and match.group("sha") == case["excerpt_sha256"]
         ):
             return True
     return False
@@ -55,10 +70,16 @@ def _has_pinned_evidence(case: dict, review: dict) -> bool:
 
 def validate(packet: dict, require_complete: bool = False) -> dict:
     errors: list[str] = []
-    cases = packet.get("cases")
     if packet.get("benchmark_id") != "r15d-semantic-source-facts-v1":
         errors.append("unexpected benchmark_id")
-    if not isinstance(cases, list) or {c.get("id") for c in cases if isinstance(c, dict)} != EXPECTED_CASES:
+    if packet.get("created_from_fixture_artifact") != EXPECTED_ARTIFACT:
+        errors.append("fixture artifact identity or digest does not match frozen baseline")
+    blinding = packet.get("blinding", {})
+    for flag in ("expected_labels_omitted", "model_outputs_omitted", "reviewers_must_not_consult_model_outputs", "reviewers_must_work_independently"):
+        if blinding.get(flag) is not True:
+            errors.append(f"blinding invariant must remain true: {flag}")
+    cases = packet.get("cases")
+    if not isinstance(cases, list) or {c.get("id") for c in cases if isinstance(c, dict)} != EXPECTED_CASES or len(cases) != len(EXPECTED_CASES):
         errors.append("case set must contain exactly the six frozen R15D case IDs")
         cases = cases if isinstance(cases, list) else []
 
@@ -68,9 +89,10 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
         if not isinstance(case, dict):
             errors.append(f"{cid}: case must be an object")
             continue
-        for field in ("path", "line_start", "line_end", "excerpt_sha256"):
-            if field not in case:
-                errors.append(f"{cid}: missing pinned evidence field {field}")
+        expected = EXPECTED_PINS.get(cid)
+        actual = (case.get("repository"), case.get("commit_sha"), case.get("tree_sha"), case.get("path"), case.get("git_blob_sha1"), case.get("line_start"), case.get("line_end"), case.get("excerpt_sha256"))
+        if expected is None or actual != expected:
+            errors.append(f"{cid}: immutable source pin does not match frozen R15D fixture baseline")
         reviews = case.get("reviewers")
         if not isinstance(reviews, list) or len(reviews) != 2:
             errors.append(f"{cid}: exactly two independent reviewer slots required")
@@ -84,7 +106,6 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
                 errors.append(f"{cid}: reviewer {index + 1} lacks exact pinned path/range/excerpt SHA-256 evidence")
         if any(complete) and not all(complete):
             errors.append(f"{cid}: partial reviewer submission; both reviews must be complete")
-        consensus = case.get("consensus", {})
         if all(complete):
             labels = [r["label"] for r in reviews]
             disagreement = labels[0] != labels[1]
@@ -97,6 +118,7 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
                         errors.append(f"{cid}: third adjudicator must be distinct from both reviewers")
                     if not _has_pinned_evidence(case, third):
                         errors.append(f"{cid}: third adjudicator lacks exact pinned path/range/excerpt SHA-256 evidence")
+            consensus = case.get("consensus", {})
             if not isinstance(consensus, dict) or consensus.get("label") not in ALLOWED or not isinstance(consensus.get("rationale"), str) or not consensus["rationale"].strip():
                 errors.append(f"{cid}: consensus label and rationale required")
             elif consensus.get("disagreement") is not disagreement:
@@ -109,6 +131,10 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
                 complete_count += 1
         elif require_complete:
             errors.append(f"{cid}: independent reviews are pending")
+    safety = packet.get("safety", {})
+    for key in ("candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference"):
+        if safety.get(key) is not False:
+            errors.append(f"safety invariant must remain false: {key}")
     complete = complete_count == len(EXPECTED_CASES) and not errors
     if require_complete and not complete:
         errors.append("ground truth is not eligible for freeze")
