@@ -1051,7 +1051,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
     # Preserve the existing injectable provider constructor contract used by
     # deterministic end-to-end fixtures and test doubles.
     provider.timeout_seconds = timeout_seconds
-    provider.prompt_template_version = "5.5.0-reviewer-semantic-correction-retry"
+    provider.prompt_template_version = "5.6.0-r15d-adequacy-and-exchange-capture"
     store = MissionTaskStore(database_path)
     worker_id = f"specialist-{mission_id}"
     completed: list[dict[str, Any]] = []
