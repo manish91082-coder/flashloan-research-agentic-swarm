@@ -169,7 +169,7 @@ def _deterministic_review_with_catalog(inspection: dict[str, Any], excerpts: lis
     catalog = _evidence_catalog(inspection)
     topic_signals = {
         "aave": {
-            "pool_provider_wiring": {"aave_flash_loan_simple"},
+            "pool_provider_wiring": {"aave_pool_provider_wiring"},
             "callback_authentication": {"aave_execute_operation"},
             "repayment_premium": {"aave_execute_operation", "balance_delta_pattern"},
         },
