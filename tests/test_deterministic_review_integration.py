@@ -13,10 +13,10 @@ class DeterministicReviewEvidenceResolutionTests(unittest.TestCase):
             "commit_sha": "a" * 40,
             "tree_sha": "b" * 40,
             "signals": [
-                {"path": "contracts/Liquidator.sol", "line": 12, "signal": "aave_execute_operation",
-                 "excerpt": "function executeOperation()"},
-                {"path": "contracts/Liquidator.sol", "line": 20, "signal": "aave_flash_loan_simple",
+                {"path": "contracts/Liquidator.sol", "line": 12, "signal": "aave_pool_provider_wiring",
                  "excerpt": "IPool(provider)"},
+                {"path": "contracts/Liquidator.sol", "line": 20, "signal": "aave_execute_operation",
+                 "excerpt": "function executeOperation()"},
             ],
         }
         self.source = [{
@@ -37,9 +37,9 @@ class DeterministicReviewEvidenceResolutionTests(unittest.TestCase):
     def test_aave_topics_receive_only_their_own_signal_ids(self):
         result = _deterministic_review_with_catalog(self.inspection, self.source)
         topics = result["topics"]
-        self.assertEqual(topics["pool_provider_wiring"]["evidence_ids"], ["EV00002"])
-        self.assertEqual(topics["callback_authentication"]["evidence_ids"], ["EV00001"])
-        self.assertEqual(topics["repayment_premium"]["evidence_ids"], ["EV00001"])
+        self.assertEqual(topics["pool_provider_wiring"]["evidence_ids"], ["EV00001"])
+        self.assertEqual(topics["callback_authentication"]["evidence_ids"], ["EV00002"])
+        self.assertEqual(topics["repayment_premium"]["evidence_ids"], ["EV00002"])
 
     def test_aave_pool_provider_constructor_has_dedicated_signal(self):
         source = b"constructor(address provider) { POOL = IPool(provider); }"
