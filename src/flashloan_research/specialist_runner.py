@@ -803,9 +803,10 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
             role == "independent_reviewer"
             and "independent reviewer findings are not semantically relevant" in error_text
         )
+        # Retry only the correctable case where a finding cites a valid catalog ID
+        # that the report did not select. Invalid/fabricated catalog IDs must fail closed.
         evidence_reference_error = (
             "cites evidence not selected from the pinned catalog" in error_text
-            or "model returned evidence IDs that are not in the pinned catalog" in error_text
         )
         if not (duplicate_claim or purpose_mismatch or reviewer_relevance or evidence_reference_error):
             raise
