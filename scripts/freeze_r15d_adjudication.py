@@ -18,6 +18,17 @@ def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite frozen manifest: {output_path}")
     packet = json.loads(packet_path.read_text(encoding="utf-8"))
+    if packet.get("packet_type") != "blind_ground_truth_adjudication":
+        raise ValueError("input must be the designated blind ground-truth adjudication packet")
+    if packet.get("status") != "pending_independent_review":
+        raise ValueError("input packet must remain in pending_independent_review state until freeze")
+    freeze_state = packet.get("freeze", {})
+    if (
+        freeze_state.get("ground_truth_frozen") is not False
+        or freeze_state.get("reviewer_output_visibility") != "hidden_until_freeze"
+        or freeze_state.get("model_inference_authorized") is not False
+    ):
+        raise ValueError("input packet freeze/blinding state is not the expected pre-freeze state")
     result = validate(packet, require_complete=True)
     if not result["valid"] or not result["complete"]:
         raise ValueError("adjudication packet failed fail-closed validation: " + "; ".join(result["errors"]))
