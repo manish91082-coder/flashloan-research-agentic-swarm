@@ -317,3 +317,9 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - New run must use the exact same pinned Qwen3.5 4B digest, frozen R15C artifact and source-vault seed, source commit/tree pins, packet fingerprints, 16,384 request context and 2,400 max output. This is a capture-protocol rerun, not model retuning.
 - **Next:** inspect new workflow run, job steps and artifact; independently verify raw request bytes, request/response hashes, outer exchange hashes, packet/source pins, model digest, both model decisions, pending dossiers and zero semantic audit increment.
 - If capture acceptance passes, begin the separately adjudicated positive/negative semantic benchmark. Do not promote either candidate dossier or increment semantic audit based on the two negative controls.
+
+## R15D capture-protocol revision 2 execution started
+
+- New challenger workflow run: `43924552748` — [GitHub Actions](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43924552748).
+- The workflow validated revision-2 trigger and immutable model-pin artifact successfully. Source-vault restore is currently in progress; frozen packet restore, runtime install, exact-digest inference, acceptance verification and artifact upload are pending.
+- Do not interpret an in-progress run as a completed benchmark. Next checkpoint is the completed job plus artifact ID/SHA-256 and independent offline verification of both request bodies.
