@@ -322,6 +322,14 @@ def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]]
     }
 
 
+def _validate_reviewer_packet_decision(packet: dict[str, Any],
+                                       reviewer_output: dict[str, Any]) -> None:
+    if packet.get("status") == "insufficient" and reviewer_output.get("review_decision") != "inconclusive":
+        raise SpecialistTaskError(
+            "specialist packet adequacy is insufficient; independent reviewer must return inconclusive"
+        )
+
+
 def _specialist_packet_adequacy(reports: list[dict[str, Any]]) -> dict[str, Any]:
     inadequate = [
         {
@@ -1140,14 +1148,8 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     provider, ROLE_PROMPTS[role], context, required_keys, inspection, role,
                     canonical_purpose_category=canonical_purpose_category,
                 )
-                if (
-                    role == "independent_reviewer"
-                    and packet_adequacy["status"] == "insufficient"
-                    and validated["review_decision"] != "inconclusive"
-                ):
-                    raise SpecialistTaskError(
-                        "specialist packet adequacy is insufficient; independent reviewer must return inconclusive"
-                    )
+                if role == "independent_reviewer":
+                    _validate_reviewer_packet_decision(packet_adequacy, validated)
                 validated["specialist_packet_adequacy"] = packet_adequacy
                 validated["task_metadata"] = {
                     "task_id": task["task_id"],
