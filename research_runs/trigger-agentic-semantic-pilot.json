@@ -1,26 +1,26 @@
 {
   "schema_version": "1.0",
-  "purpose": "Run fresh isolated R14 strict semantic-quality pilot using independently verified source-capture checkpoint 377. Require candidate-specific purpose, specialist, pinned-evidence and independent reviewer acceptance. Fail closed.",
-  "checkpoint_run_id": 43794531352,
-  "checkpoint_artifact_id": 14193398742,
-  "checkpoint_artifact_sha256": "036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8",
+  "purpose": "R14 strict semantic-quality pilot from independently verified and artifact-retirement-pinned source-capture checkpoint 379. Fail closed on any task, evidence or reviewer gate.",
+  "checkpoint_run_id": 43794886851,
+  "checkpoint_artifact_id": 14193898114,
+  "checkpoint_artifact_sha256": "bb79aaa5c7ca77695408469bc9d7ba77852d7588a2eb7a20519e7c5d082f3964",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4421,
-    "pending": 3424,
+    "captured": 4445,
+    "pending": 3400,
     "leased": 0,
     "failed": 56,
-    "captured_complete_within_scope": 3203,
-    "captured_with_coverage_limits": 1218
+    "captured_complete_within_scope": 3217,
+    "captured_with_coverage_limits": 1228
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4421,
+    "reports_verified": 4445,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 61673,
-    "unique_git_blobs_verified": 48081,
+    "git_blob_references_verified": 62068,
+    "unique_git_blobs_verified": 48372,
     "blob_mismatches": 0
   },
   "batch_limit": 2,
@@ -61,5 +61,5 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14-after-independent-verification-of-source-capture-run-377-artifact-14193398742"
+  "trigger_revision": "r14-checkpoint-379-artifact-pinned-against-self-chain-retirement"
 }
