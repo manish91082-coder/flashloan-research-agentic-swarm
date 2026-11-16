@@ -1,3 +1,28 @@
+## Latest authoritative continuation checkpoint — R15D baseline execution active (2026-11-16 15:32 UTC)
+
+- **Canonical project:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
+- **Frozen R15C packet:** artifact 14229725407, SHA-256 `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`; SQLite integrity verified; 39-task ledger and 14 specialist reports pinned in `research/R15C_EVALUATION_PACKET_MANIFEST.json`.
+- **Source vault:** artifact 14196365507, SHA-256 `0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad`; source restore completed on GitHub runner. 50,268 Git blobs were independently checked in the working container with zero mismatches; the restore step in the runner succeeded.
+- **Source pins:** `0xnavarro/Aave-Liquiditor` commit `9197ee3002d7d9b35e9c2da324128a38f7569038`, tree `14de2312e96c369bcc52c9bae96215051aea22b4`; `cobibean/aave-liquidator-bot` commit `3159c15f4dcfb0df215b4c3024f47753a1133b84`, tree `1a9ee7218304b95654385fc11f255a7c5d532bc4`.
+- **R15D deterministic adequacy replay:** 14/14 R15C specialist reports insufficient for adversarial challenge; both candidate packets insufficient. Reasons: 29 role-relevance misses and 6 missing cited-excerpt anchors. This is triage, not a proof that source claims are false.
+- **Baseline model:** exact Qwen2.5 3B digest `357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b`, Q4_K_M, 3.1B. GitHub runner successfully verified the exact Ollama model digest before benchmark execution.
+- **Benchmark workflow:** [run 43896051809](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43896051809), trigger commit `39d8b6a923e148f185f837831bdcc170aa5b12a8`. Pins, source-vault restoration, R15C evaluation artifact extraction/integrity, and runtime installation have succeeded. The active step is **Replay only two reviewer tasks on a fresh isolated database**. No benchmark outcome is yet verified.
+- **First trigger attempt:** run 43895783297 failed only in the pin-export step because GitHub step outputs were not propagated as expected. No artifact download or inference occurred in that attempt. The workflow now writes verified pins to `GITHUB_ENV`; the second run passed that step.
+- **Benchmark scope is bounded:** only two independent-review tasks are reset in a copied SQLite database. Original R15C database, reports, candidate dossier tasks and semantic audit count remain untouched. One local CPU model, one reviewer task at a time. No paid/cloud inference.
+- **Raw exchange capture:** exact request body/hash and raw response/hash are persisted before semantic validation under the benchmark artifact root. This retains rejected outputs for forensic scoring.
+- **No semantic acceptance yet:** do not mark candidates audited, create dossiers, increment audit counts, or launch a challenger model before the baseline report is inspected.
+
+### Immediate continuation
+
+1. Poll run 43896051809 until terminal status.
+2. If successful, download its artifact and verify both reviewer exchanges, request/response hashes, decisions, packet adequacy, task statuses and dossier pending state.
+3. If failed, inspect the exact failing step and logs; patch only the concrete defect, keep the frozen R15C source/artifacts immutable, and retrigger by incrementing the trigger revision.
+4. Evaluate whether Qwen2.5 3B returns explicit `inconclusive` for both inadequate packets. Treat malformed output, false acceptance, or off-topic findings as benchmark failures, not successes.
+5. Only after baseline results are reproducible, research and pin one CPU-feasible challenger model; compare on identical frozen requests/settings.
+6. Publish separate metrics and independent adjudication before any fresh semantic pilot.
+
+---
+
 ## Latest authoritative continuation checkpoint — frozen R15C packet and reproducible benchmark capture (2026-11-16 15:12 UTC)
 
 - **Canonical repository/branch:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
