@@ -1,19 +1,20 @@
 {
   "schema_version": "1.0",
-  "purpose": "One-time Agent Form semantic quality pilot using a verified source-capture checkpoint.",
-  "seed_run_id": 43615137961,
+  "purpose": "R14 Agent Form semantic quality pilot using the independently verified source-capture checkpoint from successful workflow run 43794531352 and artifact 14193398742.",
+  "seed_run_id": 43794531352,
   "batch_limit": 2,
   "model_runtime": "Ollama local CPU",
   "model": "qwen2.5:3b",
   "endpoint_policy": "http://127.0.0.1:11434 only; loopback-only; no cloud inference",
   "acceptance_gates": [
-    "restore checkpoint and verify all pinned source evidence",
-    "validate Agent Form mission payload and task DAG",
-    "complete two candidate purpose analyses and six specialist roles per candidate",
-    "run structural evidence gate",
-    "run independent reviewer on both candidates",
-    "record structured-output validity, accepted/rejected evidence, task failures, reviewer disagreement, model digest and elapsed time",
-    "do not scale until pilot quality is manually and programmatically assessed"
+    "restore exact source-capture workflow run 43794531352 artifact 14193398742 using SHA-256 036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8",
+    "validate all 4,421 report identities and all 61,673 pinned Git blob references; no mismatches",
+    "validate Agent Form mission payload and fresh isolated R14 task DAG",
+    "complete 2 candidate-purpose tasks and 12 specialist tasks across the same two pinned candidates",
+    "pass both candidate-specific pinned-evidence semantic gates",
+    "run independent candidate-specific reviewer gate v5.4.0 on both candidates",
+    "require exact unreserved accept, zero disagreements and non-empty source-pinned evidence from both reviewers",
+    "do not create dossiers or increment semantic audit count until every gate passes"
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -24,5 +25,26 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "updated_at_utc": "2026-11-14T16:21:30Z"
+  "updated_at_utc": "2026-11-14T16:21:30Z",
+  "seed_artifact_id": 14193398742,
+  "seed_artifact_sha256": "036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8",
+  "mission_run_id": 43600488013,
+  "queue_checkpoint": {
+    "total": 7901,
+    "captured": 4421,
+    "pending": 3424,
+    "leased": 0,
+    "failed": 56,
+    "captured_complete_within_scope": 3203,
+    "captured_with_coverage_limits": 1218
+  },
+  "checkpoint_verification": {
+    "zip_crc": "ok",
+    "sqlite_integrity": "ok",
+    "reports_verified": 4421,
+    "report_identity_mismatches": 0,
+    "git_blob_references_verified": 61673,
+    "unique_git_blobs_verified": 48081,
+    "blob_mismatches": 0
+  }
 }
