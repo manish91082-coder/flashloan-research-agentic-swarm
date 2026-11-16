@@ -51,9 +51,9 @@ jobs:
           import json
           from pathlib import Path
           trigger = json.loads(Path("research_runs/trigger-r15d-challenger-benchmark.json").read_text())
-          assert trigger["revision"] == 4
+          assert trigger["revision"] == 5
           assert trigger["capture_protocol_revision"] == 2
-          assert trigger["run_reason"] == "first-inference-after-raw-response-verifier-and-fixture-ci-green"
+          assert trigger["run_reason"] == "rerun-after-reviewer-task-completion-contract-fix-and-ledger-gate"
           assert trigger["max_output_tokens"] == 4096
           assert trigger["model_pin_artifact_id"] == 14248935964
           assert trigger["model_pin_artifact_sha256"] == "f857347f60035334927d3c543305b9102944b5da5e6059bc3e6754c6b675c06c"
