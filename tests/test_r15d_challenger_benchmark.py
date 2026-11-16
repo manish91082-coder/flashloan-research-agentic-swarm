@@ -38,11 +38,13 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
                     {"role": "user", "content": user_content},
                 ]
             }
-            request_sha = hashlib.sha256(json.dumps(request).encode()).hexdigest()
+            request_raw = json.dumps(request).replace(" ", "")
+            request_sha = hashlib.sha256(request_raw.encode("utf-8")).hexdigest()
             exchange = {
                 "exchange": {
                     "request": request,
-                    "request_sha256": request_sha,
+                    "request_raw": json.dumps(request).replace(" ", ""),
+                    "request_sha256": hashlib.sha256(json.dumps(request).replace(" ", "").encode("utf-8")).hexdigest(),
                     "response_raw": response,
                     "response_sha256": response_sha,
                 }
