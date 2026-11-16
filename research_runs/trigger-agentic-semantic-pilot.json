@@ -1,26 +1,26 @@
 {
   "schema_version": "1.0",
   "purpose": "R14 strict semantic-quality pilot from independently verified and artifact-retirement-pinned source-capture checkpoint 379. Fail closed on any task, evidence or reviewer gate.",
-  "checkpoint_run_id": 43794886851,
-  "checkpoint_artifact_id": 14193898114,
-  "checkpoint_artifact_sha256": "bb79aaa5c7ca77695408469bc9d7ba77852d7588a2eb7a20519e7c5d082f3964",
+  "checkpoint_run_id": 43795447091,
+  "checkpoint_artifact_id": 14193749558,
+  "checkpoint_artifact_sha256": "5edb17974de43dc8d914986d3af223a824a8de91c52f261e8c101988eaa66d5b",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4445,
-    "pending": 3400,
+    "captured": 4481,
+    "pending": 3364,
     "leased": 0,
     "failed": 56,
-    "captured_complete_within_scope": 3217,
-    "captured_with_coverage_limits": 1228
+    "captured_complete_within_scope": 3245,
+    "captured_with_coverage_limits": 1236
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4445,
+    "reports_verified": 4481,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 62068,
-    "unique_git_blobs_verified": 48372,
+    "git_blob_references_verified": 62508,
+    "unique_git_blobs_verified": 48716,
     "blob_mismatches": 0
   },
   "batch_limit": 2,
@@ -61,6 +61,6 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14-retry-after-bounded-ollama-registry-backoff",
-  "retry_note": "Previous R14 attempt restored the pinned checkpoint and installed Agent Form, then stopped before mission bootstrap because the Ollama model registry returned HTTP 503. Retry the same fresh isolated mission with five bounded exponential-backoff model-pull attempts."
+  "trigger_revision": "r14-retry-with-verified-checkpoint-382-and-bounded-ollama-backoff",
+  "retry_note": "R14 prior attempts: #17 failed because a retired artifact was pinned; #18 restored checkpoint but Ollama registry returned HTTP 503; #19 artifact 404. Source workflow now protects live seed/trigger pins; semantic workflow retries Ollama pull five times with exponential backoff. This retry uses fresh checkpoint 382."
 }
