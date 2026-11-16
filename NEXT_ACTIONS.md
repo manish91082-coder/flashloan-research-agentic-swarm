@@ -1,3 +1,21 @@
+## Latest authoritative continuation checkpoint — R15D implementation (2026-11-16 15:00 UTC)
+
+- **Canonical repository and branch unchanged:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
+- **R15C remains rejected / immutable:** Actions run 43868846531, artifact 14229725407, SHA-256 `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`. Both independent reviewers failed semantic relevance. No dossier and no semantic audit increment.
+- **Artifact-level root cause confirmed:** `cobibean/aave-liquidator-bot` reviewer produced six repetitive generic claims; `0xnavarro/Aave-Liquiditor` reviewer produced unrelated fixed-ETH-price/frozen-account claims. Both had zero required protocol-risk topic coverage. Specialist/evidence stages completed, but evidence provenance is not semantic correctness.
+- **Important upstream defect identified:** `src/flashloan_research/specialist_runner.py` forced a fixed three Aave finding slots and required topic-coverage terms. The reviewer relevance failure was also automatically retried with feedback demanding explicit topic terms. This created pressure to satisfy lexical coverage rather than report a valid inconclusive result.
+- **R15D plan committed:** `research/R15D_SEMANTIC_QUALITY_AND_REVIEWER_BENCHMARK.md`, commit `3772b67c43838795cb4f0d95b906773728b66a38`.
+- **R15D code corrections committed on main:**
+  - `cab14d8927cbaf49decf5e56e7612e87adbdcf7e`: allow an evidence-bounded inconclusive reviewer result when protocol-topic coverage is insufficient; remove automatic reviewer relevance retry; persist non-accept reviewer output but fail the task rather than completing it. Only exact `accept` can complete an independent-review task.
+  - `ea91a24e40c92baaf591ac1a6b507fefbb06c2b8`: remove mandatory Aave finding slots; topic labels are optional and source-conditioned.
+  - `5d98ed5110e39da18b87fb41de54a1946b527c4b` and `def632bba90af7d4912ee3eb4bd219c3efb20e7a`: regression tests for inconclusive handling, accept requiring topic coverage, and removal of forced finding slots.
+- **Validation state:** CI workflow `.github/workflows/ci.yml` is configured for push to main and runs compileall plus unittest on Python 3.11, 3.12 and 3.13. At this checkpoint, GitHub combined commit status returned no status entries for the latest test commit; CI success is therefore **not yet verified**. Do not claim tests passed until Actions results are inspected.
+- **Safety unchanged:** public-source research only; no candidate code execution, wallet/signing/deployment/live trading, paid inference or cloud inference.
+- **Accounting unchanged:** source capture is not semantic audit; specialist completion is not semantic acceptance; only exact independent reviewer `accept` can complete the review task. No audit count or dossier is to be incremented for R15C or R15D engineering work.
+- **Next exact actions:** (1) verify CI run for commit `def632bba90af7d4912ee3eb4bd219c3efb20e7a` on all three Python versions; (2) if green, inspect code diff and test edge cases; (3) add the specialist semantic-adequacy gate before independent review, because R15C specialists also emitted generic/speculative claims; (4) build the frozen R15C evaluation packet and scorecard; (5) only then run baseline/challenger model comparison with exact model manifests and one model loaded at a time; (6) launch a fresh isolated semantic pilot only after R15D exit criteria pass.
+
+---
+
 ## Authoritative continuation checkpoint (2026-11-15 09:04 UTC)
 
 - **Locked mission unchanged:** source-grounded public GitHub research across 7,901 candidates in 11 taxonomy families. Discovery remains 28/38 query templates complete; 10 are incomplete. No candidate code execution, wallet/signing/deployment/live trading, cloud inference or paid inference.
