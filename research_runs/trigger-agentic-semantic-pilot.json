@@ -28,9 +28,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14e",
-  "database": "data/agentic-mission-pilot-20261116-r14e.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14e",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14f",
+  "database": "data/agentic-mission-pilot-20261116-r14f.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14f",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -64,8 +64,8 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14e-structured-protocol-reviewer-checkpoint-393",
-  "retry_note": "Fresh isolated R14E reviewer correction pilot. Preserve source checkpoint 393 unchanged. Use structured protocol-topic reviewer prompt introduced in commit 842bd4ce0de7be018d6ea3e76a10689530e16653 and regression test in cd7208080c997273cb6c086869c2a84b2a55d8bf. Do not weaken evidence provenance, reviewer acceptance or exact unreserved accept requirements. All candidate code execution and transaction permissions remain disabled.",
+  "trigger_revision": "r14f-compact-reviewer-context-8192-token-window",
+  "retry_note": "Fresh isolated R14F pilot after R14E reviewers failed semantic relevance. Reviewer prompt now demands three distinct Aave protocol claims; reviewer source catalog is restricted to relevant Aave source signals; reviewer excerpts and seven prior reports are bounded to fit an explicit 8192-token Ollama context. Evidence gates remain unchanged and fail-closed. Source checkpoint 393 remains immutable.",
   "previous_attempt": {
     "run_id": 43816195099,
     "artifact_id": 14203812377,
@@ -78,5 +78,5 @@
     "test_commit": "cd7208080c997273cb6c086869c2a84b2a55d8bf",
     "purpose": "Require explicit candidate-specific protocol-topic claim structures (Pool/IPool, executeOperation/msg.sender/initiator, repayment/premium) and regression-test the reviewer prompt."
   },
-  "updated_at_utc": "2026-11-16T08:14:00Z"
+  "updated_at_utc": "2026-11-16T09:10:00Z"
 }
