@@ -83,3 +83,13 @@ After this benchmark, any broader semantic quality evaluation must use separatel
 - Revision 3 increases only the maximum output ceiling from 2,400 to 4,096 tokens; request context remains 16,384, same model digest, same source pins, same packets and same prompt template. This is explicitly a completion-integrity rerun, not a controlled quality comparison.
 - Verifier commit: `02ed5098bee35c1ef245a8e9447fe58c04bb412e`; truncation regression commit: `bd65309014ce776c1e61d8e5d1fadf2e49bed829`; workflow commit: `dba0278c21b3fa36b3e1f46e028c8f03b54ab71c`; trigger commit: `d1d630f6e43676e8402601141c309144f8a07294`.
 - Acceptance remains fail-closed. Dossiers pending, semantic audit increment zero, no candidate code execution, wallet, signing, deployment, live trading, paid inference or cloud inference.
+
+## Verifier hardening regression repair — current checkpoint
+
+- First CI attempt exposed a syntax error in the new truncated-response test fixture; a follow-up run exposed two fixture consistency defects (response body did not match the report's parsed output, and the truncated fixture did not update both embedded and report response hashes).
+- These were test-fixture issues, not a relaxation of the verifier. The fixture now emits the decision supplied to each test and the truncation test updates raw response, embedded response hash, report response hash and outer exchange-file hash coherently.
+- Latest dedicated verifier CI: [43928167221](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43928167221), all Python 3.11/3.12/3.13 jobs passed.
+- General repository CI [43928167286](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43928167286) was still running at checkpoint.
+- Latest fixture repair commit: `af0df0d40834092735ace7f98f000a79ae731012`.
+- Revision 3 workflow run `43927768598` did not reach inference: test syntax compilation failed before the benchmark. Its tiny artifact is not a benchmark result.
+- Do not trigger revision 4 until general CI is green. Then update workflow/trigger revision and rerun the exact pinned benchmark with output ceiling 4,096.
