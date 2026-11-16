@@ -23,7 +23,7 @@ def sha256(data: bytes) -> str:
 
 
 def git_blob_sha(data: bytes) -> str:
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\\0" + data).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
 
 
 def verify_source(repo: str, data: bytes, identity: dict) -> None:
@@ -41,15 +41,14 @@ def verify_source(repo: str, data: bytes, identity: dict) -> None:
 def extract_excerpt(lines: list[str], start: int, end: int) -> bytes:
     if isinstance(start, bool) or isinstance(end, bool) or start < 1 or end < start or end > len(lines):
         raise ValueError("invalid or shifted inclusive line range")
-    return ("".join(lines[start - 1:end])).encode("utf-8")
+    return "".join(lines[start - 1:end]).encode("utf-8")
 
 
 def require_complete_function(excerpt: str, signature: str) -> None:
-    if signature not in excerpt:
+    if not excerpt.lstrip().startswith(signature):
         raise ValueError("absence case does not begin with the declared function signature")
-    # Remove comments and quoted strings before checking structural braces.
-    clean = re.sub(r"/\\*.*?\\*/|//[^\\n]*", "", excerpt, flags=re.S)
-    clean = re.sub(r'"(?:\\\\.|[^"\\\\])*"', '""', clean)
+    clean = re.sub(r"/\*.*?\*/|//[^\n]*", "", excerpt, flags=re.S)
+    clean = re.sub(r'"(?:\\.|[^"\\])*"', '""', clean)
     depth = 0
     opened = False
     for char in clean:
@@ -73,11 +72,10 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
     identities = {}
     for candidate in manifest["candidates"]:
         repo = candidate["repository"]
-        if repo in identities:
-            raise ValueError(f"duplicate candidate: {repo}")
+        if repo in identities or repo not in SOURCES:
+            raise ValueError(f"duplicate or unapproved candidate: {repo}")
         identities[repo] = candidate
-        data = SOURCES[repo].read_bytes()
-        verify_source(repo, data, candidate["files"][0])
+        verify_source(repo, SOURCES[repo].read_bytes(), candidate["files"][0])
     if set(identities) != set(EXPECTED):
         raise ValueError("candidate set differs from the two approved source pins")
 
@@ -118,7 +116,7 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
         "adjudication": manifest["adjudication"],
     }
     out.mkdir(parents=True, exist_ok=True)
-    (out / "fixture_manifest.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    (out / "fixture_manifest.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return result
 
 
@@ -127,7 +125,8 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path)
     args = parser.parse_args()
     result = build(output_dir=args.output_dir)
-    print(json.dumps({"status": result["status"], "cases": len(result["cases"]), "manifest_sha256": sha256((args.output_dir or ROOT / "research_runs/r15d_semantic_fixtures").joinpath("fixture_manifest.json").read_bytes())}, indent=2))
+    target = args.output_dir or ROOT / "research_runs/r15d_semantic_fixtures"
+    print(json.dumps({"status": result["status"], "cases": len(result["cases"]), "manifest_sha256": sha256((target / "fixture_manifest.json").read_bytes())}, indent=2))
 
 
 if __name__ == "__main__":
