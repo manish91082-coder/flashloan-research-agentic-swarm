@@ -35,6 +35,16 @@ def write_json(path: Path, value: dict[str, Any]) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def load_finish_reason(exchange: dict[str, Any]) -> str | None:
+    raw = exchange.get("response_raw")
+    if not isinstance(raw, str):
+        return None
+    try:
+        return json.loads(raw).get("choices", [{}])[0].get("finish_reason")
+    except (AttributeError, IndexError, TypeError, json.JSONDecodeError):
+        return None
+
+
 def load_model_output(exchange: dict[str, Any]) -> dict[str, Any] | None:
     raw = exchange.get("response_raw")
     if not isinstance(raw, str):
@@ -207,10 +217,7 @@ def run_benchmark(workspace: Path, db_path: Path, artifact_root: Path,
             "request_sha256": exchange.get("request_sha256"),
             "response_sha256": exchange.get("response_sha256"),
             "input_packet_sha256": packet_fingerprint,
-            "finish_reason": (
-                json.loads(exchange["response_raw"]).get("choices", [{}])[0].get("finish_reason")
-                if isinstance(exchange.get("response_raw"), str) else None
-            ),
+            "finish_reason": load_finish_reason(exchange),
             "model_output": output,
             "validated_report": validated_report,
             "exchange_file": str(path),
