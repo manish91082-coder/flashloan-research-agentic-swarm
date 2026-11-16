@@ -482,3 +482,14 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Targeted validator repair committed as 6044e312a3d2aea36c082761074e4bb1cfc07ab5: a populated reviewer slot that fails the complete-record contract now emits an explicit pending/invalid error, including UTC timestamp validation. Existing fail-closed behavior remains unchanged.
 - Next: inspect the new Actions run and all matrix jobs/logs. If green, reopen validator/freeze/tests and blank packet at the resulting HEAD, then proceed with static audit. If not green, repair only the concrete failure.
 - Blind packet remains untouched; no reviewer labels or identities were invented. Do not freeze. Semantic audit increment remains zero; dossiers remain pending; safety invariants unchanged.
+
+
+## R15D validator repair CI result and freeze-gate hardening — 2026-11-17
+
+- Targeted repair commit 6044e312a3d2aea36c082761074e4bb1cfc07ab5 was verified by Actions run 43946117300: all three matrix jobs (Python 3.11/3.12/3.13) passed; standard-library tests, compile, and Python 3.11 fixture build/upload passed.
+- The run 43944588346 failure was isolated to one test assertion about explicit pending classification of a populated but invalid reviewer record. No other test failures were reported.
+- Static audit found freeze_r15d_adjudication.py accepted arbitrary frozen_at text. Fixed in commit a29db2de475b3670df6da7421f82d112ccfbbac6 by requiring a timezone-aware UTC ISO-8601 timestamp before reading/writing the frozen output. Added invalid and non-UTC timestamp regression coverage in commit 2ef6e7f34080b2ce88c2402e538dd783c34afca0.
+- Further fail-closed review found consensus.status was not required to equal adjudicated even when reviewers were complete. Validator now requires status=adjudicated before accepting a consensus label; regression test added. Commits: validator 023a36391e8e364a3961303f0937bbd76cc33702; test 64e3aab4d5215d3ce495555f5dd2aac0a26f56a8.
+- Actions run 43946228412 covers the UTC freeze-time fix; at this checkpoint it was still in progress. The later consensus-status commits have their own pending CI run; do not claim these latest changes are green until all three jobs are inspected.
+- The original blind packet remains byte-identical at blob b9dac92fb354eea8abfddb04b68b1a2d7c9a604b. No human reviewer identities, labels, rationales or timestamps have been added. Freeze utility remains unused. Semantic audit increment zero; dossiers pending; safety invariants unchanged.
+- Next: inspect the active CI runs for the UTC freeze timestamp and consensus-status changes. Then re-open all modified code/tests and the blind packet at latest main. Continue static audit for fail-closed gaps; no freeze or model inference until real independent reviews exist.
