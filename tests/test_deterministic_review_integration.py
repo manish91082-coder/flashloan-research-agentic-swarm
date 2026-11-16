@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from flashloan_research.specialist_runner import _deterministic_review_with_catalog
+from flashloan_research.analyzer import extract_signals
 
 
 class DeterministicReviewEvidenceResolutionTests(unittest.TestCase):
@@ -39,6 +40,13 @@ class DeterministicReviewEvidenceResolutionTests(unittest.TestCase):
         self.assertEqual(topics["pool_provider_wiring"]["evidence_ids"], ["EV00002"])
         self.assertEqual(topics["callback_authentication"]["evidence_ids"], ["EV00001"])
         self.assertEqual(topics["repayment_premium"]["evidence_ids"], ["EV00001"])
+
+    def test_aave_pool_provider_constructor_has_dedicated_signal(self):
+        source = b"constructor(address provider) { POOL = IPool(provider); }"
+        signals = extract_signals("contracts/Liquidator.sol", source)
+        names = {item["signal"] for item in signals}
+        self.assertIn("aave_pool_provider_wiring", names)
+        self.assertNotIn("aave_flash_loan_simple", names)
 
     def test_unrelated_signal_in_same_excerpt_is_not_assigned_to_topic(self):
         inspection = {
