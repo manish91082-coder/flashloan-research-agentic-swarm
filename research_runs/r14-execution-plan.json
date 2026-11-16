@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "record_type": "semantic_pilot_execution_plan",
   "mission_id": "flashloan-agent-form-pilot-20261116-r14",
-  "status": "READY_TO_RETRY_R14_WITH_VERIFIED_CHECKPOINT_382",
+  "status": "READY_TO_RETRY_R14_WITH_VERIFIED_CHECKPOINT_383",
   "branch": "main",
   "reviewer_gate_version": "5.4.0-candidate-specific-semantic-review-gate",
   "model": "qwen2.5:3b",
@@ -11,17 +11,17 @@
   "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
   "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14",
   "checkpoint": {
-    "source_capture_run_id": 43795447091,
-    "artifact_id": 14193749558,
-    "artifact_sha256": "5edb17974de43dc8d914986d3af223a824a8de91c52f261e8c101988eaa66d5b",
+    "source_capture_run_id": 43795642245,
+    "artifact_id": 14193879641,
+    "artifact_sha256": "3bd0e53d1248a26afc8de3a2e935e689ff5d18f0e9ea1c1a08c05fbffab971ba",
     "mission_run_id": 43600488013,
     "queue": {
       "total": 7901,
-      "captured": 4481,
-      "pending": 3364,
+      "captured": 4493,
+      "pending": 3352,
       "leased": 0,
       "failed": 56,
-      "captured_complete_within_scope": 3245,
+      "captured_complete_within_scope": 3257,
       "captured_with_coverage_limits": 1236
     },
     "verification": {
@@ -30,10 +30,10 @@
       "sha256_verified": true,
       "zip_crc": "ok",
       "sqlite_integrity": "ok",
-      "reports_verified": 4481,
+      "reports_verified": 4493,
       "report_identity_mismatches": 0,
-      "git_blob_references_verified": 62508,
-      "unique_git_blobs_verified": 48716,
+      "git_blob_references_verified": 62570,
+      "unique_git_blobs_verified": 48760,
       "blob_mismatches": 0,
       "queue_accounting_total": 7901
     }
@@ -64,5 +64,5 @@
     "cloud_inference": false
   },
   "trigger_policy": "Trigger only after updating the R14 seed and trigger payload with this exact immutable checkpoint identity; the seed is pinned to protect it from source-capture artifact retirement.",
-  "next_action": "Retry R14 after bounded Ollama model-registry backoff, using verified checkpoint workflow run 43795447091 / artifact 14193749558."
+  "next_action": "Retry R14 with verified checkpoint workflow run 43795642245 / artifact 14193879641 and bounded Ollama registry backoff."
 }
