@@ -187,6 +187,6 @@ The specialist adequacy gate is deterministic lexical/evidence-reference triage,
 6. Publish separate provenance, claim-support, protocol-coverage, false-critical-claim, unknown-handling, confidence and runtime scores.
 7. Do not launch a fresh semantic pilot or increment audit counts until the benchmark and independent adjudication gates pass.
 
-## 7. R15D exit condition
+## 9. R15D exit condition
 
 R15D is complete only when the evaluation packet is reproducible, regression tests pass on all supported Python versions, both observed R15C failure modes are caught by tests, reviewer insufficiency is handled without fabricated findings, and the baseline/challenger scorecard is backed by pinned artifacts. Until then, semantic processing remains blocked at the review gate.
