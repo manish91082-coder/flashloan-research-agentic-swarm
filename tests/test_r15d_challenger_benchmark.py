@@ -174,6 +174,29 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
             with self.assertRaisesRegex(ChallengerGateError, "response fingerprint mismatch"):
                 verify(path)
 
+    def test_rejects_truncated_model_response(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        exchange_path = self._rewrite_exchange(
+            path, pins,
+            lambda exchange: exchange.update({
+                "response_raw": json.dumps({
+                    "choices": [{
+                        "finish_reason": "length",
+                        "message": {"content": "{\\"review_decision\\":\\"inconclusive\\""},
+                    }]
+                })
+            }),
+        )
+        report = json.loads(path.read_text(encoding="utf-8"))
+        report["reviewer_outcomes"][0]["response_sha256"] = hashlib.sha256(
+            json.loads(exchange_path.read_text(encoding="utf-8"))["exchange"]["response_raw"].encode()
+        ).hexdigest()
+        path.write_text(json.dumps(report), encoding="utf-8")
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "did not finish normally"):
+                verify(path)
+
     def test_rejects_exchange_file_hash_mismatch(self):
         tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
         self.addCleanup(tmp.cleanup)
