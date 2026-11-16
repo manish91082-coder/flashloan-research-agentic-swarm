@@ -1,5 +1,5 @@
 {
-  "revision": 2,
+  "revision": 3,
   "benchmark_id": "r15d-reviewer-challenger-qwen35-4b-r15c-frozen-packet",
   "model_tag": "qwen3.5:4b",
   "model_digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
@@ -10,9 +10,9 @@
   "source_seed_artifact_id": 14196365507,
   "source_seed_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
   "context_tokens": 16384,
-  "max_output_tokens": 2400,
+  "max_output_tokens": 4096,
   "capture_protocol_revision": 2,
-  "run_reason": "capture_protocol_rerun_after_exact-request-capture-and-verifier-fixes",
-  "prior_attempt_artifact_id": 14248019054,
-  "prior_attempt_artifact_sha256": "a596abcd93101fb1507db1abdcfcc33a36c09f389534f1e999b8fc1e21e3c830"
+  "run_reason": "completion-integrity-rerun-after-qwen35-response-truncation",
+  "prior_attempt_artifact_id": 14256136974,
+  "prior_attempt_artifact_sha256": "b83fd56f2d30316f4ba2577261fb484c85b8e374f5b5add2cc07315cd84bf9bf"
 }
