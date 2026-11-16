@@ -30,7 +30,7 @@ class DeterministicReviewEvidenceResolutionTests(unittest.TestCase):
         ids = {e for topic in result["topics"].values() for e in topic["evidence_ids"]}
         self.assertEqual(ids, {"EV00001", "EV00002"})
         self.assertEqual(result["inspection_commit_sha"], "a" * 40)
-        self.assertEqual(result["evidence_resolution"], "exact_path_and_line_overlap_with_pinned_catalog")
+        self.assertEqual(result["evidence_resolution"], "exact_path_line_overlap_and_topic_signal_allowlist")
 
 
     def test_aave_topics_receive_only_their_own_signal_ids(self):
