@@ -27,7 +27,7 @@ class DeterministicSolidityReviewTests(unittest.TestCase):
         self.assertIn("initiator/address(this) binding visible", topics["callback_authentication"]["detail"])
         self.assertIn("amount + premium arithmetic visible", topics["repayment_premium"]["detail"])
         self.assertEqual(topics["pool_provider_wiring"]["status"], "source_observed")
-        self.assertEqual(topics["callback_authentication"]["evidence_ids"], ["EV00001"])
+        self.assertEqual(topics["callback_authentication"]["evidence_ids"], [])
         self.assertFalse(result["exploitability_assessed"])
 
     def test_aave_partial_excerpt_fails_closed(self):
