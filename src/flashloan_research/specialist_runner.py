@@ -803,10 +803,27 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
             role == "independent_reviewer"
             and "independent reviewer findings are not semantically relevant" in error_text
         )
-        if not (duplicate_claim or purpose_mismatch or reviewer_relevance):
+        evidence_reference_error = (
+            "cites evidence not selected from the pinned catalog" in error_text
+            or "model returned evidence IDs that are not in the pinned catalog" in error_text
+        )
+        if not (duplicate_claim or purpose_mismatch or reviewer_relevance or evidence_reference_error):
             raise
         retry_context = dict(context)
-        if reviewer_relevance:
+        if evidence_reference_error:
+            allowed_ids = [item["evidence_id"] for item in _evidence_catalog(inspection)]
+            retry_context["validation_feedback"] = (
+                "Your previous report was rejected because at least one finding referenced an evidence ID "
+                "that was not selected in the report evidence array, or was not present in this candidate's "
+                "pinned evidence catalog. Regenerate the COMPLETE report. Select evidence IDs ONLY from "
+                "the supplied candidate catalog, include every selected ID in the top-level evidence array, "
+                "and make every finding.evidence_refs a subset of those selected IDs. Never invent, transfer, "
+                "or reuse IDs from another repository or specialist report. If no supplied evidence supports "
+                "a test/CI finding, return zero findings, evidence=[], implementation_status=unknown, "
+                "confidence=low, and describe the missing test/CI source as an unknown. "
+                "Allowed IDs for this candidate: " + json.dumps(allowed_ids)
+            )
+        elif reviewer_relevance:
             signals = {
                 str(item.get("signal", "")).casefold()
                 for item in inspection.get("signals", []) if isinstance(item, dict)
@@ -887,6 +904,8 @@ def _is_retryable_specialist_error(exc: Exception) -> bool:
         or "finish_reason=length" in message
         or "malformed OpenAI-compatible JSON response" in message
         or "duplicate finding claim" in message
+        or "cites evidence not selected from the pinned catalog" in message
+        or "model returned evidence IDs that are not in the pinned catalog" in message
     )
 
 
