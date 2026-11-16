@@ -540,8 +540,8 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             for index, (task_type, role) in enumerate(roles):
                 task_id = f"large-task-{index}"
                 report = {
-                    "summary": "A source-grounded report with bounded material context.",
-                    "purpose": "A repository purpose with bounded material context.",
+                    "summary": "S" * 1200,
+                    "purpose": "P" * 1200,
                     "implementation_status": "partial",
                     "findings": [{
                         "finding_id": f"F-{index}-{finding_index}",
@@ -586,6 +586,11 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             self.assertNotIn("LONG_SOURCE_EXCERPT_SHOULD_NOT_BE_DUPLICATED", rendered)
             self.assertTrue(all(len(item["findings"]) == 3 for item in context))
             self.assertTrue(all(item["accepted_evidence_ids"] == ["EV00001"] for item in context))
+            self.assertTrue(all(len(item["summary"]) <= 240 and len(item["purpose"]) <= 240 for item in context))
+            self.assertTrue(all([finding["claim"] for finding in item["findings"]] == [
+                f"Material claim {i} from role {item['role']}, supported by the pinned source."
+                for i in range(3)
+            ] for item in context))
             self.assertEqual(len({item["task_type"] for item in context}), 7)
 
     def test_prior_reviewer_context_fails_closed_instead_of_truncating_findings(self):
