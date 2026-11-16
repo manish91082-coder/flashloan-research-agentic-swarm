@@ -38,6 +38,15 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertTrue(any("distinct" in error for error in result["errors"]))
 
+    def test_reviewer_identity_whitespace_cannot_bypass_distinctness(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [self.completed_review(case, "reviewer-a"), self.completed_review(case, " reviewer-a ")]
+        case["consensus"] = {"status": "adjudicated", "label": "present", "rationale": "same identity", "disagreement": False}
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("reviewer IDs must be distinct" in error for error in result["errors"]))
+
     def test_disagreement_requires_third_independent_adjudicator(self):
         packet = copy.deepcopy(self.packet)
         case = packet["cases"][0]
