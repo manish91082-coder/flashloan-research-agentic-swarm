@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14 Agent Form semantic quality pilot using the independently verified source-capture checkpoint from successful workflow run 43794531352 and artifact 14193398742.",
-  "seed_run_id": 43794531352,
+  "purpose": "R14 Agent Form semantic quality pilot pinned to the latest durable source-capture checkpoint. Artifact preservation is enforced by matching this seed workflow_run_id to the next source-capture continuation's consumed resume_run_id.",
+  "seed_run_id": 43794886851,
   "batch_limit": 2,
   "model_runtime": "Ollama local CPU",
   "model": "qwen2.5:3b",
@@ -26,17 +26,15 @@
     "cloud_inference": false
   },
   "updated_at_utc": "2026-11-14T16:21:30Z",
-  "seed_artifact_id": 14193398742,
-  "seed_artifact_sha256": "036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8",
+  "seed_artifact_id": 14193898114,
+  "seed_artifact_sha256": "bb79aaa5c7ca77695408469bc9d7ba77852d7588a2eb7a20519e7c5d082f3964",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4421,
-    "pending": 3424,
+    "captured": 4433,
+    "pending": 3412,
     "leased": 0,
-    "failed": 56,
-    "captured_complete_within_scope": 3203,
-    "captured_with_coverage_limits": 1218
+    "failed": 56
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
@@ -46,5 +44,6 @@
     "git_blob_references_verified": 61673,
     "unique_git_blobs_verified": 48081,
     "blob_mismatches": 0
-  }
+  },
+  "artifact_preservation_policy": "The next source-capture continuation must preserve this artifact because its resume_run_id equals seed_run_id. Do not update seed to a different run until a newer artifact has been downloaded and verified and its preserving continuation has not yet passed retirement."
 }
