@@ -1,3 +1,28 @@
+## Latest authoritative continuation checkpoint — R15D adequacy gate verified (2026-11-16 15:08 UTC)
+
+- **Canonical project unchanged:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
+- **R15C remains rejected / immutable:** run 43868846531, artifact 14229725407, SHA-256 `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`. Two reviewer outputs failed semantic relevance; no dossier and no semantic audit increment.
+- **Reviewer contract corrections:** commits `cab14d89` and `ea91a24e` remove forced finding counts/slots, permit explicit inconclusive output for insufficient topic coverage, remove automatic reviewer relevance retries, and ensure only exact `accept` completes independent-review tasks.
+- **End-to-end fail-closed behavior:** commit `3aeb2f48` updates the deterministic fixture to expect `blocked_independent_review` when the pinned callback excerpt does not establish caller authentication, initiator binding or repayment.
+- **Specialist adequacy gate implemented:** commits `f0781bfb`, `d952769e`, `3a6e836b`, `d302a901`. It assesses the seven prior reports for generic boilerplate, claim substance, role-relevant technical anchors, evidence-reference linkage, and overlap between role-specific technical terms and the exact cited source excerpt. If any report is insufficient, the packet is marked insufficient and the reviewer must return `inconclusive`; an accept verdict is rejected.
+- **Important limitation:** this is deterministic lexical/evidence-reference triage, not semantic proof. It does not establish exploitability or factual truth. Independent review and frozen-packet adjudication remain mandatory.
+- **Latest verified CI:** run [43893065834](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43893065834), head commit `d302a901db0b47e3624a01f27d83fbb541aa2aa1`. Python 3.11, 3.12 and 3.13 each passed **153 tests**. All three jobs succeeded.
+- **R15D plan updated:** `research/R15D_SEMANTIC_QUALITY_AND_REVIEWER_BENCHMARK.md`, with implementation details, verification and limitations.
+- **No pilot rerun yet:** do not trigger the agentic semantic pilot until the frozen R15C evaluation packet and reviewer benchmark are ready and pass. No semantic audit count or dossier increment is authorized by these engineering tests.
+- **Safety/accounting unchanged:** public-source read-only research; candidate code never executed; no wallet/signing/deployment/live-trading; no paid/cloud inference; source capture is not semantic audit.
+
+### Next exact actions
+
+1. Verify current head and latest CI state after documentation commits.
+2. Download artifact 14229725407, verify SHA-256 `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`, inspect ZIP members and SQLite integrity.
+3. Build immutable R15C evaluation fixtures for both candidates, pinning commit/tree/path/line/blob/excerpt and each specialist/reviewer report hash.
+4. Add explicit expected regression labels for the two reviewer failure classes (generic repeated claims; unrelated off-topic claims) and specialist warning examples (generic protocol report; speculative unsupported security claim).
+5. Run the baseline benchmark with exact Ollama model manifest; retain raw/normalized outputs, packet fingerprint, validator results and runtime evidence.
+6. Only consider a challenger after its exact digest, quantization, context and CPU-only runner feasibility are verified; one model loaded at a time.
+7. Publish separate acceptance scores. Do not start a fresh semantic pilot, create dossiers or increment audit counts until benchmark and independent adjudication acceptance gates pass.
+
+---
+
 ## Latest authoritative continuation checkpoint — R15D implementation (2026-11-16 15:00 UTC)
 
 - **Canonical repository and branch unchanged:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
