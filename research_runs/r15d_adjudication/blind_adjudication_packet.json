@@ -1,0 +1,334 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "r15d-semantic-source-facts-v1",
+  "packet_type": "blind_ground_truth_adjudication",
+  "status": "pending_independent_review",
+  "created_from_fixture_artifact": {
+    "artifact_id": 14262528859,
+    "artifact_zip_sha256": "264e121033653d4c19566433c9a2f522176952adcb319fa3c7550967cc4bfb6a",
+    "manifest_sha256": "2c0eb9ef589963ad48f430eeb838c416f90251a73b9ad876f201be20e6eda305"
+  },
+  "blinding": {
+    "expected_labels_omitted": true,
+    "model_outputs_omitted": true,
+    "reviewers_must_not_consult_model_outputs": true,
+    "reviewers_must_work_independently": true
+  },
+  "allowed_labels": [
+    "present",
+    "absent",
+    "not_applicable",
+    "unknown"
+  ],
+  "cases": [
+    {
+      "id": "NAV-01",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "commit_sha": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "tree_sha": "14de2312e96c369bcc52c9bae96215051aea22b4",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "git_blob_sha1": "32c5e42920517fa1b93540a94e5d4dd95de94e1a",
+      "line_start": 81,
+      "line_end": 111,
+      "excerpt_sha256": "5f8ff797cf26a007c55f881f18525385f95d96abec21dabd4ebbdc5323ac1db2",
+      "proposition": "Callback accepts flash-loan arguments, decodes liquidation params, approves the pool, calls liquidationCall, checks repayment balance and returns true.",
+      "boundary": "Does not establish callback authentication.",
+      "question": "Does the pinned excerpt support the proposition exactly as bounded? Select one applicability label and justify it using only cited source evidence and explicitly named dependency/API context.",
+      "reviewers": [
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        },
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        }
+      ],
+      "third_adjudicator": {
+        "reviewer_id": null,
+        "label": null,
+        "rationale": null,
+        "evidence_references": [],
+        "confidence": null,
+        "completed_at": null,
+        "triggered": false
+      },
+      "consensus": {
+        "status": "pending",
+        "label": null,
+        "rationale": null,
+        "disagreement": false
+      }
+    },
+    {
+      "id": "NAV-02",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "commit_sha": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "tree_sha": "14de2312e96c369bcc52c9bae96215051aea22b4",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "git_blob_sha1": "32c5e42920517fa1b93540a94e5d4dd95de94e1a",
+      "line_start": 81,
+      "line_end": 111,
+      "excerpt_sha256": "5f8ff797cf26a007c55f881f18525385f95d96abec21dabd4ebbdc5323ac1db2",
+      "proposition": "No explicit msg.sender-to-pool or initiator-to-self require/check occurs inside this complete callback body.",
+      "boundary": "Absence scoped only to this complete function body; inherited behavior is outside this proposition.",
+      "question": "Does the pinned excerpt support the proposition exactly as bounded? Select one applicability label and justify it using only cited source evidence and explicitly named dependency/API context.",
+      "reviewers": [
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        },
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        }
+      ],
+      "third_adjudicator": {
+        "reviewer_id": null,
+        "label": null,
+        "rationale": null,
+        "evidence_references": [],
+        "confidence": null,
+        "completed_at": null,
+        "triggered": false
+      },
+      "consensus": {
+        "status": "pending",
+        "label": null,
+        "rationale": null,
+        "disagreement": false
+      }
+    },
+    {
+      "id": "NAV-03",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "commit_sha": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "tree_sha": "14de2312e96c369bcc52c9bae96215051aea22b4",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "git_blob_sha1": "32c5e42920517fa1b93540a94e5d4dd95de94e1a",
+      "line_start": 71,
+      "line_end": 74,
+      "excerpt_sha256": "36a6f1bb80d8f530620294d0d490cd63aaf15688c85bb25454cf017049211ffb",
+      "proposition": "Constructor passes _addressProvider to the base provider constructor and assigns pool = IPool(_addressProvider).",
+      "boundary": "Assignment fact only; correctness requires separate dependency/API adjudication.",
+      "question": "Does the pinned excerpt support the proposition exactly as bounded? Select one applicability label and justify it using only cited source evidence and explicitly named dependency/API context.",
+      "reviewers": [
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        },
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        }
+      ],
+      "third_adjudicator": {
+        "reviewer_id": null,
+        "label": null,
+        "rationale": null,
+        "evidence_references": [],
+        "confidence": null,
+        "completed_at": null,
+        "triggered": false
+      },
+      "consensus": {
+        "status": "pending",
+        "label": null,
+        "rationale": null,
+        "disagreement": false
+      }
+    },
+    {
+      "id": "COB-01",
+      "repository": "cobibean/aave-liquidator-bot",
+      "commit_sha": "3159c15f4dcfb0df215b4c3024f47753a1133b84",
+      "tree_sha": "1a9ee7218304b95654385fc11f255a7c5d532bc4",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "git_blob_sha1": "daa5716e80f203ff9ba34868e4693db382774ab8",
+      "line_start": 191,
+      "line_end": 204,
+      "excerpt_sha256": "9d35f17a6f8f688a2549fc78fa6fd59550a5e11e675c341d47c05aaa007ec266",
+      "proposition": "executeOperation checks msg.sender equals aavePool and initiator equals this before decoding params and liquidationCall.",
+      "boundary": "Does not generalize to all external entry points.",
+      "question": "Does the pinned excerpt support the proposition exactly as bounded? Select one applicability label and justify it using only cited source evidence and explicitly named dependency/API context.",
+      "reviewers": [
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        },
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        }
+      ],
+      "third_adjudicator": {
+        "reviewer_id": null,
+        "label": null,
+        "rationale": null,
+        "evidence_references": [],
+        "confidence": null,
+        "completed_at": null,
+        "triggered": false
+      },
+      "consensus": {
+        "status": "pending",
+        "label": null,
+        "rationale": null,
+        "disagreement": false
+      }
+    },
+    {
+      "id": "COB-02",
+      "repository": "cobibean/aave-liquidator-bot",
+      "commit_sha": "3159c15f4dcfb0df215b4c3024f47753a1133b84",
+      "tree_sha": "1a9ee7218304b95654385fc11f255a7c5d532bc4",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "git_blob_sha1": "daa5716e80f203ff9ba34868e4693db382774ab8",
+      "line_start": 206,
+      "line_end": 243,
+      "excerpt_sha256": "fa52b7179aff62497e4ec4416443c9325094c17ea2e0499f8f371134d8ae26c3",
+      "proposition": "Callback computes amountOwed, adds floor to requiredBalance and reverts when debtBalance is below requiredBalance before repayment approval.",
+      "boundary": "Does not establish net economic profitability after all costs.",
+      "question": "Does the pinned excerpt support the proposition exactly as bounded? Select one applicability label and justify it using only cited source evidence and explicitly named dependency/API context.",
+      "reviewers": [
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        },
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        }
+      ],
+      "third_adjudicator": {
+        "reviewer_id": null,
+        "label": null,
+        "rationale": null,
+        "evidence_references": [],
+        "confidence": null,
+        "completed_at": null,
+        "triggered": false
+      },
+      "consensus": {
+        "status": "pending",
+        "label": null,
+        "rationale": null,
+        "disagreement": false
+      }
+    },
+    {
+      "id": "COB-03",
+      "repository": "cobibean/aave-liquidator-bot",
+      "commit_sha": "3159c15f4dcfb0df215b4c3024f47753a1133b84",
+      "tree_sha": "1a9ee7218304b95654385fc11f255a7c5d532bc4",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "git_blob_sha1": "daa5716e80f203ff9ba34868e4693db382774ab8",
+      "line_start": 73,
+      "line_end": 73,
+      "excerpt_sha256": "eb45789c4bb160055dcc0dc23ba204d5151ba0bbd05b61b62186ff050f55de1d",
+      "proposition": "Stored minProfit is initialized to zero.",
+      "boundary": "Do not infer that per-call floor is always zero.",
+      "question": "Does the pinned excerpt support the proposition exactly as bounded? Select one applicability label and justify it using only cited source evidence and explicitly named dependency/API context.",
+      "reviewers": [
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        },
+        {
+          "reviewer_id": null,
+          "label": null,
+          "rationale": null,
+          "evidence_references": [],
+          "confidence": null,
+          "completed_at": null,
+          "independence_attestation": null
+        }
+      ],
+      "third_adjudicator": {
+        "reviewer_id": null,
+        "label": null,
+        "rationale": null,
+        "evidence_references": [],
+        "confidence": null,
+        "completed_at": null,
+        "triggered": false
+      },
+      "consensus": {
+        "status": "pending",
+        "label": null,
+        "rationale": null,
+        "disagreement": false
+      }
+    }
+  ],
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "freeze": {
+    "ground_truth_frozen": false,
+    "frozen_at": null,
+    "reviewer_output_visibility": "hidden_until_freeze",
+    "model_inference_authorized": false
+  }
+}
