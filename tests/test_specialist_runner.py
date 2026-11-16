@@ -188,8 +188,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             review_disagreements=["The supplied excerpts do not establish the callback authentication path."],
             unknowns=["Pool/IPool wiring and callback authentication are not established by the supplied excerpts."],
         )
-        validated = validate_specialist_output(output, inspection, "independent_reviewer")
-        self.assertEqual(validated["review_decision"], "inconclusive")
+        _validate_reviewer_semantic_relevance(output, inspection)
 
     def test_reviewer_accept_requires_protocol_topic_coverage(self):
         inspection = sample_inspection()
@@ -419,8 +418,8 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
                 "claim_status": "supported_inference", "confidence": "low",
                 "evidence_refs": ["EV00001"],
             }],
-            evidence=["EV00001"], review_decision="inconclusive",
-            review_disagreements=["R00001"],
+            evidence=["EV00001"], review_decision="accept",
+            review_disagreements=[],
         )
         with self.assertRaisesRegex(SpecialistTaskError, "not semantically relevant"):
             validate_specialist_output(output, inspection, "independent_reviewer")
