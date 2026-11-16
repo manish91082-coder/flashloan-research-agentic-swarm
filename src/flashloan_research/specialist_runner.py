@@ -74,8 +74,10 @@ ROLE_PROMPTS = {
     ),
     "independent_reviewer": (
         "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts and deterministic_protocol_review. Compare every deterministic topic with the raw source and the seven prior reports; explicitly agree, disagree with source-grounded reasoning, or mark unknown. Treat deterministic observations as lexical triage, not proof of correctness or exploitability. Cite only catalog IDs that overlap the exact verified source path and line range. Explicitly audit callback authentication, including executeOperation msg.sender and initiator checks against the configured Pool address and address(this). "
-        "Do not begin with a repository summary; do NOT summarize the repository. Return exactly three distinct review_challenge findings for Aave candidates, "
-        "one per topic, and cite only evidence IDs shown in the compact catalog. "
+        "Do not begin with a repository summary; do NOT summarize the repository. Do not force a fixed finding count: "
+        "return only distinct source-supported review_challenge findings; zero findings is valid. Record unresolved "
+        "or uninspectable dimensions in unknowns instead of manufacturing claims to meet a topic count. "
+        "Cite only evidence IDs shown in the compact catalog. "
         "Finding 1 claim MUST begin 'Pool/IPool:' and state what constructor wiring actually does: compare the "
         "address passed as IPoolAddressesProvider to the address cast/stored as IPool. "
         "Finding 2 claim MUST begin 'executeOperation/msg.sender/initiator:' and state whether the callback checks "
@@ -549,7 +551,8 @@ def _validate_reviewer_semantic_relevance(output: dict[str, Any], inspection: di
         name for name, terms in topic_groups.items()
         if any(term in claims for term in terms)
     ]
-    if len(covered) < required_groups:
+    insufficient_topic_coverage = len(covered) < required_groups
+    if insufficient_topic_coverage and output.get("review_decision") != "inconclusive":
         preview = [
             str(item.get("claim", ""))[:180]
             for item in findings if isinstance(item, dict)
@@ -847,7 +850,7 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
         evidence_reference_error = (
             "cites evidence not selected from the pinned catalog" in error_text
         )
-        if not (duplicate_claim or purpose_mismatch or reviewer_relevance or evidence_reference_error):
+        if not (duplicate_claim or purpose_mismatch or evidence_reference_error):
             raise
         retry_context = dict(context)
         if evidence_reference_error:
@@ -1055,8 +1058,9 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                         "candidate. Select at most eight distinct IDs total; never repeat an ID. "
                         "Each finding must cite one to four narrowly relevant selected IDs. Return "
                         "at most six findings and eight concise unknowns. Use only low or medium "
-                        "confidence. If source support is insufficient, return no findings, unknown "
-                        "status and low confidence."
+                        "confidence. If source support is insufficient, return no findings, implementation_status=unknown, "
+                        "confidence=low and an explicit inconclusive reviewer decision. Never invent a protocol risk "
+                        "to satisfy a topic-coverage heuristic."
                     ),
                 }
                 required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
@@ -1080,18 +1084,34 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 )
                 path.parent.mkdir(parents=True, exist_ok=True)
                 write_json(path, validated)
+                if role == "independent_reviewer" and validated["review_decision"] != "accept":
+                    reason = (
+                        "independent reviewer did not return the exact acceptance verdict; "
+                        f"decision={validated['review_decision']}"
+                    )
+                    state = store.fail_task(
+                        mission_id, task["task_id"], worker_id, reason, retryable=False,
+                    )
+                    failures.append({
+                        "repository": repository, "role": role, "task_type": task_type,
+                        "status": state, "error": reason, "report": str(path),
+                        "review_decision": validated["review_decision"],
+                    })
+                    continue
                 store.complete_task(mission_id, task["task_id"], worker_id, {
                     "report": str(path),
                     "evidence_count": len(validated["evidence"]),
                     "rejected_evidence_count": len(validated["rejected_evidence"]),
                     "finding_count": len(validated["findings"]),
                     "confidence": validated["confidence"],
+                    "review_decision": validated.get("review_decision", "not_applicable"),
                     "provider": provider.identity.provider,
                     "model": provider.identity.model,
                 })
                 completed.append({
                     "repository": repository, "role": role, "task_type": task_type,
                     "report": str(path),
+                    "review_decision": validated.get("review_decision", "not_applicable"),
                 })
             except Exception as exc:
                 retryable = _is_retryable_specialist_error(exc)
