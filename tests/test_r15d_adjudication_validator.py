@@ -112,5 +112,54 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
         self.assertTrue(any("exact pinned" in error for error in result["errors"]))
 
 
+    def test_non_object_packet_returns_validation_error_not_exception(self):
+        for packet in (None, [], "not-a-packet", 7):
+            with self.subTest(packet=packet):
+                result = validate(packet)
+                self.assertFalse(result["valid"])
+                self.assertTrue(any("JSON object" in error for error in result["errors"]))
+
+    def test_malformed_nested_control_objects_fail_closed(self):
+        for field, value in (("blinding", []), ("safety", "false"), ("freeze", None)):
+            packet = copy.deepcopy(self.packet)
+            packet[field] = value
+            with self.subTest(field=field):
+                result = validate(packet)
+                self.assertFalse(result["valid"])
+                self.assertTrue(result["errors"])
+
+    def test_wrong_pre_freeze_packet_state_rejected_by_validator(self):
+        for field, value in (("packet_type", "ordinary_report"), ("status", "frozen_ground_truth")):
+            packet = copy.deepcopy(self.packet)
+            packet[field] = value
+            with self.subTest(field=field):
+                result = validate(packet)
+                self.assertFalse(result["valid"])
+
+    def test_non_pinned_extra_evidence_reference_rejected(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        packet["cases"][0]["reviewers"] = [
+            self.completed_review(case, "reviewer-a"),
+            self.completed_review(case, "reviewer-b"),
+        ]
+        packet["cases"][0]["reviewers"][0]["evidence_references"].append(
+            "unrelated.sol:1-2#sha256:" + "a" * 64
+        )
+        packet["cases"][0]["consensus"] = {
+            "status": "adjudicated", "label": "present",
+            "rationale": "Agreement based on pinned excerpt.", "disagreement": False
+        }
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("all match exact pinned" in error for error in result["errors"]))
+
+    def test_non_object_reviewer_is_rejected_without_exception(self):
+        packet = copy.deepcopy(self.packet)
+        packet["cases"][0]["reviewers"][0] = ["malformed"]
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+
+
 if __name__ == "__main__":
     unittest.main()
