@@ -471,6 +471,20 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         with self.assertRaisesRegex(SpecialistTaskError, "explicit valid review_decision"):
             validate_specialist_output(output, self.inspection, "independent_reviewer")
 
+    def test_inconclusive_is_valid_reviewer_outcome_for_insufficient_packet(self):
+        _validate_reviewer_packet_decision(
+            {"status": "insufficient"},
+            {"review_decision": "inconclusive"},
+        )
+
+    def test_accept_is_rejected_for_insufficient_packet(self):
+        with self.assertRaisesRegex(SpecialistTaskError, "must return inconclusive"):
+            _validate_reviewer_packet_decision(
+                {"status": "insufficient"},
+                {"review_decision": "accept"},
+            )
+
+
 
     def test_reviewer_rejects_generic_aave_findings_and_opaque_disagreement_ids(self):
         inspection = {
