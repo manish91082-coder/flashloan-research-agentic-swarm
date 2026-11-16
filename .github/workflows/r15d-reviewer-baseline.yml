@@ -49,7 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, os
+          import json, os, subprocess
           from pathlib import Path
           trigger = json.loads(Path("research_runs/trigger-r15d-reviewer-baseline.json").read_text())
           manifest = json.loads(Path("research/R15C_EVALUATION_PACKET_MANIFEST.json").read_text())
@@ -61,6 +61,10 @@ jobs:
           assert trigger["model_tag"] == manifest["model"]["tag"]
           assert trigger["model_digest"] == manifest["model"]["digest"]
           assert trigger["manifest_blob_sha"] == "c5966272ea95aa55cc3ccc0ed0ff6e01819ee717"
+          actual_blob_sha = subprocess.check_output(
+              ["git", "hash-object", "research/R15C_EVALUATION_PACKET_MANIFEST.json"], text=True
+          ).strip()
+          assert actual_blob_sha == trigger["manifest_blob_sha"]
           assert trigger["request_context_tokens"] == 16384
           assert trigger["max_output_tokens"] == 2400
           for key in ("evaluation_artifact_id", "source_seed_artifact_id"):
@@ -74,11 +78,6 @@ jobs:
               out.write(f"R15D_MANIFEST_BLOB_SHA={trigger['manifest_blob_sha']}\n")
               out.write(f"FLR_MODEL_NAME={trigger['model_tag']}\n")
           PY
-          ACTUAL_MANIFEST_BLOB_SHA="$(git hash-object research/R15C_EVALUATION_PACKET_MANIFEST.json)"
-          if [[ "$ACTUAL_MANIFEST_BLOB_SHA" != "$R15D_MANIFEST_BLOB_SHA" ]]; then
-            echo "R15C manifest blob SHA differs from the pinned evaluation manifest." >&2
-            exit 1
-          fi
 
       - name: Download and verify immutable source-vault checkpoint
         run: |
