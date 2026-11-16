@@ -113,6 +113,22 @@ def verify(report_path: Path) -> dict:
             raise ChallengerGateError(f"{repo}: report model output differs from raw response")
         checked.append({"repository": repo, "decision": decision, "exchange_sha256": item["exchange_file_sha256"]})
 
+    task_ledger = report.get("task_ledger")
+    if not isinstance(task_ledger, list):
+        raise ChallengerGateError("task ledger is missing")
+    reviewer_tasks = [
+        row for row in task_ledger
+        if row.get("task_type") == "independent_review"
+    ]
+    dossier_tasks = [
+        row for row in task_ledger
+        if row.get("task_type") == "candidate_dossier"
+    ]
+    if len(reviewer_tasks) != 2 or any(row.get("status") != "completed" for row in reviewer_tasks):
+        raise ChallengerGateError("both valid independent-review tasks must be completed in the task ledger")
+    if len(dossier_tasks) != 2 or any(row.get("status") != "pending" for row in dossier_tasks):
+        raise ChallengerGateError("both candidate dossiers must remain pending")
+
     acceptance = report.get("acceptance", {})
     if acceptance.get("semantic_audit_increment") != 0:
         raise ChallengerGateError("semantic audit increment must remain zero")
