@@ -3,16 +3,16 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R12_BOUNDED_DUPLICATE_CLAIM_TASK_RETRY",
-  "status": "DISCOVERY_7901; SOURCE_CAPTURE_4350_CHECKPOINT_VERIFIED; R13_STRICT_REVIEW_REJECTED; REVIEWER_SEMANTIC_GATE_V5_4_MERGED_AND_CI_PASSED; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-16T02:04:30Z",
+  "status": "DISCOVERY_7901; SOURCE_CAPTURE_4350_CHECKPOINT_VERIFIED; R13_STRICT_REVIEW_REJECTED; REVIEWER_SEMANTIC_GATE_V5_4_CI_PASSED; CI_425_PASSED; R14_PLAN_PREPARED_WAITING_FOR_RUN_372_CHECKPOINT; NO_SEMANTIC_AUDIT_ACCEPTANCE",
+  "last_verified_at_utc": "2026-11-16T02:40:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "d68a3db3f671f845fbd04f2a495d0408df7a0ff4",
+  "latest_commit_at_checkpoint": "190564de56f97a7df018cc15c917637c6af7663b",
   "latest_ci_run": {
-    "run_id": 43789828779,
-    "run_number": 424,
+    "run_id": 43789918170,
+    "run_number": 425,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "d68a3db3f671f845fbd04f2a495d0408df7a0ff4"
+    "head_sha": "56a9b27cacb2ab6e0ff90bb9c5c9f96eed56a42a"
   },
   "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics. Continuity docs commits 7f444f3c6484edee7d02c2c3d3cbd781e18ee7da, 64d1cee5e9e17ef36c5f8fd93e434fae9c3dc068 and d6a98b2f2b620ee9748b9e0b1fe404305f16c1e8 passed main CI; README commit 55beab7 is pending CI run 43685039602 at this checkpoint. PR #16 merged at e9ae3d67a3b8d0222d44e940f9a54c77f10d1ed7: all structured source-capture batch/candidate and GitHub API retry telemetry now goes to stderr; CLI stdout remains one machine-readable JSON summary for the Actions checkpoint parser. PR #16 CI passed Python 3.11/3.12/3.13; merge CI 43685837776 is in progress. PR #18 merged at 6de884acf5e6b8ca10db6114af63cb67f2715ddb: candidate-specific evidence-ID enums, smaller CPU model context and fail-closed specialist/evidence/reviewer stages; CI 43687345032 passed 3.11/3.12/3.13. PR #20 merged at 3c980adb585e7351dca6bb072ade4de25c8fa78b: allow explicitly disclosed recursive-tree truncation coverage debt while preserving safety/provenance checks; CI 43687501157 passed all versions. PR #21 merged at 4d5d403121ec48c541f0fe646d76f7e90910bc36: model finish-reason/content diagnostics, fenced/pre-parsed JSON handling, bounded malformed JSON/timeouts retry and fresh r4 qwen2.5:3b pilot; PR and main CI 43688699274 passed Python 3.11/3.12/3.13. PR #22 merged at ddeb3470f61fb61f389d5604508cb7a7dc7e1203: lossless compact reviewer context, strengthened adversarial review criteria, fail-closed overflow checks, exact reviewer-only SQLite recovery after revalidating all seven prior reports and positive evidence gates; separate reviewer-only recovery workflow. PR CI 43693371140 and main CI 43693473120 passed Python 3.11/3.12/3.13. PR #22 reviewer-only recovery completed in run 43693473127/artifact 14154370687. Both reviewers returned inconclusive; manual audit found Aave reviewer missed wrong Pool pointer and missing callback authentication, emitted a false direct-liquidation claim and high confidence despite partial status/unknowns; Uniswap reviewer correctly noted the unimplemented TODO but also returned high confidence with partial status/unknowns. R4 is not semantically accepted and no audit count changes. PR #23 merged at 5bff54b556cf45d482391cefbf16de746df3f2f4: strict purpose_category taxonomy, role-specific finding category/severity schema, max four narrow evidence refs, confidence calibration, seven-report purpose consensus and independent revalidation of every accepted evidence item against exact pinned source signals. CI 43695283729 passed 3.11/3.12/3.13; merge CI 43695350412 passed. Semantic pilot workflow now reads isolated mission/database/model/context from trigger and verifies immutable seed ZIP SHA-256. Fresh r5 pilot run 43695437370 restored seed, installed Agent Form and Ollama qwen2.5:3b, bootstrapped a fresh r5 DAG and is executing specialist/evidence/reviewer stages. R5 not yet accepted; no semantic audit count incremented. PR #24 merged at 72f648585e940c75eaa7ace7f539fbff08dfa1c1: bounded unique evidence arrays, bounded report fields, low/medium-only local 3B confidence, explicit duplicate/oversize validation, reviewer checks for provider identity/callback authentication/repayment/TODOs, mission-scoped artifact paths. PR CI 43696841454 and main CI 43697270352 passed Python 3.11/3.12/3.13. PR #25 merged at 17cc27b5b7fc9c5dd96be7203f005d4e8f18cca5: stable first-seen de-duplication of exact model-selected evidence IDs in report evidence and finding references; strict pinned-catalog and downstream provenance checks remain. PR CI run 43705766736 passed Python 3.11/3.12/3.13; merge completed. R6 run 43697270355 failed five UniswapFlashSwap specialist tasks due duplicate report evidence IDs; R7 trigger commit fbaa20c684baab10f2d869460d7aba78107ca0e8 created a fresh isolated mission/database/artifact root based on immutable seed run 43615137961/artifact 14121666814. R7 Actions run ID not yet independently verified; no semantic audit count incremented. PR #26 merged at eb0ae1d12589fb931947bc1d006883f1f7174726: specialists now inherit one source-pinned canonical candidate-purpose category through singleton JSON Schema enum plus deterministic validation; candidate-purpose taxonomy guidance distinguishes security tooling from security review and partial implementation; canonical purpose evidence is revalidated against exact pinned signals. CI run 43707532360 passed Python 3.11/3.12/3.13. R7 semantic pilot run 43705978769/artifact 14159470008 completed but failed both evidence gates because specialist purpose_category values disagreed; 2 purpose tasks and 12 specialist reports completed, 2 evidence gates failed, 0 independent reviewers started, no audit count incremented. Fresh R8 trigger commit 287e83225050ef4dd73d346b5be13c6194f98032 created with new mission/database/artifact root; Actions run 43707621102 queued.",
   "discovery": {
@@ -98,7 +98,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Reviewer semantic gate v5.4.0 has passed CI 423 and 424 on Python 3.11/3.12/3.13. Next create a fresh isolated R14 pilot only after selecting a current verified source-capture checkpoint and defining its exact immutable artifact identity. R13 remains failed and immutable; do not reuse its DB. R14 must demonstrate candidate-specific reviewer outputs, two exact accepts with zero disagreements and pinned evidence, plus 14/14 specialist tasks and 2/2 evidence gates. Duplicate-claim runtime retry remains unexercised and must not be claimed. Source capture run #372 is active; do not duplicate it. No dossier or semantic audit count increment before every gate passes.",
+  "next_gate": "R14 execution plan is prepared and committed at 190564de56f97a7df018cc15c917637c6af7663b. Do not trigger R14 until source-capture run #372 completes successfully and its newly uploaded artifact is independently verified by exact run/artifact identity, SHA-256, ZIP CRC, SQLite integrity, report identities, Git blob hashes and queue accounting. Then update the immutable pilot seed and trigger payload for a fresh isolated R14 database/artifact root. R14 must complete 14/14 purpose/specialist tasks, 2/2 pinned-evidence gates and 2/2 independent reviewer exact unreserved accepts with zero disagreements and source-pinned evidence. R13 remains failed and immutable. Duplicate-claim runtime retry remains unexercised unless a real duplicate claim occurs. No dossier or semantic audit count increment before every gate passes.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -1341,5 +1341,13 @@
       "candidate-specific Aave review with zero disagreements accepted"
     ],
     "live_pilot_validation": "not yet exercised; CI proves deterministic regression tests only"
+  },
+  "r14_execution_plan": {
+    "path": "research_runs/r14-execution-plan.json",
+    "commit": "190564de56f97a7df018cc15c917637c6af7663b",
+    "status": "prepared_waiting_for_verified_run_372_checkpoint",
+    "mission_id": "flashloan-agent-form-pilot-20261116-r14",
+    "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
+    "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14"
   }
 }
