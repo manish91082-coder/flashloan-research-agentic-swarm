@@ -1,0 +1,8 @@
+{
+  "revision": 1,
+  "model_tag": "qwen3.5:4b",
+  "purpose": "identity_discovery_only_no_inference",
+  "benchmark_id": "r15d-reviewer-baseline-qwen25-3b-r15c",
+  "source_artifact_id": 14229725407,
+  "source_artifact_sha256": "98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3"
+}
