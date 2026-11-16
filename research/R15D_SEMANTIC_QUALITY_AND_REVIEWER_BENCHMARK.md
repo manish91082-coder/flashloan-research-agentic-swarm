@@ -1,6 +1,6 @@
 # R15D — Semantic Quality Gate and Reviewer Benchmark
 
-**Status:** planned / implementation pending  
+**Status:** initial reviewer and specialist-adequacy gates implemented; frozen evaluation packet and model benchmark pending  
 **Checkpoint:** R15C run 43868846531, artifact 14229725407  
 **Canonical branch:** main  
 **Immutable source seed:** run 43799361897, artifact 14196365507, SHA-256 0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad  
@@ -143,6 +143,49 @@ No model may adjudicate its own output. Any manual adjudication must be clearly 
 - Reviewer task completion is not correctness.
 - Dossier creation and semantic audit increments occur only after all acceptance gates pass.
 - Failed attempts remain immutable evidence; do not overwrite or relabel R15C as successful.
+
+## 8. Implementation checkpoint — 2026-11-16 15:08 UTC
+
+The first R15D code tranche is committed on `main`:
+
+- `cab14d8927cbaf49decf5e56e7612e87adbdcf7e`: permit evidence-bounded inconclusive review when protocol topic coverage is insufficient; remove forced relevance retries; only exact `accept` completes the reviewer task.
+- `ea91a24e40c92baaf591ac1a6b507fefbb06c2b8`: remove mandatory Aave reviewer finding slots and make protocol topic labels optional.
+- `3aeb2f48f3ebcd10a9d7a17c31c24806770a3b1a`: align the end-to-end fixture with fail-closed inconclusive review behavior.
+- `f0781bfb32237af72ed3ea034e711ec77fce8f15`: add deterministic specialist report and packet adequacy triage before independent review.
+- `d952769e7ae456200fda8e3dcd5dfa762f0cdaf6`: extract and enforce the packet-level reviewer decision policy.
+- `3a6e836b45165a81b3fddff2f2013534c7295806`: require role-specific technical anchors to overlap the exact cited source excerpt.
+- `d302a901db0b47e3624a01f27d83fbb541aa2aa1`: add regression coverage for cited-excerpt anchor mismatch.
+
+### Implemented behavior
+
+1. Each of the seven task-pinned purpose/specialist reports is assessed for generic boilerplate, minimum claim substance, role-relevant technical language, accepted evidence-reference linkage, and overlap between a role-specific technical anchor and the exact cited evidence excerpt.
+2. A packet-level status is computed. If any report is insufficient, the independent reviewer receives the explicit packet status and must return `inconclusive`. A non-inconclusive verdict is rejected before task completion.
+3. Reviewer protocol-topic coverage is no longer forced by a fixed finding count. Low coverage is valid only with an explicit `inconclusive` decision.
+4. Only exact `accept` can complete an independent-review task. `accept_with_reservations`, `reject`, and `inconclusive` remain non-accepted outcomes.
+5. Regression tests cover boilerplate rejection, role-topic mismatch, missing cited-excerpt anchor, packet-level fail-closed behavior, mandatory inconclusive verdict, and the end-to-end blocked-review path.
+
+### Verification
+
+- Latest CI run: [43893065834](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43893065834)
+- Commit: `d302a901db0b47e3624a01f27d83fbb541aa2aa1`
+- Python 3.11: **153 tests passed**
+- Python 3.12: **153 tests passed**
+- Python 3.13: **153 tests passed**
+- All three matrix jobs succeeded.
+
+### Limitation — do not overstate this gate
+
+The specialist adequacy gate is deterministic lexical/evidence-reference triage, not a semantic theorem prover. Shared role-specific tokens in a claim and excerpt do not prove that the claim is true. The independent reviewer still has to inspect full pinned source context, and the frozen evaluation packet still needs independent adjudication. The gate is designed to detect obvious boilerplate, off-topic claims and citation mismatch early, and to force uncertainty rather than false approval when specialist input is inadequate.
+
+### Exact next sequence
+
+1. Build the frozen R15C evaluation packet from artifact 14229725407; verify the artifact SHA-256, SQLite integrity, task ledger, report hashes and exact source pins.
+2. Add the two R15C failure classes as immutable regression fixtures and score the new deterministic gates against them.
+3. Verify model manifests and runner limits before any challenger inference; keep Qwen2.5 3B as baseline and use one model loaded at a time.
+4. Run baseline reviewer benchmark on the same frozen packet; retain raw outputs, normalized reports, packet fingerprints, model manifests and validator outcomes.
+5. Only add a challenger if its exact model digest/quantization/context and CPU-only runner feasibility are verifiable.
+6. Publish separate provenance, claim-support, protocol-coverage, false-critical-claim, unknown-handling, confidence and runtime scores.
+7. Do not launch a fresh semantic pilot or increment audit counts until the benchmark and independent adjudication gates pass.
 
 ## 7. R15D exit condition
 
