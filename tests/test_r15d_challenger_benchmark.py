@@ -121,7 +121,7 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         exchange_path = path.parent / "model_exchanges" / "candidate-0.json"
         exchange = json.loads(exchange_path.read_text())
-        exchange["exchange"]["request_raw"] = exchange["exchange"]["request_raw"].replace("\\\"system\\\"", "\\\"tampered\\\"")
+        exchange["exchange"]["request_raw"] = exchange["exchange"]["request_raw"].replace('"system"', '"tampered"')
         exchange_path.write_text(json.dumps(exchange), encoding="utf-8")
         with patch.dict(EXPECTED_INPUTS, pins, clear=True):
             with self.assertRaisesRegex(ChallengerGateError, "raw request and parsed request object differ"):
