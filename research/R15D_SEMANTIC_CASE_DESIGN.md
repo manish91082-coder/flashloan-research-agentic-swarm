@@ -26,7 +26,7 @@ The Git blob identifiers are from the immutable source-capture manifest. Before 
 
 | ID | Candidate / exact range | Grounded proposition to test | Expected label | Important boundary |
 |---|---|---|---|---|
-| NAV-01 | FlashLiquidator.sol:81-110 | The callback function accepts asset, amount, premium, initiator and encoded params; it decodes liquidation parameters, approves the pool, calls liquidationCall, checks repayment balance and returns true. | present | Does not establish that the flash-loan callback is correctly authenticated. |
+| NAV-01 | FlashLiquidator.sol:81-111 | The callback function accepts asset, amount, premium, initiator and encoded params; it decodes liquidation parameters, approves the pool, calls liquidationCall, checks repayment balance and returns true. | present | Does not establish that the flash-loan callback is correctly authenticated. |
 | NAV-02 | FlashLiquidator.sol:81-110 | The callback body contains no explicit require/check binding msg.sender to the configured pool or initiator to address(this). | absent | Absence is scoped to this complete function body only; do not claim absence elsewhere in inherited code. |
 | NAV-03 | FlashLiquidator.sol:71-74 | The constructor initializes the base receiver with IPoolAddressesProvider(_addressProvider), then assigns pool = IPool(_addressProvider). | present | This is an assignment fact. Whether the cast/address is semantically correct requires provider/API context and separate adjudication. |
 | COB-01 | AaveLiquidatorSwapRouter02.sol:191-204 | executeOperation explicitly requires msg.sender == address(aavePool) and initiator == address(this) before decoding params and calling liquidationCall. | present | Do not generalize to all external entry points. |
