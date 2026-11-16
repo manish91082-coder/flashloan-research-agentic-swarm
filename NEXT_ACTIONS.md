@@ -471,3 +471,14 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 2. If any matrix test fails, repair only the demonstrated defect, then verify the next run on all 3 Python versions.
 3. Keep the original blind packet unchanged and all adjudicator slots empty until real independent reviewers submit records.
 4. Once genuine reviews exist, validate against the immutable source baseline, then freeze a separate manifest and hash it. Semantic benchmark remains blocked until this gate is met.
+
+
+## R15D CI failure diagnosis and targeted repair — 2026-11-17
+
+- Zero-cost alternate route established: GitHub REST Actions run-list endpoint was retrieved through the connected GitHub integration. No browser automation, paid service or wallet top-up was used.
+- Latest checkpoint run 43944588346 (head 5d47718053d95d17da3213dd6e8f734b14dfaa83) failed on all three Python versions. All jobs reached compile successfully; the common failure was one assertion in test_non_utc_or_invalid_timestamp_rejected (193 tests executed per job).
+- Exact failure: the malformed populated reviewer record was correctly rejected, but validator output did not classify that incomplete/invalid populated submission as pending. The test expected an explicit pending classification. No source-pin, freeze, or semantic logic failure was evidenced by this run.
+- Inspected all three job logs; same single test failure reproduced on Python 3.11, 3.12 and 3.13.
+- Targeted validator repair committed as 6044e312a3d2aea36c082761074e4bb1cfc07ab5: a populated reviewer slot that fails the complete-record contract now emits an explicit pending/invalid error, including UTC timestamp validation. Existing fail-closed behavior remains unchanged.
+- Next: inspect the new Actions run and all matrix jobs/logs. If green, reopen validator/freeze/tests and blank packet at the resulting HEAD, then proceed with static audit. If not green, repair only the concrete failure.
+- Blind packet remains untouched; no reviewer labels or identities were invented. Do not freeze. Semantic audit increment remains zero; dossiers remain pending; safety invariants unchanged.
