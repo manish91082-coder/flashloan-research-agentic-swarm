@@ -25,6 +25,9 @@ class SemanticPilotWorkflowContractTests(unittest.TestCase):
         self.assertIn('report.get("evidence_gate") != "pinned_evidence_semantic_quality_and_claim_linkage_pass"', workflow)
         self.assertIn('if decision != "accept":', workflow)
         self.assertIn('if disagreements:', workflow)
+        self.assertIn("FLR_MODEL_MAX_PARALLEL_TASKS: '2'", workflow)
+        self.assertIn("FLR_MODEL_CONTEXT_TOKENS: '16384'", workflow)
+        self.assertIn("OLLAMA_NUM_PARALLEL: '2'", workflow)
         self.assertIn('Independent review did not accept', workflow)
 
 
