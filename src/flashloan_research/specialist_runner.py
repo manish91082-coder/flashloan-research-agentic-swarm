@@ -1208,20 +1208,11 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 )
                 path.parent.mkdir(parents=True, exist_ok=True)
                 write_json(path, validated)
-                if role == "independent_reviewer" and validated["review_decision"] != "accept":
-                    reason = (
-                        "independent reviewer did not return the exact acceptance verdict; "
-                        f"decision={validated['review_decision']}"
-                    )
-                    state = store.fail_task(
-                        mission_id, task["task_id"], worker_id, reason, retryable=False,
-                    )
-                    failures.append({
-                        "repository": repository, "role": role, "task_type": task_type,
-                        "status": state, "error": reason, "report": str(path),
-                        "review_decision": validated["review_decision"],
-                    })
-                    continue
+                # A reviewer task is complete when its decision is valid and its
+                # evidence contract passes. "accept" is a verdict, not a task-success
+                # status: reject, accept_with_reservations and inconclusive are also
+                # legitimate completed reviews. Inadequate packets are separately
+                # constrained by _validate_reviewer_packet_decision above.
                 store.complete_task(mission_id, task["task_id"], worker_id, {
                     "report": str(path),
                     "evidence_count": len(validated["evidence"]),
