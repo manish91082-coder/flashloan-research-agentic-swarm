@@ -73,7 +73,7 @@ ROLE_PROMPTS = {
         "evidence. Never repeat a finding or paraphrase the same fact as multiple findings."
     ),
     "independent_reviewer": (
-        "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts. Explicitly audit callback authentication, including executeOperation msg.sender and initiator checks against the configured Pool address and address(this). "
+        "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts and deterministic_protocol_review. Compare every deterministic topic with the raw source and the seven prior reports; explicitly agree, disagree with source-grounded reasoning, or mark unknown. Treat deterministic observations as lexical triage, not proof of correctness or exploitability. Cite only catalog IDs that overlap the exact verified source path and line range. Explicitly audit callback authentication, including executeOperation msg.sender and initiator checks against the configured Pool address and address(this). "
         "Do not begin with a repository summary; do NOT summarize the repository. Return exactly three distinct review_challenge findings for Aave candidates, "
         "one per topic, and cite only evidence IDs shown in the compact catalog. "
         "Finding 1 claim MUST begin 'Pool/IPool:' and state what constructor wiring actually does: compare the "
