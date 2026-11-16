@@ -63,3 +63,12 @@ A workflow may complete inference and upload its evidence while the acceptance s
 Two frozen cases measure a narrow capability: obeying the evidence-adequacy boundary and refusing to approve an inadequate packet. Passing is necessary but not sufficient for protocol-review quality. It does not establish broad reasoning capability, vulnerability detection accuracy, or production readiness.
 
 After this benchmark, any broader semantic quality evaluation must use separately defined and independently adjudicated positive/negative cases. No candidate dossier or semantic audit increment is authorized by this challenger run alone.
+
+## Capture-protocol rerun — revision 2
+
+- The initial challenger inference run `43913169300` completed both reviewer tasks and the model returned `inconclusive` for both inadequate packets. Its acceptance gate failed because the verifier at that historical workflow revision rejected the raw exchange artifact; the archived artifact is retained unchanged as forensic evidence (artifact `14248019054`, SHA-256 `a596abcd93101fb1507db1abdcfcc33a36c09f389534f1e999b8fc1e21e3c830`).
+- Direct inspection of that archived ZIP confirmed the exchange files' outer SHA-256 values matched their report metadata, but the old exchange payloads had no `request_raw` field. The prior artifact therefore cannot satisfy the corrected exact-request audit and must not be retroactively altered.
+- The exact request capture implementation is now present in the provider, and the verifier's raw/parsed request checks plus five additional negative regression cases passed CI on Python 3.11, 3.12 and 3.13. Dedicated verifier run: [43922437902](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43922437902). General repository CI: [43922437984](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43922437984).
+- A new capture-protocol-only rerun is triggered with revision 2. It preserves the exact Qwen3.5 4B digest, frozen source commit/tree pins, packet hashes, request context (16,384) and output cap (2,400). No model-quality retuning is intended.
+- Trigger commit: `b49759a6df918bbf35dd7b29eb75347e36d2ee4c`; workflow validation update: `0ac3a1ce6e1af6930c1ded1caaf6411a3dbb6362`.
+- Acceptance remains conditional on independent artifact verification. Both dossiers remain pending and semantic audit increment remains zero. No candidate code execution, wallet access, signing, deployment, live trading, paid inference or cloud inference.
