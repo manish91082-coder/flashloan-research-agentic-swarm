@@ -72,36 +72,25 @@ ROLE_PROMPTS = {
         "evidence. Never repeat a finding or paraphrase the same fact as multiple findings."
     ),
     "independent_reviewer": (
-        "You are an adversarial independent reviewer. This is a protocol-path review, not a general code summary. "
-        "Read the candidate's verified source excerpts and all seven prior specialist reports. "
-        "Return at least TWO DISTINCT findings in the findings array, each with category review_challenge, "
-        "and each claim must explicitly name a different candidate-specific protocol risk. "
-        "For an Aave flash-loan candidate, the required review dimensions are: "
-        "(1) Pool/provider identity: inspect whether the configured Pool address is an IPool or an "
-        "IAddressesProvider and whether constructor wiring/interface identity is correct; "
-        "(2) callback authentication: inspect executeOperation msg.sender, initiator, asset and amount "
-        "binding; (3) repayment/premium: inspect whether amount plus premium repayment is enforced. "
-        "Write one concise finding per dimension that source evidence can support. If a check is absent "
-        "from supplied excerpts, phrase it as an unresolved verification risk, not a proven vulnerability. "
-        "For Uniswap V2 candidates, separately inspect uniswapV2Call implementation versus TODO/placeholder, "
-        "pair/factory authentication and sender binding, token0/token1 ordering and reserve source, and repayment. "
-        "Do not begin with a repository summary. Produce a compact protocol-risk review only. "
-        "For Aave, use this exact claim structure for each distinct finding: "
-        "'Pool/IPool: [what the pinned source shows or does not show]'; "
-        "'executeOperation/msg.sender/initiator: [what the pinned source shows or does not show]'; "
-        "'repayment/premium: [what the pinned source shows or does not show]'. "
-        "For Uniswap V2, use these exact topic labels: 'uniswapV2Call/TODO', "
-        "'pair/factory authentication', 'token0/token1/reserve source', and 'repayment'. "
-        "Choose at least two DIFFERENT topic labels that are genuinely relevant to the supplied source. "
-        "A label alone is not a finding: state the source-observed behavior or explicitly say the excerpt "
-        "does not establish the check and classify it as unknown. Do not invent a missing check. "
-        "Each finding must cite the narrow supplied commit-pinned evidence ID that supports its statement. "
-        "Do not use a general repository description as a finding. Do not substitute framework, language, "
-        "dependency or generic testing observations for protocol risks. Evidence ID existence proves provenance "
-        "only, not claim support. Challenge unsupported specialist claims, duplicate claims, severity inflation, "
-        "contradictions and unsupported confidence. Distinguish source_observed facts from supported_inference "
-        "and unknowns. Return explicit review_decision and evidence-referenced review_disagreements. "
-        "Use accept only when no material unresolved disagreement remains; otherwise do not rubber-stamp."
+        "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts. "
+        "Do NOT summarize the repository. Return exactly three distinct review_challenge findings for Aave candidates, "
+        "one per topic, and cite only evidence IDs shown in the compact catalog. "
+        "Finding 1 claim MUST begin 'Pool/IPool:' and state what constructor wiring actually does: compare the "
+        "address passed as IPoolAddressesProvider to the address cast/stored as IPool. "
+        "Finding 2 claim MUST begin 'executeOperation/msg.sender/initiator:' and state whether the callback checks "
+        "msg.sender against the trusted Pool and initiator against address(this); distinguish absence in the supplied "
+        "function excerpt from proof of exploitability. "
+        "Finding 3 claim MUST begin 'repayment/premium:' and state whether amount + premium is checked and whether "
+        "the Pool is approved for repayment. "
+        "For Uniswap V2 candidates use distinct claims beginning 'uniswapV2Call/TODO:', "
+        "'pair/factory authentication:', 'token0/token1/reserve source:', and/or 'repayment:' as supported. "
+        "Use source_observed for directly visible code and supported_inference only for a clearly explained inference. "
+        "If a check is not present in the excerpt, say 'not established by supplied excerpt' and add it to unknowns; "
+        "never turn missing excerpt coverage into a confirmed vulnerability. Use low or medium confidence only. "
+        "review_disagreements must be [] only when no material disagreement remains after comparing the seven prior "
+        "reports with source. Otherwise explain each disagreement in plain language. "
+        "Use review_decision=accept only when all material claims are source-supported and no disagreement remains; "
+        "otherwise choose accept_with_reservations, reject, or inconclusive."
     ),
 }
 
@@ -961,7 +950,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 if role == "independent_reviewer":
                     prior = _prior_specialist_reports(
                         store.list_tasks(mission_id), repository, inspection,
-                        max_chars=int(os.getenv("FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS", "18000")),
+                        max_chars=int(os.getenv("FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS", "6000")),
                     )
                 reviewer_focus = []
                 if role == "independent_reviewer":
@@ -980,6 +969,23 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                             "Do not spend findings on language/framework/test-file descriptions; each finding must identify a concrete protocol claim, defect, missing check or justified unknown.",
                             "Every disagreement must be a concise plain-language explanation with source path/evidence ID, never an opaque ID."
                         ]
+                reviewer_catalog = _evidence_catalog(inspection)
+                reviewer_source_limits = {}
+                if role == "independent_reviewer":
+                    signal_names = {str(x.get("signal", "")).casefold() for x in inspection.get("signals", []) if isinstance(x, dict)}
+                    if "aave_flash_loan_simple" in signal_names or "aave-liquiditor" in repository.casefold():
+                        relevant = {"aave_flash_loan_simple", "aave_execute_operation", "balance_delta_pattern"}
+                        reviewer_catalog = [x for x in reviewer_catalog if x["signal"].casefold() in relevant][:12]
+                    elif "uniswap_v2_flash_callback" in signal_names:
+                        relevant = {"uniswap_v2_flash_callback", "uniswap_v2_pair_auth", "uniswap_v2_repayment"}
+                        reviewer_catalog = [x for x in reviewer_catalog if x["signal"].casefold() in relevant][:12]
+                    reviewer_source_limits = {"max_files": 5, "max_chars": 12000, "context_lines": 10}
+                else:
+                    reviewer_source_limits = {
+                        "max_files": int(os.getenv("FLR_MODEL_MAX_FILES", "3")),
+                        "max_chars": int(os.getenv("FLR_MODEL_MAX_CONTEXT_CHARS", "6000")),
+                        "context_lines": int(os.getenv("FLR_MODEL_CONTEXT_LINES", "12")),
+                    }
                 context = {
                     "repository": repository,
                     "reviewer_focus": reviewer_focus,
@@ -988,12 +994,10 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     "commit_sha": inspection["commit_sha"],
                     "tree_sha": inspection["tree_sha"],
                     "source_files_captured": inspection.get("captured_files", []),
-                    "source_evidence_catalog": _evidence_catalog(inspection),
+                    "source_evidence_catalog": reviewer_catalog,
                     "verified_source_excerpts": _verified_source_context(
                         inspection,
-                        max_files=int(os.getenv("FLR_MODEL_MAX_FILES", "3")),
-                        max_chars=int(os.getenv("FLR_MODEL_MAX_CONTEXT_CHARS", "6000")),
-                        context_lines=int(os.getenv("FLR_MODEL_CONTEXT_LINES", "12")),
+                        **reviewer_source_limits,
                     ),
                     "prior_specialist_outputs": prior,
                     "canonical_purpose_category": canonical_purpose_category,
