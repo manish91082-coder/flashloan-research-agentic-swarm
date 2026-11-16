@@ -173,7 +173,7 @@ def run_benchmark(workspace: Path, db_path: Path, artifact_root: Path,
     os.environ["FLR_DATABASE"] = str(db_path)
     os.environ["FLR_SNAPSHOT_DIR"] = str(workspace / "data" / "source-capture-pilot-vault")
     os.environ.setdefault("FLR_MODEL_BASE_URL", "http://127.0.0.1:11434")
-    os.environ.setdefault("FLR_MODEL_NAME", expected["tag"])
+    os.environ["FLR_MODEL_NAME"] = expected["tag"]
     os.environ.setdefault("FLR_MODEL_CONTEXT_TOKENS", "16384")
     os.environ.setdefault("FLR_MODEL_MAX_OUTPUT_TOKENS", "2400")
     os.environ.setdefault("FLR_MODEL_TIMEOUT_SECONDS", "1800")
