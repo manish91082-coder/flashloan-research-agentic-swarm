@@ -83,6 +83,10 @@ def verify(report_path: Path) -> dict:
         if not isinstance(response_raw, str):
             raise ChallengerGateError(f"{repo}: raw response missing")
         response_hash = hashlib.sha256(response_raw.encode("utf-8")).hexdigest()
+        if request_hash != exchange.get("request_sha256") or request_hash != item.get("request_sha256"):
+            raise ChallengerGateError(f"{repo}: request fingerprint mismatch")
+        if response_hash != exchange.get("response_sha256") or response_hash != item.get("response_sha256"):
+            raise ChallengerGateError(f"{repo}: response fingerprint mismatch")
         try:
             response_envelope = json.loads(response_raw)
             choice = response_envelope["choices"][0]
@@ -107,10 +111,6 @@ def verify(report_path: Path) -> dict:
         recorded_output = item.get("model_output")
         if recorded_output is not None and recorded_output != response_output:
             raise ChallengerGateError(f"{repo}: report model output differs from raw response")
-        if request_hash != exchange.get("request_sha256") or request_hash != item.get("request_sha256"):
-            raise ChallengerGateError(f"{repo}: request fingerprint mismatch")
-        if response_hash != exchange.get("response_sha256") or response_hash != item.get("response_sha256"):
-            raise ChallengerGateError(f"{repo}: response fingerprint mismatch")
         checked.append({"repository": repo, "decision": decision, "exchange_sha256": item["exchange_file_sha256"]})
 
     acceptance = report.get("acceptance", {})
