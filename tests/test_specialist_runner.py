@@ -184,7 +184,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             "protocol_specialist",
             [{"claim": "The code snippet is part of a smart contract.",
               "evidence_refs": ["EV00001"]}],
-            ["EV00001"],
+            [{"evidence_id": "EV00001", "excerpt": "function is part of a smart contract"}],
         )
         self.assertEqual(result["status"], "insufficient")
         self.assertTrue(any("boilerplate" in reason for reason in result["reasons"]))
@@ -194,7 +194,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             "protocol_specialist",
             [{"claim": "The repository uses a TypeScript script for automation.",
               "evidence_refs": ["EV99999"]}],
-            ["EV00001"],
+            [{"evidence_id": "EV00001", "excerpt": "contract Liquidator uses a TypeScript script"}],
         )
         self.assertEqual(result["status"], "insufficient")
         self.assertTrue(any("role-relevant" in reason for reason in result["reasons"]))
@@ -205,9 +205,19 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             "protocol_specialist",
             [{"claim": "The Aave Pool callback receives the asset amount and premium before repayment.",
               "evidence_refs": ["EV00001"]}],
-            ["EV00001"],
+            [{"evidence_id": "EV00001", "excerpt": "IPool pool; executeOperation callback; amount and premium repayment"}],
         )
         self.assertEqual(result["status"], "adequate_for_adversarial_challenge")
+
+    def test_specialist_adequacy_rejects_claim_without_anchor_in_its_cited_excerpt(self):
+        result = _assess_specialist_report_adequacy(
+            "protocol_specialist",
+            [{"claim": "The Aave Pool callback handles the premium before repayment.",
+              "evidence_refs": ["EV00001"]}],
+            [{"evidence_id": "EV00001", "excerpt": "contract uses a fixed ETH price and owner mapping"}],
+        )
+        self.assertEqual(result["status"], "insufficient")
+        self.assertTrue(any("shared role-specific technical anchor" in reason for reason in result["reasons"]))
 
     def test_packet_adequacy_fails_closed_when_any_specialist_report_is_insufficient(self):
         reports = [
