@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
   "record_type": "semantic_pilot_execution_plan",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14",
-  "status": "R14_RETRY_READY_WITH_VERIFIED_CHECKPOINT_393_AND_REVIEWER_CORRECTION_5_5_0",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14b",
+  "status": "R14B_TRIGGER_READY_AFTER_RUN23_FAILURE_AND_CI456_SUCCESS",
   "branch": "main",
   "reviewer_gate_version": "5.5.0-reviewer-semantic-correction-retry",
   "model": "qwen2.5:3b",
   "inference_policy": "Ollama on GitHub-hosted runner, CPU-only, loopback 127.0.0.1:11434; no cloud or paid inference",
   "batch_limit": 2,
-  "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14",
+  "database": "data/agentic-mission-pilot-20261116-r14b.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14b",
   "checkpoint": {
     "source_capture_run_id": 43799361897,
     "artifact_id": 14196365507,
@@ -63,6 +63,25 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "trigger_policy": "Trigger only after run 23 reaches a terminal state; then update trigger with the exact immutable checkpoint identity and new isolated mission run.",
-  "next_action": "Wait for legacy R14 run 23 to finish; then trigger a fresh isolated R14 execution using checkpoint 393 and reviewer correction v5.5.0."
+  "trigger_policy": "Legacy R14 run 23 is terminal failed and immutable. CI #456 has passed. Trigger a fresh isolated R14B run against exact verified checkpoint 393; never reuse failed database or artifact root.",
+  "next_action": "Launch fresh isolated R14B semantic pilot from checkpoint 393 with reviewer v5.5.0 and role-drift/duplicate-claim correction commit 34d1e6b; inspect full artifact and enforce all strict gates.",
+  "correction_commit": "34d1e6b42b1cf54532532751685fa0cdecd1e770",
+  "correction_ci": {
+    "run_id": 43802940578,
+    "run_number": 456,
+    "conclusion": "success",
+    "python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ]
+  },
+  "previous_attempt": {
+    "mission_id": "flashloan-agent-form-pilot-20261116-r14",
+    "run_id": 43796225845,
+    "artifact_id": 14196641112,
+    "artifact_sha256": "59b8011c6126013f7b56d5293ed9a6f3b975c3647e52387b5e85890522e9c82c",
+    "status": "failed",
+    "root_cause": "dependency_license specialist drifted into liquidation execution claims and emitted a duplicate finding claim; retry exhausted; evidence validation and independent review never started; no semantic audit accepted."
+  }
 }
