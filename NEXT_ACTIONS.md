@@ -1,3 +1,24 @@
+## Latest authoritative continuation checkpoint — exact request-byte provenance (2026-11-16)
+
+- **Canonical project:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
+- **Prior challenger inference:** run [43913169300](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43913169300), artifact 14248019054, SHA-256 `a596abcd93101fb1507db1abdcfcc33a36c09f389534f1e999b8fc1e21e3c830`. Qwen3.5 4B returned `inconclusive` on both insufficient packets; initial verifier rejected due to raw-exchange path collision.
+- **Raw-exchange path repair:** commits `3ee1e425` and `2a022259` constrain verifier to `model_exchanges/` and test same-basename collision.
+- **New finding:** request hash was calculated over exact HTTP request bytes, but the exchange artifact retained only a parsed JSON object. Re-serializing that object can alter byte ordering/spacing, so the old request fingerprint was not independently reproducible.
+- **Exact request capture added:** provider commit `34df270d` stores `request_raw` as the exact UTF-8 request body; provider test commit `d00a3bf8` checks hash(request_raw) and JSON equivalence.
+- **Verifier updated:** commit `db095057` requires request_raw, parses it, confirms equivalence with the stored request object, and hashes the exact raw bytes.
+- **Regression coverage:** commits `faab0087`, `5d4c715a`, and `da178a14` add request_raw fixture and tamper test. Latest test correction commit `f39d7751` makes the tampered JSON payload differ structurally.
+- **Dedicated CI:** workflow `.github/workflows/r15d-challenger-verifier-ci.yml` added at `2a91e97b`, targeting Python 3.11/3.12/3.13. GitHub combined-status API currently returns no legacy commit statuses; CI job completion has not yet been independently confirmed. Do not report tests as passed until Actions job results are inspected.
+- **No re-inference yet:** retained Qwen3.5 artifact remains immutable. The corrected verifier can only fully accept newly captured exchange artifacts that include request_raw; the old artifact remains a forensic result and should not be silently rewritten.
+- **Safety/accounting unchanged:** candidate code not executed; no wallet/signing/deployment/live trading; no paid/cloud inference; dossiers pending; semantic audit increment 0.
+
+### Immediate next actions
+
+1. Confirm CI trigger and all three Python matrix jobs pass; inspect exact run and job logs.
+2. Add or confirm verifier test cases for missing request_raw, malformed request_raw, parsed-object mismatch, request hash mismatch, response hash mismatch, and raw exchange file collision.
+3. Publish a small new challenger artifact only after a corrected capture run, preserving the original artifact and exact model/source/packet pins. This requires rerunning inference because the old artifact cannot contain bytes it never captured; label it a capture-protocol rerun, not a model-quality retest.
+4. Run the corrected verifier against the new artifact and independently inspect its request/response/exchange hashes.
+5. Then begin the separately adjudicated positive/negative semantic benchmark. Do not approve dossiers or increment semantic audit counts based on the two negative-control cases.
+
 ## Latest authoritative continuation checkpoint — R15D challenger verifier repair (2026-11-16)
 
 - **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
