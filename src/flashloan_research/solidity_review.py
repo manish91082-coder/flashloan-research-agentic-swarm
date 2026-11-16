@@ -37,7 +37,7 @@ def _evidence_for(excerpts: list[dict[str, Any]], patterns: tuple[str, ...]) -> 
 
 
 def _function_body(source: str, name: str) -> tuple[str | None, bool]:
-    match = re.search(r"\\bfunction\\s+" + re.escape(name) + r"\\b[^{}]*\\{", source)
+    match = re.search(r"\bfunction\s+" + re.escape(name) + r"\b[^{}]*\{", source)
     if not match:
         return None, False
     start = match.end()
@@ -56,12 +56,12 @@ def review_aave(excerpts: list[dict[str, Any]]) -> dict[str, Any]:
     source = _joined(excerpts)
     lower = source.casefold()
     ids = _evidence_for(excerpts, ("IPoolAddressesProvider", "IPool(", "executeOperation", "amount + premium", "approve"))
-    provider_cast = bool(re.search(r"IPoolAddressesProvider\\s*\\(", source))
-    pool_cast = bool(re.search(r"IPool\\s*\\(", source))
-    provider_expr = re.search(r"IPoolAddressesProvider\\s*\\(\\s*([^)]*)\\)", source)
-    pool_expr = re.search(r"IPool\\s*\\(\\s*([^)]*)\\)", source)
+    provider_cast = bool(re.search(r"IPoolAddressesProvider\s*\(", source))
+    pool_cast = bool(re.search(r"IPool\s*\(", source))
+    provider_expr = re.search(r"IPoolAddressesProvider\s*\(\s*([^)]*)\)", source)
+    pool_expr = re.search(r"IPool\s*\(\s*([^)]*)\)", source)
     if provider_cast and pool_cast and provider_expr and pool_expr:
-        same = re.sub(r"\\s+", "", provider_expr.group(1)) == re.sub(r"\\s+", "", pool_expr.group(1))
+        same = re.sub(r"\s+", "", provider_expr.group(1)) == re.sub(r"\s+", "", pool_expr.group(1))
         wiring = _topic("source_observed", "Both provider and Pool casts are present; constructor arguments " +
                         ("use the same expression." if same else "use different expressions; semantic correctness requires constructor context."), ids)
     else:
@@ -73,11 +73,11 @@ def review_aave(excerpts: list[dict[str, Any]]) -> dict[str, Any]:
         repayment = _topic("unknown", "A complete callback body is not available to assess repayment and approval.", ids)
     else:
         b = body.casefold()
-        sender_check = bool(re.search(r"require\\s*\\(\\s*msg\\.sender\\s*==", b) or
-                           re.search(r"if\\s*\\(\\s*msg\\.sender\\s*!=", b))
+        sender_check = bool(re.search(r"require\s*\(\s*msg\.sender\s*==", b) or
+                           re.search(r"if\s*\(\s*msg\.sender\s*!=", b))
         initiator_check = "initiator" in b and ("address(this)" in b or "address (this)" in b)
         callback = _topic("source_observed", f"Complete callback body: trusted-caller comparison {'visible' if sender_check else 'not visible'}; initiator/address(this) binding {'visible' if initiator_check else 'not visible'}. This is a lexical observation, not exploitability proof.", ids)
-        amount_check = bool(re.search(r"amount\\s*\\+\\s*premium", b))
+        amount_check = bool(re.search(r"amount\s*\+\s*premium", b))
         approval = "approve(" in b or "safeapprove(" in b or "forceapprove(" in b
         repayment = _topic("source_observed", f"Complete callback body: amount + premium arithmetic {'visible' if amount_check else 'not visible'}; approval call {'visible' if approval else 'not visible'}. Token, spender and control-flow correctness require deeper analysis.", ids)
     return {"protocol": "aave", "topics": {"pool_provider_wiring": wiring, "callback_authentication": callback, "repayment_premium": repayment}}
@@ -98,11 +98,11 @@ def review_uniswap_v2(excerpts: list[dict[str, Any]]) -> dict[str, Any]:
         repayment = _topic("unknown", "Repayment cannot be assessed from a truncated callback.", ids)
     else:
         b = body.casefold()
-        todo = bool(re.search(r"\\b(todo|implement me|not implemented|placeholder)\\b", b))
+        todo = bool(re.search(r"\b(todo|implement me|not implemented|placeholder)\b", b))
         callback = _topic("source_observed", "Complete uniswapV2Call body contains an explicit placeholder." if todo else "Complete uniswapV2Call body is present; this alone does not establish correctness.", ids)
         pair_auth = ("msg.sender" in b and ("factory" in b or "pair" in b)) or ("require" in b and "msg.sender" in b)
         auth = _topic("source_observed", "Callback contains a msg.sender/pair-related guard pattern." if pair_auth else "No recognizable msg.sender pair guard pattern appears in the complete callback body; verify factory derivation and call graph before treating this as a defect.", ids)
-        repay = bool(re.search(r"(transfer|safeTransfer)\\s*\\(", b))
+        repay = bool(re.search(r"(transfer|safeTransfer)\s*\(", b))
         repayment = _topic("source_observed", "Callback contains a token transfer call; repayment amount/fee correctness remains unproven." if repay else "No token transfer call appears in the complete callback body.", ids)
     token_order = _topic("source_observed" if ("token0" in lower and "token1" in lower and ("getreserves" in lower or "reserve" in lower)) else "unknown",
                          "token0/token1 and reserve-related references are visible." if ("token0" in lower and "token1" in lower and ("getreserves" in lower or "reserve" in lower)) else "Token ordering and reserve source are not both established by supplied excerpts.",
