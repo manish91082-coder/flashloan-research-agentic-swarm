@@ -71,6 +71,7 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIn("OUTPUT CONTRACT", Handler.body["messages"][0]["content"])
         self.assertIn('"purpose"', Handler.body["messages"][0]["content"])
         self.assertEqual(Handler.body["temperature"], 0)
+        self.assertEqual(Handler.body["options"]["num_ctx"], 8192)
 
     def test_model_duplicate_evidence_ids_are_stably_deduplicated(self):
         Handler.response_content = json.dumps({
