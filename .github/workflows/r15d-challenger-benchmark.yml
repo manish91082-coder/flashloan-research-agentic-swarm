@@ -24,7 +24,7 @@ jobs:
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
       FLR_MODEL_MAX_PARALLEL_TASKS: '1'
       FLR_MODEL_CONTEXT_TOKENS: '16384'
-      FLR_MODEL_MAX_OUTPUT_TOKENS: '2400'
+      FLR_MODEL_MAX_OUTPUT_TOKENS: '4096'
       FLR_MODEL_TIMEOUT_SECONDS: '1800'
       FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS: '18000'
       FLR_MODEL_MAX_FILES: '10'
@@ -51,9 +51,10 @@ jobs:
           import json
           from pathlib import Path
           trigger = json.loads(Path("research_runs/trigger-r15d-challenger-benchmark.json").read_text())
-          assert trigger["revision"] == 2
+          assert trigger["revision"] == 3
           assert trigger["capture_protocol_revision"] == 2
-          assert trigger["run_reason"] == "capture_protocol_rerun_after_exact-request-capture-and-verifier-fixes"
+          assert trigger["run_reason"] == "completion-integrity-rerun-after-qwen35-response-truncation"
+          assert trigger["max_output_tokens"] == 4096
           assert trigger["model_pin_artifact_id"] == 14248935964
           assert trigger["model_pin_artifact_sha256"] == "f857347f60035334927d3c543305b9102944b5da5e6059bc3e6754c6b675c06c"
           assert trigger["model_digest"] == "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04"
