@@ -14,6 +14,7 @@ SOURCE_EXTENSIONS = {".sol", ".rs", ".py", ".ts", ".js", ".vy", ".move"}
 FLASH_PATTERNS: dict[str, str] = {
     "aave_flash_loan_simple": r"flashLoanSimple",
     "aave_execute_operation": r"executeOperation\s*\(",
+    "aave_pool_provider_wiring": r"IPoolAddressesProvider\s*\(|IPool\s*\(",
     "erc3156_callback": r"onFlashLoan\s*\(",
     "uniswap_v2_flash_callback": r"uniswapV2Call\s*\(",
     "uniswap_v3_flash_callback": r"uniswapV3FlashCallback\s*\(",
