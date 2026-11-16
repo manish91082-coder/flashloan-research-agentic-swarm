@@ -1,6 +1,6 @@
 # R15D — Semantic Quality Gate and Reviewer Benchmark
 
-**Status:** initial reviewer and specialist-adequacy gates implemented; frozen evaluation packet and model benchmark pending  
+**Status:** R15D negative-control compliance benchmark accepted; semantic accuracy benchmark and independent adjudication pending  
 **Checkpoint:** R15C run 43868846531, artifact 14229725407  
 **Canonical branch:** main  
 **Immutable source seed:** run 43799361897, artifact 14196365507, SHA-256 0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad  
@@ -220,3 +220,17 @@ A dedicated workflow and runner now replay only the two failed R15C independent-
 ## 9. R15D exit condition
 
 R15D is complete only when the evaluation packet is reproducible, regression tests pass on all supported Python versions, both observed R15C failure modes are caught by tests, reviewer insufficiency is handled without fabricated findings, and the baseline/challenger scorecard is backed by pinned artifacts. Until then, semantic processing remains blocked at the review gate.
+
+
+## 10. R15D revision 5 — negative-control compliance accepted; semantic accuracy still unproven
+
+- Workflow: [43931361529](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43931361529), terminal conclusion `success`.
+- Trigger revision 5 commit: `66cdf28c26ff164e4db34a975c900f869e4c1ddd`; workflow validation commit: `c58bc4d72b61f862e4379b136807686fdaf78b95`.
+- Artifact: `14258412273`; ZIP SHA-256 `a23a8f90a3a2bfdeaf811fd8c5136ac501475eb54fa396885d8f9e25a166eb41`.
+- Model identity: `qwen3.5:4b`, digest `d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04`, Q4_K_M; request context 16,384, output ceiling 4,096; CPU-only GitHub-hosted runner, one model loaded and one reviewer task at a time.
+- Source-vault restore verified 7,901 inventory items, 50,268 unique Git blobs and 64,449 blob references. Exact frozen source commit/tree pins and input packet SHA-256 values match.
+- Both raw responses end with `finish_reason=stop`, parse as JSON and contain model-authored `inconclusive` decisions. Raw request/response fingerprints and outer exchange file hashes match report metadata.
+- SQLite `PRAGMA integrity_check` returned `ok`. Task ledger: exactly two `independent_review=completed` and two `candidate_dossier=pending`. Semantic audit increment zero.
+- Safety invariants: candidate code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference all false.
+- Runtime: 377.611 seconds; peak RSS 32,004 KiB. Dedicated verifier CI `43931290013` and full repository CI `43931290296`, `43931352330` passed Python 3.11/3.12/3.13.
+- This establishes only narrow reviewer instruction compliance on two deliberately inadequate negative-control packets. It does not establish vulnerability-detection sensitivity, specificity, false-positive rate, protocol semantic accuracy or production readiness. No candidate dossier is approved.
