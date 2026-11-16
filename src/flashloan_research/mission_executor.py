@@ -353,13 +353,24 @@ class MissionExecutor:
         from .specialist_runner import run_evidence_validation_batch, run_specialist_batch
 
         specialist_batches = []
-        while True:
-            result = run_specialist_batch(
-                mission_id, self.database_path, self.artifact_root, limit=1,
-            )
-            specialist_batches.append(result)
-            if result["claimed_tasks"] == 0:
-                break
+        # Parallelize only independent ready tasks. The durable task store remains
+        # the dependency authority; each worker claims one task under its own lease.
+        # The pilot caps this at two concurrent local-model requests to avoid
+        # oversubscribing the CPU-only runner.
+        max_parallel = max(1, min(2, int(os.getenv("FLR_MODEL_MAX_PARALLEL_TASKS", "1"))))
+        with ThreadPoolExecutor(max_workers=max_parallel) as pool:
+            while True:
+                futures = [
+                    pool.submit(
+                        run_specialist_batch,
+                        mission_id, self.database_path, self.artifact_root, limit=1,
+                    )
+                    for _ in range(max_parallel)
+                ]
+                round_results = [future.result() for future in futures]
+                specialist_batches.extend(round_results)
+                if sum(item.get("claimed_tasks", 0) for item in round_results) == 0:
+                    break
 
         specialist_failures = [
             item for batch in specialist_batches for item in batch.get("failures", [])
@@ -415,13 +426,19 @@ class MissionExecutor:
             }
 
         reviewer_batches = []
-        while True:
-            result = run_specialist_batch(
-                mission_id, self.database_path, self.artifact_root, limit=1,
-            )
-            reviewer_batches.append(result)
-            if result["claimed_tasks"] == 0:
-                break
+        with ThreadPoolExecutor(max_workers=max_parallel) as pool:
+            while True:
+                futures = [
+                    pool.submit(
+                        run_specialist_batch,
+                        mission_id, self.database_path, self.artifact_root, limit=1,
+                    )
+                    for _ in range(max_parallel)
+                ]
+                round_results = [future.result() for future in futures]
+                reviewer_batches.extend(round_results)
+                if sum(item.get("claimed_tasks", 0) for item in round_results) == 0:
+                    break
         reviewer_completed = [
             item for batch in reviewer_batches for item in batch.get("completed", [])
         ]
