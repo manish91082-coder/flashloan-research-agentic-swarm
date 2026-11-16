@@ -116,5 +116,17 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
                 verify(path)
 
 
+    def test_rejects_raw_request_bytes_tampering(self):
+        tmp, path, pins = self.fixture(["inconclusive", "inconclusive"])
+        self.addCleanup(tmp.cleanup)
+        exchange_path = path.parent / "model_exchanges" / "candidate-0.json"
+        exchange = json.loads(exchange_path.read_text())
+        exchange["exchange"]["request_raw"] += " "
+        exchange_path.write_text(json.dumps(exchange), encoding="utf-8")
+        with patch.dict(EXPECTED_INPUTS, pins, clear=True):
+            with self.assertRaisesRegex(ChallengerGateError, "raw request and parsed request object differ"):
+                verify(path)
+
+
 if __name__ == "__main__":
     unittest.main()
