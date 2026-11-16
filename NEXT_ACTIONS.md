@@ -351,3 +351,16 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Revision 4 workflow `43928314376` triggered after CI passed. It uses same model digest, frozen R15C/source artifacts, source pins and packet fingerprints, 16,384 context, 4,096 max output.
 - Workflow commit `15d53b26fd78a88b97637ee0966eb3f9bac6345e`; trigger commit `88d83dfc0609c4595184ab69fc68c0f94d336815`.
 - Current status at checkpoint: challenger job in progress. Next: inspect every step, then artifact hash, raw response completion and decision, request/response/exchange hashes, frozen pins, safety ledger, pending dossiers and zero semantic increment.
+
+
+## R15D revision 4 forensic acceptance and reviewer-task contract repair — 2026-11-16
+
+- Revision 4 run `43928314376` completed successfully. Artifact `14258126229`, SHA-256 `eeb121fe20df2171f5874dbb70c8976a4f95d0b3706aaa2bd8357206c518913e`.
+- Independent artifact audit confirmed exact Qwen3.5 4B digest, both frozen source commit/tree pins and packet fingerprints, both `finish_reason=stop`, valid raw response JSON, model-authored `inconclusive` decisions, exact raw request/response hashes, outer exchange hashes, SQLite `integrity_check=ok`, dossiers pending, semantic audit increment zero and safety invariants preserved.
+- The artifact exposed a real orchestration defect: `specialist_runner.py` marked every reviewer task failed unless its verdict was `accept`, contradicting the required `inconclusive` verdict for inadequate packets. The benchmark verifier also did not require reviewer task-ledger completion.
+- Fixed task semantics: a valid explicit review decision completes the review task; the decision itself does not approve the candidate dossier. The inadequate-packet guard still requires `inconclusive`. Regression and end-to-end tests updated.
+- Code commits: `4fc7e950c8f2bc53fd0008e98ec2e25083aa9e82`, `d6b509874cc60d0a792ef151d07f22a82ed91589`, `3813f0fb2848b91b3727be0972bd06d37c1d3225`. Full CI run `43931083969` passed Python 3.11/3.12/3.13.
+- Challenger verifier now requires exactly two completed independent-review task ledger entries and two pending candidate dossier entries. Added regression rejecting a failed reviewer ledger even when model decision is inconclusive. Verifier CI `43931290013` passed Python 3.11/3.12/3.13; full CI `43931290296` passed.
+- Revision 5 trigger commit `66cdf28c26ff164e4db34a975c900f869e4c1ddd`, workflow validation commit `c58bc4d72b61f862e4379b136807686fdaf78b95`. Run `43931361529` is restoring the frozen source vault; no new inference result yet.
+- Prior revision-4 artifact remains immutable forensic evidence and is not to be retroactively relabelled as a fully operational reviewer pass.
+- Next: finish revision-5 run, independently inspect artifact and verify task ledger; then freeze the narrow negative-control compliance result. Only after that design the separately adjudicated positive/negative semantic benchmark. No dossier approval and no semantic audit increment from these two inadequate packets.
