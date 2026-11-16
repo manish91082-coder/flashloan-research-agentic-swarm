@@ -149,11 +149,12 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
 
     def test_independent_reviewer_prompt_checks_callback_auth_and_placeholder_logic(self):
         prompt = ROLE_PROMPTS["independent_reviewer"]
-        self.assertIn("callback caller", prompt)
+        self.assertIn("callback authentication", prompt)
+        self.assertIn("executeOperation msg.sender", prompt)
         self.assertIn("initiator", prompt)
-        self.assertIn("repayment and premium", prompt)
+        self.assertIn("repayment/premium", prompt)
         self.assertIn("TODO or placeholder", prompt)
-        self.assertIn("configured lending Pool/provider address", prompt)
+        self.assertIn("configured Pool address", prompt)
 
     def test_rejects_role_inappropriate_finding_category(self):
         output = sample_output(findings=[{
