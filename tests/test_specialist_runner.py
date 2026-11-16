@@ -188,7 +188,8 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             review_disagreements=["The supplied excerpts do not establish the callback authentication path."],
             unknowns=["Pool/IPool wiring and callback authentication are not established by the supplied excerpts."],
         )
-        _validate_reviewer_semantic_relevance(output, inspection)
+        validated = validate_specialist_output(output, inspection, "independent_reviewer")
+        self.assertEqual(validated["review_decision"], "inconclusive")
 
     def test_reviewer_accept_requires_protocol_topic_coverage(self):
         inspection = sample_inspection()
@@ -217,6 +218,9 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         self.assertIn("Do not begin with a repository summary", prompt)
         self.assertIn("Do not force a fixed finding count", prompt)
         self.assertIn("zero findings is valid", prompt)
+        self.assertNotIn("Finding 1 claim MUST begin", prompt)
+        self.assertNotIn("Finding 2 claim MUST begin", prompt)
+        self.assertNotIn("Finding 3 claim MUST begin", prompt)
 
     def test_rejects_role_inappropriate_finding_category(self):
         output = sample_output(findings=[{
