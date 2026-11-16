@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "record_type": "semantic_pilot_execution_plan",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14",
+  "status": "PREPARED_WAITING_FOR_FRESH_VERIFIED_SOURCE_CAPTURE_CHECKPOINT",
+  "branch": "main",
+  "reviewer_gate_version": "5.4.0-candidate-specific-semantic-review-gate",
+  "model": "qwen2.5:3b",
+  "inference_policy": "Ollama on GitHub-hosted runner, CPU-only, loopback 127.0.0.1:11434; no cloud or paid inference",
+  "batch_limit": 2,
+  "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14",
+  "checkpoint": {
+    "source_capture_run_id": null,
+    "artifact_id": null,
+    "artifact_sha256": null,
+    "required_state": "Select only after the currently active source-capture run #372 completes successfully and its artifact is independently verified",
+    "required_checks": [
+      "workflow conclusion success",
+      "artifact belongs to exact successful run",
+      "SHA-256 verified",
+      "ZIP CRC passes",
+      "SQLite PRAGMA integrity_check returns ok",
+      "all captured report identities and Git blob hashes verified",
+      "queue accounting invariant totals exactly 7901"
+    ]
+  },
+  "acceptance_gates": [
+    "Use a fresh isolated R14 database and artifact root; never reuse R13 or earlier pilot databases",
+    "Verify immutable source-capture checkpoint identity and exact SHA-256 before restore",
+    "Complete 2/2 candidate-purpose tasks and 12/12 specialist tasks",
+    "Pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
+    "Complete 2/2 independent candidate-specific reviews using reviewer semantic gate v5.4.0",
+    "Both reviewers must return exact unreserved accept, zero disagreements, and non-empty source-pinned evidence",
+    "Reject generic/off-topic claims and opaque disagreement identifiers",
+    "Verify all task counts and report-to-source provenance from the uploaded SQLite database and artifacts",
+    "Increment no dossier or semantic audit count until every gate passes"
+  ],
+  "non_claims": [
+    "Do not claim duplicate-claim runtime retry was exercised unless a real duplicate-claim failure is observed and retried within max_attempts=3",
+    "Do not infer semantic acceptance from CI success",
+    "Do not execute candidate repository code"
+  ],
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "trigger_policy": "Do not create or update research_runs/trigger-agentic-semantic-pilot.json until the fresh checkpoint artifact identity is available and independently verified.",
+  "next_action": "Poll source-capture run #372; after successful durable checkpoint upload, verify the artifact and prepare the exact R14 trigger payload."
+}
