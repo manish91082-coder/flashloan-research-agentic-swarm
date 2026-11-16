@@ -5,7 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from scripts.validate_r15d_adjudication import validate
+from scripts.validate_r15d_adjudication import _valid_timestamp, validate
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PACKET = ROOT / "research_runs/r15d_adjudication/blind_adjudication_packet.json"
@@ -13,6 +13,8 @@ DEFAULT_OUTPUT = ROOT / "research_runs/r15d_adjudication/frozen_ground_truth_man
 
 
 def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
+    if not _valid_timestamp(frozen_at):
+        raise ValueError("frozen_at must be a timezone-aware UTC ISO-8601 timestamp")
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite frozen manifest: {output_path}")
     packet = json.loads(packet_path.read_text(encoding="utf-8"))
