@@ -28,7 +28,7 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
             response = json.dumps({
                 "choices": [{
                     "finish_reason": "stop",
-                        "message": {"content": "{"},
+                        "message": {"content": json.dumps({"review_decision": "inconclusive"})},
                 }]
             })
             response_sha = hashlib.sha256(response.encode()).hexdigest()
