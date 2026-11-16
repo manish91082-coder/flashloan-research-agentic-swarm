@@ -364,3 +364,14 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Revision 5 trigger commit `66cdf28c26ff164e4db34a975c900f869e4c1ddd`, workflow validation commit `c58bc4d72b61f862e4379b136807686fdaf78b95`. Run `43931361529` is restoring the frozen source vault; no new inference result yet.
 - Prior revision-4 artifact remains immutable forensic evidence and is not to be retroactively relabelled as a fully operational reviewer pass.
 - Next: finish revision-5 run, independently inspect artifact and verify task ledger; then freeze the narrow negative-control compliance result. Only after that design the separately adjudicated positive/negative semantic benchmark. No dossier approval and no semantic audit increment from these two inadequate packets.
+
+
+## R15D revision 5 accepted — semantic benchmark is next (2026-11-16)
+- Workflow `43931361529` completed successfully. Artifact `14258412273`, SHA-256 `a23a8f90a3a2bfdeaf811fd8c5136ac501475eb54fa396885d8f9e25a166eb41`.
+- Independent ZIP audit: exact Qwen3.5 4B digest, frozen source commit/tree pins, input packet hashes, raw request/response fingerprints and outer exchange hashes all match. Both responses finish normally and contain model-authored `inconclusive` decisions.
+- Source vault restoration verified 7,901 inventory items, 50,268 unique Git blobs and 64,449 blob references. SQLite integrity check `ok`.
+- Task ledger: exactly two independent-review tasks `completed`; exactly two candidate-dossier tasks `pending`. Semantic audit increment zero; all safety invariants preserved.
+- Runtime 377.611 seconds; peak RSS 32,004 KiB; CPU-only local Ollama, one model loaded, one reviewer task at a time.
+- Verifier CI `43931290013` and full repository CI `43931290296`, `43931352330` passed Python 3.11/3.12/3.13.
+- This accepts only narrow negative-control reviewer compliance. It does not establish semantic accuracy, vulnerability detection quality or production readiness. No dossier is approved.
+- Next: create a separate source-pinned and independently adjudicated semantic benchmark with positive and negative cases, exact source path/line/excerpt hashes, rationale, applicability labels (`present`, `absent`, `not_applicable`, `unknown`) and blinded adjudication. Score provenance, claim support, protocol coverage, false critical claims, unknown handling, confidence calibration and verdict calibration separately. Keep held-out cases out of prompt tuning. No broad candidate processing or semantic audit increment until this benchmark passes.
