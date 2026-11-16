@@ -7,20 +7,20 @@
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4493,
-    "pending": 3352,
+    "captured": 4505,
+    "pending": 3340,
     "leased": 0,
     "failed": 56,
-    "captured_complete_within_scope": 3257,
-    "captured_with_coverage_limits": 1236
+    "captured_complete_within_scope": 3263,
+    "captured_with_coverage_limits": 1242
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4493,
+    "reports_verified": 4505,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 62570,
-    "unique_git_blobs_verified": 48760,
+    "git_blob_references_verified": 62771,
+    "unique_git_blobs_verified": 48906,
     "blob_mismatches": 0
   },
   "batch_limit": 2,
@@ -61,6 +61,6 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14-pinned-checkpoint-384-before-self-chain-retirement",
-  "retry_note": "Checkpoint 383 is independently verified and protected by the source-capture workflow's live main-branch pin check. Prior R14 attempt reached model install but Ollama registry returned HTTP 503; workflow now retries five times with exponential backoff."
+  "trigger_revision": "r14-retry-verified-checkpoint-384-ollama-backoff-v2",
+  "retry_note": "Fresh checkpoint 384 fully verified: ZIP CRC and SQLite integrity pass, all 4,505 report identities and 62,771 Git blob references verified, zero blob mismatches, queue total 7,901. Artifact is pinned by live seed and trigger and protected from self-chain retirement. Previous model registry 503 is addressed with bounded retry."
 }
