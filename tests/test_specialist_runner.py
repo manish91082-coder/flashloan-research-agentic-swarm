@@ -10,6 +10,7 @@ from flashloan_research.specialist_runner import (
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
     ROLE_PROMPTS, _canonical_purpose_category, _validate_reviewer_semantic_relevance,
     _assess_specialist_report_adequacy, _specialist_packet_adequacy,
+    _validate_reviewer_packet_decision,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -218,6 +219,12 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         packet = _specialist_packet_adequacy(reports)
         self.assertEqual(packet["status"], "insufficient")
         self.assertEqual(len(packet["inadequate_reports"]), 1)
+
+    def test_inadequate_specialist_packet_forces_inconclusive_reviewer_decision(self):
+        packet = {"status": "insufficient"}
+        _validate_reviewer_packet_decision(packet, {"review_decision": "inconclusive"})
+        with self.assertRaisesRegex(SpecialistTaskError, "must return inconclusive"):
+            _validate_reviewer_packet_decision(packet, {"review_decision": "accept"})
 
     def test_inconclusive_reviewer_may_report_insufficient_topic_coverage_without_inventing_findings(self):
         inspection = sample_inspection()
