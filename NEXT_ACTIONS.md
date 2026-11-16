@@ -307,3 +307,13 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - **CI status is not yet independently confirmed.** Do not run the corrected capture-protocol benchmark until all three matrix jobs pass and the final verifier/test files are re-inspected.
 - Next: obtain the workflow run/job results; repair any failures; then run a new Qwen3.5 4B capture-protocol benchmark against the exact existing model digest, source pins and frozen packet hashes. The earlier challenger artifact remains immutable forensic evidence and cannot be retroactively repaired.
 - Semantic audit increment remains zero; candidate dossiers remain pending. No candidate code execution, wallet access, signing, deployment, live trading, paid inference or cloud inference.
+
+## R15D capture-protocol rerun revision 2 — 2026-11-16
+
+- Verifier regression CI is confirmed green: dedicated Python 3.11/3.12/3.13 jobs in run `43922437902`; repository CI Python 3.11/3.12/3.13 jobs in run `43922437984`.
+- Inspected failed historical challenger run `43913169300` and downloaded immutable artifact `14248019054`. Both model outputs were `inconclusive`; source restore, frozen packet restore, exact model digest verification and inference completed. The acceptance step failed at the then-current verifier. Artifact exchange outer file hashes match their report metadata, but the archived exchange payloads predate the provider's `request_raw` capture and therefore cannot prove exact HTTP request bytes.
+- Historical artifact SHA-256: `a596abcd93101fb1507db1abdcfcc33a36c09f389534f1e999b8fc1e21e3c830`. It remains immutable forensic evidence; do not modify or relabel it as accepted.
+- Updated the challenger workflow to require trigger revision 2 and explicit capture-protocol rerun reason. Trigger commit: `b49759a6df918bbf35dd7b29eb75347e36d2ee4c`; workflow validation commit: `0ac3a1ce6e1af6930c1ded1caaf6411a3dbb6362`.
+- New run must use the exact same pinned Qwen3.5 4B digest, frozen R15C artifact and source-vault seed, source commit/tree pins, packet fingerprints, 16,384 request context and 2,400 max output. This is a capture-protocol rerun, not model retuning.
+- **Next:** inspect new workflow run, job steps and artifact; independently verify raw request bytes, request/response hashes, outer exchange hashes, packet/source pins, model digest, both model decisions, pending dossiers and zero semantic audit increment.
+- If capture acceptance passes, begin the separately adjudicated positive/negative semantic benchmark. Do not promote either candidate dossier or increment semantic audit based on the two negative controls.
