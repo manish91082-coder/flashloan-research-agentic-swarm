@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "record_type": "semantic_pilot_execution_plan",
   "mission_id": "flashloan-agent-form-pilot-20261116-r14",
-  "status": "PREPARED_WAITING_FOR_FRESH_VERIFIED_SOURCE_CAPTURE_CHECKPOINT",
+  "status": "READY_TO_TRIGGER_R14_WITH_INDEPENDENTLY_VERIFIED_CHECKPOINT_377",
   "branch": "main",
   "reviewer_gate_version": "5.4.0-candidate-specific-semantic-review-gate",
   "model": "qwen2.5:3b",
@@ -11,19 +11,32 @@
   "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
   "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14",
   "checkpoint": {
-    "source_capture_run_id": null,
-    "artifact_id": null,
-    "artifact_sha256": null,
-    "required_state": "Select only after the currently active source-capture run #372 completes successfully and its artifact is independently verified",
-    "required_checks": [
-      "workflow conclusion success",
-      "artifact belongs to exact successful run",
-      "SHA-256 verified",
-      "ZIP CRC passes",
-      "SQLite PRAGMA integrity_check returns ok",
-      "all captured report identities and Git blob hashes verified",
-      "queue accounting invariant totals exactly 7901"
-    ]
+    "source_capture_run_id": 43794531352,
+    "artifact_id": 14193398742,
+    "artifact_sha256": "036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8",
+    "mission_run_id": 43600488013,
+    "queue": {
+      "total": 7901,
+      "captured": 4421,
+      "pending": 3424,
+      "leased": 0,
+      "failed": 56,
+      "captured_complete_within_scope": 3203,
+      "captured_with_coverage_limits": 1218
+    },
+    "verification": {
+      "workflow_conclusion": "success",
+      "artifact_exact_run_match": true,
+      "sha256_verified": true,
+      "zip_crc": "ok",
+      "sqlite_integrity": "ok",
+      "reports_verified": 4421,
+      "git_blob_references_verified": 61673,
+      "unique_git_blobs_verified": 48081,
+      "blob_mismatches": 0,
+      "queue_accounting_total": 7901,
+      "report_identity_mismatches": 0
+    }
   },
   "acceptance_gates": [
     "Use a fresh isolated R14 database and artifact root; never reuse R13 or earlier pilot databases",
@@ -50,6 +63,6 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "trigger_policy": "Do not create or update research_runs/trigger-agentic-semantic-pilot.json until the fresh checkpoint artifact identity is available and independently verified.",
-  "next_action": "Poll source-capture run #372; after successful durable checkpoint upload, verify the artifact and prepare the exact R14 trigger payload."
+  "trigger_policy": "Trigger only after updating the R14 seed and trigger payload with this exact immutable checkpoint identity.",
+  "next_action": "Trigger R14 from the exact verified checkpoint run 43794531352 / artifact 14193398742 / SHA-256 036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8; verify all 14 tasks, 2 evidence gates and 2 independent reviewer decisions from uploaded artifacts."
 }
