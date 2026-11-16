@@ -295,12 +295,17 @@ _SPECIALIST_TOPIC_TERMS = {
 
 
 def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]],
-                                       accepted_evidence_ids: list[str]) -> dict[str, Any]:
+                                       accepted_evidence: list[dict[str, Any]]) -> dict[str, Any]:
     """Conservative deterministic triage; this is not a semantic proof or vulnerability verdict."""
     reasons: list[str] = []
     if not findings:
         reasons.append("no source-grounded specialist findings were supplied for independent challenge")
-    allowed_ids = set(accepted_evidence_ids)
+    evidence_by_id = {
+        item["evidence_id"]: str(item.get("excerpt", "")).casefold()
+        for item in accepted_evidence
+        if isinstance(item, dict) and isinstance(item.get("evidence_id"), str)
+    }
+    allowed_ids = set(evidence_by_id)
     topic_terms = _SPECIALIST_TOPIC_TERMS.get(role, ())
     for index, finding in enumerate(findings, start=1):
         claim = str(finding.get("claim", "")).strip().casefold()
@@ -313,6 +318,10 @@ def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]]
             reasons.append(f"finding {index} does not resolve exclusively to accepted evidence IDs")
         if topic_terms and not any(term in claim for term in topic_terms):
             reasons.append(f"finding {index} lacks a role-relevant technical mechanism")
+        elif topic_terms and isinstance(refs, list):
+            cited_text = " ".join(evidence_by_id.get(ref, "") for ref in refs)
+            if not any(term in claim and term in cited_text for term in topic_terms):
+                reasons.append(f"finding {index} has no shared role-specific technical anchor in its cited source excerpt")
     return {
         "status": "adequate_for_adversarial_challenge" if not reasons else "insufficient",
         "finding_count": len(findings),
@@ -422,7 +431,7 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
                 raise SpecialistTaskError("prior specialist unknown is malformed or exceeds 500 characters")
             unknowns.append(item)
         adequacy = _assess_specialist_report_adequacy(
-            str(task.get("role", "")), findings, evidence_ids,
+            str(task.get("role", "")), findings, raw_evidence,
         )
         compact = {
             "task_id": task.get("task_id"),
