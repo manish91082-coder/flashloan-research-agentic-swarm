@@ -3,16 +3,16 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R12_BOUNDED_DUPLICATE_CLAIM_TASK_RETRY",
-  "status": "DISCOVERY_7901; CI_418_419_420_SUCCESS; R13_ACTIVE_AT_IMMUTABLE_CHECKPOINT_DOWNLOAD; SOURCE_CAPTURE_296_ACTIVE_CAPTURE_NEXT_12; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-15T18:12:00Z",
+  "status": "DISCOVERY_7901; SOURCE_CAPTURE_4194_CHECKPOINT_VERIFIED; R13_SPECIALISTS_AND_EVIDENCE_GATES_PASS_BUT_REVIEW_REJECTED; NO_SEMANTIC_AUDIT_ACCEPTANCE; SOURCE_CAPTURE_CHAIN_ACTIVE",
+  "last_verified_at_utc": "2026-11-16T01:06:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "d927dddf524294014a138456f4982dad95ae43a7",
+  "latest_commit_at_checkpoint": "76a5b82054f844f5c6718d417c7a16d523b2fc99",
   "latest_ci_run": {
-    "run_id": 43745052302,
-    "run_number": 420,
+    "run_id": 43745379286,
+    "run_number": 421,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "d927dddf524294014a138456f4982dad95ae43a7"
+    "head_sha": "76a5b82054f844f5c6718d417c7a16d523b2fc99"
   },
   "phase_a_ci_history": "PR #11 JSON-schema contract CI passed on 3.11/3.12/3.13 (43626544380). PR #12 artifact downloader CI passed on 3.11/3.12/3.13 (43627789274). PR #13 evidence-ID/task provenance/source-capture recovery CI passed on 3.11/3.12/3.13 (43681735442). PR #14 reviewer-only output isolation CI passed on 3.11/3.12/3.13 (43682983408); merged main CI passed (43683037814). PR #15 pre-merge CI and main merge CI 43684603884 passed on Python 3.11/3.12/3.13; PR #15 adds per-candidate source-capture events and structured bounded GitHub API retry telemetry without changing queue semantics. Continuity docs commits 7f444f3c6484edee7d02c2c3d3cbd781e18ee7da, 64d1cee5e9e17ef36c5f8fd93e434fae9c3dc068 and d6a98b2f2b620ee9748b9e0b1fe404305f16c1e8 passed main CI; README commit 55beab7 is pending CI run 43685039602 at this checkpoint. PR #16 merged at e9ae3d67a3b8d0222d44e940f9a54c77f10d1ed7: all structured source-capture batch/candidate and GitHub API retry telemetry now goes to stderr; CLI stdout remains one machine-readable JSON summary for the Actions checkpoint parser. PR #16 CI passed Python 3.11/3.12/3.13; merge CI 43685837776 is in progress. PR #18 merged at 6de884acf5e6b8ca10db6114af63cb67f2715ddb: candidate-specific evidence-ID enums, smaller CPU model context and fail-closed specialist/evidence/reviewer stages; CI 43687345032 passed 3.11/3.12/3.13. PR #20 merged at 3c980adb585e7351dca6bb072ade4de25c8fa78b: allow explicitly disclosed recursive-tree truncation coverage debt while preserving safety/provenance checks; CI 43687501157 passed all versions. PR #21 merged at 4d5d403121ec48c541f0fe646d76f7e90910bc36: model finish-reason/content diagnostics, fenced/pre-parsed JSON handling, bounded malformed JSON/timeouts retry and fresh r4 qwen2.5:3b pilot; PR and main CI 43688699274 passed Python 3.11/3.12/3.13. PR #22 merged at ddeb3470f61fb61f389d5604508cb7a7dc7e1203: lossless compact reviewer context, strengthened adversarial review criteria, fail-closed overflow checks, exact reviewer-only SQLite recovery after revalidating all seven prior reports and positive evidence gates; separate reviewer-only recovery workflow. PR CI 43693371140 and main CI 43693473120 passed Python 3.11/3.12/3.13. PR #22 reviewer-only recovery completed in run 43693473127/artifact 14154370687. Both reviewers returned inconclusive; manual audit found Aave reviewer missed wrong Pool pointer and missing callback authentication, emitted a false direct-liquidation claim and high confidence despite partial status/unknowns; Uniswap reviewer correctly noted the unimplemented TODO but also returned high confidence with partial status/unknowns. R4 is not semantically accepted and no audit count changes. PR #23 merged at 5bff54b556cf45d482391cefbf16de746df3f2f4: strict purpose_category taxonomy, role-specific finding category/severity schema, max four narrow evidence refs, confidence calibration, seven-report purpose consensus and independent revalidation of every accepted evidence item against exact pinned source signals. CI 43695283729 passed 3.11/3.12/3.13; merge CI 43695350412 passed. Semantic pilot workflow now reads isolated mission/database/model/context from trigger and verifies immutable seed ZIP SHA-256. Fresh r5 pilot run 43695437370 restored seed, installed Agent Form and Ollama qwen2.5:3b, bootstrapped a fresh r5 DAG and is executing specialist/evidence/reviewer stages. R5 not yet accepted; no semantic audit count incremented. PR #24 merged at 72f648585e940c75eaa7ace7f539fbff08dfa1c1: bounded unique evidence arrays, bounded report fields, low/medium-only local 3B confidence, explicit duplicate/oversize validation, reviewer checks for provider identity/callback authentication/repayment/TODOs, mission-scoped artifact paths. PR CI 43696841454 and main CI 43697270352 passed Python 3.11/3.12/3.13. PR #25 merged at 17cc27b5b7fc9c5dd96be7203f005d4e8f18cca5: stable first-seen de-duplication of exact model-selected evidence IDs in report evidence and finding references; strict pinned-catalog and downstream provenance checks remain. PR CI run 43705766736 passed Python 3.11/3.12/3.13; merge completed. R6 run 43697270355 failed five UniswapFlashSwap specialist tasks due duplicate report evidence IDs; R7 trigger commit fbaa20c684baab10f2d869460d7aba78107ca0e8 created a fresh isolated mission/database/artifact root based on immutable seed run 43615137961/artifact 14121666814. R7 Actions run ID not yet independently verified; no semantic audit count incremented. PR #26 merged at eb0ae1d12589fb931947bc1d006883f1f7174726: specialists now inherit one source-pinned canonical candidate-purpose category through singleton JSON Schema enum plus deterministic validation; candidate-purpose taxonomy guidance distinguishes security tooling from security review and partial implementation; canonical purpose evidence is revalidated against exact pinned signals. CI run 43707532360 passed Python 3.11/3.12/3.13. R7 semantic pilot run 43705978769/artifact 14159470008 completed but failed both evidence gates because specialist purpose_category values disagreed; 2 purpose tasks and 12 specialist reports completed, 2 evidence gates failed, 0 independent reviewers started, no audit count incremented. Fresh R8 trigger commit 287e83225050ef4dd73d346b5be13c6194f98032 created with new mission/database/artifact root; Actions run 43707621102 queued.",
   "discovery": {
@@ -98,7 +98,7 @@
     "discovery_workflow_contents": "write only",
     "branch_protection": "not configured; no branch-protection mutation action available in current connector"
   },
-  "next_gate": "Do not launch duplicate R13 or source-capture jobs while their workflows are active. Poll both. For R13 verify seed SHA and isolated DB, then inspect the completed artifact, all 14 specialist task statuses, bounded duplicate-claim retry evidence if the failure recurs, both evidence gates, exactly two independent exact accept reviews and zero disagreements. If duplicate claim does not recur, record runtime retry path as not exercised. For source capture #296, verify uploaded artifact SHA-256, ZIP CRC, SQLite integrity, source report identities, Git blob hashes and queue accounting before accepting checkpoint. No semantic audit count increment before all strict gates.",
+  "next_gate": "First improve the independent reviewer: R13 proved all 14 purpose/specialist tasks and both pinned-evidence gates can complete, but the 3B reviewer produced an inconclusive Aave decision and both reports contained 12 unresolved disagreement IDs; Uniswap's accept is not valid because disagreements are non-empty and its findings are generic/off-topic. Inspect and patch reviewer prompt/context and semantic validation with regression tests; preserve strict exact accept + zero disagreements + source-linked evidence. Then run a fresh isolated pilot only after CI passes. Duplicate-claim retry runtime was not exercised in R13 (no duplicate failures; attempts 1), so keep it explicitly unproven. Meanwhile source capture #360 is active; do not launch a duplicate. Independently verify its next checkpoint artifact, ZIP CRC, SQLite integrity, report identities, blob hashes and queue accounting. No semantic audit count increment before all gates.",
   "candidate_review_queue": {
     "total_discovered": 7901,
     "audited": 10,
@@ -801,24 +801,31 @@
     }
   },
   "source_capture": {
-    "total": 7901,
-    "captured": 3307,
-    "complete_within_configured_scope": 2402,
-    "coverage_limited": 905,
-    "pending": 4548,
-    "failed": 46,
+    "latest_verified_checkpoint_run": 43783788433,
+    "latest_verified_artifact_id": 14189048785,
+    "artifact_sha256": "cb5778c8c9ca1277ea439fcf5140afdc1f4643d1b1689c180e60dd67cd4159c8",
+    "artifact_size_bytes": 111808336,
+    "zip_crc": "ok",
+    "sqlite_integrity": "ok",
+    "captured_reports": 4194,
+    "complete_within_scope": 3030,
+    "coverage_limited": 1164,
+    "pending": 3652,
+    "failed_after_retry_budget": 55,
     "leased": 0,
-    "latest_verified_run": 43738283588,
-    "artifact_id": 14170839049,
-    "artifact_sha256": "d62e2f5edbec6fe3eabc8933dd70e015dbfce253c60a9aae308d8c6b1245e1f2",
-    "zip_crc_check": "ok",
-    "sqlite_integrity_check": "ok",
-    "captured_report_identity_checks": 3307,
-    "missing_reports": 0,
-    "report_identity_mismatches": 0,
-    "git_blob_objects_verified": 36451,
-    "git_blob_mismatches": 0,
-    "latest_checkpoint_note": "Run 283 artifact independently inspected. Queue reconciles to 7,901; all 3,307 captured reports are present and identity-consistent; all 36,451 source vault Git blob objects independently hash-verified. Run 284 is active successor."
+    "restored_reports_verified_before_current_12_batch": 4182,
+    "git_blob_references_verified": 58623,
+    "unique_git_blobs_verified": 45751,
+    "manifest_sha256": "45014ead9e61098cef320704131752f63f2a4ebe392947bd8204fd1a34ad43fd",
+    "candidate_code_executed": false,
+    "semantic_audit_completed": false,
+    "active_child_run": {
+      "run_id": 43784116833,
+      "run_number": 360,
+      "job_id": 133027826414,
+      "status": "in_progress",
+      "active_step": "Capture next 12 priority repositories"
+    }
   },
   "semantic_pilot": {
     "r8": {
@@ -1257,5 +1264,41 @@
       ],
       "artifact_uploaded": false
     }
+  },
+  "agent_form_r13": {
+    "mission_id": "flashloan-agent-form-pilot-20261115-r13",
+    "run_id": 43744967275,
+    "artifact_id": 14175691159,
+    "artifact_sha256": "1c1f7fdfc8d4c91698fc2157345279feda1368b0d8a3baf7a2b87e4cb7254771",
+    "artifact_size_bytes": 69070,
+    "zip_crc": "ok",
+    "sqlite_integrity": "ok",
+    "task_counts": {
+      "completed": 35,
+      "pending": 4,
+      "failed": 0
+    },
+    "candidate_purpose_tasks": "2/2 completed",
+    "specialist_tasks": "12/12 completed",
+    "evidence_gates": "2/2 passed; Aave 56 accepted evidence and 33 source-linked findings; Uniswap 39 accepted evidence and 29 source-linked findings",
+    "reviewers": {
+      "completed": 2,
+      "0xnavarro/Aave-Liquiditor": {
+        "decision": "inconclusive",
+        "disagreements": 12,
+        "semantic_quality": "off-topic TypeScript claims; reviewer did not meaningfully address liquidation contract"
+      },
+      "AlbertSu123/UniswapFlashSwap": {
+        "decision": "accept",
+        "disagreements": 12,
+        "semantic_quality": "review output contains generic Solidity/Hardhat/test claims, not material adversarial challenge"
+      }
+    },
+    "strict_acceptance": false,
+    "blocked_reason": "Aave reviewer decision is inconclusive; both reviewer reports contain non-empty review_disagreements; Uniswap reviewer accept is invalid under strict zero-disagreement gate. Candidate dossier tasks (2), mission synthesis (1) and continuation queue (1) remain pending.",
+    "duplicate_claim_retry_runtime": "not_exercised; no specialist duplicate-claim failures; completed task attempts observed as 1",
+    "semantic_audit_count_incremented": false,
+    "candidate_code_executed": false,
+    "next_fix": "Improve independent-review prompt/context and add semantic reviewer-output validation/tests before fresh isolated pilot; keep strict acceptance unchanged."
   }
 }
