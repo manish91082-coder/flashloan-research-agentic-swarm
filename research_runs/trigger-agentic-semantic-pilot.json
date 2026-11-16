@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14E independent-review structured-claim pilot using exact verified source-capture checkpoint 393. Fresh isolated mission after R14D completed both evidence gates and all specialist tasks but reviewers returned generic repository summaries rather than candidate-specific protocol risk findings.",
+  "purpose": "R14H corrected structured-review pilot using exact verified source-capture checkpoint 393. Fresh isolated mission after R14G seed was created before the final prompt-contract correction; this run pins the corrected reviewer prompt and successful cross-version CI commit.",
   "checkpoint_run_id": 43799361897,
   "checkpoint_artifact_id": 14196365507,
   "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
@@ -28,9 +28,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14g",
-  "database": "data/agentic-mission-pilot-20261116-r14g.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14g",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14h",
+  "database": "data/agentic-mission-pilot-20261116-r14h.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14h",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -42,7 +42,7 @@
   "output_contract_version": "5.7.0-structured-protocol-topic-reviewer",
   "acceptance": [
     "Restore and verify exact source-capture checkpoint run 43799361897 artifact 14196365507 by SHA-256 before restore",
-    "Use fresh isolated R14D database and artifact root; never reuse earlier pilot state",
+    "Use fresh isolated R14H database and artifact root; never reuse earlier pilot state",
     "Complete 2/2 source-pinned candidate-purpose tasks and 12/12 distinct specialist tasks",
     "Pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
     "Complete 2/2 independent candidate-specific reviews using explicit protocol-dimension prompt",
@@ -64,8 +64,8 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14g-8192-context-lossless-reviewer-18k",
-  "retry_note": "Fresh isolated R14G pilot after R14E reviewers failed semantic relevance. Reviewer prompt now demands three distinct Aave protocol claims; reviewer source catalog is restricted to relevant Aave source signals; reviewer excerpts and seven prior reports are bounded to fit an explicit 8192-token Ollama context. Evidence gates remain unchanged and fail-closed. Source checkpoint 393 remains immutable.",
+  "trigger_revision": "r14h-corrected-reviewer-prompt-ci-green",
+  "retry_note": "Fresh isolated R14H pilot after R14E reviewers failed semantic relevance and R14G prompt-contract CI regression was corrected. Reviewer prompt now includes the exact callback-authentication terms and configured Pool/TODO constraints required by regression tests, while preserving three distinct Aave protocol claims, relevant source catalog, lossless seven-report context and explicit 8192-token Ollama context. Evidence gates remain unchanged and fail-closed. Source checkpoint 393 remains immutable.",
   "previous_attempt": {
     "run_id": 43816195099,
     "artifact_id": 14203812377,
@@ -78,5 +78,7 @@
     "test_commit": "cd7208080c997273cb6c086869c2a84b2a55d8bf",
     "purpose": "Require explicit candidate-specific protocol-topic claim structures (Pool/IPool, executeOperation/msg.sender/initiator, repayment/premium) and regression-test the reviewer prompt."
   },
-  "updated_at_utc": "2026-11-16T09:20:00Z"
+  "updated_at_utc": "2026-11-16T09:12:00Z",
+  "corrective_code_commit": "abf0aa53381a9030d799c4ef5bb423dc16ede95e",
+  "ci_validation": {"run_id": 43837418271, "conclusion": "success", "python_versions": ["3.11", "3.12", "3.13"]}
 }
