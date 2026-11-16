@@ -1,0 +1,38 @@
+name: R15D Challenger Verifier CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/verify_r15d_challenger_benchmark.py'
+      - 'tests/test_r15d_challenger_benchmark.py'
+      - '.github/workflows/r15d-challenger-verifier-ci.yml'
+  pull_request:
+    paths:
+      - 'scripts/verify_r15d_challenger_benchmark.py'
+      - 'tests/test_r15d_challenger_benchmark.py'
+      - '.github/workflows/r15d-challenger-verifier-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verifier-regression:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile verifier and tests
+        run: python -m compileall -q scripts/verify_r15d_challenger_benchmark.py tests/test_r15d_challenger_benchmark.py
+      - name: Run challenger verifier regression tests
+        run: python -m unittest -v tests.test_r15d_challenger_benchmark
