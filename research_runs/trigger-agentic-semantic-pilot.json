@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14B strict semantic-quality retry from independently verified source-capture checkpoint 393. Fresh isolated mission after R14 run 23 failed on dependency_license role drift and duplicate finding claim. Fail closed on any task, evidence or reviewer gate.",
+  "purpose": "R14C independent-review prompt correction pilot using exact verified source-capture checkpoint 393. Fresh isolated mission after R14B passed all specialist and evidence gates but both independent reviewers failed candidate-specific semantic relevance.",
   "checkpoint_run_id": 43799361897,
   "checkpoint_artifact_id": 14196365507,
   "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
@@ -28,9 +28,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14b",
-  "database": "data/agentic-mission-pilot-20261116-r14b.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14b",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14c",
+  "database": "data/agentic-mission-pilot-20261116-r14c.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14c",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -39,19 +39,19 @@
     "max_reviewer_chars": 50000
   },
   "model_max_output_tokens": 2400,
-  "output_contract_version": "5.5.0-reviewer-semantic-correction-retry",
+  "output_contract_version": "5.6.0-reviewer-explicit-protocol-dimensions",
   "acceptance": [
     "Restore and verify exact source-capture checkpoint run 43799361897 artifact 14196365507 by SHA-256 before restore",
-    "Use fresh isolated R14B database and artifact root; never reuse R14/R13 or earlier pilot state",
+    "Use fresh isolated R14C database and artifact root; never reuse earlier pilot state",
     "Complete 2/2 source-pinned candidate-purpose tasks and 12/12 distinct specialist tasks",
-    "dependency_license role must report only dependency/version-pin/build/license findings; missing package manifests, lockfiles or license files must be unknowns, not inferred claims",
     "Pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
-    "Complete 2/2 independent candidate-specific reviews using reviewer semantic gate v5.5.0",
-    "Both reviewers must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence",
+    "Complete 2/2 independent candidate-specific reviews using explicit protocol-dimension prompt",
+    "For Aave candidates, reviewer findings must independently examine Pool/provider identity, executeOperation callback authentication and repayment/premium; for Uniswap V2 candidates inspect callback implementation, pair authentication, token ordering/reserve source and repayment",
+    "All reviewer findings must cite narrow pinned evidence IDs and distinguish source-observed facts, supported inference and unknowns",
+    "Both reviewers must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence; any unresolved material issue blocks",
     "Reject generic/off-topic claims, duplicate claims, unsupported claims, confidence inflation and opaque disagreement identifiers",
     "Verify task counts, attempts, report-to-source provenance and reviewer decisions from uploaded SQLite database and artifacts",
     "Do not increment dossier or semantic audit count until every acceptance gate passes",
-    "Do not claim duplicate-claim runtime retry was exercised unless a real duplicate-claim failure is observed and retried within max_attempts=3",
     "Candidate code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled"
   ],
   "safety": {
@@ -64,18 +64,18 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14b-role-drift-duplicate-claim-correction-checkpoint-393",
-  "retry_note": "Fresh checkpoint 384 fully verified: ZIP CRC and SQLite integrity pass, all 4,505 report identities and 62,771 Git blob references verified, zero blob mismatches, queue total 7,901. Artifact is pinned by live seed and trigger and protected from self-chain retirement. Previous model registry 503 is addressed with bounded retry.",
+  "trigger_revision": "r14c-explicit-protocol-review-dimensions-checkpoint-393",
+  "retry_note": "Fresh isolated reviewer correction pilot. Preserve source checkpoint 393 unchanged. Reviewer semantic acceptance threshold remains unchanged.",
   "previous_attempt": {
-    "run_id": 43796225845,
-    "artifact_id": 14196641112,
-    "artifact_sha256": "59b8011c6126013f7b56d5293ed9a6f3b975c3647e52387b5e85890522e9c82c",
+    "run_id": 43804464348,
+    "artifact_id": 14198318779,
+    "artifact_sha256": "b799c0a90107a551d81bce96937d43b7b46572535b0486f9dc149d01c0ed70b1",
     "status": "failed",
-    "root_cause": "dependency_license specialist emitted liquidation execution findings and duplicate claim; evidence/review stages never started"
+    "root_cause": "Both independent reviewers failed semantic relevance with covered=[]; 12/12 specialists and 2/2 evidence gates passed; 56 accepted evidence records per candidate."
   },
   "code_correction": {
-    "commit": "34d1e6b42b1cf54532532751685fa0cdecd1e770",
-    "ci_run_id": 43802940578,
-    "ci_conclusion": "success"
-  }
+    "commit": "e5cef68bfef76178e6be55aaccbb707d7368ddf8",
+    "purpose": "Explicit candidate-specific protocol review dimensions and rejected claim preview diagnostics"
+  },
+  "updated_at_utc": "2026-11-16T05:05:00Z"
 }
