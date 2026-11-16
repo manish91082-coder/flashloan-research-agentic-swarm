@@ -3,16 +3,16 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R14_REVIEWER_CORRECTION_5_5_0",
-  "status": "DISCOVERY_7901; SOURCE_CAPTURE_4612_CHECKPOINT_393_VERIFIED; CI_456_SUCCESS; R14_RUN23_FAILED_ROLE_DRIFT; R14B_RUN24_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-16T04:31:00Z",
+  "status": "DISCOVERY_7901; SOURCE_CAPTURE_4612_CHECKPOINT_393_VERIFIED; CI_456_457_458_SUCCESS; R14_RUN23_FAILED_ROLE_DRIFT; R14B_RUN24_SPECIALIST_EXECUTION_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
+  "last_verified_at_utc": "2026-11-16T04:34:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "b4f092d4b1c2ce8ce7ddda9c0f65b15fe050d76b",
   "latest_ci_run": {
-    "run_id": 43802940578,
-    "run_number": 456,
+    "run_id": 43804464358,
+    "run_number": 458,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "34d1e6b42b1cf54532532751685fa0cdecd1e770",
+    "head_sha": "b4f092d4b1c2ce8ce7ddda9c0f65b15fe050d76b",
     "python_versions": [
       "3.11",
       "3.12",
@@ -1202,9 +1202,10 @@
     "workflow_run_id": 43799550796,
     "run_number": 394,
     "status": "queued",
-    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43799550796",
-    "parent_checkpoint_run_id": 43799361897,
-    "artifact_available": false
+    "updated_at_utc": "2026-11-16T03:40:07Z",
+    "jobs": 0,
+    "artifact_available": false,
+    "diagnosis": "No job has been assigned; workflow uses concurrency group flashloan-autonomous-source-capture with cancel-in-progress=false. Prior run #393 completed. Queue/runner scheduling remains unresolved; checkpoint #393 remains immutable and pinned."
   },
   "execution_diagnosis": {
     "verified_at_utc": "2026-11-15T18:15:00Z",
@@ -1408,10 +1409,17 @@
     "candidate_code_executed": false,
     "workflow_run_id": 43804464348,
     "run_number": 24,
-    "active_step": "Download and verify immutable source-capture checkpoint",
+    "active_step": "Run serialized source-grounded specialist, evidence and reviewer pilot",
     "seed_identity_validation": "passed",
     "artifact_available": false,
-    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43804464348"
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43804464348",
+    "source_restore": "passed",
+    "agent_form_runtime": "installed",
+    "ollama_runtime": "installed; local qwen2.5:3b pulled",
+    "fresh_dag_bootstrap": "passed",
+    "specialist_execution": "in_progress",
+    "evidence_validation": "pending",
+    "independent_review": "pending"
   },
   "latest_project_state_commit": "ea8bc4f81a1244e6c4bd4089a9edb5e9d3608d44"
 }
