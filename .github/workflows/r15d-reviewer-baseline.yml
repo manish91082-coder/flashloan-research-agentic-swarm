@@ -66,17 +66,19 @@ jobs:
           for key in ("evaluation_artifact_id", "source_seed_artifact_id"):
               assert isinstance(trigger[key], int) and trigger[key] > 0
           print(json.dumps(trigger, indent=2, sort_keys=True))
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
-              for key, value in trigger.items():
-                  if isinstance(value, (str, int, float, bool)):
-                      out.write(f"{key}={str(value).lower() if isinstance(value, bool) else value}\n")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as out:
+              out.write(f"R15D_EVALUATION_ARTIFACT_ID={trigger['evaluation_artifact_id']}\n")
+              out.write(f"R15D_EVALUATION_ARTIFACT_SHA256={trigger['evaluation_artifact_sha256']}\n")
+              out.write(f"R15D_SOURCE_SEED_ARTIFACT_ID={trigger['source_seed_artifact_id']}\n")
+              out.write(f"R15D_SOURCE_SEED_ARTIFACT_SHA256={trigger['source_seed_artifact_sha256']}\n")
+              out.write(f"R15D_MANIFEST_BLOB_SHA={trigger['manifest_blob_sha']}\n")
+              out.write(f"FLR_MODEL_NAME={trigger['model_tag']}\n")
           PY
           ACTUAL_MANIFEST_BLOB_SHA="$(git hash-object research/R15C_EVALUATION_PACKET_MANIFEST.json)"
-          if [[ "$ACTUAL_MANIFEST_BLOB_SHA" != "${{ steps.pins.outputs.manifest_blob_sha }}" ]]; then
+          if [[ "$ACTUAL_MANIFEST_BLOB_SHA" != "$R15D_MANIFEST_BLOB_SHA" ]]; then
             echo "R15C manifest blob SHA differs from the pinned evaluation manifest." >&2
             exit 1
           fi
-          echo "FLR_MODEL_NAME=${{ steps.pins.outputs.model_tag }}" >> "$GITHUB_ENV"
 
       - name: Download and verify immutable source-vault checkpoint
         run: |
@@ -84,11 +86,11 @@ jobs:
           mkdir -p "$RUNNER_TEMP/r15d-source-seed"
           python scripts/download_github_workflow_artifact.py \
             --repository "$GITHUB_REPOSITORY" \
-            --artifact-id "${{ steps.pins.outputs.source_seed_artifact_id }}" \
+            --artifact-id "$R15D_SOURCE_SEED_ARTIFACT_ID" \
             --destination "$RUNNER_TEMP/r15d-source-seed/source-vault.zip" \
             --extract-to "$RUNNER_TEMP/r15d-source-seed/unpacked" \
             --max-wait-seconds 7200
-          echo "${{ steps.pins.outputs.source_seed_artifact_sha256 }}  $RUNNER_TEMP/r15d-source-seed/source-vault.zip" | sha256sum --check -
+          echo "$R15D_SOURCE_SEED_ARTIFACT_SHA256  $RUNNER_TEMP/r15d-source-seed/source-vault.zip" | sha256sum --check -
           python scripts/restore_source_capture_checkpoint.py \
             --artifact-root "$RUNNER_TEMP/r15d-source-seed/unpacked" \
             --workspace "$GITHUB_WORKSPACE" \
@@ -100,11 +102,11 @@ jobs:
           mkdir -p "$RUNNER_TEMP/r15d-evaluation"
           python scripts/download_github_workflow_artifact.py \
             --repository "$GITHUB_REPOSITORY" \
-            --artifact-id "${{ steps.pins.outputs.evaluation_artifact_id }}" \
+            --artifact-id "$R15D_EVALUATION_ARTIFACT_ID" \
             --destination "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" \
             --extract-to "$RUNNER_TEMP/r15d-evaluation/unpacked" \
             --max-wait-seconds 7200
-          echo "${{ steps.pins.outputs.evaluation_artifact_sha256 }}  $RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" | sha256sum --check -
+          echo "$R15D_EVALUATION_ARTIFACT_SHA256  $RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" | sha256sum --check -
           unzip -t "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip"
           unzip -q "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" -d "$GITHUB_WORKSPACE"
           python - <<'PY'
