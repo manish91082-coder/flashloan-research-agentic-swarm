@@ -166,12 +166,29 @@ The first R15D code tranche is committed on `main`:
 
 ### Verification
 
-- Latest CI run: [43893065834](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43893065834)
+- Adequacy gate CI run: [43893065834](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43893065834)
 - Commit: `d302a901db0b47e3624a01f27d83fbb541aa2aa1`
 - Python 3.11: **153 tests passed**
 - Python 3.12: **153 tests passed**
 - Python 3.13: **153 tests passed**
 - All three matrix jobs succeeded.
+- Reviewer raw-exchange capture and fingerprint tests passed in CI run [43894208083](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43894208083).
+- Frozen artifact manifest: `research/R15C_EVALUATION_PACKET_MANIFEST.json`; artifact SHA-256 `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`.
+- Baseline model manifest pinned from R15C: `qwen2.5:3b`, digest `357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b`, Q4_K_M, 3.1B parameters, reported context 32,768.
+
+### Frozen R15C adequacy replay
+
+The normalized R15D deterministic adequacy logic was replayed against all 14 immutable R15C specialist reports:
+
+- **14/14 insufficient**, 0/14 adequate for adversarial challenge.
+- Both seven-report candidate packets are insufficient.
+- Reason counts: 29 findings lack a role-relevant technical mechanism; 6 findings lack a shared role-specific anchor in the exact cited excerpt.
+- CamelCase normalization is included, so identifiers such as `healthFactor` can match prose such as “health factor”.
+- This does not mean every underlying source finding is false. It means the specialist reports and their cited excerpts do not meet the deterministic pre-review adequacy contract. R15C remains unchanged and is not retroactively relabelled.
+
+### Reproducible reviewer exchange capture
+
+The local provider now retains the exact request body, request SHA-256, raw OpenAI-compatible response envelope and response SHA-256. The independent-review worker writes this exchange to the mission artifact root before semantic validation, including task ID, repository, pinned commit/tree, model identity, prompt-template version and specialist-packet adequacy state. Thus a rejected reviewer response is preserved for audit rather than reduced to a log preview. This capture is restricted to the local loopback model provider; no cloud inference path is introduced.
 
 ### Limitation — do not overstate this gate
 
