@@ -63,9 +63,13 @@ ROLE_PROMPTS = {
         "Never invent market prices, gas quotes or profitability. Missing inputs remain unknown."
     ),
     "dependency_license": (
-        "Use purpose_category consistently with the candidate-purpose report. Assess dependencies, version pins, build configuration and license evidence from supplied "
-        "source/metadata. Do not infer license from a badge, README statement or package name. "
-        "If a license file is absent from captured files, report unknown rather than guessing."
+        "Use purpose_category consistently with the candidate-purpose report. This role is ONLY for dependency, "
+        "version-pin, build-configuration and license forensics. Do NOT describe liquidation execution, basket swaps, "
+        "protocol purpose or transaction behavior as findings for this role. Inspect only supplied package manifests, "
+        "lockfiles, compiler/build configuration and LICENSE/COPYING files. If those files or their relevant contents "
+        "are absent from the supplied excerpts, return zero findings, list the precise missing artifacts as unknowns, "
+        "set implementation_status=unknown and confidence=low. Do not repurpose unrelated source signals as dependency "
+        "evidence. Never repeat a finding or paraphrase the same fact as multiple findings."
     ),
     "independent_reviewer": (
         "You are an adversarial independent reviewer, not a summarizer. Review all seven distinct "
@@ -462,7 +466,7 @@ def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None
             raise SpecialistTaskError("high-confidence finding is incompatible with partial/unknown implementation or unresolved unknowns")
         claim = finding.get("claim", "").strip().casefold()
         if claim and claim in seen_claims:
-            raise SpecialistTaskError("duplicate finding claim")
+            raise SpecialistTaskError(f"duplicate finding claim: {claim[:240]}")
         if claim:
             seen_claims.add(claim)
 
@@ -829,11 +833,16 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
                 "review_disagreements; otherwise use accept_with_reservations, reject, or inconclusive."
             )
         elif duplicate_claim:
+            duplicate_detail = error_text.partition(":")[2].strip()
             retry_context["validation_feedback"] = (
                 "Your previous JSON was rejected because two or more findings repeated the same claim. "
-                "Regenerate the complete report. Keep only one finding for each distinct claim; "
+                + (f"The duplicated claim was: {duplicate_detail}. " if duplicate_detail else "")
+                + "Regenerate the complete report. Keep only one finding for each distinct claim; "
                 "do not evade this by changing wording while describing the same fact. "
-                "If there are fewer distinct supported findings, return fewer findings. "
+                "If there are fewer distinct supported findings, return fewer findings, including ZERO findings "
+                "when the supplied evidence does not support a distinct role-specific claim. "
+                "For dependency_license, do not discuss liquidation purpose or execution; report missing manifests, "
+                "lockfiles or license files as unknown instead of fabricating dependency findings. "
                 "Preserve narrow source evidence references and all required schema fields."
             )
         else:
