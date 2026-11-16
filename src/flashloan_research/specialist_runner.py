@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 from pathlib import PurePosixPath
@@ -285,13 +286,19 @@ _GENERIC_SPECIALIST_CLAIM_MARKERS = (
 )
 _SPECIALIST_TOPIC_TERMS = {
     "candidate_purpose": ("flash", "liquidat", "arbitrag", "swap", "lending", "protocol", "defi", "borrow", "health factor", "basket", "profit units", "profit floor", "debt", "collateral"),
-    "protocol_specialist": ("pool", "callback", "flashloan", "flash loan", "liquidat", "repay", "premium", "pair", "swap", "reserve", "token", "provider", "aave", "uniswap", "initiator", "health factor", "dead zone", "precheck", "test mode", "nonce", "transaction override", "profit floor", "classifyprecheckfailure", "callstatic", "estimategas", "basket"),
+    "protocol_specialist": ("pool", "callback", "flashloan", "flash loan", "liquidat", "repay", "premium", "pair", "swap", "reserve", "token", "provider", "aave", "uniswap", "initiator", "health factor", "dead zone", "precheck", "test mode", "nonce", "transaction override", "profit floor", "classify precheck failure", "call static", "estimate gas", "basket"),
     "solidity_security": ("auth", "caller", "initiator", "msg.sender", "reentran", "overflow", "allowance", "approval", "external call", "arithmetic", "validation", "invariant", "state", "owner", "privilege", "callback", "onlyowner", "require", "access control"),
-    "execution_engineer": ("transaction", "gas", "nonce", "slippage", "router", "rpc", "retry", "revert", "mempool", "deadline", "route", "broadcast", "confirmation", "chain", "health factor", "dead zone", "precheck", "estimategas", "callstatic", "transaction override", "test mode", "profit floor"),
+    "execution_engineer": ("transaction", "gas", "nonce", "slippage", "router", "rpc", "retry", "revert", "mempool", "deadline", "route", "broadcast", "confirmation", "chain", "health factor", "dead zone", "precheck", "estimate gas", "call static", "transaction override", "test mode", "profit floor"),
     "test_verification": ("test", "assert", "fixture", "mock", "coverage", "fuzz", "invariant", "regression", "unit", "integration", "scenario", "test mode", "test success", "skip submission"),
-    "economics_quant": ("profit", "gas", "fee", "premium", "cost", "revenue", "pnl", "amount", "profitability", "spread", "slippage", "capital", "break-even", "health factor", "dead zone", "minprofit", "gas-aware", "gas cost", "profit floor", "marginusd", "computeminprofitunits", "estimated profit", "debt", "collateral"),
+    "economics_quant": ("profit", "gas", "fee", "premium", "cost", "revenue", "pnl", "amount", "profitability", "spread", "slippage", "capital", "break-even", "health factor", "dead zone", "min profit", "gas-aware", "gas cost", "profit floor", "margin usd", "compute min profit units", "estimated profit", "debt", "collateral"),
     "dependency_license": ("depend", "package", "compiler", "version", "license", "lockfile", "pragma", "solidity", "npm", "requirements", "cargo"),
 }
+
+
+def _normalise_semantic_text(value: str) -> str:
+    """Normalize camelCase and punctuation so source identifiers match prose terms."""
+    with_word_boundaries = re.sub(r"([a-z0-9])([A-Z])", r"\\1 \\2", value)
+    return " ".join(re.findall(r"[a-z0-9]+", with_word_boundaries.casefold()))
 
 
 def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]],
@@ -301,18 +308,19 @@ def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]]
     if not findings:
         reasons.append("no source-grounded specialist findings were supplied for independent challenge")
     evidence_by_id = {
-        item["evidence_id"]: str(item.get("excerpt", "")).casefold()
+        item["evidence_id"]: _normalise_semantic_text(str(item.get("excerpt", "")))
         for item in accepted_evidence
         if isinstance(item, dict) and isinstance(item.get("evidence_id"), str)
     }
     allowed_ids = set(evidence_by_id)
-    topic_terms = _SPECIALIST_TOPIC_TERMS.get(role, ())
+    topic_terms = tuple(_normalise_semantic_text(term) for term in _SPECIALIST_TOPIC_TERMS.get(role, ()))
+    generic_markers = tuple(_normalise_semantic_text(term) for term in _GENERIC_SPECIALIST_CLAIM_MARKERS)
     for index, finding in enumerate(findings, start=1):
-        claim = str(finding.get("claim", "")).strip().casefold()
+        claim = _normalise_semantic_text(str(finding.get("claim", "")).strip())
         refs = finding.get("evidence_refs", [])
         if len(claim) < 24:
             reasons.append(f"finding {index} claim is too short to express a reviewable mechanism")
-        if any(marker in claim for marker in _GENERIC_SPECIALIST_CLAIM_MARKERS):
+        if any(marker in claim for marker in generic_markers):
             reasons.append(f"finding {index} is generic repository/language boilerplate")
         if not isinstance(refs, list) or not refs or any(ref not in allowed_ids for ref in refs):
             reasons.append(f"finding {index} does not resolve exclusively to accepted evidence IDs")
