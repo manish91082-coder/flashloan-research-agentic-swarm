@@ -304,6 +304,7 @@ class LocalOpenAICompatibleProvider:
         request_bytes = json.dumps(body).encode("utf-8")
         self.last_exchange = {
             "request": body,
+            "request_raw": request_bytes.decode("utf-8"),
             "request_sha256": hashlib.sha256(request_bytes).hexdigest(),
             "response_raw": None,
             "response_sha256": None,
