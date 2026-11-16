@@ -37,3 +37,14 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -v
+      - name: Build source-pinned R15D semantic fixtures
+        if: matrix.python-version == '3.11'
+        run: python scripts/build_r15d_semantic_fixtures.py
+      - name: Upload R15D semantic fixture artifact
+        if: matrix.python-version == '3.11' && always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: r15d-semantic-fixtures-${{ github.sha }}
+          path: research_runs/r15d_semantic_fixtures/
+          if-no-files-found: error
+          retention-days: 90
