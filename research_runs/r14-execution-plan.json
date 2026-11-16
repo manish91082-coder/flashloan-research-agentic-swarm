@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "record_type": "semantic_pilot_execution_plan",
   "mission_id": "flashloan-agent-form-pilot-20261116-r14",
-  "status": "READY_TO_TRIGGER_R14_WITH_INDEPENDENTLY_VERIFIED_CHECKPOINT_377",
+  "status": "READY_TO_TRIGGER_R14_WITH_INDEPENDENTLY_VERIFIED_CHECKPOINT_379",
   "branch": "main",
   "reviewer_gate_version": "5.4.0-candidate-specific-semantic-review-gate",
   "model": "qwen2.5:3b",
@@ -11,18 +11,18 @@
   "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
   "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14",
   "checkpoint": {
-    "source_capture_run_id": 43794531352,
-    "artifact_id": 14193398742,
-    "artifact_sha256": "036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8",
+    "source_capture_run_id": 43794886851,
+    "artifact_id": 14193898114,
+    "artifact_sha256": "bb79aaa5c7ca77695408469bc9d7ba77852d7588a2eb7a20519e7c5d082f3964",
     "mission_run_id": 43600488013,
     "queue": {
       "total": 7901,
-      "captured": 4421,
-      "pending": 3424,
+      "captured": 4445,
+      "pending": 3400,
       "leased": 0,
       "failed": 56,
-      "captured_complete_within_scope": 3203,
-      "captured_with_coverage_limits": 1218
+      "captured_complete_within_scope": 3217,
+      "captured_with_coverage_limits": 1228
     },
     "verification": {
       "workflow_conclusion": "success",
@@ -30,12 +30,12 @@
       "sha256_verified": true,
       "zip_crc": "ok",
       "sqlite_integrity": "ok",
-      "reports_verified": 4421,
-      "git_blob_references_verified": 61673,
-      "unique_git_blobs_verified": 48081,
+      "reports_verified": 4445,
+      "report_identity_mismatches": 0,
+      "git_blob_references_verified": 62068,
+      "unique_git_blobs_verified": 48372,
       "blob_mismatches": 0,
-      "queue_accounting_total": 7901,
-      "report_identity_mismatches": 0
+      "queue_accounting_total": 7901
     }
   },
   "acceptance_gates": [
@@ -63,6 +63,6 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "trigger_policy": "Trigger only after updating the R14 seed and trigger payload with this exact immutable checkpoint identity.",
-  "next_action": "Trigger R14 from the exact verified checkpoint run 43794531352 / artifact 14193398742 / SHA-256 036a08ed9e91c22358d5c2af0a0522640035964e4afc5d43e8505538c58d0fb8; verify all 14 tasks, 2 evidence gates and 2 independent reviewer decisions from uploaded artifacts."
+  "trigger_policy": "Trigger only after updating the R14 seed and trigger payload with this exact immutable checkpoint identity; the seed is pinned to protect it from source-capture artifact retirement.",
+  "next_action": "Execute R14 from verified checkpoint workflow run 43794886851 / artifact 14193898114 / SHA-256 bb79aaa5c7ca77695408469bc9d7ba77852d7588a2eb7a20519e7c5d082f3964; verify all 14 tasks, 2 evidence gates and 2 independent reviewer decisions from uploaded artifacts."
 }
