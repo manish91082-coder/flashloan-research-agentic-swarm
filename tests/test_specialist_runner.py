@@ -337,6 +337,81 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         with self.assertRaisesRegex(SpecialistTaskError, "explicit valid review_decision"):
             validate_specialist_output(output, self.inspection, "independent_reviewer")
 
+
+    def test_reviewer_rejects_generic_aave_findings_and_opaque_disagreement_ids(self):
+        inspection = {
+            "repository": "0xnavarro/Aave-Liquiditor",
+            "commit_sha": "a" * 40, "tree_sha": "b" * 40,
+            "signals": [{"path": "src/contracts/FlashLiquidator.sol", "line": 81,
+                         "signal": "aave_flash_loan_simple", "excerpt": "executeOperation"}],
+        }
+        output = sample_output(
+            findings=[{
+                "finding_id": "R-1", "claim": "The script is written in TypeScript.",
+                "category": "review_challenge", "severity": "not_applicable",
+                "claim_status": "supported_inference", "confidence": "low",
+                "evidence_refs": ["EV00001"],
+            }],
+            evidence=["EV00001"], review_decision="inconclusive",
+            review_disagreements=["R00001"],
+        )
+        with self.assertRaisesRegex(SpecialistTaskError, "not semantically relevant"):
+            validate_specialist_output(output, inspection, "independent_reviewer")
+
+    def test_reviewer_requires_candidate_specific_topics_and_rejects_accept_with_disagreements(self):
+        inspection = {
+            "repository": "AlbertSu123/UniswapFlashSwap",
+            "commit_sha": "a" * 40, "tree_sha": "b" * 40,
+            "signals": [{"path": "contracts/LiquidationOperator.sol", "line": 256,
+                         "signal": "uniswap_v2_flash_callback", "excerpt": "uniswapV2Call TODO"}],
+        }
+        output = sample_output(
+            findings=[{
+                "finding_id": "R-1", "claim": "The uniswapV2Call callback remains a TODO placeholder.",
+                "category": "review_challenge", "severity": "not_applicable",
+                "claim_status": "source_observed", "confidence": "low",
+                "evidence_refs": ["EV00001"],
+            },{
+                "finding_id": "R-2", "claim": "The reserve source and token ordering need verification before repayment.",
+                "category": "review_challenge", "severity": "not_applicable",
+                "claim_status": "supported_inference", "confidence": "low",
+                "evidence_refs": ["EV00001"],
+            }],
+            evidence=["EV00001"], review_decision="accept",
+            review_disagreements=["The callback placeholder prevents confirmation of the liquidation path at contracts/LiquidationOperator.sol:256 (EV00001)."],
+        )
+        with self.assertRaisesRegex(SpecialistTaskError, "accept requires zero unresolved"):
+            validate_specialist_output(output, inspection, "independent_reviewer")
+
+    def test_reviewer_accepts_candidate_specific_review_with_zero_disagreements(self):
+        inspection = {
+            "repository": "0xnavarro/Aave-Liquiditor",
+            "commit_sha": "a" * 40, "tree_sha": "b" * 40,
+            "signals": [{"path": "src/contracts/FlashLiquidator.sol", "line": 81,
+                         "signal": "aave_flash_loan_simple", "excerpt": "executeOperation"}],
+        }
+        output = sample_output(
+            findings=[{
+                "finding_id": "R-1", "claim": "The Pool variable is assigned from the addresses-provider constructor argument, so verify the IPool interface identity.",
+                "category": "review_challenge", "severity": "not_applicable",
+                "claim_status": "source_observed", "confidence": "low",
+                "evidence_refs": ["EV00001"],
+            },{
+                "finding_id": "R-2", "claim": "The executeOperation callback must authenticate caller and initiator and bind asset and amount before repayment.",
+                "category": "review_challenge", "severity": "not_applicable",
+                "claim_status": "supported_inference", "confidence": "low",
+                "evidence_refs": ["EV00001"],
+            },{
+                "finding_id": "R-3", "claim": "Repayment must cover amount plus premium and be enforced by the callback.",
+                "category": "review_challenge", "severity": "not_applicable",
+                "claim_status": "supported_inference", "confidence": "low",
+                "evidence_refs": ["EV00001"],
+            }],
+            evidence=["EV00001"], review_decision="accept", review_disagreements=[],
+        )
+        result = validate_specialist_output(output, inspection, "independent_reviewer")
+        self.assertEqual(result["review_decision"], "accept")
+
     def test_verified_source_context_loads_hash_verified_bounded_excerpts(self):
         payload = (
             "contract Liquidator {\n"
