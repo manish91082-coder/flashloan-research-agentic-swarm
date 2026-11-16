@@ -1,34 +1,36 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14 strict semantic-quality pilot from independently verified and artifact-retirement-pinned source-capture checkpoint 379. Fail closed on any task, evidence or reviewer gate.",
-  "checkpoint_run_id": 43795802487,
-  "checkpoint_artifact_id": 14193319569,
-  "checkpoint_artifact_sha256": "d7560418a924d0261c0c7196a34d150b548c34a2398d20f467e989996fa9a7da",
+  "purpose": "R14B strict semantic-quality retry from independently verified source-capture checkpoint 393. Fresh isolated mission after R14 run 23 failed on dependency_license role drift and duplicate finding claim. Fail closed on any task, evidence or reviewer gate.",
+  "checkpoint_run_id": 43799361897,
+  "checkpoint_artifact_id": 14196365507,
+  "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4505,
-    "pending": 3340,
+    "captured": 4612,
+    "pending": 3232,
     "leased": 0,
-    "failed": 56,
-    "captured_complete_within_scope": 3263,
-    "captured_with_coverage_limits": 1242
+    "failed": 57,
+    "captured_complete_within_scope": 3338,
+    "captured_with_coverage_limits": 1274
   },
   "checkpoint_verification": {
+    "workflow_conclusion": "success",
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4505,
+    "reports_verified": 4612,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 62771,
-    "unique_git_blobs_verified": 48906,
-    "blob_mismatches": 0
+    "git_blob_references_verified": 50268,
+    "unique_git_blobs_verified": 50268,
+    "blob_mismatches": 0,
+    "queue_accounting_total": 7901
   },
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14",
-  "database": "data/agentic-mission-pilot-20261116-r14.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14b",
+  "database": "data/agentic-mission-pilot-20261116-r14b.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14b",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -37,19 +39,20 @@
     "max_reviewer_chars": 50000
   },
   "model_max_output_tokens": 2400,
-  "output_contract_version": "5.4.0-candidate-specific-semantic-review-gate",
+  "output_contract_version": "5.5.0-reviewer-semantic-correction-retry",
   "acceptance": [
-    "restore and verify exact source-capture checkpoint workflow run 43794531352 artifact 14193398742 by SHA-256",
-    "fresh isolated R14 database and artifact root; never reuse R13 or earlier pilot state",
-    "complete 2/2 source-pinned candidate-purpose tasks and 12/12 distinct specialist tasks",
-    "pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
-    "complete 2/2 independent candidate-specific reviews using reviewer semantic gate v5.4.0",
-    "both reviewers must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence",
-    "reject generic/off-topic claims, unsupported claims, confidence inflation and opaque disagreement identifiers",
-    "verify task counts, attempts, report-to-source provenance and reviewer decisions from uploaded SQLite database and artifacts",
-    "no dossier or semantic audit count increment until every acceptance gate passes",
-    "duplicate-claim runtime retry may only be claimed if a real duplicate-claim failure is observed and retried within max_attempts=3",
-    "candidate code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled"
+    "Restore and verify exact source-capture checkpoint run 43799361897 artifact 14196365507 by SHA-256 before restore",
+    "Use fresh isolated R14B database and artifact root; never reuse R14/R13 or earlier pilot state",
+    "Complete 2/2 source-pinned candidate-purpose tasks and 12/12 distinct specialist tasks",
+    "dependency_license role must report only dependency/version-pin/build/license findings; missing package manifests, lockfiles or license files must be unknowns, not inferred claims",
+    "Pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
+    "Complete 2/2 independent candidate-specific reviews using reviewer semantic gate v5.5.0",
+    "Both reviewers must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence",
+    "Reject generic/off-topic claims, duplicate claims, unsupported claims, confidence inflation and opaque disagreement identifiers",
+    "Verify task counts, attempts, report-to-source provenance and reviewer decisions from uploaded SQLite database and artifacts",
+    "Do not increment dossier or semantic audit count until every acceptance gate passes",
+    "Do not claim duplicate-claim runtime retry was exercised unless a real duplicate-claim failure is observed and retried within max_attempts=3",
+    "Candidate code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled"
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -61,6 +64,18 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14-retry-verified-checkpoint-384-ollama-backoff-v2",
-  "retry_note": "Fresh checkpoint 384 fully verified: ZIP CRC and SQLite integrity pass, all 4,505 report identities and 62,771 Git blob references verified, zero blob mismatches, queue total 7,901. Artifact is pinned by live seed and trigger and protected from self-chain retirement. Previous model registry 503 is addressed with bounded retry."
+  "trigger_revision": "r14b-role-drift-duplicate-claim-correction-checkpoint-393",
+  "retry_note": "Fresh checkpoint 384 fully verified: ZIP CRC and SQLite integrity pass, all 4,505 report identities and 62,771 Git blob references verified, zero blob mismatches, queue total 7,901. Artifact is pinned by live seed and trigger and protected from self-chain retirement. Previous model registry 503 is addressed with bounded retry.",
+  "previous_attempt": {
+    "run_id": 43796225845,
+    "artifact_id": 14196641112,
+    "artifact_sha256": "59b8011c6126013f7b56d5293ed9a6f3b975c3647e52387b5e85890522e9c82c",
+    "status": "failed",
+    "root_cause": "dependency_license specialist emitted liquidation execution findings and duplicate claim; evidence/review stages never started"
+  },
+  "code_correction": {
+    "commit": "34d1e6b42b1cf54532532751685fa0cdecd1e770",
+    "ci_run_id": 43802940578,
+    "ci_conclusion": "success"
+  }
 }
