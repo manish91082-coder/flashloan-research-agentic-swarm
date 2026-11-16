@@ -32,6 +32,26 @@ class DeterministicReviewEvidenceResolutionTests(unittest.TestCase):
         self.assertEqual(result["inspection_commit_sha"], "a" * 40)
         self.assertEqual(result["evidence_resolution"], "exact_path_and_line_overlap_with_pinned_catalog")
 
+
+    def test_aave_topics_receive_only_their_own_signal_ids(self):
+        result = _deterministic_review_with_catalog(self.inspection, self.source)
+        topics = result["topics"]
+        self.assertEqual(topics["pool_provider_wiring"]["evidence_ids"], ["EV00002"])
+        self.assertEqual(topics["callback_authentication"]["evidence_ids"], ["EV00001"])
+        self.assertEqual(topics["repayment_premium"]["evidence_ids"], ["EV00001"])
+
+    def test_unrelated_signal_in_same_excerpt_is_not_assigned_to_topic(self):
+        inspection = {
+            **self.inspection,
+            "signals": self.inspection["signals"] + [
+                {"path": "contracts/Liquidator.sol", "line": 15,
+                 "signal": "min_profit_guard", "excerpt": "minProfit"}
+            ],
+        }
+        result = _deterministic_review_with_catalog(inspection, self.source)
+        all_ids = {e for topic in result["topics"].values() for e in topic["evidence_ids"]}
+        self.assertNotIn("EV00003", all_ids)
+
     def test_wrong_path_does_not_resolve_catalog_ids(self):
         excerpts = [{**self.source[0], "path": "other.sol"}]
         result = _deterministic_review_with_catalog(self.inspection, excerpts)
