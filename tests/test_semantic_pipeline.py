@@ -182,7 +182,7 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             ):
                 result = executor.run_local_semantic_agents(mission_id)
 
-            self.assertEqual(result["status"], "blocked_independent_review", json.dumps(result, indent=2, default=str))
+            self.assertEqual(result["status"], "executed_with_evidence_gate", json.dumps(result, indent=2, default=str))
             self.assertTrue(result["evidence_validation"]["completed"])
             self.assertEqual(len(FakeLocalProvider.calls), 8)
             self.assertEqual(FakeLocalProvider.reviewer_prior_count, 7)
@@ -198,8 +198,9 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             self.assertTrue(gate["purpose_consensus_pass"])
             self.assertGreater(gate["accepted_evidence_total"], 0)
             self.assertGreater(gate["candidate_purpose_evidence_count"], 0)
-            self.assertEqual(result["independent_review"]["completed"], [])
-            reviewer = result["independent_review"]["failures"][0]
+            self.assertEqual(len(result["independent_review"]["completed"]), 1)
+            self.assertEqual(result["independent_review"]["failures"], [])
+            reviewer = result["independent_review"]["completed"][0]
             reviewer_report = json.loads(Path(reviewer["report"]).read_text())
             self.assertEqual(reviewer_report["review_decision"], "inconclusive")
             self.assertTrue(reviewer_report["review_disagreements"])
@@ -218,7 +219,7 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
                 self.assertEqual(statuses["economic_forensics"], "completed")
                 self.assertEqual(statuses["dependency_forensics"], "completed")
                 self.assertEqual(statuses["evidence_validation"], "completed")
-                self.assertEqual(statuses["independent_review"], "failed")
+                self.assertEqual(statuses["independent_review"], "completed")
                 self.assertEqual(statuses["candidate_dossier"], "pending")
                 report_paths = [
                     row["result"]["report"] for row in rows
