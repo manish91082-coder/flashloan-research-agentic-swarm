@@ -63,11 +63,12 @@ def verify(report_path: Path) -> dict:
             raise ChallengerGateError(
                 f"{repo}: inadequate packet requires model's own inconclusive verdict; got {decision!r}"
             )
-        exchange_path = root / Path(item.get("exchange_file", "")).name
+        exchange_name = Path(item.get("exchange_file", "")).name
+        # The artifact also contains an inspections/<same-name> JSON. Never
+        # hash that normalized specialist report as if it were the raw exchange.
+        exchange_path = root / "model_exchanges" / exchange_name
         if not exchange_path.is_file():
-            exchange_path = next(root.rglob(Path(item.get("exchange_file", "")).name), None)
-        if exchange_path is None or not exchange_path.is_file():
-            raise ChallengerGateError(f"{repo}: raw exchange file is missing")
+            raise ChallengerGateError(f"{repo}: raw exchange file is missing from model_exchanges")
         raw_bytes = exchange_path.read_bytes()
         if hashlib.sha256(raw_bytes).hexdigest() != item.get("exchange_file_sha256"):
             raise ChallengerGateError(f"{repo}: raw exchange file hash mismatch")
