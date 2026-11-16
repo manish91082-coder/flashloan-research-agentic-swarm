@@ -167,7 +167,23 @@ def _deterministic_review_with_catalog(inspection: dict[str, Any], excerpts: lis
     """Attach catalog IDs only where a pinned signal line overlaps a verified excerpt."""
     review = deterministic_protocol_review(str(inspection.get("repository", "")), excerpts)
     catalog = _evidence_catalog(inspection)
-    for topic in review.get("topics", {}).values():
+    topic_signals = {
+        "aave": {
+            "pool_provider_wiring": {"aave_flash_loan_simple"},
+            "callback_authentication": {"aave_execute_operation"},
+            "repayment_premium": {"aave_execute_operation", "balance_delta_pattern"},
+        },
+        "uniswap_v2": {
+            "callback_implementation": {"uniswap_v2_flash_callback"},
+            "pair_authentication": {"uniswap_v2_flash_callback"},
+            "token_order_reserves": {"uniswap_v2_flash_callback"},
+            "repayment": {"uniswap_v2_flash_callback"},
+        },
+    }
+    protocol = review.get("protocol")
+    allowed_by_topic = topic_signals.get(protocol, {})
+    for topic_name, topic in review.get("topics", {}).items():
+        allowed_signals = allowed_by_topic.get(topic_name, set())
         resolved: list[str] = []
         for excerpt in excerpts:
             if not isinstance(excerpt, dict):
@@ -177,10 +193,11 @@ def _deterministic_review_with_catalog(inspection: dict[str, Any], excerpts: lis
             if not isinstance(path, str) or not isinstance(start, int) or not isinstance(end, int):
                 continue
             for item in catalog:
-                if item["path"] == path and start <= item["line"] <= end:
+                if (item["path"] == path and start <= item["line"] <= end
+                        and item["signal"] in allowed_signals):
                     resolved.append(item["evidence_id"])
         topic["evidence_ids"] = sorted(set(resolved))
-    review["evidence_resolution"] = "exact_path_and_line_overlap_with_pinned_catalog"
+    review["evidence_resolution"] = "exact_path_line_overlap_and_topic_signal_allowlist"
     review["inspection_commit_sha"] = inspection.get("commit_sha")
     review["inspection_tree_sha"] = inspection.get("tree_sha")
     return review
