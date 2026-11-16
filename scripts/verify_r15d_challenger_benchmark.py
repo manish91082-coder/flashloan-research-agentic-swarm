@@ -57,12 +57,6 @@ def verify(report_path: Path) -> dict:
             raise ChallengerGateError(f"{repo}: reviewer input differs from frozen baseline packet")
         if (item.get("packet_adequacy") or {}).get("status") != "insufficient":
             raise ChallengerGateError(f"{repo}: frozen packet adequacy changed")
-        output = item.get("model_output") or {}
-        decision = output.get("review_decision")
-        if decision != "inconclusive":
-            raise ChallengerGateError(
-                f"{repo}: inadequate packet requires model's own inconclusive verdict; got {decision!r}"
-            )
         exchange_name = Path(item.get("exchange_file", "")).name
         # The artifact also contains an inspections/<same-name> JSON. Never
         # hash that normalized specialist report as if it were the raw exchange.
@@ -89,6 +83,30 @@ def verify(report_path: Path) -> dict:
         if not isinstance(response_raw, str):
             raise ChallengerGateError(f"{repo}: raw response missing")
         response_hash = hashlib.sha256(response_raw.encode("utf-8")).hexdigest()
+        try:
+            response_envelope = json.loads(response_raw)
+            choice = response_envelope["choices"][0]
+            finish_reason = choice.get("finish_reason")
+            if finish_reason != "stop":
+                raise ChallengerGateError(
+                    f"{repo}: model response did not finish normally; finish_reason={finish_reason!r}"
+                )
+            content = choice["message"]["content"]
+            response_output = content if isinstance(content, dict) else json.loads(content)
+        except ChallengerGateError:
+            raise
+        except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+            raise ChallengerGateError(f"{repo}: raw model response is not a complete valid JSON decision") from exc
+        if not isinstance(response_output, dict):
+            raise ChallengerGateError(f"{repo}: raw model response content is not a JSON object")
+        decision = response_output.get("review_decision")
+        if decision != "inconclusive":
+            raise ChallengerGateError(
+                f"{repo}: inadequate packet requires model's own inconclusive verdict; got {decision!r}"
+            )
+        recorded_output = item.get("model_output")
+        if recorded_output is not None and recorded_output != response_output:
+            raise ChallengerGateError(f"{repo}: report model output differs from raw response")
         if request_hash != exchange.get("request_sha256") or request_hash != item.get("request_sha256"):
             raise ChallengerGateError(f"{repo}: request fingerprint mismatch")
         if response_hash != exchange.get("response_sha256") or response_hash != item.get("response_sha256"):
