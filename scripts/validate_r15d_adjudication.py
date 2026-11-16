@@ -98,7 +98,7 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
             errors.append(f"{cid}: exactly two independent reviewer slots required")
             continue
         complete = [_review_complete(r) if isinstance(r, dict) else False for r in reviews]
-        ids = [r.get("reviewer_id") for r in reviews if isinstance(r, dict)]
+        ids = [r.get("reviewer_id").strip() for r in reviews if isinstance(r, dict) and isinstance(r.get("reviewer_id"), str)]
         if all(complete) and len(set(ids)) != 2:
             errors.append(f"{cid}: reviewer IDs must be distinct")
         for index, review in enumerate(reviews):
@@ -116,7 +116,7 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
                 if not isinstance(third, dict) or not _review_complete(third):
                     errors.append(f"{cid}: disagreement requires a complete independent third adjudication")
                 else:
-                    if third.get("reviewer_id") in ids:
+                    if isinstance(third.get("reviewer_id"), str) and third.get("reviewer_id").strip() in ids:
                         errors.append(f"{cid}: third adjudicator must be distinct from both reviewers")
                     if not _has_pinned_evidence(case, third):
                         errors.append(f"{cid}: third adjudicator lacks exact pinned path/range/excerpt SHA-256 evidence")
