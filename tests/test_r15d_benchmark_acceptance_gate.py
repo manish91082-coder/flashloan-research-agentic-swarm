@@ -18,10 +18,11 @@ class R15DBenchmarkAcceptanceGateTests(unittest.TestCase):
             repository = f"org/repo-{index}"
             response = json.dumps({"choices": [{"message": {"content": json.dumps({"review_decision": decision})}}]})
             response_sha = hashlib.sha256(response.encode()).hexdigest()
-            request_sha = hashlib.sha256(f"request-{index}".encode()).hexdigest()
+            request_body = {"messages": [{"role": "user", "content": f"fixture-{index}"}]}
+            request_sha = hashlib.sha256(json.dumps(request_body).encode("utf-8")).hexdigest()
             exchange = {
                 "exchange": {
-                    "request": {"messages": []},
+                    "request": request_body,
                     "request_sha256": request_sha,
                     "response_raw": response,
                     "response_sha256": response_sha,
