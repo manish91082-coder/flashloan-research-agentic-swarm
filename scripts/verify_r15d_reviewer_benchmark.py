@@ -60,6 +60,12 @@ def verify_report(report_path: Path, expected_reviewers: int = 2) -> dict:
         response_sha = hashlib.sha256(raw_response.encode("utf-8")).hexdigest()
         if response_sha != envelope.get("response_sha256"):
             raise BenchmarkGateError(f"{repository}: raw response SHA-256 mismatch")
+        request_body = envelope.get("request")
+        if not isinstance(request_body, dict):
+            raise BenchmarkGateError(f"{repository}: raw request body was not preserved")
+        request_sha = hashlib.sha256(json.dumps(request_body).encode("utf-8")).hexdigest()
+        if request_sha != envelope.get("request_sha256"):
+            raise BenchmarkGateError(f"{repository}: raw request SHA-256 mismatch")
         if envelope.get("request_sha256") != outcome.get("request_sha256"):
             raise BenchmarkGateError(f"{repository}: request fingerprint mismatch")
         if envelope.get("response_sha256") != outcome.get("response_sha256"):
