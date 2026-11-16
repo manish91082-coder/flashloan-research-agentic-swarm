@@ -16,7 +16,7 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
         }
         for repo, path in paths.items():
             commit, tree, source_path, blob = EXPECTED[repo]
-            verify_source(path=repo, data=path.read_bytes(), identity={
+            verify_source(repo=repo, data=path.read_bytes(), identity={
                 "commit_sha": commit, "tree_sha": tree, "path": source_path, "git_blob_sha1": blob,
             })
 
