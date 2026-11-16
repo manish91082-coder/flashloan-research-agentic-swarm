@@ -66,6 +66,23 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertTrue(any("unanimous reviewer labels" in error for error in result["errors"]))
 
+    def test_non_utc_or_invalid_timestamp_rejected(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [self.completed_review(case, "reviewer-a"), self.completed_review(case, "reviewer-b")]
+        case["reviewers"][0]["completed_at"] = "yesterday"
+        case["consensus"] = {"status": "adjudicated", "label": "present", "rationale": "agreement", "disagreement": False}
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("pending" in error for error in result["errors"]))
+
+    def test_source_pin_tampering_rejected(self):
+        packet = copy.deepcopy(self.packet)
+        packet["cases"][0]["commit_sha"] = "0" * 40
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("immutable source pin" in error for error in result["errors"]))
+
     def test_evidence_must_match_exact_case_pin(self):
         packet = copy.deepcopy(self.packet)
         case = packet["cases"][0]
