@@ -3,7 +3,7 @@
 **Date:** 2026-11-16  
 **Baseline:** Qwen2.5 3B, failed reviewer-compliance fixture  
 **Challenger:** Qwen3.5 4B  
-**Status:** Challenger inference workflow running; no quality verdict available yet.
+**Status:** Inference completed; both frozen negative-control decisions were `inconclusive`. Initial acceptance gate rejected the artifact due to a verifier path collision, not a model decision failure. Verifier fix and same-basename regression test committed; dedicated CI added, pending execution. No broad reviewer-quality or production-readiness claim.
 
 ## Immutable challenger identity
 
