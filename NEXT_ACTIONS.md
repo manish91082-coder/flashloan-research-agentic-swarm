@@ -505,3 +505,13 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - These newest changes are not yet CI-verified at this checkpoint. New Actions runs must be inspected before claiming pass.
 - Blind packet source remains unchanged at blob b9dac92fb354eea8abfddb04b68b1a2d7c9a604b. No reviewer data invented, no freeze run, semantic audit increment zero, dossiers pending, all safety invariants false.
 - Next: verify new CI matrices, then continue validator/freeze edge-case audit. Preserve no-inference-before-independent-ground-truth rule.
+
+
+## R15D identity normalization and canonical freeze gate CI verified — 2026-11-17
+
+- Reviewer identity normalization validator + regression test passed: run 43947247406, Python 3.11/3.12/3.13 all green.
+- Canonical blind packet pre-freeze state gate passed: run 43947308776, all three Python versions green.
+- Freeze timestamp hardening remains green: runs 43946228412 and 43946250625, all three versions green.
+- Consensus.status=adjudicated requirement passed: runs 43946324932 and 43946344837, all three versions green.
+- Combined latest freeze-gate test commit run 43947340179 passed all three versions; Python 3.11 fixture build and upload also passed.
+- Current changes verified so far are CI-green. Next: re-read latest HEAD and inspect further fail-closed edge cases in validator/freeze logic; keep packet blank and do not freeze.
