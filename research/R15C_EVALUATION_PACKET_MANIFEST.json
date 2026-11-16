@@ -1,0 +1,104 @@
+{
+  "schema": "r15c-evaluation-packet-manifest/1.0.0",
+  "status": "frozen_failed_regression_fixture_not_semantic_acceptance",
+  "artifact": {
+    "run_id": 43868846531,
+    "artifact_id": 14229725407,
+    "sha256": "98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3",
+    "size_bytes": 72453,
+    "members": 26
+  },
+  "mission": {
+    "id": "flashloan-agent-form-pilot-20261116-r15c",
+    "task_count": 39,
+    "task_counts": {
+      "candidate_dossier|pending": 2,
+      "candidate_purpose|completed": 2,
+      "candidate_source_capture|completed": 2,
+      "continuation_queue|pending": 1,
+      "dependency_forensics|completed": 2,
+      "discover_family|completed": 11,
+      "economic_forensics|completed": 2,
+      "evidence_validation|completed": 2,
+      "execution_forensics|completed": 2,
+      "expand_candidate_tasks|completed": 1,
+      "independent_review|failed": 2,
+      "merge_candidates|completed": 1,
+      "mission_plan|completed": 1,
+      "mission_synthesis|pending": 1,
+      "protocol_forensics|completed": 2,
+      "purpose_triage|completed": 1,
+      "security_forensics|completed": 2,
+      "test_forensics|completed": 2
+    },
+    "sqlite_sha256": "e074ba8cc74f873b3ba0881900ea0f53c066c3dfcbd422e72220fdb120ea4da6",
+    "sqlite_integrity": "ok"
+  },
+  "inspections": [
+    {
+      "repo": "0xnavarro/Aave-Liquiditor",
+      "commit": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "tree": "14de2312e96c369bcc52c9bae96215051aea22b4",
+      "inspection_sha256": "b480dd9aeac5bf962867ca9d20744715dffc046a78ff1283f972058ce59ce181",
+      "files": 8,
+      "signals": 11
+    },
+    {
+      "repo": "cobibean/aave-liquidator-bot",
+      "commit": "3159c15f4dcfb0df215b4c3024f47753a1133b84",
+      "tree": "1a9ee7218304b95654385fc11f255a7c5d532bc4",
+      "inspection_sha256": "ad316ed173e395f18efe50fa855fede3322c15ec8aae1addd73b6e3d69036555",
+      "files": 30,
+      "signals": 84
+    }
+  ],
+  "specialist_reports": [
+    {"repo":"0xnavarro/Aave-Liquiditor","task":"candidate_purpose","task_id":"tsk-6f7eda2bd89c78fdae294d01","role":"candidate_purpose","sha256":"87f84b3581b7aae99e242f49c21972283044439cb2b02625b8ada9b2c3da26d9","findings":2,"unknowns":5,"status":"unknown","confidence":"low"},
+    {"repo":"0xnavarro/Aave-Liquiditor","task":"dependency_forensics","task_id":"tsk-23004fd1eab89c5d9824bfc5","role":"dependency_license","sha256":"f71299d9db5a54f2ea359a20cac52c7f8a905a9945d9ef07a215e6ac757b1190","findings":2,"unknowns":2,"status":"unknown","confidence":"low"},
+    {"repo":"0xnavarro/Aave-Liquiditor","task":"economic_forensics","task_id":"tsk-3ee6cd04fccf0864c91fe09f","role":"economics_quant","sha256":"36190672406089c6303745ea3219c235adfbc29ae7847ee7ed1ef59b49e409e9","findings":5,"unknowns":2,"status":"unknown","confidence":"low"},
+    {"repo":"0xnavarro/Aave-Liquiditor","task":"execution_forensics","task_id":"tsk-7a2618df2369899083197842","role":"execution_engineer","sha256":"81a454b260ea66e832da368c5a3957b2bb8f66df5bedf194cdd2d33c6a10749f","findings":2,"unknowns":2,"status":"partial","confidence":"low"},
+    {"repo":"0xnavarro/Aave-Liquiditor","task":"protocol_forensics","task_id":"tsk-0b85ef097bb64dd8765fc63e","role":"protocol_specialist","sha256":"69309ae376e892908d49fb7db36fa008709716a12d0512646edf75e3e23818f4","findings":6,"unknowns":1,"status":"unknown","confidence":"low"},
+    {"repo":"0xnavarro/Aave-Liquiditor","task":"security_forensics","task_id":"tsk-56a85db5a8b64817d56fcf5b","role":"solidity_security","sha256":"10ae6d13e3a8ddeab3d9a8880c68d5c360b688d84a69ad37759b7ca8c291cb86","findings":3,"unknowns":2,"status":"unknown","confidence":"low"},
+    {"repo":"0xnavarro/Aave-Liquiditor","task":"test_forensics","task_id":"tsk-a51f03f5d34844c3dfa206ef","role":"test_verification","sha256":"3fa62ef726077c51d18059160bf6d45a8f23ebe8dd1608f2ff01964d26c09b6e","findings":2,"unknowns":3,"status":"partial","confidence":"low"},
+    {"repo":"cobibean/aave-liquidator-bot","task":"candidate_purpose","task_id":"tsk-fda2b80c38d4a376f366ff72","role":"candidate_purpose","sha256":"78ea69f35e327593710f3fc5a31b2b341750ddc0b9abb62125575dc0616f5f66","findings":3,"unknowns":2,"status":"implemented","confidence":"medium"},
+    {"repo":"cobibean/aave-liquidator-bot","task":"dependency_forensics","task_id":"tsk-71d40ad167e9f406e741f0dd","role":"dependency_license","sha256":"befd37278ca93e78c9b4e2702475e46102a1daaac7f2c3d15456708e888af74d","findings":1,"unknowns":3,"status":"implemented","confidence":"medium"},
+    {"repo":"cobibean/aave-liquidator-bot","task":"economic_forensics","task_id":"tsk-e0004459bfc91809099dae12","role":"economics_quant","sha256":"4008fd708b87fab7bcdf19ce658c046940f99870d05c6e5c2be22a1c2057946b","findings":3,"unknowns":3,"status":"implemented","confidence":"medium"},
+    {"repo":"cobibean/aave-liquidator-bot","task":"execution_forensics","task_id":"tsk-5fc5804da11152ee0370881d","role":"execution_engineer","sha256":"f88171774418e471bade3f648017168f8addae734d90e201a382a46f44651388","findings":3,"unknowns":1,"status":"implemented","confidence":"medium"},
+    {"repo":"cobibean/aave-liquidator-bot","task":"protocol_forensics","task_id":"tsk-18bb536a4f290b7b98c4af8a","role":"protocol_specialist","sha256":"775f7f76bc3d7b2e348dd382110352c217d8a9712c19618112d02ad4ed090ca5","findings":6,"unknowns":3,"status":"partial","confidence":"medium"},
+    {"repo":"cobibean/aave-liquidator-bot","task":"security_forensics","task_id":"tsk-eb16835d3c526d368a22d782","role":"solidity_security","sha256":"ec53d72f92c5088a64607a036499a042a80fb8504ac31643f660d0b959fe1baa","findings":1,"unknowns":3,"status":"implemented","confidence":"medium"},
+    {"repo":"cobibean/aave-liquidator-bot","task":"test_forensics","task_id":"tsk-f7a78f62198fea9e3f44e8f7","role":"test_verification","sha256":"42fac8842ae6a531dc381680b85a2e650d4d777e674561151e2618979bbb6358","findings":1,"unknowns":2,"status":"implemented","confidence":"medium"}
+  ],
+  "evidence_reports": [
+    {"repo":"0xnavarro/Aave-Liquiditor","sha256":"024b6ab9b120491f4ec141929988b056934c435dd8831c0ebdbc3ace66b19ca8","accepted":56,"reports":7,"semantic_quality_pass":true},
+    {"repo":"cobibean/aave-liquidator-bot","sha256":"81cc65bd92dc7cf6e99d82a4df2f306a744b6c0d183c0234ced12c66b39edf92","accepted":56,"reports":7,"semantic_quality_pass":true}
+  ],
+  "reviewer_failures": [
+    {"repo":"cobibean/aave-liquidator-bot","reason":"six repetitive generic smart-contract claims; zero Aave protocol topic groups"},
+    {"repo":"0xnavarro/Aave-Liquiditor","reason":"fixed ETH price/frozen account/account-funds claims unrelated to callback and repayment review"}
+  ],
+  "model": {
+    "tag": "qwen2.5:3b",
+    "digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+    "size_bytes": 1929912432,
+    "parameters": "3.1B",
+    "quantization": "Q4_K_M",
+    "context": 32768,
+    "manifest_sha256": "0dc024d2a2994a28bdcd2042ec3a04edf50ce9f204dcf5ab9dc67ead88124292",
+    "modelfile_sha256": "2cc36ef37cc330897c78c3c97577e3be4fab7931e2bd5b1c368587fe216e78b0"
+  },
+  "accounting": {
+    "candidate_purpose": 2,
+    "specialists": 12,
+    "evidence_validation": 2,
+    "reviewers_failed": 2,
+    "dossiers_pending": 2,
+    "semantic_audit_increment": 0,
+    "candidate_code_executed": false
+  },
+  "limitations": [
+    "Full source-vault byte store is not in this ZIP; inspection manifests and report excerpts preserve source identities.",
+    "Evidence validation proves provenance/linkage checks, not semantic truth.",
+    "Rejected reviewer raw outputs were not persisted; failure classes are retained from workflow logs and ledger.",
+    "R15D adequacy is a regression assessment only; R15C remains immutable."
+  ]
+}
