@@ -146,10 +146,24 @@ def create_isolated_benchmark_state(db_source: Path, db_target: Path, mission_ro
 
 
 def run_benchmark(workspace: Path, db_path: Path, artifact_root: Path,
-                  manifest: dict[str, Any], model_manifest_path: Path) -> dict[str, Any]:
+                  manifest: dict[str, Any], model_manifest_path: Path,
+                  model_pin_path: Path | None = None) -> dict[str, Any]:
     model_manifest = json.loads(model_manifest_path.read_text(encoding="utf-8"))
     models = model_manifest.get("models", [])
-    expected = manifest["model"]
+    expected = dict(manifest["model"])
+    benchmark_kind = "baseline"
+    if model_pin_path is not None:
+        pin = json.loads(model_pin_path.read_text(encoding="utf-8"))
+        if pin.get("status") != "identity_discovered_no_inference":
+            raise SystemExit("Challenger model pin is not an identity-only verified manifest.")
+        details = pin.get("details", {})
+        expected.update({
+            "tag": pin.get("tag"),
+            "digest": pin.get("digest"),
+            "quantization": details.get("quantization_level"),
+            "context": details.get("context_length"),
+        })
+        benchmark_kind = "challenger"
     matching = [item for item in models if item.get("name") == expected["tag"]]
     if len(matching) != 1 or matching[0].get("digest") != expected["digest"]:
         raise SystemExit("Installed Ollama model digest does not match the immutable R15C baseline model.")
@@ -226,7 +240,9 @@ def run_benchmark(workspace: Path, db_path: Path, artifact_root: Path,
 
     peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     report = {
-        "benchmark_id": "r15d-reviewer-baseline-qwen25-3b-r15c-frozen-packet",
+        "benchmark_id": (
+            f"r15d-reviewer-{benchmark_kind}-{expected['tag'].replace(':', '-')}-r15c-frozen-packet"
+        ),
         "status": "completed" if len(outcomes) == 2 else "incomplete",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "mission_id": MISSION_ID,
@@ -283,6 +299,8 @@ def main() -> None:
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--artifact-root", type=Path, required=True)
     parser.add_argument("--model-manifest", type=Path, required=True)
+    parser.add_argument("--model-pin", type=Path, default=None,
+                        help="Optional identity-only challenger pin; baseline manifest remains immutable.")
     args = parser.parse_args()
 
     workspace = args.workspace.resolve()
@@ -295,7 +313,11 @@ def main() -> None:
     source_vault = workspace / "data" / "source-capture-pilot-vault"
     mission_root, db_source = verify_frozen_packet(workspace, eval_root, manifest, source_vault)
     create_isolated_benchmark_state(db_source, args.database.resolve(), mission_root, artifact_root)
-    report = run_benchmark(workspace, args.database.resolve(), artifact_root, manifest, args.model_manifest.resolve())
+    report = run_benchmark(
+        workspace, args.database.resolve(), artifact_root, manifest,
+        args.model_manifest.resolve(),
+        args.model_pin.resolve() if args.model_pin else None,
+    )
     report_path = artifact_root / MISSION_ID / "r15d-reviewer-baseline-report.json"
     print(json.dumps({
         "status": report["status"],
