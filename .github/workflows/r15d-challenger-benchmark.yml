@@ -1,0 +1,191 @@
+name: R15D Qwen3.5 4B Frozen-Packet Challenger
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-r15d-challenger-benchmark.json'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: r15d-challenger-benchmark-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  challenger-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      FLR_MODEL_BASE_URL: http://127.0.0.1:11434
+      FLR_MODEL_MAX_PARALLEL_TASKS: '1'
+      FLR_MODEL_CONTEXT_TOKENS: '16384'
+      FLR_MODEL_MAX_OUTPUT_TOKENS: '2400'
+      FLR_MODEL_TIMEOUT_SECONDS: '1800'
+      FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS: '18000'
+      FLR_MODEL_MAX_FILES: '10'
+      FLR_MODEL_MAX_CONTEXT_CHARS: '30000'
+      FLR_MODEL_CONTEXT_LINES: '40'
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout canonical research repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Verify immutable challenger trigger and pin artifact
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          trigger = json.loads(Path("research_runs/trigger-r15d-challenger-benchmark.json").read_text())
+          assert trigger["revision"] == 1
+          assert trigger["model_pin_artifact_id"] == 14248935964
+          assert trigger["model_pin_artifact_sha256"] == "f857347f60035334927d3c543305b9102944b5da5e6059bc3e6754c6b675c06c"
+          assert trigger["model_digest"] == "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04"
+          assert trigger["evaluation_artifact_id"] == 14229725407
+          assert trigger["source_seed_artifact_id"] == 14196365507
+          PY
+          mkdir -p "$RUNNER_TEMP/r15d-model-pin"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id 14248935964 \
+            --destination "$RUNNER_TEMP/r15d-model-pin/challenger-pin.zip" \
+            --extract-to "$RUNNER_TEMP/r15d-model-pin/unpacked" \
+            --max-wait-seconds 7200
+          echo "f857347f60035334927d3c543305b9102944b5da5e6059bc3e6754c6b675c06c  $RUNNER_TEMP/r15d-model-pin/challenger-pin.zip" | sha256sum --check -
+          cp "$RUNNER_TEMP/r15d-model-pin/unpacked/r15d-challenger-model-pin.json" r15d-challenger-model-pin.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          pin = json.loads(Path("r15d-challenger-model-pin.json").read_text())
+          assert pin["status"] == "identity_discovered_no_inference"
+          assert pin["tag"] == "qwen3.5:4b"
+          assert pin["digest"] == "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04"
+          assert pin["details"]["quantization_level"] == "Q4_K_M"
+          assert pin["details"]["parameter_size"] == "4.2B"
+          PY
+
+      - name: Restore and verify immutable source vault
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r15d-source-seed"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id 14196365507 \
+            --destination "$RUNNER_TEMP/r15d-source-seed/source-vault.zip" \
+            --extract-to "$RUNNER_TEMP/r15d-source-seed/unpacked" \
+            --max-wait-seconds 7200
+          echo "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad  $RUNNER_TEMP/r15d-source-seed/source-vault.zip" | sha256sum --check -
+          python scripts/restore_source_capture_checkpoint.py \
+            --artifact-root "$RUNNER_TEMP/r15d-source-seed/unpacked" \
+            --workspace "$GITHUB_WORKSPACE" \
+            | tee reports-r15d-source-restore-verification.json
+
+      - name: Restore and verify frozen R15C evaluation packet
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r15d-evaluation"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id 14229725407 \
+            --destination "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" \
+            --extract-to "$RUNNER_TEMP/r15d-evaluation/unpacked" \
+            --max-wait-seconds 7200
+          echo "98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3  $RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" | sha256sum --check -
+          unzip -t "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip"
+          unzip -q "$RUNNER_TEMP/r15d-evaluation/r15c-evaluation.zip" -d "$GITHUB_WORKSPACE"
+          python - <<'PY'
+          import json, sqlite3
+          from pathlib import Path
+          manifest = json.loads(Path("research/R15C_EVALUATION_PACKET_MANIFEST.json").read_text())
+          db = Path("data/agentic-mission-pilot-20261116-r15c.sqlite3")
+          con = sqlite3.connect(f"file:{db}?immutable=1", uri=True)
+          try:
+              assert con.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+              assert con.execute("SELECT COUNT(*) FROM mission_tasks").fetchone()[0] == manifest["mission"]["task_count"]
+          finally:
+              con.close()
+          print("R15C frozen packet and SQLite integrity verified.")
+          PY
+
+      - name: Install Agent Form runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[agentic]'
+          python -m compileall -q src/flashloan_research scripts tests
+
+      - name: Install CPU-only Ollama and verify exact challenger digest
+        run: |
+          set -euo pipefail
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          bash -n "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          sudo systemctl start ollama
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          ollama pull qwen3.5:4b
+          curl --fail --silent http://127.0.0.1:11434/api/tags > reports-r15d-challenger-model-manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          pin = json.loads(Path("r15d-challenger-model-pin.json").read_text())
+          actual = json.loads(Path("reports-r15d-challenger-model-manifest.json").read_text())["models"]
+          matches = [m for m in actual if m.get("name") == pin["tag"]]
+          if len(matches) != 1 or matches[0].get("digest") != pin["digest"]:
+              raise SystemExit("Challenger model digest mismatch; refusing inference.")
+          if matches[0].get("details", {}).get("quantization_level") != pin["details"]["quantization_level"]:
+              raise SystemExit("Challenger quantization mismatch; refusing inference.")
+          print("Exact Qwen3.5 4B challenger digest verified.")
+          PY
+          echo "FLR_MODEL_NAME=qwen3.5:4b" >> "$GITHUB_ENV"
+
+      - name: Run challenger on the exact two frozen reviewer packets
+        run: |
+          set -euo pipefail
+          python scripts/run_r15d_reviewer_benchmark.py \
+            --workspace "$GITHUB_WORKSPACE" \
+            --eval-root "$GITHUB_WORKSPACE" \
+            --database data/r15d-challenger-benchmark.sqlite3 \
+            --artifact-root research_runs/benchmarks/r15d-challenger-qwen35-4b \
+            --model-manifest reports-r15d-challenger-model-manifest.json \
+            --model-pin r15d-challenger-model-pin.json \
+            | tee reports-r15d-challenger-summary.json
+
+      - name: Enforce challenger acceptance and exact frozen packet identity
+        if: success()
+        run: |
+          set -euo pipefail
+          python scripts/verify_r15d_challenger_benchmark.py \
+            --report research_runs/benchmarks/r15d-challenger-qwen35-4b/flashloan-agent-form-pilot-20261116-r15c/r15d-reviewer-baseline-report.json
+
+      - name: Upload challenger benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: r15d-challenger-qwen35-4b-${{ github.run_id }}
+          path: |
+            data/r15d-challenger-benchmark.sqlite3
+            research_runs/benchmarks/r15d-challenger-qwen35-4b/
+            r15d-challenger-model-pin.json
+            reports-r15d-source-restore-verification.json
+            reports-r15d-challenger-summary.json
+            reports-r15d-challenger-model-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
