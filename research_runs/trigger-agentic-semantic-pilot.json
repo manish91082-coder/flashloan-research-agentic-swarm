@@ -61,5 +61,6 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14-checkpoint-379-artifact-pinned-against-self-chain-retirement"
+  "trigger_revision": "r14-retry-after-bounded-ollama-registry-backoff",
+  "retry_note": "Previous R14 attempt restored the pinned checkpoint and installed Agent Form, then stopped before mission bootstrap because the Ollama model registry returned HTTP 503. Retry the same fresh isolated mission with five bounded exponential-backoff model-pull attempts."
 }
