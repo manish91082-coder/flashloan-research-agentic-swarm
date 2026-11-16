@@ -28,15 +28,15 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14f",
-  "database": "data/agentic-mission-pilot-20261116-r14f.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14f",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14g",
+  "database": "data/agentic-mission-pilot-20261116-r14g.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14g",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
     "max_chars": 30000,
     "context_lines": 40,
-    "max_reviewer_chars": 6000
+    "max_reviewer_chars": 18000
   },
   "model_max_output_tokens": 2400,
   "output_contract_version": "5.7.0-structured-protocol-topic-reviewer",
@@ -64,8 +64,8 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14f-compact-reviewer-context-8192-token-window",
-  "retry_note": "Fresh isolated R14F pilot after R14E reviewers failed semantic relevance. Reviewer prompt now demands three distinct Aave protocol claims; reviewer source catalog is restricted to relevant Aave source signals; reviewer excerpts and seven prior reports are bounded to fit an explicit 8192-token Ollama context. Evidence gates remain unchanged and fail-closed. Source checkpoint 393 remains immutable.",
+  "trigger_revision": "r14g-8192-context-lossless-reviewer-18k",
+  "retry_note": "Fresh isolated R14G pilot after R14E reviewers failed semantic relevance. Reviewer prompt now demands three distinct Aave protocol claims; reviewer source catalog is restricted to relevant Aave source signals; reviewer excerpts and seven prior reports are bounded to fit an explicit 8192-token Ollama context. Evidence gates remain unchanged and fail-closed. Source checkpoint 393 remains immutable.",
   "previous_attempt": {
     "run_id": 43816195099,
     "artifact_id": 14203812377,
@@ -78,5 +78,5 @@
     "test_commit": "cd7208080c997273cb6c086869c2a84b2a55d8bf",
     "purpose": "Require explicit candidate-specific protocol-topic claim structures (Pool/IPool, executeOperation/msg.sender/initiator, repayment/premium) and regression-test the reviewer prompt."
   },
-  "updated_at_utc": "2026-11-16T09:10:00Z"
+  "updated_at_utc": "2026-11-16T09:20:00Z"
 }
