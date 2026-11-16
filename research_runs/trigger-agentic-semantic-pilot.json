@@ -1,26 +1,26 @@
 {
   "schema_version": "1.0",
   "purpose": "R14 strict semantic-quality pilot from independently verified and artifact-retirement-pinned source-capture checkpoint 379. Fail closed on any task, evidence or reviewer gate.",
-  "checkpoint_run_id": 43795447091,
-  "checkpoint_artifact_id": 14193749558,
-  "checkpoint_artifact_sha256": "5edb17974de43dc8d914986d3af223a824a8de91c52f261e8c101988eaa66d5b",
+  "checkpoint_run_id": 43795642245,
+  "checkpoint_artifact_id": 14193879641,
+  "checkpoint_artifact_sha256": "3bd0e53d1248a26afc8de3a2e935e689ff5d18f0e9ea1c1a08c05fbffab971ba",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4481,
-    "pending": 3364,
+    "captured": 4493,
+    "pending": 3352,
     "leased": 0,
     "failed": 56,
-    "captured_complete_within_scope": 3245,
+    "captured_complete_within_scope": 3257,
     "captured_with_coverage_limits": 1236
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4481,
+    "reports_verified": 4493,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 62508,
-    "unique_git_blobs_verified": 48716,
+    "git_blob_references_verified": 62570,
+    "unique_git_blobs_verified": 48760,
     "blob_mismatches": 0
   },
   "batch_limit": 2,
@@ -61,6 +61,6 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14-retry-with-verified-checkpoint-382-and-bounded-ollama-backoff",
-  "retry_note": "R14 prior attempts: #17 failed because a retired artifact was pinned; #18 restored checkpoint but Ollama registry returned HTTP 503; #19 artifact 404. Source workflow now protects live seed/trigger pins; semantic workflow retries Ollama pull five times with exponential backoff. This retry uses fresh checkpoint 382."
+  "trigger_revision": "r14-retry-with-verified-checkpoint-383-and-bounded-ollama-backoff",
+  "retry_note": "Checkpoint 383 is independently verified and protected by the source-capture workflow's live main-branch pin check. Prior R14 attempt reached model install but Ollama registry returned HTTP 503; workflow now retries five times with exponential backoff."
 }
