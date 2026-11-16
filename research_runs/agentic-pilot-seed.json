@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "purpose": "R14 Agent Form semantic quality pilot pinned to the latest durable source-capture checkpoint. Artifact preservation is enforced by matching this seed workflow_run_id to the next source-capture continuation's consumed resume_run_id.",
-  "seed_run_id": 43795642245,
+  "seed_run_id": 43795802487,
   "batch_limit": 2,
   "model_runtime": "Ollama local CPU",
   "model": "qwen2.5:3b",
@@ -26,8 +26,8 @@
     "cloud_inference": false
   },
   "updated_at_utc": "2026-11-14T16:21:30Z",
-  "seed_artifact_id": 14193879641,
-  "seed_artifact_sha256": "3bd0e53d1248a26afc8de3a2e935e689ff5d18f0e9ea1c1a08c05fbffab971ba",
+  "seed_artifact_id": 14193319569,
+  "seed_artifact_sha256": "d7560418a924d0261c0c7196a34d150b548c34a2398d20f467e989996fa9a7da",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
