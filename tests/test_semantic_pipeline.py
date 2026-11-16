@@ -198,7 +198,8 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             self.assertTrue(gate["purpose_consensus_pass"])
             self.assertGreater(gate["accepted_evidence_total"], 0)
             self.assertGreater(gate["candidate_purpose_evidence_count"], 0)
-            reviewer = result["independent_review"]["completed"][0]
+            self.assertEqual(result["independent_review"]["completed"], [])
+            reviewer = result["independent_review"]["failures"][0]
             reviewer_report = json.loads(Path(reviewer["report"]).read_text())
             self.assertEqual(reviewer_report["review_decision"], "inconclusive")
             self.assertTrue(reviewer_report["review_disagreements"])
