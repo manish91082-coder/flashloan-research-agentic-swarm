@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14C independent-review prompt correction pilot using exact verified source-capture checkpoint 393. Fresh isolated mission after R14B passed all specialist and evidence gates but both independent reviewers failed candidate-specific semantic relevance.",
+  "purpose": "R14D specialist evidence-reference corrective retry pilot using exact verified source-capture checkpoint 393. Fresh isolated mission after R14C failed because test_forensics cited an evidence ID not selected from its pinned catalog.",
   "checkpoint_run_id": 43799361897,
   "checkpoint_artifact_id": 14196365507,
   "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
@@ -28,9 +28,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14c",
-  "database": "data/agentic-mission-pilot-20261116-r14c.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14c",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14d",
+  "database": "data/agentic-mission-pilot-20261116-r14d.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14d",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -39,10 +39,10 @@
     "max_reviewer_chars": 50000
   },
   "model_max_output_tokens": 2400,
-  "output_contract_version": "5.6.0-reviewer-explicit-protocol-dimensions",
+  "output_contract_version": "5.6.1-unselected-evidence-reference-corrective-retry",
   "acceptance": [
     "Restore and verify exact source-capture checkpoint run 43799361897 artifact 14196365507 by SHA-256 before restore",
-    "Use fresh isolated R14C database and artifact root; never reuse earlier pilot state",
+    "Use fresh isolated R14D database and artifact root; never reuse earlier pilot state",
     "Complete 2/2 source-pinned candidate-purpose tasks and 12/12 distinct specialist tasks",
     "Pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
     "Complete 2/2 independent candidate-specific reviews using explicit protocol-dimension prompt",
@@ -64,18 +64,18 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14c-explicit-protocol-review-dimensions-checkpoint-393",
-  "retry_note": "Fresh isolated reviewer correction pilot. Preserve source checkpoint 393 unchanged. Reviewer semantic acceptance threshold remains unchanged.",
+  "trigger_revision": "r14d-evidence-reference-retry-checkpoint-393",
+  "retry_note": "Fresh isolated specialist correction pilot. Preserve source checkpoint 393 unchanged. Only valid catalog IDs omitted from the top-level selected evidence array are eligible for one corrective retry; fabricated/invalid catalog IDs remain fail-closed. All evidence/reviewer acceptance thresholds unchanged.",
   "previous_attempt": {
-    "run_id": 43804464348,
-    "artifact_id": 14198318779,
-    "artifact_sha256": "b799c0a90107a551d81bce96937d43b7b46572535b0486f9dc149d01c0ed70b1",
+    "run_id": 43807523922,
+    "artifact_id": 14199617691,
+    "artifact_sha256": "605a8b7e6ede5afeccb58871c441c4abfceb3f7f99b9319a55d2da87b0992450",
     "status": "failed",
-    "root_cause": "Both independent reviewers failed semantic relevance with covered=[]; 12/12 specialists and 2/2 evidence gates passed; 56 accepted evidence records per candidate."
+    "root_cause": "0xnavarro/Aave-Liquiditor test_forensics finding cited evidence not selected from the pinned catalog; no evidence gate/reviewer or dossier stage ran."
   },
   "code_correction": {
-    "commit": "e5cef68bfef76178e6be55aaccbb707d7368ddf8",
-    "purpose": "Explicit candidate-specific protocol review dimensions and rejected claim preview diagnostics"
+    "commit": "d667474ee8e0cae5176f9acbf8b88dd4bc75f36d",
+    "purpose": "Restrict one bounded corrective retry to valid pinned-catalog evidence IDs omitted from the report-level selected evidence array; fabricated or invalid catalog IDs fail closed."
   },
-  "updated_at_utc": "2026-11-16T05:05:00Z"
+  "updated_at_utc": "2026-11-16T06:18:00Z"
 }
