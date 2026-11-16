@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 import re
@@ -206,6 +207,7 @@ class LocalOpenAICompatibleProvider:
         self.model = (model or os.getenv("FLR_MODEL_NAME", "")).strip()
         self.timeout_seconds = timeout_seconds
         self.prompt_template_version = prompt_template_version
+        self.last_exchange: dict[str, Any] | None = None
         if not self.base_url:
             raise ModelProviderError("FLR_MODEL_BASE_URL is not configured")
         parsed = urllib.parse.urlparse(self.base_url)
@@ -299,9 +301,16 @@ class LocalOpenAICompatibleProvider:
                 {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False, sort_keys=True)},
             ],
         }
+        request_bytes = json.dumps(body).encode("utf-8")
+        self.last_exchange = {
+            "request": body,
+            "request_sha256": hashlib.sha256(request_bytes).hexdigest(),
+            "response_raw": None,
+            "response_sha256": None,
+        }
         request = urllib.request.Request(
             endpoint,
-            data=json.dumps(body).encode("utf-8"),
+            data=request_bytes,
             headers={"Content-Type": "application/json", "Accept": "application/json"},
             method="POST",
         )
@@ -309,6 +318,8 @@ class LocalOpenAICompatibleProvider:
             opener = urllib.request.build_opener(_NoRedirect())
             with opener.open(request, timeout=self.timeout_seconds) as response:
                 raw = response.read(2_000_001)
+            self.last_exchange["response_raw"] = raw.decode("utf-8", errors="replace")
+            self.last_exchange["response_sha256"] = hashlib.sha256(raw).hexdigest()
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             raise ModelProviderError(f"local model request failed: {type(exc).__name__}: {exc}") from exc
         if len(raw) > 2_000_000:
