@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "purpose": "R14 Agent Form semantic quality pilot pinned to the latest durable source-capture checkpoint. Artifact preservation is enforced by matching this seed workflow_run_id to the next source-capture continuation's consumed resume_run_id.",
-  "seed_run_id": 43795447091,
+  "seed_run_id": 43795642245,
   "batch_limit": 2,
   "model_runtime": "Ollama local CPU",
   "model": "qwen2.5:3b",
@@ -26,25 +26,25 @@
     "cloud_inference": false
   },
   "updated_at_utc": "2026-11-14T16:21:30Z",
-  "seed_artifact_id": 14193749558,
-  "seed_artifact_sha256": "5edb17974de43dc8d914986d3af223a824a8de91c52f261e8c101988eaa66d5b",
+  "seed_artifact_id": 14193879641,
+  "seed_artifact_sha256": "3bd0e53d1248a26afc8de3a2e935e689ff5d18f0e9ea1c1a08c05fbffab971ba",
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4481,
-    "pending": 3364,
+    "captured": 4493,
+    "pending": 3352,
     "leased": 0,
     "failed": 56,
-    "captured_complete_within_scope": 3245,
+    "captured_complete_within_scope": 3257,
     "captured_with_coverage_limits": 1236
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4481,
+    "reports_verified": 4493,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 62508,
-    "unique_git_blobs_verified": 48716,
+    "git_blob_references_verified": 62570,
+    "unique_git_blobs_verified": 48760,
     "blob_mismatches": 0
   },
   "artifact_preservation_policy": "The autonomous source-capture workflow now reads the latest main-branch seed and trigger pins before retiring an artifact. Preserve this artifact while either file references its exact workflow run or artifact ID."
