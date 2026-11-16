@@ -3,16 +3,16 @@
   "canonical_repository": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm",
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R14_REVIEWER_CORRECTION_5_5_0",
-  "status": "DISCOVERY_7901; SOURCE_CAPTURE_4612_CHECKPOINT_393_VERIFIED; CI_452_PY311_312_313_SUCCESS; R14_RUN23_LEGACY_CHECKPOINT_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-16T03:46:00Z",
+  "status": "DISCOVERY_7901; SOURCE_CAPTURE_4612_CHECKPOINT_393_VERIFIED; CI_456_PY311_312_313_SUCCESS; R14_RUN23_FAILED_ROLE_DRIFT; R14B_FRESH_RETRY_DISPATCHED; NO_SEMANTIC_AUDIT_ACCEPTANCE",
+  "last_verified_at_utc": "2026-11-16T04:17:00Z",
   "default_branch": "main",
-  "latest_commit_at_checkpoint": "c138985f9b240fa750a757e4cc5b1f3fce0dfc70",
+  "latest_commit_at_checkpoint": "b0d54c58c17ec2091171f64aeb01b9a0e9d51e7e",
   "latest_ci_run": {
-    "run_id": 43799329586,
-    "run_number": 452,
+    "run_id": 43802940578,
+    "run_number": 456,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "c98657970a2f5e9ce323e52d14d0dd1ce1994eba",
+    "head_sha": "34d1e6b42b1cf54532532751685fa0cdecd1e770",
     "python_versions": [
       "3.11",
       "3.12",
@@ -1199,14 +1199,11 @@
     "last_verified_at_utc": "2026-11-15T18:12:00Z"
   },
   "source_capture_next": {
-    "workflow_run_id": 43744183276,
-    "run_number": 296,
-    "status": "in_progress",
-    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43744183276",
-    "active_step": "Capture next 12 priority repositories",
-    "parent_artifact_id": 14173239106,
-    "parent_artifact_sha256": "97f5626e4e11946edc2509e06e0c755d7a8f5d139bdc5b902e6c346d9e66c7cf",
-    "job_id": 132903761496,
+    "workflow_run_id": 43799550796,
+    "run_number": 394,
+    "status": "queued",
+    "workflow_url": "https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43799550796",
+    "parent_checkpoint_run_id": 43799361897,
     "artifact_available": false
   },
   "execution_diagnosis": {
@@ -1387,5 +1384,27 @@
     "status": "R14_RETRY_READY_WITH_VERIFIED_CHECKPOINT_393_AND_REVIEWER_CORRECTION_5_5_0",
     "reviewer_gate_version": "5.5.0-reviewer-semantic-correction-retry",
     "plan_blob_sha": "f51c6675182ac45fa18c24b337a2402bd4c482cf"
+  },
+  "r14_run23": {
+    "mission_id": "flashloan-agent-form-pilot-20261116-r14",
+    "run_id": 43796225845,
+    "artifact_id": 14196641112,
+    "artifact_sha256": "59b8011c6126013f7b56d5293ed9a6f3b975c3647e52387b5e85890522e9c82c",
+    "status": "failed",
+    "failure": "dependency_license role drift plus duplicate finding claim; evidence validation and independent reviewers not started",
+    "semantic_audit_count_incremented": false
+  },
+  "r14b": {
+    "mission_id": "flashloan-agent-form-pilot-20261116-r14b",
+    "checkpoint_run_id": 43799361897,
+    "checkpoint_artifact_id": 14196365507,
+    "checkpoint_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
+    "correction_commit": "34d1e6b42b1cf54532532751685fa0cdecd1e770",
+    "ci_run_id": 43802940578,
+    "status": "triggering",
+    "database": "data/agentic-mission-pilot-20261116-r14b.sqlite3",
+    "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14b",
+    "semantic_audit_count_incremented": false,
+    "candidate_code_executed": false
   }
 }
