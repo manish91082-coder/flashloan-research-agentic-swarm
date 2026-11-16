@@ -467,6 +467,61 @@ def _validate_semantic_quality_fields(report: dict[str, Any], role: str) -> None
             seen_claims.add(claim)
 
 
+def _validate_reviewer_semantic_relevance(output: dict[str, Any], inspection: dict[str, Any]) -> None:
+    """Reject reviewer output that is provenance-valid but unrelated to the candidate's critical protocol path."""
+    findings = output.get("findings", [])
+    claims = " ".join(
+        str(item.get("claim", "")).casefold()
+        for item in findings if isinstance(item, dict)
+    )
+    signals = {
+        str(item.get("signal", "")).casefold()
+        for item in inspection.get("signals", []) if isinstance(item, dict)
+    }
+    repository = str(inspection.get("repository", "")).casefold()
+    if "aave_flash_loan_simple" in signals or "aave-liquiditor" in repository:
+        topic_groups = {
+            "pool_provider_identity": ("pool", "provider", "ipool", "addressprovider"),
+            "callback_authentication": ("callback", "executeoperation", "initiator", "msg.sender", "caller"),
+            "repayment_premium": ("repay", "repayment", "premium", "amount + premium"),
+        }
+        required_groups = 2
+    elif "uniswap_v2_flash_callback" in signals or "uniswapflashswap" in repository:
+        topic_groups = {
+            "callback_placeholder": ("uniswapv2call", "callback", "todo", "placeholder", "not implemented"),
+            "pair_authentication": ("pair", "sender", "factory", "authenticate", "authentication"),
+            "reserve_token_order": ("reserve", "token0", "token1", "token ordering", "weth", "wbtc"),
+            "repayment": ("repay", "repayment", "borrow", "transfer"),
+        }
+        required_groups = 2
+    else:
+        return
+    covered = [
+        name for name, terms in topic_groups.items()
+        if any(term in claims for term in terms)
+    ]
+    if len(covered) < required_groups:
+        raise SpecialistTaskError(
+            "independent reviewer findings are not semantically relevant to candidate protocol risks; "
+            f"covered={covered}, required_at_least={required_groups}"
+        )
+    disagreements = output.get("review_disagreements", [])
+    for item in disagreements:
+        if not isinstance(item, str) or len(item.strip()) < 24:
+            raise SpecialistTaskError(
+                "review_disagreements must contain substantive explanations, not opaque IDs or placeholders"
+            )
+        normalized = item.strip().casefold()
+        if normalized in {"none", "n/a", "na"} or (
+            len(normalized) <= 16 and normalized[0:1] in {"r", "d"} and any(ch.isdigit() for ch in normalized)
+        ):
+            raise SpecialistTaskError(
+                "review_disagreements must contain substantive explanations, not opaque IDs or placeholders"
+            )
+    if output.get("review_decision") == "accept" and disagreements:
+        raise SpecialistTaskError("review_decision=accept requires zero unresolved review_disagreements")
+
+
 def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any],
                                role: str,
                                canonical_purpose_category: str | None = None) -> dict[str, Any]:
@@ -484,6 +539,7 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
         if not isinstance(output[field], list):
             raise SpecialistTaskError(f"{field} must be an array")
     if role == "independent_reviewer":
+        _validate_reviewer_semantic_relevance(output, inspection)
         for field in ("review_disagreements",):
             if not isinstance(output[field], list):
                 raise SpecialistTaskError(f"{field} must be an array")
@@ -782,7 +838,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
     # Preserve the existing injectable provider constructor contract used by
     # deterministic end-to-end fixtures and test doubles.
     provider.timeout_seconds = timeout_seconds
-    provider.prompt_template_version = "5.3.0-source-pinned-candidate-purpose-schema"
+    provider.prompt_template_version = "5.4.0-candidate-specific-semantic-review-gate"
     store = MissionTaskStore(database_path)
     worker_id = f"specialist-{mission_id}"
     completed: list[dict[str, Any]] = []
@@ -820,8 +876,26 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                         store.list_tasks(mission_id), repository, inspection,
                         max_chars=int(os.getenv("FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS", "18000")),
                     )
+                reviewer_focus = []
+                if role == "independent_reviewer":
+                    signal_names = {str(x.get("signal", "")).casefold() for x in inspection.get("signals", []) if isinstance(x, dict)}
+                    if "aave_flash_loan_simple" in signal_names:
+                        reviewer_focus = [
+                            "Aave-specific: verify Pool versus PoolAddressesProvider constructor wiring and interface identity.",
+                            "Inspect executeOperation caller authentication, initiator binding, asset/amount binding, and repayment of amount plus premium.",
+                            "Do not spend findings on language/framework descriptions; each finding must identify a concrete protocol claim, defect, missing check or justified unknown.",
+                            "Every disagreement must be a concise plain-language explanation with source path/evidence ID, never an opaque ID."
+                        ]
+                    elif "uniswap_v2_flash_callback" in signal_names:
+                        reviewer_focus = [
+                            "Uniswap V2-specific: inspect uniswapV2Call caller/pair authentication and sender binding.",
+                            "Determine whether the callback is implemented or remains a TODO; inspect token ordering, reserve source, pair identity, and repayment/transfer flow.",
+                            "Do not spend findings on language/framework/test-file descriptions; each finding must identify a concrete protocol claim, defect, missing check or justified unknown.",
+                            "Every disagreement must be a concise plain-language explanation with source path/evidence ID, never an opaque ID."
+                        ]
                 context = {
                     "repository": repository,
+                    "reviewer_focus": reviewer_focus,
                     "task_type": task_type,
                     "role": role,
                     "commit_sha": inspection["commit_sha"],
