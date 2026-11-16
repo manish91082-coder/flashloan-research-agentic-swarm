@@ -68,7 +68,7 @@ jobs:
               "details": details,
               "purpose": "pin candidate identity before isolated benchmark; no model inference performed",
           }
-          Path("r15d-challenger-model-pin.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\\n")
+          Path("r15d-challenger-model-pin.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
           print(json.dumps(report, indent=2, sort_keys=True))
           PY
 
