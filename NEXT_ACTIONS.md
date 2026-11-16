@@ -1,3 +1,33 @@
+## Latest authoritative continuation checkpoint — frozen R15C packet and reproducible benchmark capture (2026-11-16 15:12 UTC)
+
+- **Canonical repository/branch:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
+- **R15C artifact independently downloaded and verified:** run 43868846531, artifact 14229725407, ZIP SHA-256 `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`, 72,453 bytes, 26 members. SQLite integrity check is `ok`; database SHA-256 `e074ba8cc74f873b3ba0881900ea0f53c066c3dfcbd422e72220fdb120ea4da6`.
+- **Frozen manifest committed:** `research/R15C_EVALUATION_PACKET_MANIFEST.json`, with source pins, all 14 specialist report hashes, both evidence report hashes, task-ledger accounting and model manifest.
+- **Exact source pins:**
+  - `0xnavarro/Aave-Liquiditor`: commit `9197ee3002d7d9b35e9c2da324128a38f7569038`, tree `14de2312e96c369bcc52c9bae96215051aea22b4`, 8 captured files, 11 signals.
+  - `cobibean/aave-liquidator-bot`: commit `3159c15f4dcfb0df215b4c3024f47753a1133b84`, tree `1a9ee7218304b95654385fc11f255a7c5d532bc4`, 30 captured files, 84 signals.
+- **R15C task ledger:** 39 total tasks; 2 candidate-purpose complete, 12 specialist complete, 2 evidence-validation complete, 2 independent-review failed, 2 candidate dossiers pending. Semantic audit increment remains **0**.
+- **R15D adequacy replay:** normalized deterministic gate assessed all 14 frozen specialist reports. **14/14 insufficient, 0/14 adequate for adversarial challenge**; both candidate packets are insufficient. Reasons: 29 findings lack a role-relevant technical mechanism; 6 findings lack a shared role-specific anchor in the exact cited excerpt. CamelCase normalization is active. This is a triage signal, not proof that all underlying code claims are false.
+- **Model baseline pinned:** R15C used `qwen2.5:3b`, digest `357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b`, Q4_K_M, 3.1B, Ollama manifest context 32,768. Do not assume this tag alone reproduces the model; compare exact digest and settings.
+- **Reviewer exchange capture implemented:** commits `366060c2`, `2566d77e`, `2750fb74`. The local provider retains the exact request body and SHA-256 plus raw response envelope and SHA-256. The reviewer worker persists this exchange before validation with task ID, repository, source pins, model identity, prompt-template version and packet adequacy. CI run [43894208083](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43894208083) passed.
+- **Normalization and regression tests:** camelCase normalization commits `274c666f`, `026e63ce`; regression test commit `7c3e3784`. CI run [43894531677](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43894531677) passed. Earlier R15D gate baseline run [43893065834](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43893065834) passed 153 tests on Python 3.11/3.12/3.13.
+- **Latest documentation commit CI:** run [43894604055](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43894604055) is pending at checkpoint time. Code commits above have successful CI runs.
+- **No fresh semantic pilot launched.** The current benchmark packet is frozen and R15C remains immutable. Do not generate dossiers, increment audit counts, or label the 14 specialist reports as accepted.
+- **Safety unchanged:** public-source read-only research; candidate code not executed; no wallet/signing/deployment/live trading; no paid/cloud inference.
+
+### Next exact actions
+
+1. Verify CI for the latest documentation commit and confirm canonical main head.
+2. Download and verify the immutable source-vault seed artifact run 43799361897 / artifact 14196365507 / SHA-256 `0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad`; this artifact supplies source blobs omitted from the R15C evaluation ZIP.
+3. Build the frozen evaluation replay inputs from the R15C inspection reports, specialist reports, evidence reports and exact source vault; retain exact commit/tree/blob/path/line/excerpt fingerprints.
+4. Run a baseline-only reviewer benchmark with the pinned Qwen2.5 3B digest, exact request snapshot, raw response, packet fingerprint, validator outcomes and resource/runtime data. No challenger yet.
+5. Inspect baseline failure categories and decide whether prompt, specialist role tasks, evidence excerpt selection, or context allocation needs correction.
+6. Only after baseline packet and harness are reproducible, verify one challenger model's exact digest/quantization/context and CPU-only feasibility. Run one model at a time with identical inputs/settings.
+7. Publish separate provenance, cited-claim support, protocol coverage, false-critical-claim, unknown handling, confidence and runtime scores.
+8. Only after benchmark and independent adjudication pass, create a fresh isolated semantic pilot with new database/artifact root. R15C remains immutable.
+
+---
+
 ## Latest authoritative continuation checkpoint — R15D adequacy gate verified (2026-11-16 15:08 UTC)
 
 - **Canonical project unchanged:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`.
