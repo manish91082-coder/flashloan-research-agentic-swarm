@@ -16,7 +16,7 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
         }
         for repo, path in paths.items():
             commit, tree, source_path, blob = EXPECTED[repo]
-            verify_source(repo, path.read_bytes(), {
+            verify_source(path=repo, data=path.read_bytes(), identity={
                 "commit_sha": commit, "tree_sha": tree, "path": source_path, "git_blob_sha1": blob,
             })
 
@@ -49,12 +49,13 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
         for bad in (
             "function executeOperation() external { return true;",
             "function unrelated() external { return true; }",
+            "prefix function executeOperation() external { return true; }",
         ):
             with self.assertRaises(ValueError):
                 require_complete_function(bad, "function executeOperation(")
 
     def test_git_blob_hash_is_git_object_hash(self):
-        self.assertEqual(git_blob_sha(b"abc"), hashlib.sha1(b"blob 3\\0abc").hexdigest())
+        self.assertEqual(git_blob_sha(b"abc"), hashlib.sha1(b"blob 3\0abc").hexdigest())
 
 
 if __name__ == "__main__":
