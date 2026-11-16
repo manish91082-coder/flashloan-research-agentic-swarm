@@ -785,10 +785,50 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
         error_text = str(exc)
         duplicate_claim = "duplicate finding claim" in error_text
         purpose_mismatch = "purpose category conflicts with source-pinned protocol signals" in error_text
-        if not (duplicate_claim or purpose_mismatch):
+        reviewer_relevance = (
+            role == "independent_reviewer"
+            and "independent reviewer findings are not semantically relevant" in error_text
+        )
+        if not (duplicate_claim or purpose_mismatch or reviewer_relevance):
             raise
         retry_context = dict(context)
-        if duplicate_claim:
+        if reviewer_relevance:
+            signals = {
+                str(item.get("signal", "")).casefold()
+                for item in inspection.get("signals", []) if isinstance(item, dict)
+            }
+            repository = str(inspection.get("repository", "")).casefold()
+            if "aave_flash_loan_simple" in signals or "aave-liquiditor" in repository:
+                required_topics = [
+                    "Pool/provider identity: explicitly discuss whether the configured Pool address is an IPool or an address provider.",
+                    "Callback authentication: explicitly discuss executeOperation caller (msg.sender) and initiator authentication/binding.",
+                    "Repayment/premium: explicitly discuss repayment of amount plus premium and whether the callback enforces it.",
+                ]
+            elif "uniswap_v2_flash_callback" in signals or "uniswapflashswap" in repository:
+                required_topics = [
+                    "Callback placeholder: explicitly state whether uniswapV2Call is implemented or TODO/placeholder.",
+                    "Pair authentication: explicitly discuss authenticating msg.sender against the expected pair/factory and sender binding.",
+                    "Reserve/token ordering: explicitly discuss token0/token1 ordering and the source pair for reserves.",
+                    "Repayment: explicitly discuss borrowed-token repayment and transfer destination.",
+                ]
+            else:
+                required_topics = [
+                    "Identify at least two concrete protocol-path risks or unresolved checks visible in the pinned source."
+                ]
+            retry_context["validation_feedback"] = (
+                "Your previous reviewer JSON was rejected because its finding claims did not explicitly "
+                "cover the candidate-specific protocol-risk topics required by the independent-review gate. "
+                "Regenerate the COMPLETE review JSON. Add separate concise review_challenge findings for "
+                "at least two of these topics, using the exact technical terms in each claim so the review "
+                "is auditable by the deterministic relevance gate. Do not invent defects: distinguish "
+                "source_observed facts from supported_inference, cite only the supplied pinned evidence IDs, "
+                "and state unknown when the source excerpt does not establish a fact. "
+                "Do not replace protocol analysis with language/framework descriptions. "
+                "Required candidate topics:\\n- " + "\\n- ".join(required_topics)
+                + "\\nThe review_decision must be explicit. Use accept only if there are zero unresolved "
+                "review_disagreements; otherwise use accept_with_reservations, reject, or inconclusive."
+            )
+        elif duplicate_claim:
             retry_context["validation_feedback"] = (
                 "Your previous JSON was rejected because two or more findings repeated the same claim. "
                 "Regenerate the complete report. Keep only one finding for each distinct claim; "
@@ -838,7 +878,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
     # Preserve the existing injectable provider constructor contract used by
     # deterministic end-to-end fixtures and test doubles.
     provider.timeout_seconds = timeout_seconds
-    provider.prompt_template_version = "5.4.0-candidate-specific-semantic-review-gate"
+    provider.prompt_template_version = "5.5.0-reviewer-semantic-correction-retry"
     store = MissionTaskStore(database_path)
     worker_id = f"specialist-{mission_id}"
     completed: list[dict[str, Any]] = []
