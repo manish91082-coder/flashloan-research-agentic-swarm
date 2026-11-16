@@ -72,8 +72,8 @@ ROLE_PROMPTS = {
         "evidence. Never repeat a finding or paraphrase the same fact as multiple findings."
     ),
     "independent_reviewer": (
-        "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts. Explicitly audit callback authentication. "
-        "Do NOT summarize the repository. Return exactly three distinct review_challenge findings for Aave candidates, "
+        "Perform a narrow adversarial protocol review using the supplied commit-pinned source excerpts. Explicitly audit callback authentication, including executeOperation msg.sender and initiator checks against the configured Pool address and address(this). "
+        "Do not begin with a repository summary; do NOT summarize the repository. Return exactly three distinct review_challenge findings for Aave candidates, "
         "one per topic, and cite only evidence IDs shown in the compact catalog. "
         "Finding 1 claim MUST begin 'Pool/IPool:' and state what constructor wiring actually does: compare the "
         "address passed as IPoolAddressesProvider to the address cast/stored as IPool. "
@@ -84,6 +84,7 @@ ROLE_PROMPTS = {
         "the Pool is approved for repayment. "
         "For Uniswap V2 candidates use distinct claims beginning 'uniswapV2Call/TODO:', "
         "'pair/factory authentication:', 'token0/token1/reserve source:', and/or 'repayment:' as supported. "
+        "Explicitly identify TODO/placeholder logic when present; do not infer it from missing excerpts. "
         "Use source_observed for directly visible code and supported_inference only for a clearly explained inference. "
         "If a check is not present in the excerpt, say 'not established by supplied excerpt' and add it to unknowns; "
         "never turn missing excerpt coverage into a confirmed vulnerability. Use low or medium confidence only. "
