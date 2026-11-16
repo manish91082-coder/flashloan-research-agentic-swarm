@@ -23,6 +23,9 @@ jobs:
       GITHUB_TOKEN: ${{ github.token }}
       FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
       FLR_MODEL_BASE_URL: http://127.0.0.1:11434
+      FLR_MODEL_MAX_PARALLEL_TASKS: '2'
+      OLLAMA_NUM_PARALLEL: '2'
+      OLLAMA_MAX_LOADED_MODELS: '1'
       PYTHONUNBUFFERED: '1'
     steps:
       - name: Checkout canonical research project
@@ -164,7 +167,7 @@ jobs:
             --mission-id "$FLR_MISSION_ID" \
             | tee reports-agent-form-bootstrap.json
 
-      - name: Run serialized source-grounded specialist, evidence and reviewer pilot
+      - name: Run bounded-parallel source-grounded specialist, evidence and reviewer pilot
         if: steps.seed.outputs.should_run == 'true'
         run: |
           set -euo pipefail
