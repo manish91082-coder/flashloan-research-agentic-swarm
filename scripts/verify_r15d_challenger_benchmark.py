@@ -75,9 +75,16 @@ def verify(report_path: Path) -> dict:
         captured = json.loads(raw_bytes)
         exchange = captured.get("exchange") or {}
         request = exchange.get("request")
-        if not isinstance(request, dict):
-            raise ChallengerGateError(f"{repo}: raw request body missing")
-        request_hash = hashlib.sha256(json.dumps(request).encode("utf-8")).hexdigest()
+        request_raw = exchange.get("request_raw")
+        if not isinstance(request, dict) or not isinstance(request_raw, str):
+            raise ChallengerGateError(f"{repo}: exact raw request body missing")
+        try:
+            parsed_request_raw = json.loads(request_raw)
+        except json.JSONDecodeError as exc:
+            raise ChallengerGateError(f"{repo}: raw request JSON is invalid") from exc
+        if parsed_request_raw != request:
+            raise ChallengerGateError(f"{repo}: raw request and parsed request object differ")
+        request_hash = hashlib.sha256(request_raw.encode("utf-8")).hexdigest()
         response_raw = exchange.get("response_raw")
         if not isinstance(response_raw, str):
             raise ChallengerGateError(f"{repo}: raw response missing")
