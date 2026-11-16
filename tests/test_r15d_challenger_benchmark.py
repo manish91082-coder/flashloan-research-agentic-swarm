@@ -18,6 +18,8 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
         root = Path(temp.name)
         outcomes = []
         test_pins = {}
+        (root / "model_exchanges").mkdir()
+        (root / "inspections").mkdir()
         for index, (repo, original_pin) in enumerate(EXPECTED_INPUTS.items()):
             pin = dict(original_pin)
             user_content = f"frozen-{index}"
@@ -45,8 +47,11 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
                     "response_sha256": response_sha,
                 }
             }
-            name = f"exchange-{index}.json"
-            (root / name).write_text(json.dumps(exchange), encoding="utf-8")
+            name = f"candidate-{index}.json"
+            raw_path = root / "model_exchanges" / name
+            raw_path.write_text(json.dumps(exchange), encoding="utf-8")
+            # Same basename in inspections must never shadow the raw exchange.
+            (root / "inspections" / name).write_text("{\"normalized\": true}", encoding="utf-8")
             outcomes.append({
                 "repository": repo,
                 "inspection_commit_sha": pin["commit"],
@@ -56,8 +61,8 @@ class ChallengerBenchmarkGateTests(unittest.TestCase):
                 "model_output": {"review_decision": decisions[index]},
                 "request_sha256": request_sha,
                 "response_sha256": response_sha,
-                "exchange_file": str(root / name),
-                "exchange_file_sha256": hashlib.sha256((root / name).read_bytes()).hexdigest(),
+                "exchange_file": f"/runner/path/model_exchanges/{name}",
+                "exchange_file_sha256": hashlib.sha256(raw_path.read_bytes()).hexdigest(),
             })
         report = {
             "status": "completed",
