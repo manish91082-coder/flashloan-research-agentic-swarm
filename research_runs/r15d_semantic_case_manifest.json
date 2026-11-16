@@ -51,7 +51,7 @@
       "repository": "0xnavarro/Aave-Liquiditor",
       "path": "src/contracts/FlashLiquidator.sol",
       "line_start": 81,
-      "line_end": 110,
+      "line_end": 111,
       "proposition": "No explicit msg.sender-to-pool or initiator-to-self require/check occurs inside this complete callback body.",
       "expected_label": "absent",
       "boundary": "Absence scoped only to this complete function body; inherited behavior is outside this proposition."
