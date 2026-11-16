@@ -1153,12 +1153,36 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     ),
                 }
                 required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
-                validated = _generate_validated_output(
-                    provider, ROLE_PROMPTS[role], context, required_keys, inspection, role,
-                    canonical_purpose_category=canonical_purpose_category,
-                )
+                exchange_path = None
+                try:
+                    validated = _generate_validated_output(
+                        provider, ROLE_PROMPTS[role], context, required_keys, inspection, role,
+                        canonical_purpose_category=canonical_purpose_category,
+                    )
+                finally:
+                    if role == "independent_reviewer":
+                        exchange = getattr(provider, "last_exchange", None)
+                        if isinstance(exchange, dict):
+                            exchange_dir = artifact_root / mission_id / "model_exchanges"
+                            exchange_dir.mkdir(parents=True, exist_ok=True)
+                            exchange_path = exchange_dir / (
+                                repository.replace("/", "__") + "__independent_review.json"
+                            )
+                            write_json(exchange_path, {
+                                "task_id": task["task_id"],
+                                "repository": repository,
+                                "inspection_commit_sha": inspection["commit_sha"],
+                                "inspection_tree_sha": inspection["tree_sha"],
+                                "model": provider.identity.model,
+                                "provider": provider.identity.provider,
+                                "prompt_template_version": provider.identity.prompt_template_version,
+                                "specialist_packet_adequacy": packet_adequacy,
+                                "exchange": exchange,
+                            })
                 if role == "independent_reviewer":
                     _validate_reviewer_packet_decision(packet_adequacy, validated)
+                    if exchange_path is not None:
+                        validated["model_exchange_report"] = str(exchange_path)
                 validated["specialist_packet_adequacy"] = packet_adequacy
                 validated["task_metadata"] = {
                     "task_id": task["task_id"],
