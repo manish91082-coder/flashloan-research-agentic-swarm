@@ -153,7 +153,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         self.assertIn("executeOperation msg.sender", prompt)
         self.assertIn("initiator", prompt)
         self.assertIn("repayment/premium", prompt)
-        self.assertIn("TODO or placeholder", prompt)
+        self.assertIn("TODO/placeholder", prompt)
         self.assertIn("configured Pool address", prompt)
 
     def test_rejects_role_inappropriate_finding_category(self):
