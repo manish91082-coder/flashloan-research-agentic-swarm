@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "R15D baseline-only replay of the two failed R15C independent-review tasks using the immutable source-vault seed and exact pinned Qwen2.5 3B digest. No candidate-purpose, specialist, evidence-validation, dossier, or audit tasks are rerun.",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r15c",
+  "manifest_blob_sha": "c5966272ea95aa55cc3ccc0ed0ff6e01819ee717",
+  "evaluation_artifact_id": 14229725407,
+  "evaluation_artifact_sha256": "98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3",
+  "source_seed_artifact_id": 14196365507,
+  "source_seed_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
+  "model_tag": "qwen2.5:3b",
+  "model_digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+  "request_context_tokens": 16384,
+  "max_output_tokens": 2400,
+  "model_timeout_seconds": 1800,
+  "max_reviewer_context_chars": 18000,
+  "inference": "Ollama local CPU only; loopback 127.0.0.1; one model loaded and one reviewer task at a time.",
+  "execution_safety": {
+    "candidate_code_executed": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "acceptance": {
+    "capture_both_raw_reviewer_exchanges": true,
+    "enforce_inconclusive_for_inadequate_specialist_packet": true,
+    "candidate_dossiers_must_remain_pending": true,
+    "semantic_audit_increment": 0
+  }
+}
