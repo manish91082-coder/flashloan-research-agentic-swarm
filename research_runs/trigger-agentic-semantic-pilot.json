@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14I isolated semantic pilot using corrected R14H reviewer contract and immutable source-capture checkpoint 393; commit-scoped concurrency prevents obsolete stalled pilots from blocking new isolated missions.",
+  "purpose": "R15 deterministic protocol review pilot using pinned evidence resolver and independent reviewer challenge; immutable checkpoint 393; isolated fresh mission.",
   "checkpoint_run_id": 43799361897,
   "checkpoint_artifact_id": 14196365507,
   "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
@@ -28,9 +28,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14i",
-  "database": "data/agentic-mission-pilot-20261116-r14i.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14i",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r15a",
+  "database": "data/agentic-mission-pilot-20261116-r15a.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r15a",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -39,20 +39,16 @@
     "max_reviewer_chars": 18000
   },
   "model_max_output_tokens": 2400,
-  "output_contract_version": "5.7.0-structured-protocol-topic-reviewer",
+  "output_contract_version": "5.8.0-deterministic-protocol-review",
   "acceptance": [
-    "Restore and verify exact source-capture checkpoint run 43799361897 artifact 14196365507 by SHA-256 before restore",
-    "Use fresh isolated R14H database and artifact root; never reuse earlier pilot state",
-    "Complete 2/2 source-pinned candidate-purpose tasks and 12/12 distinct specialist tasks",
-    "Pass 2/2 pinned-evidence semantic gates with provenance and claim linkage",
-    "Complete 2/2 independent candidate-specific reviews using explicit protocol-dimension prompt",
-    "For Aave candidates, reviewer findings must independently examine Pool/provider identity, executeOperation callback authentication and repayment/premium; for Uniswap V2 candidates inspect callback implementation, pair authentication, token ordering/reserve source and repayment",
-    "All reviewer findings must cite narrow pinned evidence IDs and distinguish source-observed facts, supported inference and unknowns",
-    "Both reviewers must return exact unreserved accept, zero disagreements and non-empty source-pinned evidence; any unresolved material issue blocks",
-    "Reject generic/off-topic claims, duplicate claims, unsupported claims, confidence inflation and opaque disagreement identifiers",
-    "Verify task counts, attempts, report-to-source provenance and reviewer decisions from uploaded SQLite database and artifacts",
-    "Do not increment dossier or semantic audit count until every acceptance gate passes",
-    "Candidate code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled"
+    "Restore exact immutable source-capture checkpoint run 43799361897 artifact 14196365507 using pinned SHA-256.",
+    "Fresh isolated R15A mission database and artifact root; do not reuse R14I or prior pilot state.",
+    "Complete 2 candidate-purpose tasks and 12 specialist tasks against same two pinned repositories.",
+    "Pass both candidate-specific evidence gates with source provenance and finding-to-evidence linkage.",
+    "Provide deterministic Aave/Uniswap protocol observations in reviewer context, resolved only by exact path and line overlap with pinned catalog.",
+    "Independent reviewers must challenge deterministic observations, compare seven prior specialist reports, and cite only selected pinned evidence.",
+    "Both reviewers must return exact unreserved accept, zero disagreements, and non-empty source-pinned evidence before dossier or audit increment.",
+    "Candidate source code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled."
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -64,7 +60,7 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14i-commit-isolated-concurrency-corrected-reviewer",
+  "trigger_revision": "r15a-deterministic-source-review-integration",
   "retry_note": "R14I supersedes R14H operationally without modifying or reusing its database/artifact root. Workflow concurrency group changed from one global static lock to a commit-scoped key (${github.workflow}-${github.sha}), so an obsolete in-progress run cannot block a fresh mission. R14H reviewer prompt correction abf0aa53381a9030d799c4ef5bb423dc16ede95e is retained; CI run 43837418271 passed Python 3.11/3.12/3.13. Exact source-capture checkpoint 393 remains immutable and hash-pinned. All evidence gates and reviewer acceptance remain fail-closed.",
   "previous_attempt": {
     "run_id": 43837561939,
@@ -78,7 +74,7 @@
     "test_commit": "cd7208080c997273cb6c086869c2a84b2a55d8bf",
     "purpose": "Require explicit candidate-specific protocol-topic claim structures (Pool/IPool, executeOperation/msg.sender/initiator, repayment/premium) and regression-test the reviewer prompt."
   },
-  "updated_at_utc": "2026-11-16T09:20:00Z",
+  "updated_at_utc": "2026-11-16T10:50:00Z",
   "corrective_code_commit": "abf0aa53381a9030d799c4ef5bb423dc16ede95e",
   "ci_validation": {
     "run_id": 43837418271,
