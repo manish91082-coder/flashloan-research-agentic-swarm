@@ -1,5 +1,5 @@
 {
-  "revision": 1,
+  "revision": 2,
   "model_tag": "qwen3.5:4b",
   "purpose": "identity_discovery_only_no_inference",
   "benchmark_id": "r15d-reviewer-baseline-qwen25-3b-r15c",
