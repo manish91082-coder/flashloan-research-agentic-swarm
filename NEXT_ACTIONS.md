@@ -434,3 +434,22 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 3. Trigger and inspect full Python 3.11/3.12/3.13 CI before accepting the validator/freeze implementation.
 4. Keep all six human review slots blank until actual independent human submissions exist. This is the only remaining non-automatable dependency; do not synthesize or infer human decisions.
 5. After real reviews and a successful freeze only, create held-out semantic cases and authorize a bounded benchmark. Until then, no model inference, dossier approval or semantic audit increment.
+
+
+## R15D evidence-bound adjudication validator and immutable freeze tooling — implementation committed (2026-11-17)
+
+- Hardened `scripts/validate_r15d_adjudication.py` to require every completed reviewer and third-adjudicator record to include an exact case-pinned evidence reference in the form `path:start-end#sha256:<excerpt_sha256>`. It now rejects evidence references that do not match the packet's exact path, line range and excerpt digest.
+- Validator now enforces consensus consistency: unanimous reviewer labels must equal the consensus label; on disagreement, a distinct, complete third adjudicator with pinned evidence is mandatory and the consensus label must equal that adjudicator's label.
+- Updated validator regression tests for duplicate identities, missing/reused third adjudicator, incorrect unanimous consensus and mismatched evidence fingerprints.
+- Added `scripts/freeze_r15d_adjudication.py`: fail-closed freeze operation requires complete validated reviews, preserved blind-packet flags and all safety invariants false; writes a separate frozen manifest using exclusive-create semantics, retains the original blind input unchanged, records input packet SHA-256 and emits output SHA-256. Model inference remains explicitly unauthorized after freeze.
+- Added freeze tests for successful separate output, incomplete packet rejection and overwrite rejection. Synthetic reviewer data exists only inside isolated unit-test fixtures; no synthetic record is written to the repository's blind packet or represented as real adjudication.
+- Commits in order: validator `1bd3bda13083589b85518189b96df2c158ef4290`; validator tests `d76fc50da79f9d01f4c90907ffbe09ffb1a2f8f9`; freeze command `a18641c42da2d9ea80c20fbe571c3dba02587856`; freeze tests `18f7431ca49ddd2d1b9e1472610548df4371567b`.
+- **CI is pending independent verification.** Do not treat committed tests as executed or passing until the GitHub Actions matrix and job logs are inspected.
+- The original blind packet remains blank/pending; no reviewer identities, labels or timestamps have been added. Semantic audit increment remains 0, candidate dossiers remain pending, and all no-execution/no-wallet/no-signing/no-deployment/no-live-trading/no-paid-or-cloud-inference controls remain unchanged.
+
+### Next actions
+
+1. Verify the repository's triggered CI run and all Python 3.11/3.12/3.13 jobs, inspect logs and repair any concrete failures.
+2. Re-open the committed validator, freeze command and tests at current `main`; confirm the intended implementation survived sequential commits and that the blank packet is byte-identical to its pre-implementation blob.
+3. Keep the freeze command unused until genuine independent human reviews are submitted. It is now technically prepared, but it cannot manufacture the human adjudication dependency.
+4. After real submissions, validate exact pinned evidence and consensus, freeze a separate immutable manifest and publish its digest. Only then build the held-out semantic benchmark.
