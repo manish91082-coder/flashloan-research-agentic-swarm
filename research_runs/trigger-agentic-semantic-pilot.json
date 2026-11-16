@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "purpose": "R14D specialist evidence-reference corrective retry pilot using exact verified source-capture checkpoint 393. Fresh isolated mission after R14C failed because test_forensics cited an evidence ID not selected from its pinned catalog.",
+  "purpose": "R14E independent-review structured-claim pilot using exact verified source-capture checkpoint 393. Fresh isolated mission after R14D completed both evidence gates and all specialist tasks but reviewers returned generic repository summaries rather than candidate-specific protocol risk findings.",
   "checkpoint_run_id": 43799361897,
   "checkpoint_artifact_id": 14196365507,
   "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
@@ -28,9 +28,9 @@
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "inference": "Ollama on GitHub runner, CPU-only, bound to 127.0.0.1:11434; no cloud or paid inference",
-  "mission_id": "flashloan-agent-form-pilot-20261116-r14d",
-  "database": "data/agentic-mission-pilot-20261116-r14d.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14d",
+  "mission_id": "flashloan-agent-form-pilot-20261116-r14e",
+  "database": "data/agentic-mission-pilot-20261116-r14e.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-pilot-20261116-r14e",
   "model_timeout_seconds": 1800,
   "context_limits": {
     "max_files": 10,
@@ -39,7 +39,7 @@
     "max_reviewer_chars": 50000
   },
   "model_max_output_tokens": 2400,
-  "output_contract_version": "5.6.1-unselected-evidence-reference-corrective-retry",
+  "output_contract_version": "5.7.0-structured-protocol-topic-reviewer",
   "acceptance": [
     "Restore and verify exact source-capture checkpoint run 43799361897 artifact 14196365507 by SHA-256 before restore",
     "Use fresh isolated R14D database and artifact root; never reuse earlier pilot state",
@@ -64,18 +64,19 @@
     "cloud_inference": false
   },
   "download_strategy": "pinned_artifact_id_with_retry_after_and_x_ratelimit_reset",
-  "trigger_revision": "r14d-evidence-reference-retry-checkpoint-393",
-  "retry_note": "Fresh isolated specialist correction pilot. Preserve source checkpoint 393 unchanged. Only valid catalog IDs omitted from the top-level selected evidence array are eligible for one corrective retry; fabricated/invalid catalog IDs remain fail-closed. All evidence/reviewer acceptance thresholds unchanged.",
+  "trigger_revision": "r14e-structured-protocol-reviewer-checkpoint-393",
+  "retry_note": "Fresh isolated R14E reviewer correction pilot. Preserve source checkpoint 393 unchanged. Use structured protocol-topic reviewer prompt introduced in commit 842bd4ce0de7be018d6ea3e76a10689530e16653 and regression test in cd7208080c997273cb6c086869c2a84b2a55d8bf. Do not weaken evidence provenance, reviewer acceptance or exact unreserved accept requirements. All candidate code execution and transaction permissions remain disabled.",
   "previous_attempt": {
-    "run_id": 43807523922,
-    "artifact_id": 14199617691,
-    "artifact_sha256": "605a8b7e6ede5afeccb58871c441c4abfceb3f7f99b9319a55d2da87b0992450",
+    "run_id": 43816195099,
+    "artifact_id": 14203812377,
+    "artifact_sha256": "de80e45b2eff09bea1d45afd387d66a9822f4ee9f33e8da7196972948297b765",
     "status": "failed",
-    "root_cause": "0xnavarro/Aave-Liquiditor test_forensics finding cited evidence not selected from the pinned catalog; no evidence gate/reviewer or dossier stage ran."
+    "root_cause": "Both candidates completed 2/2 purpose, 12/12 specialist and 2/2 evidence gates, but independent reviewer outputs were generic repository summaries and did not satisfy candidate-specific protocol-risk relevance. No dossier/audit count increment."
   },
   "code_correction": {
-    "commit": "d667474ee8e0cae5176f9acbf8b88dd4bc75f36d",
-    "purpose": "Restrict one bounded corrective retry to valid pinned-catalog evidence IDs omitted from the report-level selected evidence array; fabricated or invalid catalog IDs fail closed."
+    "commit": "842bd4ce0de7be018d6ea3e76a10689530e16653",
+    "test_commit": "cd7208080c997273cb6c086869c2a84b2a55d8bf",
+    "purpose": "Require explicit candidate-specific protocol-topic claim structures (Pool/IPool, executeOperation/msg.sender/initiator, repayment/premium) and regression-test the reviewer prompt."
   },
-  "updated_at_utc": "2026-11-16T06:18:00Z"
+  "updated_at_utc": "2026-11-16T08:14:00Z"
 }
