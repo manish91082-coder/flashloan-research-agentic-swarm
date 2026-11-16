@@ -72,3 +72,14 @@ After this benchmark, any broader semantic quality evaluation must use separatel
 - A new capture-protocol-only rerun is triggered with revision 2. It preserves the exact Qwen3.5 4B digest, frozen source commit/tree pins, packet hashes, request context (16,384) and output cap (2,400). No model-quality retuning is intended.
 - Trigger commit: `b49759a6df918bbf35dd7b29eb75347e36d2ee4c`; workflow validation update: `0ac3a1ce6e1af6930c1ded1caaf6411a3dbb6362`.
 - Acceptance remains conditional on independent artifact verification. Both dossiers remain pending and semantic audit increment remains zero. No candidate code execution, wallet access, signing, deployment, live trading, paid inference or cloud inference.
+
+## Revision 2 forensic result and revision 3 completion-integrity rerun
+
+- Revision 2 workflow [43924552748](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43924552748) restored and verified the immutable source vault, R15C packet, and exact Qwen3.5 4B digest; both reviewer tasks ran and the artifact was uploaded.
+- Artifact `14256136974`, SHA-256 `b83fd56f2d30316f4ba2577261fb484c85b8e374f5b5add2cc07315cd84bf9bf`, is retained unchanged.
+- Independent inspection verified both raw exchange outer hashes, exact `request_raw` parsing and request SHA-256, and response SHA-256. One reviewer response ended with `finish_reason=length`; its JSON was truncated and could not yield a valid model decision. The other response ended normally and returned `inconclusive`.
+- This is a model-output completion failure, not a request-capture failure. The first response must not be coerced to `inconclusive`; no semantic acceptance is allowed.
+- Hardened the verifier to derive the decision from the raw response envelope, require `finish_reason=stop`, parse a complete JSON object, and compare any report-side parsed output with the raw response. Added a regression test for `finish_reason=length`.
+- Revision 3 increases only the maximum output ceiling from 2,400 to 4,096 tokens; request context remains 16,384, same model digest, same source pins, same packets and same prompt template. This is explicitly a completion-integrity rerun, not a controlled quality comparison.
+- Verifier commit: `02ed5098bee35c1ef245a8e9447fe58c04bb412e`; truncation regression commit: `bd65309014ce776c1e61d8e5d1fadf2e49bed829`; workflow commit: `dba0278c21b3fa36b3e1f46e028c8f03b54ab71c`; trigger commit: `d1d630f6e43676e8402601141c309144f8a07294`.
+- Acceptance remains fail-closed. Dossiers pending, semantic audit increment zero, no candidate code execution, wallet, signing, deployment, live trading, paid inference or cloud inference.
