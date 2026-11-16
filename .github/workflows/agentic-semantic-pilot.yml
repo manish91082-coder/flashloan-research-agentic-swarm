@@ -130,7 +130,23 @@ jobs:
             sleep 2
           done
           curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
-          ollama pull "$FLR_MODEL_NAME"
+          PULL_OK=0
+          for attempt in 1 2 3 4 5; do
+            echo "Pulling local model $FLR_MODEL_NAME (attempt $attempt/5)."
+            if ollama pull "$FLR_MODEL_NAME"; then
+              PULL_OK=1
+              break
+            fi
+            if (( attempt < 5 )); then
+              WAIT_SECONDS=$((15 * (2 ** (attempt - 1))))
+              echo "::warning::Ollama registry pull failed; retrying in ${WAIT_SECONDS}s."
+              sleep "$WAIT_SECONDS"
+            fi
+          done
+          if (( PULL_OK != 1 )); then
+            echo "Ollama model pull failed after five bounded attempts; no semantic tasks were started." >&2
+            exit 1
+          fi
           ollama show "$FLR_MODEL_NAME" --modelfile > reports-ollama-modelfile.txt
           curl --fail --silent http://127.0.0.1:11434/api/tags > reports-ollama-model-manifest.json
 
