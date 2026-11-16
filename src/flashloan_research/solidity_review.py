@@ -22,18 +22,10 @@ def _joined(excerpts: list[dict[str, Any]]) -> str:
 
 
 def _evidence_for(excerpts: list[dict[str, Any]], patterns: tuple[str, ...]) -> list[str]:
-    # IDs are attached only when supplied explicitly and the matching excerpt contains
-    # the source text. No IDs are manufactured from paths or line numbers.
-    found = []
-    for item in excerpts:
-        if not isinstance(item, dict):
-            continue
-        text = str(item.get("excerpt", "")).casefold()
-        if any(p.casefold() in text for p in patterns):
-            ids = item.get("evidence_ids", [])
-            if isinstance(ids, list):
-                found.extend(x for x in ids if isinstance(x, str) and re.fullmatch(r"EV[0-9]{5}", x))
-    return found
+    # Standalone analyzer callers cannot establish that an ID belongs to the
+    # inspection's catalog. IDs are therefore intentionally not accepted here.
+    # The integration layer must resolve source paths/lines to the pinned catalog.
+    return []
 
 
 def _function_body(source: str, name: str) -> tuple[str | None, bool]:
