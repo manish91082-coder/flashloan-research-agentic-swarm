@@ -121,8 +121,8 @@ def validate(packet: dict, require_complete: bool = False) -> dict:
                     if not _has_pinned_evidence(case, third):
                         errors.append(f"{cid}: third adjudicator lacks exact pinned path/range/excerpt SHA-256 evidence")
             consensus = case.get("consensus", {})
-            if not isinstance(consensus, dict) or consensus.get("label") not in ALLOWED or not isinstance(consensus.get("rationale"), str) or not consensus["rationale"].strip():
-                errors.append(f"{cid}: consensus label and rationale required")
+            if not isinstance(consensus, dict) or consensus.get("status") != "adjudicated" or consensus.get("label") not in ALLOWED or not isinstance(consensus.get("rationale"), str) or not consensus["rationale"].strip():
+                errors.append(f"{cid}: consensus must be adjudicated with an allowed label and written rationale")
             elif consensus.get("disagreement") is not disagreement:
                 errors.append(f"{cid}: consensus disagreement flag does not match reviewer labels")
             elif not disagreement and consensus.get("label") != labels[0]:
