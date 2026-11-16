@@ -31,18 +31,20 @@
   "mission_run_id": 43600488013,
   "queue_checkpoint": {
     "total": 7901,
-    "captured": 4433,
-    "pending": 3412,
+    "captured": 4445,
+    "pending": 3400,
     "leased": 0,
-    "failed": 56
+    "failed": 56,
+    "captured_complete_within_scope": 3217,
+    "captured_with_coverage_limits": 1228
   },
   "checkpoint_verification": {
     "zip_crc": "ok",
     "sqlite_integrity": "ok",
-    "reports_verified": 4421,
+    "reports_verified": 4445,
     "report_identity_mismatches": 0,
-    "git_blob_references_verified": 61673,
-    "unique_git_blobs_verified": 48081,
+    "git_blob_references_verified": 62068,
+    "unique_git_blobs_verified": 48372,
     "blob_mismatches": 0
   },
   "artifact_preservation_policy": "The next source-capture continuation must preserve this artifact because its resume_run_id equals seed_run_id. Do not update seed to a different run until a newer artifact has been downloaded and verified and its preserving continuation has not yet passed retirement."
