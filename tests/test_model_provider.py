@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import threading
 import unittest
@@ -72,6 +73,27 @@ class LocalModelProviderTests(unittest.TestCase):
         self.assertIn('"purpose"', Handler.body["messages"][0]["content"])
         self.assertEqual(Handler.body["temperature"], 0)
         self.assertEqual(Handler.body["options"]["num_ctx"], 8192)
+
+    def test_provider_retains_exact_request_and_raw_response_fingerprints(self):
+        provider = LocalOpenAICompatibleProvider(self.url, "test-model")
+        provider.generate_json(
+            "Capture the exact request and raw response.",
+            {"repository": "org/repo"},
+            {"purpose", "confidence"},
+        )
+        exchange = provider.last_exchange
+        self.assertIsInstance(exchange, dict)
+        self.assertEqual(
+            exchange["request_sha256"],
+            hashlib.sha256(json.dumps(exchange["request"]).encode("utf-8")).hexdigest(),
+        )
+        self.assertEqual(
+            exchange["response_sha256"],
+            hashlib.sha256(exchange["response_raw"].encode("utf-8")).hexdigest(),
+        )
+        self.assertIn("response_format", exchange["request"])
+        self.assertIn("messages", exchange["request"])
+        self.assertIn("choices", json.loads(exchange["response_raw"]))
 
     def test_model_duplicate_evidence_ids_are_stably_deduplicated(self):
         Handler.response_content = json.dumps({
