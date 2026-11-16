@@ -453,3 +453,21 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 2. Re-open the committed validator, freeze command and tests at current `main`; confirm the intended implementation survived sequential commits and that the blank packet is byte-identical to its pre-implementation blob.
 3. Keep the freeze command unused until genuine independent human reviews are submitted. It is now technically prepared, but it cannot manufacture the human adjudication dependency.
 4. After real submissions, validate exact pinned evidence and consensus, freeze a separate immutable manifest and publish its digest. Only then build the held-out semantic benchmark.
+
+
+## R15D immutable source-pin and timestamp hardening — 2026-11-17
+
+- Continued the validator audit and found that exact evidence-reference matching alone was insufficient if the case's own source metadata were tampered with. Added a hard-coded six-case immutable source baseline: repository, commit, tree, path, Git blob SHA-1, inclusive line range and excerpt SHA-256 must match the frozen fixture design.
+- Validator now checks fixture artifact ID, ZIP SHA-256 and manifest SHA-256, all four blinding flags, and every safety invariant. Reviewer completion timestamps must be parseable timezone-aware UTC ISO-8601 values; non-UTC offsets and malformed timestamps are rejected.
+- Added regression cases for altered source commit pins and invalid/non-UTC review timestamps. Existing tests cover exact evidence fingerprint, consensus consistency, third adjudicator identity and pending blank packet behavior.
+- Re-opened current main after sequential writes: validator blob 67549fefa99b48f5ba0d8f03743c2367bf5658c8; validator tests blob 28edc88bae2bab4b05de094d367c9f5285cd91eb; freeze script blob 00e45c6d200c050f6778dbaaa12a9a76a3147cc5; freeze tests blob 72a0821fe5dd738916060c5080cd9d67ebe53a6d.
+- Blind packet remains byte-identical to prior blank packet blob b9dac92fb354eea8abfddb04b68b1a2d7c9a604b; 18 reviewer ID null fields remain, i.e. six cases x two reviewer slots plus six third-adjudicator slots. Status remains pending_independent_review.
+- CI evidence limitation: workflow file .github/workflows/ci.yml confirms push-to-main matrix for Python 3.11/3.12/3.13. Historical run 43942022279 is green for prior commit 36c7feed..., not these new changes. GitHub commit-status endpoint returned an empty legacy status list for the documentation checkpoint. The available GitHub Actions tools in this session can inspect jobs only when a run ID is known; the browser-based Actions-page retrieval path was unavailable because the external browser automation service reported insufficient wallet balance. No paid top-up was made, preserving the zero-cost policy. Therefore new commits' CI is explicitly NOT YET VERIFIED.
+- No test run is claimed from static inspection. Do not use the freeze utility until genuine independent human submissions exist. Semantic audit increment remains 0; dossiers remain pending; safety invariants remain false.
+
+### Immediate next actions
+
+1. Obtain the actual Actions run ID for the latest main push using a zero-cost GitHub Actions run-list/API route or a later available browser path; inspect all 3 matrix jobs and logs. Do not substitute historical CI.
+2. If any matrix test fails, repair only the demonstrated defect, then verify the next run on all 3 Python versions.
+3. Keep the original blind packet unchanged and all adjudicator slots empty until real independent reviewers submit records.
+4. Once genuine reviews exist, validate against the immutable source baseline, then freeze a separate manifest and hash it. Semantic benchmark remains blocked until this gate is met.
