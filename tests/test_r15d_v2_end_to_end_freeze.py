@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from scripts.build_r15d_v2_semantic_fixtures import build
+from scripts.create_r15d_v2_intake_receipt import create_intake_receipt
 from scripts.finalize_r15d_v2_adjudication import finalize_adjudication
 from scripts.freeze_r15d_v2_adjudication import freeze_adjudication
 from scripts.merge_r15d_v2_primary_reviews import merge_primary_reviews
@@ -81,21 +82,27 @@ class R15DV2EndToEndFreezeTests(unittest.TestCase):
     def run_pipeline(self, disagreement_case=None):
         self.counter += 1
         a, b = self.root / f"a-{self.counter}.json", self.root / f"b-{self.counter}.json"
+        receipt_a, receipt_b = self.root / f"receipt-a-{self.counter}.json", self.root / f"receipt-b-{self.counter}.json"
         staged_path = self.root / f"staged-{self.counter}.json"
         final_path = self.root / f"final-{self.counter}.json"
         third_path = self.root / f"third-{self.counter}.json"
         manifest_path = self.root / f"frozen-{self.counter}.json"
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", disagreement_case)), encoding="utf-8")
-        merge = merge_primary_reviews(self.fixture_dir, a, b, staged_path, "custodian.v2", True)
+        create_intake_receipt(self.fixture_dir, a, receipt_a, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        create_intake_receipt(self.fixture_dir, b, receipt_b, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        merge = merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, "custodian.v2", True)
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
         third_arg = None
+        third_receipt_arg = None
         if disagreement_case:
             third_path.write_text(json.dumps(self.third_bundle(staged)), encoding="utf-8")
+            third_receipt_arg = self.root / f"third-receipt-{self.counter}.json"
+            create_intake_receipt(self.fixture_dir, third_path, third_receipt_arg, "third_adjudicator", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
             third_arg = third_path
         final = finalize_adjudication(
-            self.fixture_dir, a, b, staged_path, final_path, "custodian.v2", True,
-            third_arg, bool(third_arg), merge["output_sha256"],
+            self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, final_path, "custodian.v2", True,
+            third_arg, third_receipt_arg, bool(third_arg), merge["output_sha256"],
         )
         frozen = freeze_adjudication(final_path, self.fixture_dir, manifest_path, "2026-11-17T00:00:00Z")
         verified = verify_frozen_manifest(final_path, self.fixture_dir, manifest_path, frozen["output_sha256"])
@@ -126,9 +133,12 @@ class R15DV2EndToEndFreezeTests(unittest.TestCase):
     def test_incomplete_staged_packet_cannot_be_frozen(self):
         self.counter += 1
         a, b, staged = self.root / "incomplete-a.json", self.root / "incomplete-b.json", self.root / "incomplete-staged.json"
+        receipt_a, receipt_b = self.root / "incomplete-receipt-a.json", self.root / "incomplete-receipt-b.json"
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", "COB2-01")), encoding="utf-8")
-        merge_primary_reviews(self.fixture_dir, a, b, staged, "custodian.v2", True)
+        create_intake_receipt(self.fixture_dir, a, receipt_a, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        create_intake_receipt(self.fixture_dir, b, receipt_b, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, staged, "custodian.v2", True)
         with self.assertRaisesRegex(ValueError, "not eligible for freeze"):
             freeze_adjudication(staged, self.fixture_dir, self.root / "invalid-frozen.json", "2026-11-17T00:00:00Z")
 
