@@ -59,5 +59,22 @@
     "CI_FIXTURE_ARTIFACT_CONTAINS_EXPECTED_LABELS",
     "BLINDNESS_CANNOT_BE_GUARANTEED"
   ],
-  "next_action": "Preserve R15D v1 as forensic evidence and design a new leakage-resistant benchmark revision with no public answer key or label-bearing artifacts."
+  "next_action": "Preserve R15D v1 as forensic evidence and design a new leakage-resistant benchmark revision with no public answer key or label-bearing artifacts.",
+  "remediation": {
+    "legacy_fixture_artifact_publication_disabled": true,
+    "ci_workflow_artifact_count": 0,
+    "ci_workflow_run_id": 44038929810,
+    "ci_tests_per_python_version": 283,
+    "ci_python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "fixture_builder_requires_explicit_forensic_output": true,
+    "fixture_builder_refuses_public_repository_output": true,
+    "fixture_builder_strips_expected_label_fields": true,
+    "generated_fixture_status": "retired_forensic_fixture_not_for_blind_adjudication",
+    "regression_guard": "tests/test_r15d_semantic_fixture_builder.py::test_ci_does_not_publish_retired_r15d_fixture_artifacts",
+    "limitation": "Previously published source manifest and historical fixture artifact remain preserved; v1 blindness is not restored."
+  }
 }
