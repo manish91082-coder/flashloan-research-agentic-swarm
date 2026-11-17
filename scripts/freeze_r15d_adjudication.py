@@ -12,6 +12,15 @@ DEFAULT_PACKET = ROOT / "research_runs/r15d_adjudication/blind_adjudication_pack
 DEFAULT_OUTPUT = ROOT / "research_runs/r15d_adjudication/frozen_ground_truth_manifest.json"
 
 
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON object key: {key}")
+        result[key] = value
+    return result
+
+
 def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
     if not _valid_timestamp(frozen_at):
         raise ValueError("frozen_at must be a timezone-aware UTC ISO-8601 timestamp")
@@ -19,8 +28,8 @@ def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
         raise FileExistsError(f"refusing to overwrite frozen manifest: {output_path}")
     try:
         packet_bytes = packet_path.read_bytes()
-        packet = json.loads(packet_bytes.decode("utf-8"))
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        packet = json.loads(packet_bytes.decode("utf-8"), object_pairs_hook=_unique_object)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
         raise ValueError(f"unable to read a valid adjudication JSON packet: {exc}") from exc
     if not isinstance(packet, dict):
         raise ValueError("input packet must be a JSON object")
