@@ -14,7 +14,7 @@ from scripts.validate_r15d_review_submission import _unique_object
 
 ROOT = Path(__file__).resolve().parents[1]
 TOP_FIELDS = {"schema_version", "benchmark_id", "reviewer_id", "submitted_at", "attestations", "cases"}
-ATTESTATION_FIELDS = {"independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "conflicts_disclosed", "conflict_statement"}
+ATTESTATION_FIELDS = {"independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed", "conflict_statement"}
 CASE_FIELDS = {"case_id", "source_pin", "label", "rationale", "evidence_references", "confidence", "completed_at", "independence_attestation"}
 PIN_FIELDS = {"repository", "commit_sha", "tree_sha", "path", "git_blob_sha1", "line_start", "line_end", "excerpt_sha256"}
 ALLOWED = {"present", "absent", "not_applicable", "unknown"}
@@ -139,7 +139,7 @@ def validate_submission(submission: object, fixture_manifest: dict) -> dict:
     if not isinstance(attestations, dict) or set(attestations) != ATTESTATION_FIELDS:
         errors.append("reviewer attestations must contain exactly the schema-defined fields")
     else:
-        for field in ("independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "conflicts_disclosed"):
+        for field in ("independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed"):
             if attestations.get(field) is not True:
                 errors.append(f"required reviewer attestation must be true: {field}")
         if not isinstance(attestations.get("conflict_statement"), str) or len(attestations["conflict_statement"].strip()) < 3:
