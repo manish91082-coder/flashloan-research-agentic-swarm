@@ -1,0 +1,313 @@
+name: Agent Form Specialist Context Repair Pilot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research_runs/trigger-agentic-context-repair-pilot.json'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}-context-repair
+  cancel-in-progress: false
+
+jobs:
+  semantic-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
+      FLR_MODEL_BASE_URL: http://127.0.0.1:11434
+      FLR_MODEL_MAX_PARALLEL_TASKS: '2'
+      FLR_MODEL_CONTEXT_TOKENS: '16384'
+      OLLAMA_NUM_PARALLEL: '2'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout canonical research project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Read and validate fresh context-repair pilot trigger
+        id: seed
+        run: |
+          set -euo pipefail
+          CONFIG="research_runs/trigger-agentic-context-repair-pilot.json"
+          CHECKPOINT_RUN_ID="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["checkpoint_run_id"])')"
+          ARTIFACT_ID="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["checkpoint_artifact_id"])')"
+          ARTIFACT_SHA256="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["checkpoint_artifact_sha256"])')"
+          MISSION_ID="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["mission_id"])')"
+          DATABASE="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["database"])')"
+          ARTIFACT_ROOT="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["artifact_root"])')"
+          MODEL="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["model"])')"
+          BATCH_LIMIT="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["batch_limit"])')"
+          MODEL_TIMEOUT="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["model_timeout_seconds"])')"
+          MAX_FILES="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["context_limits"]["max_files"])')"
+          MAX_CHARS="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["context_limits"]["max_chars"])')"
+          CONTEXT_LINES="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["context_limits"]["context_lines"])')"
+          MAX_REVIEWER_CHARS="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["context_limits"]["max_reviewer_chars"])')"
+          MAX_OUTPUT_TOKENS="$(python -c 'import json; print(json.load(open("'"$CONFIG"'"))["model_max_output_tokens"])')"
+          if [[ ! "$CHECKPOINT_RUN_ID" =~ ^[0-9]+$ || ! "$ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
+            echo "Invalid immutable source-capture checkpoint identity." >&2
+            exit 1
+          fi
+          if [[ "$CHECKPOINT_RUN_ID" != "43799361897" || "$ARTIFACT_ID" != "14196365507" ]]; then
+            echo "Context-repair pilot must use the frozen, approved source-capture checkpoint." >&2
+            exit 1
+          fi
+          if [[ ! "$ARTIFACT_SHA256" =~ ^[0-9a-f]{64}$ || "$DATABASE" != data/*.sqlite3 || "$ARTIFACT_ROOT" != research_runs/mission-pilots/* ]]; then
+            echo "Invalid artifact digest, database path or artifact root." >&2
+            exit 1
+          fi
+          if [[ "$BATCH_LIMIT" != "2" || "$MODEL" != "qwen2.5:3b" || "$MAX_FILES" != "3" || "$MAX_CHARS" != "6000" ]]; then
+            echo "Pilot batch/model/context violates the approved bounded configuration." >&2
+            exit 1
+          fi
+          if [[ ! "$MISSION_ID" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "Invalid fresh mission ID." >&2
+            exit 1
+          fi
+          echo "FLR_DATABASE=$DATABASE" >> "$GITHUB_ENV"
+          echo "FLR_ARTIFACT_ROOT=$ARTIFACT_ROOT" >> "$GITHUB_ENV"
+          echo "FLR_MISSION_ID=$MISSION_ID" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_NAME=$MODEL" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_TIMEOUT_SECONDS=$MODEL_TIMEOUT" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_FILES=$MAX_FILES" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_CONTEXT_CHARS=$MAX_CHARS" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_CONTEXT_LINES=$CONTEXT_LINES" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS=$MAX_REVIEWER_CHARS" >> "$GITHUB_ENV"
+          echo "FLR_MODEL_MAX_OUTPUT_TOKENS=$MAX_OUTPUT_TOKENS" >> "$GITHUB_ENV"
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          echo "run_id=$CHECKPOINT_RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
+          echo "artifact_sha256=$ARTIFACT_SHA256" >> "$GITHUB_OUTPUT"
+          echo "mission_id=$MISSION_ID" >> "$GITHUB_OUTPUT"
+          echo "database=$DATABASE" >> "$GITHUB_OUTPUT"
+          echo "artifact_root=$ARTIFACT_ROOT" >> "$GITHUB_OUTPUT"
+          echo "batch_limit=$BATCH_LIMIT" >> "$GITHUB_OUTPUT"
+          echo "Agent Form context-repair pilot: $CHECKPOINT_RUN_ID / artifact $ARTIFACT_ID / mission $MISSION_ID" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Download and verify immutable source-capture checkpoint
+        if: steps.seed.outputs.should_run == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/agentic-pilot-checkpoint"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "${{ steps.seed.outputs.artifact_id }}" \
+            --destination "$RUNNER_TEMP/agentic-pilot-checkpoint/source-capture.zip" \
+            --extract-to "$RUNNER_TEMP/agentic-pilot-checkpoint/unpacked" \
+            --max-wait-seconds 7200
+          echo "${{ steps.seed.outputs.artifact_sha256 }}  $RUNNER_TEMP/agentic-pilot-checkpoint/source-capture.zip" | sha256sum --check -
+          python scripts/restore_source_capture_checkpoint.py \
+            --artifact-root "$RUNNER_TEMP/agentic-pilot-checkpoint/unpacked" \
+            --workspace "$GITHUB_WORKSPACE" \
+            | tee reports-agentic-restore-verification.json
+
+      - name: Install Agent Form runtime
+        if: steps.seed.outputs.should_run == 'true'
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[agentic]'
+          python -m compileall -q src/flashloan_research scripts
+
+      - name: Install local open-weight inference runtime
+        if: steps.seed.outputs.should_run == 'true'
+        run: |
+          set -euo pipefail
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          bash -n "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          sudo systemctl start ollama
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          PULL_OK=0
+          for attempt in 1 2 3 4 5; do
+            echo "Pulling local model $FLR_MODEL_NAME (attempt $attempt/5)."
+            if ollama pull "$FLR_MODEL_NAME"; then
+              PULL_OK=1
+              break
+            fi
+            if (( attempt < 5 )); then
+              WAIT_SECONDS=$((15 * (2 ** (attempt - 1))))
+              echo "::warning::Ollama registry pull failed; retrying in ${WAIT_SECONDS}s."
+              sleep "$WAIT_SECONDS"
+            fi
+          done
+          if (( PULL_OK != 1 )); then
+            echo "Ollama model pull failed after five bounded attempts; no semantic tasks were started." >&2
+            exit 1
+          fi
+          ollama show "$FLR_MODEL_NAME" --modelfile > reports-ollama-modelfile.txt
+          curl --fail --silent http://127.0.0.1:11434/api/tags > reports-ollama-model-manifest.json
+
+      - name: Bootstrap a fresh isolated Agent Form mission DAG
+        if: steps.seed.outputs.should_run == 'true'
+        run: |
+          set -euo pipefail
+          test ! -e "$FLR_DATABASE"
+          python scripts/initialize_agentic_capture_mission.py \
+            --report-dir reports/source-capture/43600488013 \
+            --vault "$FLR_SNAPSHOT_DIR" \
+            --mission-db "$FLR_DATABASE" \
+            --artifact-root "$FLR_ARTIFACT_ROOT" \
+            --batch-limit "${{ steps.seed.outputs.batch_limit }}" \
+            --mission-id "$FLR_MISSION_ID" \
+            | tee reports-agent-form-bootstrap.json
+
+      - name: Run bounded-parallel source-grounded specialist, evidence and reviewer pilot
+        if: steps.seed.outputs.should_run == 'true'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time
+          from pathlib import Path
+          from flashloan_research.mission_executor import MissionExecutor
+
+          mission_id = os.environ["FLR_MISSION_ID"]
+          artifact_root = Path(os.environ["FLR_ARTIFACT_ROOT"])
+          started = time.time()
+          executor = MissionExecutor(
+              database_path=Path(os.environ["FLR_DATABASE"]),
+              artifact_root=artifact_root,
+          )
+          result = executor.run_local_semantic_agents(mission_id)
+          result["elapsed_seconds"] = round(time.time() - started, 2)
+          result["candidate_code_executed"] = False
+          result["model_endpoint_policy"] = "127.0.0.1 loopback only; no cloud or paid inference"
+          Path("reports-agent-form-context-repair-pilot.json").write_text(
+              json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(result, indent=2, sort_keys=True))
+
+          if result.get("status") != "executed_with_evidence_gate":
+              raise SystemExit("Agent Form semantic pipeline did not complete its required stages. See blocked stage and task ledger; no candidate may be counted as audited.")
+          failures = [
+              item for batch in result.get("specialist_batches", [])
+              for item in batch.get("failures", [])
+          ]
+          failures += result.get("evidence_validation", {}).get("failures", [])
+          failures += result.get("independent_review", {}).get("failures", [])
+          if failures:
+              raise SystemExit(f"Pilot contains failed model/evidence/reviewer tasks: {failures}")
+
+          gates = result.get("evidence_validation", {}).get("completed", [])
+          reviewers = result.get("independent_review", {}).get("completed", [])
+          if len(gates) != 2 or len(reviewers) != 2:
+              raise SystemExit(f"Expected 2 evidence gates and 2 reviewers; got {len(gates)} and {len(reviewers)}.")
+
+          decisions = []
+          for gate in gates:
+              report = json.loads(Path(gate["report"]).read_text(encoding="utf-8"))
+              if report.get("evidence_gate") != "pinned_evidence_semantic_quality_and_claim_linkage_pass":
+                  raise SystemExit("Evidence gate did not produce the required source-linked acceptance status.")
+              if report.get("provenance_pass") is not True or report.get("claim_linkage_pass") is not True:
+                  raise SystemExit("Evidence provenance or finding-to-evidence linkage did not pass.")
+              if report.get("accepted_evidence_total", 0) <= 0 or report.get("candidate_purpose_evidence_count", 0) <= 0:
+                  raise SystemExit("Candidate gate contains zero accepted evidence.")
+
+          for reviewer in reviewers:
+              report = json.loads(Path(reviewer["report"]).read_text(encoding="utf-8"))
+              decision = report.get("review_decision")
+              if decision not in {"accept", "accept_with_reservations", "reject", "inconclusive"}:
+                  raise SystemExit("Independent reviewer did not return an explicit valid review decision.")
+              disagreements = report.get("review_disagreements", [])
+              decisions.append({
+                  "repository": reviewer["repository"],
+                  "review_decision": decision,
+                  "review_disagreements": disagreements,
+                  "source_linked_evidence_count": len(report.get("evidence", [])),
+                  "dossier_eligible": decision == "accept" and not disagreements and len(report.get("evidence", [])) > 0,
+              })
+
+          promotion_eligible = all(item["dossier_eligible"] for item in decisions)
+          import sqlite3
+          con = sqlite3.connect(os.environ["FLR_DATABASE"])
+          con.row_factory = sqlite3.Row
+          try:
+              rows = con.execute(
+                  "SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks WHERE mission_id=? GROUP BY task_type,role,status",
+                  (mission_id,),
+              ).fetchall()
+          finally:
+              con.close()
+          counts = [dict(row) for row in rows]
+          Path("reports-agent-form-context-repair-outcomes.json").write_text(
+              json.dumps({"review_decisions": decisions, "task_counts": counts,
+                          "all_reviewers_unreserved_accept": promotion_eligible,
+                          "dossier_creation_permitted": promotion_eligible,
+                          "semantic_audit_count_incremented": False,
+                          "candidate_code_executed": False,
+                          "r15d_v2_benchmark_inference": False}, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps({"review_decisions": decisions, "task_counts": counts}, indent=2))
+          PY
+
+      - name: Generate Agent Form pilot task ledger
+        if: always() && steps.seed.outputs.should_run == 'true'
+        run: |
+          python - <<'PY'
+          import json, os, sqlite3
+          from pathlib import Path
+          db = Path(os.environ["FLR_DATABASE"])
+          mission_id = os.environ["FLR_MISSION_ID"]
+          summary = {"mission_id": mission_id, "database_exists": db.is_file()}
+          if db.is_file():
+              con = sqlite3.connect(db)
+              con.row_factory = sqlite3.Row
+              try:
+                  summary["mission"] = dict(con.execute(
+                      "SELECT mission_id,title,status,rejection_reason FROM research_missions WHERE mission_id=?",
+                      (mission_id,)
+                  ).fetchone() or {})
+                  rows = con.execute(
+                      "SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks WHERE mission_id=? GROUP BY task_type,role,status ORDER BY task_type,role,status",
+                      (mission_id,)
+                  ).fetchall()
+                  summary["task_counts"] = [dict(x) for x in rows]
+                  summary["candidate_code_executed"] = False
+                  summary["semantic_audit_count_incremented"] = False
+              finally:
+                  con.close()
+          Path("reports-agent-form-context-repair-ledger.json").write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload Agent Form semantic pilot evidence
+        if: always() && steps.seed.outputs.should_run == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: flashloan-agent-form-context-repair-pilot-${{ steps.seed.outputs.mission_id }}
+          path: |
+            ${{ steps.seed.outputs.database }}
+            ${{ steps.seed.outputs.artifact_root }}/
+            reports-agentic-restore-verification.json
+            reports-agent-form-bootstrap.json
+            reports-agent-form-context-repair-pilot.json
+            reports-agent-form-context-repair-outcomes.json
+            reports-agent-form-context-repair-ledger.json
+            reports-ollama-modelfile.txt
+            reports-ollama-model-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
