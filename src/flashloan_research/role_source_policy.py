@@ -75,8 +75,22 @@ def _family_for_path(role: str, path: str) -> tuple[int, str | None]:
     normalized = PurePosixPath(path).as_posix().casefold()
     patterns = ROLE_FAMILY_PATTERNS.get(role, ROLE_FAMILY_PATTERNS["candidate_purpose"])
     for rank, (family, needles) in enumerate(patterns):
-        if any(needle in normalized for needle in needles):
-            return rank, family
+        if not any(needle in normalized for needle in needles):
+            continue
+        # Protocol/security reviewers must not spend their bounded context on
+        # unrelated UI/monitoring tests merely because a directory is named test.
+        if role in {"solidity_security", "independent_reviewer"} and family in {
+            "security_test", "protocol_test"
+        }:
+            protocol_markers = (
+                "liquidat", "flashloan", "flash_loan", "flash-loan", "aave",
+                "uniswap", "callback", "protocol", "security", "contract",
+            )
+            if not normalized.endswith(".t.sol") and not any(
+                marker in normalized for marker in protocol_markers
+            ):
+                continue
+        return rank, family
     return len(patterns), None
 
 
