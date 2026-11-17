@@ -70,10 +70,10 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
     if not isinstance(cases, list) or len(cases) != 6:
         raise ValueError("v2 fixture must contain exactly six design cases")
     case_ids = [case.get("id") for case in cases if isinstance(case, dict)]
-    if len(case_ids) != 6 or len(set(case_ids)) != 6:
-        raise ValueError("v2 case IDs must be six unique strings")
-    if not all(isinstance(case_id, str) for case_id in case_ids):
-        raise ValueError("v2 case IDs must be strings")
+    if len(case_ids) != 6 or len(case_ids) != len(cases) or not all(isinstance(case_id, str) for case_id in case_ids):
+        raise ValueError("v2 case IDs must be six strings")
+    if len(set(case_ids)) != 6:
+        raise ValueError("v2 case IDs must be unique")
 
     excerpts_dir = out / "excerpts"
     excerpts_dir.mkdir(parents=True, exist_ok=True)
