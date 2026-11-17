@@ -67,3 +67,7 @@ Candidate code execution, wallet access, transaction signing, deployment, live t
 - The earlier v2 artifact `14308717210` is superseded because its propositions were broader; the current artifact uses the narrowed atomic propositions.
 - This artifact is a source-pinned reviewer fixture, not a reference-label or ground-truth record. No reviewer submissions, consensus, freeze or model inference have occurred.
 
+
+## Reviewer intake eligibility
+
+V2 reviewers must have no prior exposure to the R15D v1 answer key or reference labels. The v1 labels are public, so the custodian must explicitly screen reviewer eligibility and require the v2 bundle attestations `v1_answer_key_not_seen=true` and `v1_labels_not_consulted=true`. A reviewer who has seen or consulted the v1 label-bearing material is not eligible for the v2 blind panel. See `research/R15D_V2_REVIEWER_INTAKE.md`.
