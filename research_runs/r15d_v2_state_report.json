@@ -32,10 +32,10 @@
     "propositions_atomic": true
   },
   "artifact": {
-    "workflow_run_id": 44042601978,
-    "artifact_id": 14310306017,
-    "artifact_name": "r15d-v2-label-free-fixtures-6f69ab6cbe704ef5b6b042d2beefffb0f129682f",
-    "zip_sha256": "4a50229dce2dcf73b6972a74757161fcdec4d30161380cd37909a6a6432590c3",
+    "workflow_run_id": 44044227629,
+    "artifact_id": 14309734239,
+    "artifact_name": "r15d-v2-label-free-fixtures-17db273358c43cea1d0cad0bd67e17877b9d2ef1",
+    "zip_sha256": "15e1a730345909532061f8ba17c3a25bb160f15355993d2a751a67d4d066c9d3",
     "fixture_manifest_sha256": "8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8",
     "source_design_manifest_sha256": "51c8cc5ecaa1b97164654d7bb6bf5b367a59936de6da5405c32aee48be034f07",
     "case_count": 6,
@@ -46,9 +46,9 @@
     "exact_forbidden_json_keys_found": 0
   },
   "ci": {
-    "run_id": 44042601978,
+    "run_id": 44044227629,
     "conclusion": "success",
-    "tests_per_python_version": 337,
+    "tests_per_python_version": 345,
     "python_versions": [
       "3.11",
       "3.12",
@@ -102,9 +102,14 @@
     "actual_receipts_created": 0,
     "custody_chain_audit": "research/R15D_V2_CUSTODY_CHAIN_AUDIT.md",
     "receipt_generator_implemented": true,
-    "receipt_to_merge_binding_enforced": false,
+    "receipt_to_merge_binding_enforced": true,
     "production_intake_authorized": false,
-    "residual_blocker": "Merge, staged-merge verifier and finalizer do not yet require and verify the corresponding metadata-only custody receipts."
+    "residual_blocker": "No genuine reviewers or identity checks exist yet; out-of-band identity verification and private encrypted custody remain operational controls requiring a synthetic tabletop and then explicit human authorization.",
+    "receipt_verifier": "scripts/verify_r15d_v2_intake_receipt.py",
+    "primary_merge_requires_two_slot_receipts": true,
+    "third_review_receipt_required_on_disagreement": true,
+    "freeze_requires_receipt_verified_reconstruction": true,
+    "frozen_manifest_verifier_reconstructs_from_receipts": true
   },
   "adjudication_pipeline": {
     "staged_merge": "scripts/merge_r15d_v2_primary_reviews.py",
@@ -120,6 +125,6 @@
     "production_freeze_performed": false
   },
   "reason_codes": [
-    "CUSTODY_RECEIPT_NOT_BOUND_TO_MERGE"
+    "NO_GENUINE_REVIEWERS_OR_IDENTITY_CHECKS"
   ]
 }
