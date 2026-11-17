@@ -88,3 +88,14 @@ python scripts/verify_r15d_v2_intake_receipt.py \
 ```
 
 For the third reviewer, use `--reviewer-slot third_adjudicator` and supply `--staged-packet`. Primary merge, staged-merge verification, finalization, freeze and frozen-manifest verification all re-check the receipt chain. A receipt is a metadata integrity record and custodian attestation, not cryptographic proof of a person's identity.
+
+## Synthetic custody tabletop result
+
+- CI run: [44044925406](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44044925406)
+- Script: `scripts/run_r15d_v2_custody_tabletop.py`
+- The synthetic scenario completed primary receipt creation/verification, primary merge, independent staged-merge verification, disagreement-only third receipt, finalization, freeze and independent frozen-manifest verification.
+- Temporary private workspace permissions were verified as directories `0700` and files `0600`; the workspace was removed after the run.
+- The tabletop used synthetic reviewer IDs and synthetic labels only. It did not verify real human identity, encrypted external transfer, actual custodian operations or production readiness.
+- CI passed **346 tests** on Python 3.11, 3.12 and 3.13. The additional end-to-end tabletop ran on Python 3.11.
+
+**Operational gate remains closed:** a successful synthetic tabletop validates software and POSIX permission behavior, not a real human review operation. The custodian must still validate encrypted transfer, identity checks, key custody and private storage before inviting genuine reviewers.
