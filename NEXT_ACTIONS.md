@@ -1,3 +1,13 @@
+# Observability refinement — committed and CI-verified (2026-11-17)
+
+**Workflow implementation commit:** `1b1a5440e7cdcf77b869e5f703e7c7ad0c8ac1a5`  
+**CI:** [44077987391](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44077987391) — Python 3.11/3.12/3.13 all PASS; 355 tests passed in Python 3.11.
+
+The semantic-pilot workflow now writes an append-only JSONL heartbeat every 30 seconds during semantic execution. Each record captures UTC timestamp, elapsed time, mission status and SQLite task counts grouped by task type, role and state. It writes an initial snapshot and a final snapshot and uploads the heartbeat alongside the SQLite ledger and reports. This improves observability for **future runs**; it does not alter or attach to active run 44074867551, whose checkout remains pinned to its original commit.
+
+**Active pilot remains:** [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551), still observed in semantic execution; no final artifact yet. Do not claim heartbeat telemetry exists for that already-running job.
+
+---
 # Live continuation checkpoint — 2026-11-17 17:20 IST
 
 **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`  
