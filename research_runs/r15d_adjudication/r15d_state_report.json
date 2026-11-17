@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "report_type": "r15d_benchmark_integrity_state",
+  "audit_timestamp": "2026-11-17",
+  "benchmark_id": "r15d-semantic-source-facts-v1",
+  "disposition": "blinding_compromised_retired_for_new_blind_adjudication",
+  "repository": {
+    "full_name": "manish91082-coder/flashloan-research-agentic-swarm",
+    "branch": "main",
+    "visibility": "public"
+  },
+  "evidence": {
+    "blind_packet": {
+      "path": "research_runs/r15d_adjudication/blind_adjudication_packet.json",
+      "git_blob_sha1": "b9dac92fb354eea8abfddb04b68b1a2d7c9a604b",
+      "status": "blank_unchanged"
+    },
+    "public_source_manifest": {
+      "path": "research_runs/r15d_semantic_case_manifest.json",
+      "git_blob_sha1": "34d15f0e7aa50b61ca127ae37aa3781c2a8c15d5",
+      "expected_label_field_present": true,
+      "cases_with_expected_labels": 6
+    },
+    "fixture_artifact": {
+      "workflow_run_id": 44038191152,
+      "artifact_id": 14307778314,
+      "artifact_name": "r15d-semantic-fixtures-9e1ec0a9f42c0b8403b4166db0c5ab340f15f495",
+      "zip_sha256": "83f1665e69ede8a269b2c2d397f50bb6c1d46645fb441cf36edd7dc61e0f67b8",
+      "fixture_manifest_sha256": "2c0eb9ef589963ad48f430eeb838c416f90251a73b9ad876f201be20e6eda305",
+      "source_manifest_sha256": "65aee61321efa3f759508158ac2fb803b32e798ab31488725bbeca756f4eae36",
+      "case_count": 6,
+      "expected_label_field_present": true,
+      "status": "built_pending_independent_adjudication"
+    }
+  },
+  "reviewer_state": {
+    "primary_submissions_received": 0,
+    "third_adjudicator_submissions_received": 0,
+    "custodian_identity_checks_completed": 0,
+    "actual_reviewer_contamination_observed": false,
+    "actual_reviewer_contamination_status": "not_observed_no_real_submissions"
+  },
+  "gates": {
+    "blindness_eligible": false,
+    "production_merge_authorized": false,
+    "ground_truth_freeze_authorized": false,
+    "model_inference_authorized": false,
+    "semantic_audit_increment": 0,
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "reason_codes": [
+    "PUBLIC_REPOSITORY_CONTAINS_EXPECTED_LABELS",
+    "CI_FIXTURE_ARTIFACT_CONTAINS_EXPECTED_LABELS",
+    "BLINDNESS_CANNOT_BE_GUARANTEED"
+  ],
+  "next_action": "Preserve R15D v1 as forensic evidence and design a new leakage-resistant benchmark revision with no public answer key or label-bearing artifacts."
+}
