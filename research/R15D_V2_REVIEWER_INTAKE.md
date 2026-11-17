@@ -69,6 +69,8 @@ python scripts/merge_r15d_v2_primary_reviews.py \
   --fixture <label-free-fixture-directory-or-zip> \
   --reviewer-a <private-a.json> \
   --reviewer-b <private-b.json> \
+  --receipt-a <private-a-receipt.json> \
+  --receipt-b <private-b-receipt.json> \
   --output <new-private-staged-packet.json> \
   --custodian-id <custodian-id> \
   --identity-verification-complete
@@ -83,6 +85,8 @@ python scripts/verify_r15d_v2_primary_merge.py \
   --fixture <label-free-fixture-directory-or-zip> \
   --reviewer-a <private-a.json> \
   --reviewer-b <private-b.json> \
+  --receipt-a <private-a-receipt.json> \
+  --receipt-b <private-b-receipt.json> \
   --staged-packet <private-staged-packet.json> \
   --custodian-id <custodian-id> \
   --identity-verification-complete \
