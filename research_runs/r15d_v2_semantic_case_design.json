@@ -48,53 +48,53 @@
       "path": "src/contracts/FlashLiquidator.sol",
       "line_start": 76,
       "line_end": 79,
-      "proposition": "The onlyOwner modifier requires msg.sender to equal owner before executing the decorated function body.",
-      "boundary": "Modifier behavior only; does not establish ownership transfer, deployment ownership or authorization of every external entry point."
+      "proposition": "The onlyOwner modifier requires msg.sender to equal owner before reaching the function-body placeholder.",
+      "boundary": "Modifier condition only; does not establish the ownership lifecycle or authorization of unrelated entry points."
     },
     {
       "id": "NAV2-02",
       "repository": "0xnavarro/Aave-Liquiditor",
       "path": "src/contracts/FlashLiquidator.sol",
-      "line_start": 113,
-      "line_end": 139,
-      "proposition": "executeLiquidation ABI-encodes all five liquidation parameters and calls pool.flashLoanSimple with address(this), debtAsset, debtToCover, the encoded params and referral code zero.",
-      "boundary": "Call construction only; does not establish that the configured pool address is valid or that the flash-loan transaction succeeds."
+      "line_start": 132,
+      "line_end": 138,
+      "proposition": "The executeLiquidation function calls pool.flashLoanSimple with address(this) as receiver, debtAsset as the borrowed asset and debtToCover as the requested amount.",
+      "boundary": "Call arguments only; does not establish that the configured pool is valid or that the transaction succeeds."
     },
     {
       "id": "NAV2-03",
       "repository": "0xnavarro/Aave-Liquiditor",
       "path": "src/contracts/FlashLiquidator.sol",
-      "line_start": 141,
-      "line_end": 147,
-      "proposition": "withdrawToken and withdrawETH are both external onlyOwner functions; the former uses SafeERC20.safeTransfer to owner and the latter transfers the contract's full native-asset balance to owner.",
-      "boundary": "Withdrawal implementation only; does not establish token compatibility, recipient behavior or broader asset-accounting safety."
+      "line_start": 145,
+      "line_end": 146,
+      "proposition": "The withdrawETH function sends address(this).balance to owner using payable(owner).transfer.",
+      "boundary": "Transfer statement only; does not establish all withdrawal authorization or native-asset accounting safety."
     },
     {
       "id": "COB2-01",
       "repository": "cobibean/aave-liquidator-bot",
       "path": "contracts/AaveLiquidatorSwapRouter02.sol",
       "line_start": 91,
-      "line_end": 103,
-      "proposition": "The constructor rejects zero pool and router addresses, stores msg.sender as owner, assigns the pool/router interface references, and initializes four common fee tiers.",
-      "boundary": "Constructor assignments only; does not establish that the nonzero addresses implement the expected protocols or that the fee tiers have liquidity."
+      "line_end": 92,
+      "proposition": "The constructor reverts when the supplied _aavePool address equals address(0).",
+      "boundary": "One constructor guard only; does not establish the validity or behavior of a nonzero pool address."
     },
     {
       "id": "COB2-02",
       "repository": "cobibean/aave-liquidator-bot",
       "path": "contracts/AaveLiquidatorSwapRouter02.sol",
-      "line_start": 143,
-      "line_end": 151,
-      "proposition": "triggerLiquidationWithMinProfit chooses the larger of minProfitForCall and stored minProfit, then forwards that floor with an empty swap path to _triggerLiquidation.",
-      "boundary": "Control-flow fact only; does not establish that the floor covers gas, MEV, slippage, taxes or realized net profitability."
+      "line_start": 150,
+      "line_end": 150,
+      "proposition": "The per-call floor is assigned the larger of minProfitForCall and the stored minProfit value using a conditional expression.",
+      "boundary": "Floor-selection expression only; does not establish that the floor covers gas, MEV, slippage or realized net profitability."
     },
     {
       "id": "COB2-03",
       "repository": "cobibean/aave-liquidator-bot",
       "path": "contracts/AaveLiquidatorSwapRouter02.sol",
       "line_start": 296,
-      "line_end": 322,
-      "proposition": "_resolveSwapPath first tries a direct fee tier; otherwise it scans intermediate tokens, requires fee tiers for both legs, returns a packed two-hop path, and reverts when no route is found.",
-      "boundary": "Path-selection logic only; does not establish pool liquidity, quote quality, execution success or profitability."
+      "line_end": 300,
+      "proposition": "_resolveSwapPath checks the direct token pair fee tier first and returns a packed direct path when that fee tier is nonzero.",
+      "boundary": "Direct-path branch only; does not establish the behavior or success of intermediate routes or actual swap execution."
     }
   ],
   "adjudication_policy": {
