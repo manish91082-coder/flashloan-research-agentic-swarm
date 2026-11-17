@@ -11,6 +11,7 @@ from unittest.mock import patch
 from flashloan_research.mission_executor import MissionExecutor
 from flashloan_research.mission_runtime import MissionTask, MissionTaskStore, stable_task_id
 from flashloan_research.storage import git_blob_sha
+from flashloan_research.role_source_policy import role_path_admissible
 
 
 class FakeLocalProvider:
@@ -96,12 +97,16 @@ class FakeLocalProvider:
             role in {"dependency_license", "test_verification"}
             and not user_payload.get("role_source_coverage", {}).get("present_families")
         )
+        captured = user_payload.get("source_files_captured", [])
         if missing_role_sources:
-            assert not excerpts and not catalog, "roles with no admissible source families must receive no source context"
+            assert not excerpts and not catalog and not captured, "roles with no admissible source families must receive no source context"
         else:
             assert excerpts, "verified source excerpts must reach every eligible model task"
             assert "blob_sha" in excerpts[0] and "excerpt_sha256" in excerpts[0]
             assert catalog, "pinned evidence catalog must reach every eligible model task"
+            assert all(role_path_admissible(role, item["path"]) for item in captured), (
+                "captured source inventory must be filtered to role-admissible paths"
+            )
         assert "task_type" in user_payload and "role" in user_payload
         if user_payload["role"] == "independent_reviewer":
             assert len(user_payload.get("prior_specialist_outputs", [])) == 7, (
