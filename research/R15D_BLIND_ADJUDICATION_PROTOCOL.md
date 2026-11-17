@@ -1,6 +1,6 @@
 # R15D Blind Ground-Truth Adjudication Protocol
 
-**Status:** operational template committed; no reviewer decisions have been supplied and no labels are frozen.
+**Status:** RETIRED FOR BLIND ADJUDICATION. R15D v1 has a verified answer-key leakage path through the public source manifest and CI fixture artifact. Preserve this protocol and packet as forensic evidence only. Do not solicit reviews, freeze ground truth, or run model evaluation against this six-case v1 set. See `research/R15D_V1_BLINDNESS_LEAKAGE_AUDIT.md` and `research_runs/r15d_adjudication/r15d_state_report.json`.
 
 ## Objective
 
