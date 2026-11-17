@@ -97,6 +97,7 @@ def load_fixture_bundle(path: Path) -> dict:
 
     if 'archive' in locals():
         archive.close()
+    manifest["_artifact_manifest_sha256"] = hashlib.sha256(manifest_bytes).hexdigest()
     return manifest
 
 
