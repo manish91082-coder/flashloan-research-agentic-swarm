@@ -53,6 +53,16 @@ The downloaded ZIP was inspected directly. It contains six excerpt files and `fi
    - no model sees any case until the new ground truth is independently adjudicated, frozen and verified.
 6. Add automated leakage checks that scan all reviewer-facing artifacts and CI outputs for label-bearing fields and known answer-key material.
 
+
+## Leakage containment remediation — CI verified
+
+- The public CI workflow no longer builds or uploads the retired R15D v1 fixture artifact.
+- The legacy fixture builder now requires an explicit isolated forensic output directory, refuses paths inside the public repository, and strips `expected_label` from generated forensic fixture manifests.
+- Its output status is `retired_forensic_fixture_not_for_blind_adjudication`; the CLI requires an explicit `--forensic-only` acknowledgement.
+- A regression test asserts that the CI workflow contains no R15D v1 fixture publication step or artifact upload.
+- CI run [44038929810](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44038929810) passed **283 tests** on Python 3.11, 3.12 and 3.13. Its GitHub Actions artifact count is **0**.
+- The old public source manifest and previously uploaded artifact remain preserved as forensic evidence. This remediation prevents routine republication; it does not restore v1 blindness or erase the already exposed labels.
+
 ## Safety and accounting
 
 - Real reviewer submissions received: 0
