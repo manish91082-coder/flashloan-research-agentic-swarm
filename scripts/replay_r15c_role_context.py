@@ -163,7 +163,7 @@ def replay_candidate(
         # The context builder may emit fewer files than the path shortlist if a
         # selected source has no renderable lines. It must never emit an
         # inadmissible file or exceed the configured file/context budgets.
-        if len(excerpts) > max_files:
+        if len(set(excerpt_paths)) > max_files:
             raise AssertionError(f"{repository}/{role}: max_files exceeded")
 
         role_results[role] = {
