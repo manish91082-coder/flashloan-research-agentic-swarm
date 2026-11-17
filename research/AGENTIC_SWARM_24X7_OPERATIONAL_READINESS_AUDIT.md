@@ -189,3 +189,12 @@ Latest adjacent Research Engine CI [44075215361](https://github.com/manish91082-
 **Observability limitation:** the current workflow uploads the SQLite task ledger only after semantic execution returns. During the active step, the GitHub Actions API exposes only step-level in-progress state; live SQLite task counts and per-task model latency are not externally visible. A future workflow revision should add per-task progress events/heartbeat and partial, append-only ledger artifacts. Do not modify or duplicate the currently running pilot.
 
 **Status:** semantic pilot not yet complete; no reports accepted; no dossier eligibility granted; no autonomous mission continuation/restart or 72-hour soak proven. The system remains **NOT YET 24x7 production-operational**.
+
+
+## Observability hardening — CI verified
+
+Commit `1b1a5440e7cdcf77b869e5f703e7c7ad0c8ac1a5` adds append-only 30-second JSONL mission heartbeats to the semantic-pilot workflow. Snapshots record elapsed time, mission status and durable SQLite task counts grouped by task type, role and state. Initial/final snapshots are also recorded, and the heartbeat is included in the final evidence artifact.
+
+CI [44077987391](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44077987391) passed on Python 3.11/3.12/3.13; 355 tests passed. This workflow revision is for future runs only. The already-running semantic pilot [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551) remains pinned to its earlier checkout and does not emit this new heartbeat file.
+
+The active pilot remains in progress with no published artifact at the latest check. No specialist/evidence/reviewer result is accepted until its final reports and ledger are inspected. Production/24x7 acceptance remains withheld.
