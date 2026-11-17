@@ -25,13 +25,23 @@ def _validate_staged_packet(staged: object, fixture: dict) -> tuple[list[str], l
     reviewer_ids_by_slot = [set(), set()]
     if not isinstance(staged, dict):
         return ["staged packet must be a JSON object"], disagreements, set()
-    required_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "blinding", "custody", "safety", "freeze"}
+    required_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "primary_reviewer_attestations", "third_reviewer_attestations", "blinding", "custody", "safety", "freeze"}
     if set(staged) != required_top:
         errors.append("staged packet top-level fields are not canonical")
     if staged.get("schema_version") != "1.0" or staged.get("benchmark_id") != "r15d-semantic-source-facts-v2":
         errors.append("staged packet benchmark identity is invalid")
     if staged.get("status") != "primary_reviews_received_pending_consensus":
         errors.append("staged packet must remain pending consensus")
+    primary_attestations = staged.get("primary_reviewer_attestations")
+    primary_attestation_fields = {"reviewer_id", "independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed", "conflict_statement"}
+    if not isinstance(primary_attestations, list) or len(primary_attestations) != 2:
+        errors.append("staged packet must preserve both primary reviewer attestation records")
+    else:
+        for attestation in primary_attestations:
+            if not isinstance(attestation, dict) or set(attestation) != primary_attestation_fields or any(attestation.get(k) is not True for k in ("independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed")) or not isinstance(attestation.get("conflict_statement"), str) or len(attestation["conflict_statement"].strip()) < 3:
+                errors.append("a preserved primary reviewer attestation record is invalid")
+    if staged.get("third_reviewer_attestations") is not None:
+        errors.append("third reviewer attestations must remain null before third-review intake")
     if staged.get("fixture_manifest_sha256") != fixture.get("_artifact_manifest_sha256"):
         errors.append("staged packet fixture manifest digest does not match the verified artifact")
     blinding = staged.get("blinding")
