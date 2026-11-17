@@ -59,10 +59,15 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
     def test_full_build_emits_six_hashed_source_pinned_cases(self):
         with tempfile.TemporaryDirectory() as temp:
             result = build(output_dir=Path(temp))
-            self.assertEqual(result["status"], "built_pending_independent_adjudication")
+            self.assertEqual(result["status"], "retired_forensic_fixture_not_for_blind_adjudication")
             self.assertEqual(len(result["cases"]), 6)
             self.assertTrue(all(len(case["excerpt_sha256"]) == 64 for case in result["cases"]))
+            self.assertTrue(all("expected_label" not in case for case in result["cases"]))
             self.assertEqual(result["cases"][1]["id"], "NAV-02")
+
+    def test_default_repository_output_is_refused_for_retired_v1(self):
+        with self.assertRaisesRegex(ValueError, "explicit isolated forensic output directory"):
+            build()
 
     def test_git_blob_hash_is_git_object_hash(self):
         self.assertEqual(git_blob_sha(b"abc"), hashlib.sha1(b"blob 3\0abc").hexdigest())
