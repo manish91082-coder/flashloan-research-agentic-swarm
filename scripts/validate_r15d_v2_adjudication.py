@@ -22,7 +22,7 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
     errors = []
     if not isinstance(packet, dict):
         return {"valid": False, "complete": False, "case_count": 0, "completed_cases": 0, "errors": ["final packet must be a JSON object"]}
-    expected_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "primary_reviewer_attestations", "third_reviewer_attestations", "blinding", "custody", "safety", "freeze"}
+    expected_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "primary_reviewer_attestations", "third_reviewer_attestations", "custody_receipts", "blinding", "custody", "safety", "freeze"}
     if set(packet) != expected_top:
         errors.append("final packet top-level fields are not canonical")
     if packet.get("schema_version") != "1.0" or packet.get("benchmark_id") != "r15d-semantic-source-facts-v2" or packet.get("status") != FINAL_STATUS:
@@ -42,6 +42,10 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
     safety_fields = {"candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference"}
     if not isinstance(safety, dict) or set(safety) != safety_fields or any(value is not False for value in safety.values()):
         errors.append("final packet safety controls must all remain disabled")
+    custody_receipts = packet.get("custody_receipts")
+    receipt_fields = {"primary_a_receipt_sha256", "primary_b_receipt_sha256", "third_adjudicator_receipt_sha256"}
+    if not isinstance(custody_receipts, dict) or set(custody_receipts) != receipt_fields or not all(isinstance(custody_receipts.get(k), str) and __import__("re").fullmatch(r"[0-9a-f]{64}", custody_receipts[k]) for k in ("primary_a_receipt_sha256", "primary_b_receipt_sha256")):
+        errors.append("final packet must preserve two valid primary custody receipt digests")
     freeze = packet.get("freeze")
     if not isinstance(freeze, dict) or freeze != {"ground_truth_frozen": False, "frozen_at": None, "model_inference_authorized": False}:
         errors.append("final adjudication packet must remain unfrozen and model inference unauthorized")
@@ -172,6 +176,12 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
                 errors.append(f"primary reviewer attestation {index + 1} does not match the case records")
 
     has_disagreements = any(case.get("disagreement") is True for case in cases)
+    if isinstance(custody_receipts, dict):
+        third_receipt_digest = custody_receipts.get("third_adjudicator_receipt_sha256")
+        if has_disagreements and (not isinstance(third_receipt_digest, str) or not __import__("re").fullmatch(r"[0-9a-f]{64}", third_receipt_digest)):
+            errors.append("disagreement packet must preserve a verified third-adjudicator receipt digest")
+        if not has_disagreements and third_receipt_digest is not None:
+            errors.append("unanimous packet must not contain a third-adjudicator receipt digest")
     third_attestations = packet.get("third_reviewer_attestations")
     if has_disagreements:
         if len(third_reviewer_ids) != 1:
