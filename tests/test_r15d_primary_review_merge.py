@@ -7,6 +7,7 @@ from pathlib import Path
 
 from scripts.validate_r15d_adjudication import DEFAULT_PACKET
 from scripts.merge_r15d_primary_reviews import merge_primary_submissions
+from scripts.verify_r15d_primary_merge import verify_primary_merge
 
 
 class R15DPrimaryReviewMergeTests(unittest.TestCase):
@@ -128,6 +129,54 @@ class R15DPrimaryReviewMergeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate-free"):
                 merge_primary_submissions(a, b, output, "custodian.1", True)
             self.assertFalse(output.exists())
+
+
+
+    def test_independent_verifier_reconstructs_exact_staged_merge(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b, output = root / "a.json", root / "b.json", root / "merged.json"
+            self.write_bundle(a, self.make_bundle("reviewer.alpha", "NAV-02"))
+            self.write_bundle(b, self.make_bundle("reviewer.beta", "NAV-02"))
+            created = merge_primary_submissions(a, b, output, "custodian.1", True)
+            verified = verify_primary_merge(a, b, output, "custodian.1", True, expected_sha256=created["output_sha256"])
+            self.assertTrue(verified["valid"])
+            self.assertEqual(verified["staged_packet_sha256"], created["output_sha256"])
+            self.assertEqual(verified["disagreement_cases"], ["NAV-02"])
+            self.assertFalse(verified["ground_truth_frozen"])
+
+    def test_independent_verifier_rejects_staged_packet_tampering(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b, output = root / "a.json", root / "b.json", root / "merged.json"
+            self.write_bundle(a, self.make_bundle("reviewer.alpha"))
+            self.write_bundle(b, self.make_bundle("reviewer.beta"))
+            merge_primary_submissions(a, b, output, "custodian.1", True)
+            merged = json.loads(output.read_text(encoding="utf-8"))
+            merged["cases"][0]["consensus"]["label"] = "present"
+            output.write_text(json.dumps(merged, indent=2) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "does not exactly match"):
+                verify_primary_merge(a, b, output, "custodian.1", True)
+
+    def test_independent_verifier_rejects_expected_digest_mismatch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b, output = root / "a.json", root / "b.json", root / "merged.json"
+            self.write_bundle(a, self.make_bundle("reviewer.alpha"))
+            self.write_bundle(b, self.make_bundle("reviewer.beta"))
+            merge_primary_submissions(a, b, output, "custodian.1", True)
+            with self.assertRaisesRegex(ValueError, "expected digest"):
+                verify_primary_merge(a, b, output, "custodian.1", True, expected_sha256="0" * 64)
+
+    def test_independent_verifier_requires_custodian_identity_attestation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b, output = root / "a.json", root / "b.json", root / "merged.json"
+            self.write_bundle(a, self.make_bundle("reviewer.alpha"))
+            self.write_bundle(b, self.make_bundle("reviewer.beta"))
+            merge_primary_submissions(a, b, output, "custodian.1", True)
+            with self.assertRaisesRegex(ValueError, "verified out of band"):
+                verify_primary_merge(a, b, output, "custodian.1", False)
 
 
 if __name__ == "__main__":
