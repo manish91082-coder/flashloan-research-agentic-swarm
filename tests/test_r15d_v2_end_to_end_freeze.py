@@ -143,7 +143,7 @@ class R15DV2EndToEndFreezeTests(unittest.TestCase):
     def test_input_packet_tampering_after_freeze_is_rejected(self):
         _, frozen, _, packet, manifest_path = self.run_pipeline("COB2-03")
         packet.write_bytes(packet.read_bytes() + b" ")
-        with self.assertRaisesRegex(ValueError, "duplicate-free"):
+        with self.assertRaisesRegex(ValueError, "content or provenance"):
             verify_frozen_manifest(packet, self.fixture_dir, manifest_path, frozen["output_sha256"])
 
     def test_expected_manifest_digest_mismatch_is_rejected(self):
@@ -152,15 +152,11 @@ class R15DV2EndToEndFreezeTests(unittest.TestCase):
             verify_frozen_manifest(packet, self.fixture_dir, manifest_path, "0" * 64)
 
     def test_freeze_output_collision_is_not_overwritten(self):
-        self.counter += 1
-        a, b, staged = self.root / "collision-a.json", self.root / "collision-b.json", self.root / "collision-staged.json"
-        a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
-        b.write_text(json.dumps(self.primary_bundle("reviewer.beta")), encoding="utf-8")
-        merge_primary_reviews(self.fixture_dir, a, b, staged, "custodian.v2", True)
+        _, _, _, packet, _ = self.run_pipeline()
         output = self.root / "existing-manifest.json"
         output.write_text("preserve-me", encoding="utf-8")
         with self.assertRaises(FileExistsError):
-            freeze_adjudication(staged, self.fixture_dir, output, "2026-11-17T00:00:00Z")
+            freeze_adjudication(packet, self.fixture_dir, output, "2026-11-17T00:00:00Z")
         self.assertEqual(output.read_text(encoding="utf-8"), "preserve-me")
 
 
