@@ -1,3 +1,15 @@
+## R15D v2 private reviewer intake schema and validator — CI verified (2026-11-17)
+
+- Added `research/R15D_V2_REVIEWER_SUBMISSION.schema.json` and `scripts/validate_r15d_v2_review_submission.py`, plus `tests/test_r15d_v2_reviewer_submission.py`.
+- The validator accepts a fixture directory, ZIP artifact or manifest path; re-runs the answer-key leakage scanner; checks the v2 design-manifest SHA-256; verifies all six source commit/tree/path/blob pins; re-hashes every excerpt and checks exact byte counts; then validates the private reviewer bundle's exact six-case coverage, source pins, evidence references, labels, rationales, confidence, UTC timestamps and independence attestations.
+- **V1 contamination control:** each v2 primary reviewer must attest both `v1_answer_key_not_seen=true` and `v1_labels_not_consulted=true`. Reviewers who have seen or consulted the v1 answer key are ineligible. The validator cannot prove these attestations or real-world identity; custodian screening remains out of band.
+- Added `research/R15D_V2_REVIEWER_INTAKE.md` documenting separate private channels, eligibility screening, no public plaintext submissions and no model inference before frozen ground truth.
+- **CI:** run [44040411388](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44040411388) passed **300 tests** on Python 3.11, 3.12 and 3.13.
+- **V2 status:** six atomic cases and a label-free fixture artifact are verified; schema and validator are implemented. No genuine primary submissions, no identity verification, no consensus, no ground-truth freeze and no model inference. V1 remains retired and preserved as forensic evidence.
+- **Next sequence:** implement v2-specific staged primary merge and independent verifier, with stable reviewer identities across all six cases and a private custodian receipt. Then implement disagreement-only third-adjudicator intake and final consensus assembly using the v2 fixture pins. Do not reuse v1 merge/finalization scripts because their case IDs and immutable pin baseline are v1-specific.
+
+---
+
 ## R15D v2 atomic case redesign and label-free artifact verification — CI verified (2026-11-17)
 
 - **Verified code/design checkpoint:** `b8e01f699fae9a8d13dd0af361c795e89261bc8d`; state report commit `5e1744724b1a23d562ac354c011f26d9906b8904`.
