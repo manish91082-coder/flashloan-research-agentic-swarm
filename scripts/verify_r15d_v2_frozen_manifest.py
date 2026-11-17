@@ -49,7 +49,7 @@ def verify_frozen_manifest(
         inputs.add(third_submission_path.resolve())
     if third_receipt_path is not None:
         inputs.add(third_receipt_path.resolve())
-    if manifest_path.resolve() in inputs - {manifest_path.resolve()} or len(inputs) != (10 if third_submission_path is not None else 8):
+    if len(inputs) != (10 if third_submission_path is not None else 8):
         raise ValueError("frozen manifest, packet, fixture, reviewer bundles, receipts and staged packet must all be separate paths")
     try:
         packet_bytes = packet_path.read_bytes()
