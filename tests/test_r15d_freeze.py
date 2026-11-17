@@ -1,3 +1,4 @@
+import hashlib
 import json
 import tempfile
 import unittest
@@ -45,6 +46,9 @@ class R15DFreezeTests(unittest.TestCase):
             digest = freeze(source, output, "2026-11-17T00:00:00Z")
             frozen = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(source.read_bytes(), original)
+            self.assertEqual(frozen["freeze_provenance"]["input_packet_sha256"], hashlib.sha256(original).hexdigest())
+            self.assertEqual(hashlib.sha256(output.read_bytes()).hexdigest(), digest)
+            self.assertEqual(len(frozen["freeze_provenance"]["validator_sha256"]), 64)
             self.assertEqual(frozen["status"], "frozen_ground_truth")
             self.assertTrue(frozen["freeze"]["ground_truth_frozen"])
             self.assertFalse(frozen["freeze"]["model_inference_authorized"])
@@ -124,6 +128,23 @@ class R15DFreezeTests(unittest.TestCase):
             output = Path(tmp) / "frozen.json"
             source.write_text("{not valid json", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "valid adjudication JSON"):
+                freeze(source, output, "2026-11-17T00:00:00Z")
+            self.assertFalse(output.exists())
+
+
+    def test_duplicate_json_object_keys_rejected_before_freeze(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "blind.json"
+            output = root / "frozen.json"
+            payload = json.dumps(self.complete_packet(), indent=2)
+            payload = payload.replace(
+                '"status": "pending_independent_review",',
+                '"status": "pending_independent_review", "status": "pending_independent_review",',
+                1,
+            )
+            source.write_text(payload, encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "duplicate JSON object key"):
                 freeze(source, output, "2026-11-17T00:00:00Z")
             self.assertFalse(output.exists())
 
