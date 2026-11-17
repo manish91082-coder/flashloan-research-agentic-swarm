@@ -171,3 +171,10 @@ Workflow [44074867551](https://github.com/manish91082-coder/flashloan-research-a
 This is a new isolated run; historical R15C data is not reused as writable mission state. Reviewer outcomes are persisted without forcing acceptance. A non-accept outcome blocks dossier eligibility; semantic audit count remains unchanged. R15D v2 benchmark inference, synthetic human adjudication, candidate-code execution, wallet access, signing, deployment and live trading remain disabled.
 
 This workflow is still running. Its final result and uploaded task ledger must be inspected before changing operational readiness. The system remains **NOT YET 24x7 production-operational**.
+
+
+## Active pilot progress — semantic inference stage reached
+
+At the time of this update, workflow [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551) has completed trigger validation, immutable source-capture artifact download/SHA-256 verification, checkpoint restoration, Agent Form runtime installation, local Ollama/model installation and fresh isolated mission DAG bootstrap. The current workflow step is the bounded-parallel specialist/evidence/reviewer semantic pilot.
+
+No model-task completion, evidence-gate completion, reviewer decision or pilot acceptance is claimed yet. The run must finish and its uploaded artifact/task ledger must be inspected. The system remains **NOT YET 24x7 production-operational**.
