@@ -12,6 +12,7 @@ class RoleSourcePolicyTests(unittest.TestCase):
             {"path": "contracts/AaveLiquidator.sol", "blob_sha": "b" * 40},
             {"path": "package.json", "blob_sha": "c" * 40},
             {"path": "tests/test_liquidation.py", "blob_sha": "d" * 40},
+            {"path": "monitor/test/apiLogs.test.js", "blob_sha": "9" * 40},
             {"path": "LICENSE", "blob_sha": "e" * 40},
             {"path": ".github/workflows/ci.yml", "blob_sha": "f" * 40},
         ]
@@ -28,6 +29,13 @@ class RoleSourcePolicyTests(unittest.TestCase):
             ordered, coverage = order_role_source_manifest(role, self.manifest)
             self.assertEqual(ordered[0]["path"], "contracts/AaveLiquidator.sol")
             self.assertIn(expected_family, coverage["present_families"])
+
+    def test_protocol_review_roles_exclude_unrelated_monitor_tests(self):
+        for role in ("solidity_security", "independent_reviewer"):
+            ordered, coverage = order_role_source_manifest(role, self.manifest)
+            paths = [item["path"] for item in ordered]
+            self.assertIn("tests/test_liquidation.py", paths)
+            self.assertNotIn("monitor/test/apiLogs.test.js", paths)
 
     def test_dependency_role_prioritizes_manifest_then_license(self):
         ordered, coverage = order_role_source_manifest("dependency_license", self.manifest)
