@@ -50,3 +50,7 @@ A valid bundle is not itself a consensus result. Two valid bundles create only a
 ## Third-adjudication handoff
 
 When the independently verified staged merge contains disagreements, follow `research/R15D_THIRD_ADJUDICATION_INTAKE.md`. The third adjudicator sees both primary reviews for disputed cases but must not see model outputs. The third submission must cover exactly the disagreement set and must use an identity distinct from both primary reviewers. Validate it with `python scripts/validate_r15d_third_adjudication_submission.py --staged-packet <private-staged-packet.json> --submission <private-third-adjudicator.json>`. No third review is accepted for unanimous cases.
+
+## Final assembly and freeze boundary
+
+After all disagreement-only third submissions pass validation, use `scripts/finalize_r15d_adjudication.py` as documented in `research/R15D_THIRD_ADJUDICATION_INTAKE.md`. It creates a separate complete adjudication packet and runs the full validator, but it does not freeze ground truth or authorize inference. Keep the freeze writer unused until the resulting packet passes `python scripts/validate_r15d_adjudication.py --packet <private-final-adjudication.json> --require-complete` and the custodian authorizes the separate freeze/verification step.
