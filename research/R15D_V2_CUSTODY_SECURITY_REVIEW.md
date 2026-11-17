@@ -99,3 +99,16 @@ For the third reviewer, use `--reviewer-slot third_adjudicator` and supply `--st
 - CI passed **346 tests** on Python 3.11, 3.12 and 3.13. GnuPG is installed only in the dedicated Python 3.11 job; the additional encrypted-delivery tabletop ran there. The tabletop's symmetric passphrase is held in a separate directory inside the same temporary test workspace, so this does not prove real external key custody or independent-channel security.
 
 **Operational gate remains closed:** a successful synthetic tabletop validates software and POSIX permission behavior, not a real human review operation. The custodian must still validate encrypted transfer, identity checks, key custody and private storage before inviting genuine reviewers.
+
+## Production encryption requirement (not yet exercised)
+
+The synthetic GnuPG AES-256 symmetric round trip proves that the code can transport opaque ciphertext and restore exact bytes. It is not the production key-custody design because the test passphrase is stored in a separate directory within the same temporary workspace.
+
+Before real reviewer intake:
+- Use public-key encryption to a custodian-controlled recipient key (GnuPG public-key mode or age recipient mode), not a passphrase stored beside the ciphertext.
+- Verify the recipient key fingerprint through an independent channel before reviewers encrypt submissions.
+- Keep the recipient private key on a separate custodian-controlled device or protected secret store; never place it in the public repository, CI variables, workflow logs or the same transfer directory.
+- Test key rotation, revocation, lost-key recovery and authorized decryption with synthetic data.
+- Record the encryption algorithm, recipient-key fingerprint, ciphertext SHA-256 and receipt digest in the private custody ledger, without recording labels or rationales.
+
+Public-key recipient verification, separate-device key custody and real external transport remain untested. Do not treat the symmetric tabletop as satisfying these requirements.
