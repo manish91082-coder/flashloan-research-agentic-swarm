@@ -8,12 +8,15 @@ from pathlib import Path
 
 from scripts.merge_r15d_v2_primary_reviews import _fixture_manifest_bytes, _read_strict, build_staged_packet
 from scripts.validate_r15d_v2_review_submission import load_fixture_bundle, validate_submission
+from scripts.verify_r15d_v2_intake_receipt import verify_intake_receipt
 
 
 def verify_primary_merge(
     fixture_path: Path,
     reviewer_a_path: Path,
     reviewer_b_path: Path,
+    receipt_a_path: Path,
+    receipt_b_path: Path,
     staged_packet_path: Path,
     custodian_id: str,
     identity_verification_complete: bool,
@@ -23,10 +26,12 @@ def verify_primary_merge(
         raise ValueError("custodian must attest out-of-band identity verification before staged-merge verification")
     if not isinstance(custodian_id, str) or len(custodian_id.strip()) < 3:
         raise ValueError("custodian_id must be a stable identifier")
-    paths = [fixture_path.resolve(), reviewer_a_path.resolve(), reviewer_b_path.resolve(), staged_packet_path.resolve()]
-    if len(set(paths)) != 4:
-        raise ValueError("fixture, reviewer bundles and staged packet must be separate paths")
+    paths = [fixture_path.resolve(), reviewer_a_path.resolve(), reviewer_b_path.resolve(), receipt_a_path.resolve(), receipt_b_path.resolve(), staged_packet_path.resolve()]
+    if len(set(paths)) != 6:
+        raise ValueError("fixture, reviewer bundles, receipts and staged packet must be separate paths")
 
+    receipt_a = verify_intake_receipt(fixture_path, reviewer_a_path, receipt_a_path, "primary_a", custodian_id)
+    receipt_b = verify_intake_receipt(fixture_path, reviewer_b_path, receipt_b_path, "primary_b", custodian_id)
     fixture = load_fixture_bundle(fixture_path)
     fixture_hash = hashlib.sha256(_fixture_manifest_bytes(fixture_path)).hexdigest()
     bundle_a = _read_strict(reviewer_a_path, "reviewer A bundle")
@@ -41,6 +46,11 @@ def verify_primary_merge(
         raise ValueError("primary reviewer identities must be distinct")
 
     expected = build_staged_packet(fixture, bundle_a, bundle_b, fixture_hash, custodian_id)
+    expected["custody_receipts"] = {
+        "primary_a_receipt_sha256": receipt_a["receipt_sha256"],
+        "primary_b_receipt_sha256": receipt_b["receipt_sha256"],
+        "third_adjudicator_receipt_sha256": None,
+    }
     expected_bytes = (json.dumps(expected, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
     try:
         actual_bytes = staged_packet_path.read_bytes()
@@ -73,13 +83,15 @@ def main() -> None:
     parser.add_argument("--fixture", type=Path, required=True)
     parser.add_argument("--reviewer-a", type=Path, required=True)
     parser.add_argument("--reviewer-b", type=Path, required=True)
+    parser.add_argument("--receipt-a", type=Path, required=True)
+    parser.add_argument("--receipt-b", type=Path, required=True)
     parser.add_argument("--staged-packet", type=Path, required=True)
     parser.add_argument("--custodian-id", required=True)
     parser.add_argument("--identity-verification-complete", action="store_true")
     parser.add_argument("--expected-sha256")
     args = parser.parse_args()
     result = verify_primary_merge(
-        args.fixture, args.reviewer_a, args.reviewer_b, args.staged_packet,
+        args.fixture, args.reviewer_a, args.reviewer_b, args.receipt_a, args.receipt_b, args.staged_packet,
         args.custodian_id, args.identity_verification_complete, args.expected_sha256,
     )
     print(json.dumps(result, indent=2))
