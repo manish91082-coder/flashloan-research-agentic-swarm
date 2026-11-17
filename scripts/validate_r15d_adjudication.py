@@ -149,6 +149,7 @@ def validate(packet: object, require_complete: bool = False) -> dict:
         cases = cases if isinstance(cases, list) else []
 
     complete_count = 0
+    primary_reviewer_ids_by_slot = [set(), set()]
     for case in cases:
         cid = case.get("id", "<missing>") if isinstance(case, dict) else "<invalid>"
         if not isinstance(case, dict):
@@ -175,6 +176,9 @@ def validate(packet: object, require_complete: bool = False) -> dict:
         ids = [review.get("reviewer_id").strip() for review in reviews if isinstance(review, dict) and isinstance(review.get("reviewer_id"), str)]
         if all(complete) and len(set(ids)) != 2:
             errors.append(f"{cid}: reviewer IDs must be distinct")
+        if all(complete):
+            for slot_index, review in enumerate(reviews):
+                primary_reviewer_ids_by_slot[slot_index].add(review["reviewer_id"].strip())
         for index, review in enumerate(reviews):
             if isinstance(review, dict) and review.get("reviewer_id") and not complete[index]:
                 errors.append(f"{cid}: reviewer {index + 1} submission is pending or invalid; verify required fields and UTC completion timestamp")
@@ -216,6 +220,11 @@ def validate(packet: object, require_complete: bool = False) -> dict:
                 complete_count += 1
         elif require_complete:
             errors.append(f"{cid}: independent reviews are pending")
+    for slot_index, slot_ids in enumerate(primary_reviewer_ids_by_slot):
+        if len(slot_ids) > 1:
+            errors.append(f"primary reviewer slot {slot_index + 1} must retain one stable reviewer identity across all six cases")
+    if all(primary_reviewer_ids_by_slot) and not primary_reviewer_ids_by_slot[0].isdisjoint(primary_reviewer_ids_by_slot[1]):
+        errors.append("the two primary reviewer identities must remain globally distinct across all six cases")
     safety = packet.get("safety")
     if not _has_exact_keys(safety, SAFETY_FIELDS):
         errors.append("safety must contain exactly the schema-defined fields")
