@@ -841,3 +841,28 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 **Acceptance invariant:** do not call the swarm fully autonomous or 24x7 operational until one fresh mission completes end-to-end without manual prompting, its artifacts and task ledger are independently verified, autonomous continuation and restart recovery pass, and the 72-hour soak is complete. R15D v2 human ground-truth authorization remains a separate gate and cannot be replaced by synthetic tabletop results.
 
 **Immediate next engineering task:** inspect and improve specialist report adequacy / claim-to-excerpt support using the frozen R15C failure evidence; do not broaden candidate processing or claim semantic acceptance until that gate is demonstrated.
+
+
+## R15C artifact-level source-context root-cause checkpoint — 2026-11-17
+
+Artifact `14229725407` from run `43868846531` was downloaded and inspected locally. ZIP SHA-256 matches the frozen R15C manifest: `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`. SQLite integrity is `ok`.
+
+### Observed report/evidence distribution
+
+- The seven Aave candidate reports contain 56 accepted evidence references in aggregate: 42 resolve to `src/contracts/FlashLiquidator.sol`, 14 to TypeScript monitoring/deployment sources.
+- All seven COB candidate reports contain 56 accepted evidence references in aggregate, and **all 56 resolve to `bot.js`; none resolve to the core Solidity contract** `contracts/AaveLiquidatorSwapRouter02.sol`.
+- COB's `dependency_license` report nevertheless emitted a health-factor/dead-zone execution claim, despite the role prompt requiring dependency/license/build evidence only.
+- The specialist runner currently orders source files by descending count of lexical signals and applies a shared bounded context budget (default 3 files / 6,000 characters). In the COB inspection, `bot.js` has 38 signals and is 44,710 bytes; the core Solidity contract has 30 signals and is 14,273 bytes. The observed report distribution is consistent with source-context starvation and role/path mismatch. Treat this as a strong, testable root-cause hypothesis, not yet a proven causal diagnosis.
+- R15D adequacy replay remains 14/14 reports insufficient: 29 role-relevance misses and 6 missing shared claim/evidence anchors. These deterministic results are triage, not semantic proof.
+
+### Next engineering task — do not broaden the candidate batch
+
+1. Add regression fixtures reproducing the exact COB source-selection skew and role leakage from artifact 14229725407.
+2. Design role-aware, per-file-budgeted context selection. Ensure core protocol contracts are not starved by a high-signal, large off-chain bot file; ensure dependency/license roles prioritize manifests, lockfiles, compiler/build and license artifacts; ensure test roles prioritize actual test/CI files.
+3. Preserve exact source pins and evidence IDs. A selected excerpt must retain path, inclusive line range, commit/tree/blob identity and excerpt hash. Do not infer absence from an omitted file.
+4. Add deterministic role-to-source admissibility checks so a dependency/license report cannot turn bot execution logic into a finding; when relevant files are missing, emit zero findings and precise unknowns.
+5. Add balanced-context tests for both pinned R15C candidates and adversarial cases where one oversized file dominates signal counts. Assert that the required protocol contract file appears in the relevant role context before model invocation.
+6. Run full CI on Python 3.11/3.12/3.13, then execute a fresh isolated pilot with a new mission/database/artifact root. Compare source-path coverage and adequacy categories against the immutable R15C baseline.
+7. Keep all held-out R15D v2 labels and reviewer records private; no R15D v2 model inference until genuine human adjudication is complete, frozen and independently verified.
+
+**Acceptance for this repair:** all required role-specific source families are present in the bounded context or explicitly reported as unavailable; no cross-role findings pass; every material claim has a matching claim-specific pinned excerpt; all 14 reports are not presumed acceptable merely because provenance validation passes.
