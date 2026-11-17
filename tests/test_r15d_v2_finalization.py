@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from scripts.build_r15d_v2_semantic_fixtures import build
+from scripts.create_r15d_v2_intake_receipt import create_intake_receipt
 from scripts.finalize_r15d_v2_adjudication import finalize_adjudication
 from scripts.merge_r15d_v2_primary_reviews import merge_primary_reviews
 from scripts.validate_r15d_v2_adjudication import validate_final_packet
@@ -80,16 +81,19 @@ class R15DV2FinalizationTests(unittest.TestCase):
     def setup_inputs(self, disagreement_case=None):
         self.stage_counter += 1
         a, b, staged = self.root / "a.json", self.root / "b.json", self.root / f"staged-{self.stage_counter}.json"
+        receipt_a, receipt_b = self.root / f"receipt-a-{self.stage_counter}.json", self.root / f"receipt-b-{self.stage_counter}.json"
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", disagreement_case)), encoding="utf-8")
-        merge = merge_primary_reviews(self.fixture_dir, a, b, staged, "custodian.v2", True)
-        return a, b, staged, merge
+        create_intake_receipt(self.fixture_dir, a, receipt_a, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        create_intake_receipt(self.fixture_dir, b, receipt_b, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        merge = merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, staged, "custodian.v2", True)
+        return a, b, receipt_a, receipt_b, staged, merge
 
     def test_unanimous_primary_reviews_finalize_to_complete_pending_freeze_packet(self):
-        a, b, staged, merge = self.setup_inputs()
+        a, b, receipt_a, receipt_b, staged, merge = self.setup_inputs()
         output = self.root / "final-unanimous.json"
         result = finalize_adjudication(
-            self.fixture_dir, a, b, staged, output, "custodian.v2", True,
+            self.fixture_dir, a, b, receipt_a, receipt_b, staged, output, "custodian.v2", True,
             expected_staged_sha256=merge["output_sha256"],
         )
         packet = json.loads(output.read_text(encoding="utf-8"))
@@ -104,14 +108,16 @@ class R15DV2FinalizationTests(unittest.TestCase):
         self.assertEqual(len(packet["primary_reviewer_attestations"]), 2)
 
     def test_disagreement_path_requires_and_preserves_third_review_attestations(self):
-        a, b, staged_path, merge = self.setup_inputs("NAV2-02")
+        a, b, receipt_a, receipt_b, staged_path, merge = self.setup_inputs("NAV2-02")
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
         third_path = self.root / "third.json"
         third_path.write_text(json.dumps(self.make_third_bundle(staged)), encoding="utf-8")
+        third_receipt = self.root / "third-receipt.json"
+        create_intake_receipt(self.fixture_dir, third_path, third_receipt, "third_adjudicator", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
         output = self.root / "final-disagreement.json"
         result = finalize_adjudication(
-            self.fixture_dir, a, b, staged_path, output, "custodian.v2", True,
-            third_path, True, merge["output_sha256"],
+            self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, output, "custodian.v2", True,
+            third_path, third_receipt, True, merge["output_sha256"],
         )
         packet = json.loads(output.read_text(encoding="utf-8"))
         validation = validate_final_packet(self.fixture, packet)
@@ -125,49 +131,56 @@ class R15DV2FinalizationTests(unittest.TestCase):
         self.assertFalse(packet["freeze"]["ground_truth_frozen"])
 
     def test_disagreement_without_third_bundle_is_blocked(self):
-        a, b, staged, _ = self.setup_inputs("COB2-02")
+        a, b, receipt_a, receipt_b, staged, _ = self.setup_inputs("COB2-02")
         with self.assertRaisesRegex(ValueError, "third-adjudicator bundle is required"):
-            finalize_adjudication(self.fixture_dir, a, b, staged, self.root / "blocked.json", "custodian.v2", True)
+            finalize_adjudication(self.fixture_dir, a, b, receipt_a, receipt_b, staged, self.root / "blocked.json", "custodian.v2", True)
         self.assertFalse((self.root / "blocked.json").exists())
 
     def test_unverified_third_identity_is_blocked(self):
-        a, b, staged_path, _ = self.setup_inputs("COB2-03")
+        a, b, receipt_a, receipt_b, staged_path, _ = self.setup_inputs("COB2-03")
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
         third = self.root / "third-unverified.json"
         third.write_text(json.dumps(self.make_third_bundle(staged)), encoding="utf-8")
+        third_receipt = self.root / "third-unverified-receipt.json"
+        create_intake_receipt(self.fixture_dir, third, third_receipt, "third_adjudicator", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
         with self.assertRaisesRegex(ValueError, "verify third-adjudicator identity"):
-            finalize_adjudication(self.fixture_dir, a, b, staged_path, self.root / "blocked.json", "custodian.v2", True, third, False)
+            finalize_adjudication(self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, self.root / "blocked.json", "custodian.v2", True, third, third_receipt, False)
         self.assertFalse((self.root / "blocked.json").exists())
 
     def test_third_reviewer_identity_collision_is_blocked(self):
-        a, b, staged_path, _ = self.setup_inputs("NAV2-01")
+        a, b, receipt_a, receipt_b, staged_path, _ = self.setup_inputs("NAV2-01")
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
         third_bundle = self.make_third_bundle(staged, "reviewer.alpha")
         third = self.root / "third-collision.json"
-        third.write_text(json.dumps(third_bundle), encoding="utf-8")
+        third.write_text(json.dumps(self.make_third_bundle(staged)), encoding="utf-8")
+        third_receipt = self.root / "third-collision-receipt.json"
+        create_intake_receipt(self.fixture_dir, third, third_receipt, "third_adjudicator", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
+        collision_bundle = json.loads(third.read_text(encoding="utf-8"))
+        collision_bundle["reviewer_id"] = "reviewer.alpha"
+        third.write_text(json.dumps(collision_bundle), encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "third-adjudicator bundle failed validation"):
-            finalize_adjudication(self.fixture_dir, a, b, staged_path, self.root / "blocked.json", "custodian.v2", True, third, True)
+            finalize_adjudication(self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, self.root / "blocked.json", "custodian.v2", True, third, third_receipt, True)
         self.assertFalse((self.root / "blocked.json").exists())
 
     def test_third_bundle_is_rejected_for_unanimous_packet(self):
-        a, b, staged, _ = self.setup_inputs()
+        a, b, receipt_a, receipt_b, staged, _ = self.setup_inputs()
         third = self.root / "third-not-needed.json"
         third.write_text("{}", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "not permitted when no primary disagreement"):
-            finalize_adjudication(self.fixture_dir, a, b, staged, self.root / "blocked.json", "custodian.v2", True, third, True)
+            finalize_adjudication(self.fixture_dir, a, b, receipt_a, receipt_b, staged, self.root / "blocked.json", "custodian.v2", True, third, self.root / "unused-receipt.json", True)
 
     def test_output_collision_is_not_overwritten(self):
-        a, b, staged, _ = self.setup_inputs()
+        a, b, receipt_a, receipt_b, staged, _ = self.setup_inputs()
         output = self.root / "existing-final.json"
         output.write_text("preserve-me", encoding="utf-8")
         with self.assertRaises(FileExistsError):
-            finalize_adjudication(self.fixture_dir, a, b, staged, output, "custodian.v2", True)
+            finalize_adjudication(self.fixture_dir, a, b, receipt_a, receipt_b, staged, output, "custodian.v2", True)
         self.assertEqual(output.read_text(encoding="utf-8"), "preserve-me")
 
     def test_final_validator_detects_consensus_label_tampering(self):
-        a, b, staged, _ = self.setup_inputs()
+        a, b, receipt_a, receipt_b, staged, _ = self.setup_inputs()
         output = self.root / "tamper-final.json"
-        finalize_adjudication(self.fixture_dir, a, b, staged, output, "custodian.v2", True)
+        finalize_adjudication(self.fixture_dir, a, b, receipt_a, receipt_b, staged, output, "custodian.v2", True)
         packet = json.loads(output.read_text(encoding="utf-8"))
         packet["cases"][0]["consensus"]["label"] = "absent"
         result = validate_final_packet(self.fixture, packet)
