@@ -133,7 +133,7 @@
     "frozen_manifest_verifier": "scripts/verify_r15d_v2_frozen_manifest.py",
     "implemented": true,
     "synthetic_end_to_end_tests": "tests/test_r15d_v2_end_to_end_freeze.py",
-    "tests_in_latest_ci": 331,
+    "tests_in_latest_ci": 346,
     "production_freeze_performed": false
   },
   "reason_codes": [
