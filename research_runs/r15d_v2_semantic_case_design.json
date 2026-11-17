@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "r15d-semantic-source-facts-v2",
+  "revision": "2",
+  "status": "design_only_no_reference_labels",
+  "predecessor": {
+    "benchmark_id": "r15d-semantic-source-facts-v1",
+    "disposition": "blinding_compromised_retired_for_new_blind_adjudication",
+    "audit": "research/R15D_V1_BLINDNESS_LEAKAGE_AUDIT.md"
+  },
+  "blinding": {
+    "expected_labels_in_public_manifest": false,
+    "answer_key_in_public_repository": false,
+    "answer_key_in_public_ci_artifacts": false,
+    "reviewer_outputs_private_until_ground_truth_freeze": true,
+    "model_outputs_hidden_until_ground_truth_freeze": true,
+    "labels_held_outside_public_repository_by_custodian": true
+  },
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "sources": [
+    {
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "commit_sha": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+      "tree_sha": "14de2312e96c369bcc52c9bae96215051aea22b4",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "git_blob_sha1": "32c5e42920517fa1b93540a94e5d4dd95de94e1a"
+    },
+    {
+      "repository": "cobibean/aave-liquidator-bot",
+      "commit_sha": "3159c15f4dcfb0df215b4c3024f47753a1133b84",
+      "tree_sha": "1a9ee7218304b95654385fc11f255a7c5d532bc4",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "git_blob_sha1": "daa5716e80f203ff9ba34868e4693db382774ab8"
+    }
+  ],
+  "cases": [
+    {
+      "id": "NAV2-01",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "line_start": 76,
+      "line_end": 79,
+      "proposition": "The onlyOwner modifier requires msg.sender to equal owner before executing the decorated function body.",
+      "boundary": "Modifier behavior only; does not establish ownership transfer, deployment ownership or authorization of every external entry point."
+    },
+    {
+      "id": "NAV2-02",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "line_start": 113,
+      "line_end": 139,
+      "proposition": "executeLiquidation ABI-encodes all five liquidation parameters and calls pool.flashLoanSimple with address(this), debtAsset, debtToCover, the encoded params and referral code zero.",
+      "boundary": "Call construction only; does not establish that the configured pool address is valid or that the flash-loan transaction succeeds."
+    },
+    {
+      "id": "NAV2-03",
+      "repository": "0xnavarro/Aave-Liquiditor",
+      "path": "src/contracts/FlashLiquidator.sol",
+      "line_start": 141,
+      "line_end": 147,
+      "proposition": "withdrawToken and withdrawETH are both external onlyOwner functions; the former uses SafeERC20.safeTransfer to owner and the latter transfers the contract's full native-asset balance to owner.",
+      "boundary": "Withdrawal implementation only; does not establish token compatibility, recipient behavior or broader asset-accounting safety."
+    },
+    {
+      "id": "COB2-01",
+      "repository": "cobibean/aave-liquidator-bot",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "line_start": 91,
+      "line_end": 103,
+      "proposition": "The constructor rejects zero pool and router addresses, stores msg.sender as owner, assigns the pool/router interface references, and initializes four common fee tiers.",
+      "boundary": "Constructor assignments only; does not establish that the nonzero addresses implement the expected protocols or that the fee tiers have liquidity."
+    },
+    {
+      "id": "COB2-02",
+      "repository": "cobibean/aave-liquidator-bot",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "line_start": 143,
+      "line_end": 151,
+      "proposition": "triggerLiquidationWithMinProfit chooses the larger of minProfitForCall and stored minProfit, then forwards that floor with an empty swap path to _triggerLiquidation.",
+      "boundary": "Control-flow fact only; does not establish that the floor covers gas, MEV, slippage, taxes or realized net profitability."
+    },
+    {
+      "id": "COB2-03",
+      "repository": "cobibean/aave-liquidator-bot",
+      "path": "contracts/AaveLiquidatorSwapRouter02.sol",
+      "line_start": 296,
+      "line_end": 322,
+      "proposition": "_resolveSwapPath first tries a direct fee tier; otherwise it scans intermediate tokens, requires fee tiers for both legs, returns a packed two-hop path, and reverts when no route is found.",
+      "boundary": "Path-selection logic only; does not establish pool liquidity, quote quality, execution success or profitability."
+    }
+  ],
+  "adjudication_policy": {
+    "independent_primary_reviewers_required": 2,
+    "third_adjudicator_on_disagreement": true,
+    "allowed_labels": [
+      "present",
+      "absent",
+      "not_applicable",
+      "unknown"
+    ],
+    "answer_key_storage": "outside_public_repository_under_custodian_control",
+    "reference_labels_created_only_after_independent_review": true,
+    "ground_truth_freeze_required_before_any_model_inference": true
+  }
+}
