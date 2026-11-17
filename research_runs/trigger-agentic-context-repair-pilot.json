@@ -48,7 +48,8 @@
     "r15d_v2_benchmark_inference": false,
     "synthetic_human_adjudication": false
   },
-  "source_context_policy_commit": "859820608d03804d54303d51a2b98107032f9b48",
+  "source_context_policy_commit": "a4504cc6ac56950c2fe68f28b96ea8aeb3a66f28",
+  "trigger_revision": "r15c-role-context-byte-replay-verified-fresh-isolated-pilot",
   "byte_replay_workflow_run_id": 44074313870,
   "byte_replay_artifact_id": 14324256232,
   "byte_replay_report_sha256": "dba554a73769895be4dbef79cced4ab8539a6b4cb0c3f4eab88a79886eb11e8d",
