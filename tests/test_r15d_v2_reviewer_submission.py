@@ -47,6 +47,8 @@ class R15DV2ReviewerSubmissionTests(unittest.TestCase):
                 "independent_review": True,
                 "model_outputs_not_seen": True,
                 "other_reviews_not_seen": True,
+                "v1_answer_key_not_seen": True,
+                "v1_labels_not_consulted": True,
                 "conflicts_disclosed": True,
                 "conflict_statement": "none",
             },
@@ -65,6 +67,9 @@ class R15DV2ReviewerSubmissionTests(unittest.TestCase):
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(set(schema["properties"]["cases"]["items"]["properties"]["case_id"]["enum"]), {c["id"] for c in self.fixture["cases"]})
         self.assertTrue(schema["properties"]["cases"]["items"]["properties"]["evidence_references"]["uniqueItems"])
+        attestations = schema["properties"]["attestations"]["properties"]
+        self.assertIs(attestations["v1_answer_key_not_seen"]["const"], True)
+        self.assertIs(attestations["v1_labels_not_consulted"]["const"], True)
 
     def test_missing_duplicate_and_unknown_cases_rejected(self):
         for mode in ("missing", "duplicate", "unknown"):
@@ -136,6 +141,16 @@ class R15DV2ReviewerSubmissionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate JSON object key"):
             json.loads('{"reviewer_id":"a","reviewer_id":"b"}', object_pairs_hook=_unique_object)
 
+
+
+    def test_v1_answer_key_exposure_attestation_is_mandatory(self):
+        for field in ("v1_answer_key_not_seen", "v1_labels_not_consulted"):
+            bundle = self.make_bundle()
+            bundle["attestations"][field] = False
+            with self.subTest(field=field):
+                result = validate_submission(bundle, self.fixture)
+                self.assertFalse(result["valid"])
+                self.assertTrue(any(field in error for error in result["errors"]))
 
 if __name__ == "__main__":
     unittest.main()
