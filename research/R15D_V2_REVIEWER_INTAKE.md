@@ -94,3 +94,44 @@ Both commands create or verify private adjudication material. Do not commit the 
 ## Third-adjudication handoff
 
 Only cases with different primary labels are sent to a third adjudicator. The third reviewer sees both primary records for those cases, but must not see model outputs or v1 answer-key material. The v2 schema and validator are `research/R15D_V2_THIRD_ADJUDICATION_SUBMISSION.schema.json` and `scripts/validate_r15d_v2_third_submission.py`. The validator requires the exact disagreement set, a reviewer identity distinct from both primary reviewers, exact fixture pins, unique evidence, UTC timestamps, and v1 non-exposure attestations.
+
+## Third-review validation
+
+For each disagreement case, the third adjudicator must see both primary reviews but must not see model outputs or v1 answer-key material. Validate the bundle with:
+
+```sh
+python scripts/validate_r15d_v2_third_submission.py \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --staged-packet <private-staged-packet.json> \
+  --submission <private-third-review.json>
+```
+
+The third bundle must contain exactly the disagreement set, no unanimous cases, and use a reviewer identity distinct from both primary reviewers. The custodian must verify that identity out of band.
+
+## Final consensus assembly
+
+After independent staged-merge verification and valid third-review intake (when required), run `scripts/finalize_r15d_v2_adjudication.py`. It preserves both primary reviewer attestation records and, where applicable, the third reviewer attestations. It derives consensus from unanimous primary labels or the third adjudicator's label, then runs the complete v2 adjudication validator. It writes a new packet with `ground_truth_frozen=false` and `model_inference_authorized=false`.
+
+## Separate freeze and independent verification
+
+Only after the complete adjudication packet passes validation may the custodian run:
+
+```sh
+python scripts/validate_r15d_v2_adjudication.py \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --packet <private-complete-adjudication.json>
+
+python scripts/freeze_r15d_v2_adjudication.py \
+  --packet <private-complete-adjudication.json> \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --output <new-private-frozen-manifest.json> \
+  --frozen-at <UTC-ISO8601-timestamp>
+
+python scripts/verify_r15d_v2_frozen_manifest.py \
+  --packet <private-complete-adjudication.json> \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --manifest <private-frozen-manifest.json> \
+  --expected-sha256 <frozen-manifest-digest>
+```
+
+The freeze manifest binds the exact complete packet bytes, fixture manifest digest, validator source, leakage scanner source and fixture builder source. The independent verifier reconstructs the expected frozen transformation and checks the expected digest. Even a verified freeze does not itself authorize model inference; that remains a separate governance decision.
