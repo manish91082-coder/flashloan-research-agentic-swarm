@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from scripts.build_r15d_v2_semantic_fixtures import build
+from scripts.create_r15d_v2_intake_receipt import create_intake_receipt
 from scripts.merge_r15d_v2_primary_reviews import merge_primary_reviews
 from scripts.validate_r15d_v2_review_submission import load_fixture_bundle
 from scripts.validate_r15d_v2_third_submission import validate_third_submission
@@ -54,9 +55,12 @@ class R15DV2ThirdSubmissionTests(unittest.TestCase):
     def make_staged(self, disagreement_case="NAV2-02"):
         self.stage_counter += 1
         a, b, staged = self.root / "a.json", self.root / "b.json", self.root / f"staged-{self.stage_counter}.json"
+        receipt_a, receipt_b = self.root / f"receipt-a-{self.stage_counter}.json", self.root / f"receipt-b-{self.stage_counter}.json"
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", disagreement_case)), encoding="utf-8")
-        merge_primary_reviews(self.fixture_dir, a, b, staged, "custodian.v2", True)
+        create_intake_receipt(self.fixture_dir, a, receipt_a, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        create_intake_receipt(self.fixture_dir, b, receipt_b, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, staged, "custodian.v2", True)
         return a, b, staged, json.loads(staged.read_text(encoding="utf-8"))
 
     def third_bundle(self, staged, reviewer_id="reviewer.gamma"):
