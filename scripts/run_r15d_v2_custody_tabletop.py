@@ -97,6 +97,41 @@ def _third_bundle(staged: dict) -> dict:
     }
 
 
+def _encrypted_delivery(root: Path, name: str, value: dict) -> Path:
+    gpg = shutil.which("gpg")
+    if gpg is None:
+        raise RuntimeError("GnuPG is required for the synthetic encrypted-delivery tabletop")
+    sender = root / "sender"
+    receiver = root / "receiver"
+    key_custody = root / "key-custody"
+    gnupg_home = root / "gnupg-home"
+    for directory in (sender, receiver, key_custody, gnupg_home):
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+        directory.chmod(0o700)
+    passphrase_file = key_custody / "tabletop.passphrase"
+    if not passphrase_file.exists():
+        passphrase_file.write_text(secrets.token_urlsafe(32) + "\n", encoding="utf-8")
+        passphrase_file.chmod(0o600)
+    env = os.environ.copy()
+    env["GNUPGHOME"] = str(gnupg_home)
+    plaintext = sender / f"{name}.json"
+    ciphertext = sender / f"{name}.json.gpg"
+    decrypted = receiver / f"{name}.json"
+    payload = (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    plaintext.write_bytes(payload)
+    plaintext.chmod(0o600)
+    subprocess.run([gpg, "--batch", "--yes", "--pinentry-mode", "loopback", "--passphrase-file", str(passphrase_file), "--symmetric", "--cipher-algo", "AES256", "--output", str(ciphertext), str(plaintext)], check=True, capture_output=True, env=env)
+    ciphertext.chmod(0o600)
+    encrypted_bytes = ciphertext.read_bytes()
+    if not encrypted_bytes or payload in encrypted_bytes:
+        raise RuntimeError("GnuPG encryption did not produce opaque ciphertext")
+    plaintext.unlink()
+    subprocess.run([gpg, "--batch", "--yes", "--pinentry-mode", "loopback", "--passphrase-file", str(passphrase_file), "--output", str(decrypted), "--decrypt", str(ciphertext)], check=True, capture_output=True, env=env)
+    decrypted.chmod(0o600)
+    if decrypted.read_bytes() != payload:
+        raise RuntimeError("GnuPG encrypted-delivery round trip changed the private submission bytes")
+    return decrypted
+
 def run_tabletop() -> dict:
     if os.name != "posix":
         raise RuntimeError("custody permission tabletop requires POSIX file-mode semantics")
@@ -119,15 +154,15 @@ def run_tabletop() -> dict:
         third_path, third_receipt = root / "third-review.json", root / "third-receipt.json"
         final_path, frozen_path = root / "final-packet.json", root / "frozen-manifest.json"
 
-        _write_private(a, _primary_bundle(fixture, "tabletop.reviewer.a"))
-        _write_private(b, _primary_bundle(fixture, "tabletop.reviewer.b", "NAV2-02"))
+        a = _encrypted_delivery(root, "primary-a", _primary_bundle(fixture, "tabletop.reviewer.a"))
+        b = _encrypted_delivery(root, "primary-b", _primary_bundle(fixture, "tabletop.reviewer.b", "NAV2-02"))
         create_intake_receipt(fixture_dir, a, receipt_a, "primary_a", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True)
         create_intake_receipt(fixture_dir, b, receipt_b, "primary_b", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True)
 
         merged = merge_primary_reviews(fixture_dir, a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True)
         verified_merge = verify_primary_merge(fixture_dir, a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True, merged["output_sha256"])
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
-        _write_private(third_path, _third_bundle(staged))
+        third_path = _encrypted_delivery(root, "third-adjudicator", _third_bundle(staged))
         create_intake_receipt(fixture_dir, third_path, third_receipt, "third_adjudicator", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
 
         finalized = finalize_adjudication(
@@ -161,6 +196,8 @@ def run_tabletop() -> dict:
             "synthetic_only": True,
             "primary_receipts_verified": 2,
             "third_receipts_verified": 1,
+            "encrypted_submissions_verified": 3,
+            "encryption_tool": "GnuPG AES-256 symmetric encrypted-delivery round trip",
             "primary_merge_verified": verified_merge["valid"],
             "final_adjudication_complete": finalized["valid_complete_adjudication"],
             "frozen_manifest_verified": verified_frozen["valid"],
