@@ -296,5 +296,40 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
                 self.assertFalse(result["valid"])
 
 
+    def test_primary_reviewer_identity_must_be_stable_across_all_six_cases(self):
+        packet = copy.deepcopy(self.packet)
+        for case in packet["cases"]:
+            case["reviewers"] = [
+                self.completed_review(case, "reviewer-a"),
+                self.completed_review(case, "reviewer-b"),
+            ]
+            case["consensus"] = {
+                "status": "adjudicated", "label": "present",
+                "rationale": "Both primary reviewers independently agree.",
+                "disagreement": False,
+            }
+        packet["cases"][3]["reviewers"][0]["reviewer_id"] = "substitute-reviewer"
+        result = validate(packet, require_complete=True)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("stable reviewer identity" in error for error in result["errors"]))
+
+    def test_primary_reviewer_slots_must_remain_globally_distinct(self):
+        packet = copy.deepcopy(self.packet)
+        for case in packet["cases"]:
+            case["reviewers"] = [
+                self.completed_review(case, "reviewer-a"),
+                self.completed_review(case, "reviewer-b"),
+            ]
+            case["consensus"] = {
+                "status": "adjudicated", "label": "present",
+                "rationale": "Both primary reviewers independently agree.",
+                "disagreement": False,
+            }
+        packet["cases"][4]["reviewers"][1]["reviewer_id"] = "reviewer-a"
+        result = validate(packet, require_complete=True)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("globally distinct" in error for error in result["errors"]))
+
+
 if __name__ == "__main__":
     unittest.main()
