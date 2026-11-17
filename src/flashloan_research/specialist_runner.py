@@ -14,6 +14,7 @@ from .mission_runtime import MissionTaskStore
 from .model_provider import LocalOpenAICompatibleProvider, ModelProviderError
 from .storage import write_json
 from .solidity_review import deterministic_protocol_review
+from .role_source_policy import order_role_source_manifest
 
 
 ROLE_PROMPTS = {
@@ -205,7 +206,8 @@ def _deterministic_review_with_catalog(inspection: dict[str, Any], excerpts: lis
 
 def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | None = None,
                             max_files: int = 10, max_chars: int = 60000,
-                            context_lines: int = 24) -> list[dict[str, Any]]:
+                            context_lines: int = 24,
+                            role: str = "candidate_purpose") -> list[dict[str, Any]]:
     """Load bounded excerpts only from the verified content-addressed source vault."""
     root = Path(snapshot_root or SETTINGS.snapshot_dir).resolve()
     manifest = inspection.get("captured_files", [])
@@ -219,11 +221,24 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
         path, line = item.get("path"), item.get("line")
         if isinstance(path, str) and isinstance(line, int) and not isinstance(line, bool) and line > 0:
             signal_lines.setdefault(path, set()).add(line)
-    ordered = sorted((x for x in manifest if isinstance(x, dict)),
-                     key=lambda x: (-len(signal_lines.get(str(x.get("path", "")), set())), str(x.get("path", ""))))
+    # Role-aware family priority prevents large off-chain files from starving
+    # protocol contracts, test suites, manifests, lockfiles and license artifacts.
+    role_ordered, _role_coverage = order_role_source_manifest(role, manifest)
+    ordered = sorted(
+        role_ordered,
+        key=lambda x: (
+            next(i for i, item in enumerate(role_ordered) if item is x),
+            -len(signal_lines.get(str(x.get("path", "")), set())),
+            str(x.get("path", "")),
+        ),
+    )
     excerpts: list[dict[str, Any]] = []
     used_chars = 0
+    per_file_budget = max(1, max_chars // max(1, max_files))
     for item in ordered[:max_files]:
+        file_budget = min(per_file_budget, max_chars - used_chars)
+        if file_budget <= 0:
+            break
         rel, blob_sha, source_path = item.get("vault_relative_path"), item.get("blob_sha"), item.get("path")
         if not isinstance(rel, str) or not isinstance(source_path, str):
             raise SpecialistTaskError("captured source manifest is missing path or vault_relative_path")
@@ -260,7 +275,7 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
             for number in range(start, end + 1):
                 rendered = f"{number:06d}: {lines[number-1]}"
                 required = len(rendered) + 1
-                if required > max_chars - used_chars - chunk_chars:
+                if required > file_budget - chunk_chars:
                     break
                 chunk.append(rendered)
                 chunk_chars += required
@@ -1127,8 +1142,12 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                         "max_chars": int(os.getenv("FLR_MODEL_MAX_CONTEXT_CHARS", "6000")),
                         "context_lines": int(os.getenv("FLR_MODEL_CONTEXT_LINES", "12")),
                     }
+                role_source_order, role_source_coverage = order_role_source_manifest(
+                    role, inspection.get("captured_files", [])
+                )
                 verified_excerpts = _verified_source_context(
                     inspection,
+                    role=role,
                     **reviewer_source_limits,
                 )
                 deterministic_review = (
@@ -1145,6 +1164,8 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     "source_files_captured": inspection.get("captured_files", []),
                     "source_evidence_catalog": reviewer_catalog,
                     "verified_source_excerpts": verified_excerpts,
+                    "role_source_coverage": role_source_coverage,
+                    "role_source_policy": "role_family_priority_then_deterministic_path_order",
                     "deterministic_protocol_review": deterministic_review,
                     "prior_specialist_outputs": prior,
                     "specialist_packet_adequacy": packet_adequacy,
