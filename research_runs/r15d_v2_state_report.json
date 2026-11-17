@@ -3,7 +3,7 @@
   "report_type": "r15d_v2_benchmark_state",
   "audit_timestamp": "2026-11-17",
   "benchmark_id": "r15d-semantic-source-facts-v2",
-  "disposition": "synthetic_custody_tabletop_verified_no_human_adjudication_yet",
+  "disposition": "synthetic_openpgp_custody_tabletop_verified_no_human_adjudication_yet",
   "repository": {
     "full_name": "manish91082-coder/flashloan-research-agentic-swarm",
     "branch": "main",
@@ -152,25 +152,38 @@
       "3.12",
       "3.13"
     ],
-    "gpg_symmetric_encryption_roundtrips": 3,
-    "gpg_cipher": "AES-256",
+    "openpgp_public_key_encryption_roundtrips": 3,
+    "encryption_tool": "GnuPG OpenPGP RSA-2048 public-key encrypted-delivery round trip",
+    "public_key_recipient_fingerprint_established": true,
+    "private_key_separate_from_sender_receiver": true,
+    "sender_plaintext_removed_after_encryption": true,
+    "byte_for_byte_decryption_verified": true,
+    "workspace_directory_mode": "0700",
+    "private_file_mode": "0600",
+    "workspace_removed_after_test": true,
     "primary_receipts_verified": 2,
     "third_receipts_verified": 1,
     "primary_merge_verified": true,
     "final_adjudication_complete": true,
     "frozen_manifest_verified": true,
-    "workspace_directory_mode": "0700",
-    "private_file_mode": "0600",
-    "workspace_removed_after_test": true,
     "real_identity_verification": false,
-    "public_key_recipient_verification": false,
+    "production_key_identity_verified_out_of_band": false,
+    "independent_channel_fingerprint_verification": false,
+    "separate_physical_device_key_custody": false,
     "real_external_transport": false,
-    "separate_device_key_custody": false,
     "production_reviewer_intake_authorized": false,
     "model_inference_authorized": false,
-    "encryption_tool": "GnuPG OpenPGP RSA-2048 public-key encrypted-delivery round trip",
-    "public_key_recipient_fingerprint_established": true,
-    "private_key_separate_from_sender_receiver": true,
-    "production_key_identity_verified_out_of_band": false
+    "note": "Synthetic generated keys and synthetic reviewer bundles only. This verifies software-path behavior, not real-world custodian identity or production key custody."
+  },
+  "latest_repository_checkpoint": {
+    "audited_head": "6d0ca0d17c5c58deb0b155f0527b35047036b6b4",
+    "latest_ci_run_id": 44064919521,
+    "latest_ci_conclusion": "success",
+    "latest_ci_python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "note": "Documentation/readiness-audit commit CI; not an end-to-end swarm mission acceptance."
   }
 }
