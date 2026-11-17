@@ -143,6 +143,11 @@ def _validate_staged_packet(staged: object, fixture: dict) -> tuple[list[str], l
             errors.append(f"primary reviewer slot {index + 1} must retain one stable identity across all six cases")
     if reviewer_ids_by_slot[0] & reviewer_ids_by_slot[1]:
         errors.append("primary reviewer identities must be globally distinct")
+    primary_attestations = staged.get("primary_reviewer_attestations")
+    if isinstance(primary_attestations, list) and len(primary_attestations) == 2:
+        for index, attestation in enumerate(primary_attestations):
+            if not isinstance(attestation, dict) or attestation.get("reviewer_id") not in reviewer_ids_by_slot[index]:
+                errors.append(f"primary reviewer attestation {index + 1} does not match the six case records")
     return errors, disagreements, reviewer_ids_by_slot[0] | reviewer_ids_by_slot[1]
 
 
