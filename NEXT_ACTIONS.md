@@ -1,3 +1,14 @@
+## R15D v2 encrypted-delivery custody tabletop — CI verified
+
+- Extended `scripts/run_r15d_v2_custody_tabletop.py` to perform GnuPG AES-256 symmetric encryption/decryption round trips for two primary reviewer bundles and one third-adjudicator bundle.
+- Sender-side plaintext copies are removed after encryption; receiver-side decrypted bytes are checked against the original synthetic payload. The pipeline then generates/verifies receipts, merges, independently verifies, adjudicates, freezes and verifies the frozen manifest.
+- CI installs GnuPG only in the dedicated Python 3.11 job. The test suite skips the GnuPG-dependent tabletop test on Python 3.12/3.13, while the standard 346-test matrix passes on all three.
+- **Verified run:** [44045502636](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44045502636). Python 3.11, 3.12 and 3.13 each passed 346 tests; the Python 3.11 GnuPG tabletop passed.
+- **Latest fixture artifact:** ID `14311191843`; ZIP SHA-256 `103dd9bc104e69b113d6120c548506d4cbe80b23806f51ac6090e68725253649`; fixture manifest SHA-256 `8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8`. Six cases, `answer_key_included=false`, zero forbidden answer-key JSON keys.
+- **Limit:** this is a local synthetic encryption round trip. The symmetric passphrase is stored in a separate directory within the same temporary test workspace; this does not establish independent production key custody, real external transfer or real-world identity verification. Genuine reviewer intake remains unauthorized.
+
+---
+
 ## R15D v2 encrypted synthetic custody tabletop — CI verified; production intake still blocked
 
 - **Verified HEAD before this checkpoint update:** 7d717cc8c7116d2ae7831c0dbf770eddc6af83c3. CI run [44045502636](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44045502636) passed 346 tests on Python 3.11, 3.12 and 3.13.
