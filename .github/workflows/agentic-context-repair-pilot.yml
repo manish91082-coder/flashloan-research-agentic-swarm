@@ -232,7 +232,7 @@ jobs:
               finally:
                   connection.close()
               with heartbeat_path.open("a", encoding="utf-8") as stream:
-                  stream.write(json.dumps(snapshot, sort_keys=True) + "\\n")
+                  stream.write(json.dumps(snapshot, sort_keys=True) + "\n")
               print("MISSION_HEARTBEAT " + json.dumps(snapshot, sort_keys=True), flush=True)
 
           def heartbeat_loop():
