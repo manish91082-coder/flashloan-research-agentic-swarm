@@ -75,3 +75,16 @@ python scripts/create_r15d_v2_intake_receipt.py \
 ```
 
 For a third adjudicator, use `--reviewer-slot third_adjudicator` and add `--staged-packet <private-staged-packet.json>`. The receipt generator revalidates the submission and writes only metadata and hashes. It refuses submission, staged-packet or receipt paths inside the public repository and never writes labels or rationales into the receipt.
+
+Verify the receipt before any merge:
+
+```sh
+python scripts/verify_r15d_v2_intake_receipt.py \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --submission <private-reviewer-bundle.json> \
+  --receipt <private-receipt.json> \
+  --reviewer-slot primary_a \
+  --custodian-id <custodian-pseudonym>
+```
+
+For the third reviewer, use `--reviewer-slot third_adjudicator` and supply `--staged-packet`. Primary merge, staged-merge verification, finalization, freeze and frozen-manifest verification all re-check the receipt chain. A receipt is a metadata integrity record and custodian attestation, not cryptographic proof of a person's identity.
