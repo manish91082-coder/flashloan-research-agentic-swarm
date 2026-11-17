@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "report_type": "r15d_v2_benchmark_state",
+  "audit_timestamp": "2026-11-17",
+  "benchmark_id": "r15d-semantic-source-facts-v2",
+  "disposition": "design_and_label_free_fixture_verified_no_human_adjudication_yet",
+  "repository": {
+    "full_name": "manish91082-coder/flashloan-research-agentic-swarm",
+    "branch": "main",
+    "visibility": "public"
+  },
+  "predecessor": {
+    "benchmark_id": "r15d-semantic-source-facts-v1",
+    "disposition": "blinding_compromised_retired_for_new_blind_adjudication",
+    "audit": "research/R15D_V1_BLINDNESS_LEAKAGE_AUDIT.md"
+  },
+  "design": {
+    "path": "research_runs/r15d_v2_semantic_case_design.json",
+    "case_ids": [
+      "NAV2-01",
+      "NAV2-02",
+      "NAV2-03",
+      "COB2-01",
+      "COB2-02",
+      "COB2-03"
+    ],
+    "case_count": 6,
+    "expected_label_fields_present": false,
+    "answer_key_in_public_repository": false,
+    "answer_key_in_public_ci_artifact": false,
+    "source_commit_pins_verified": true
+  },
+  "artifact": {
+    "workflow_run_id": 44039591500,
+    "artifact_id": 14308717210,
+    "artifact_name": "r15d-v2-label-free-fixtures-4bcf8413b4190db34105eec74aa65f50aad49322",
+    "zip_sha256": "d1aa9a8f3512e83c7e93a7166c46e01f5e49ed8c3bf8b6b3ca326878364894f6",
+    "fixture_manifest_sha256": "52ed5fda1e28795a721b6840f8bc6655fd9255465024c84094c2881a328618e5",
+    "source_design_manifest_sha256": "237ca66fd71a0a3d678a97007b2414c3476e214c199f989c47fb073d2accef5b",
+    "case_count": 6,
+    "excerpt_count": 6,
+    "answer_key_included": false,
+    "leakage_scanner_passed": true,
+    "direct_zip_inspection_passed": true
+  },
+  "ci": {
+    "run_id": 44039591500,
+    "conclusion": "success",
+    "tests_per_python_version": 289,
+    "python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "fixture_build_python_version": "3.11",
+    "leakage_scan_before_upload": true,
+    "artifact_upload_after_scan_only": true
+  },
+  "reviewer_state": {
+    "primary_submissions_received": 0,
+    "third_adjudicator_submissions_received": 0,
+    "custodian_identity_checks_completed": 0,
+    "human_consensus_cases": 0
+  },
+  "gates": {
+    "design_only": true,
+    "private_reviewer_intake_authorized": false,
+    "ground_truth_frozen": false,
+    "model_inference_authorized": false,
+    "semantic_audit_increment": 0,
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false
+  },
+  "next_action": "Complete independent proposition/scope audit, then build v2 private reviewer bundle and identity/custody protocol. Only after those pass may private human reviews be solicited."
+}
