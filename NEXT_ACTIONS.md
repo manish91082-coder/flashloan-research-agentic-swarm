@@ -1,3 +1,16 @@
+## R15D v2 synthetic custody tabletop — CI verified (2026-11-17)
+
+- Added `scripts/run_r15d_v2_custody_tabletop.py` and `tests/test_r15d_v2_custody_tabletop.py`.
+- The CI tabletop executes a full synthetic path: build label-free fixture; create and verify two primary receipts; merge and independently verify; create a disagreement-only third receipt; finalize consensus; freeze; independently verify the frozen manifest.
+- The tabletop runs in a temporary directory outside the public repository. It checks POSIX directory permissions `0700`, file permissions `0600`, and confirms the workspace is removed after completion. It emits only a metadata summary, not labels or rationales.
+- **CI:** run [44044925406](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44044925406) passed **346 tests** on Python 3.11, 3.12 and 3.13. The additional synthetic tabletop and label-free fixture build/scanner/upload all passed on Python 3.11.
+- **Latest fixture artifact:** artifact ID `14310857998`; ZIP SHA-256 `c7163071959bfddb2571d4e2e944ee0a166cb08424c365f17bc65a13e5f8a00f`; manifest SHA-256 `8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8`. Direct inspection: six atomic cases, no forbidden answer-key JSON keys, `answer_key_included=false`.
+- **What this proves:** code-level receipt binding, end-to-end adjudication/freeze path and POSIX private workspace permissions work with synthetic data.
+- **What it does not prove:** real human identity, actual encrypted external transfer, key custody, real-world reviewer independence or operational access-control enforcement.
+- **Current gate:** genuine reviewer intake remains unauthorized. Next step is a human custodian's operational readiness review of the encrypted private transfer and identity-verification procedure. No real reviewer submissions, receipts, identity checks, production freeze or model inference exist.
+
+---
+
 ## R15D v2 receipt-enforced custody chain — CI verified; operational intake still gated
 
 - Added `scripts/verify_r15d_v2_intake_receipt.py` to reconstruct each metadata-only receipt against exact submission bytes, fixture digest, reviewer slot, custodian ID and attestation summary.
