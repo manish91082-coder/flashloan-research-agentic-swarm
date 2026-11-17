@@ -79,12 +79,15 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
 
 
 
-    def test_ci_does_not_publish_retired_r15d_fixture_artifacts(self):
+    def test_ci_never_publishes_retired_v1_and_scans_v2_before_upload(self):
         repository_root = Path(__file__).resolve().parents[1]
         workflow = (repository_root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertNotIn("r15d-semantic-fixtures", workflow)
         self.assertNotIn("scripts/build_r15d_semantic_fixtures.py", workflow)
-        self.assertNotIn("actions/upload-artifact", workflow)
+        self.assertIn("scripts/build_r15d_v2_semantic_fixtures.py", workflow)
+        self.assertIn("scripts/scan_r15d_v2_artifact_leakage.py", workflow)
+        self.assertIn("r15d-v2-label-free-fixtures-", workflow)
+        self.assertLess(workflow.index("Scan R15D v2 fixture for answer-key leakage"), workflow.index("Upload verified label-free R15D v2 fixture"))
 
 if __name__ == "__main__":
     unittest.main()
