@@ -91,11 +91,11 @@ For the third reviewer, use `--reviewer-slot third_adjudicator` and supply `--st
 
 ## Synthetic custody tabletop result
 
-- CI run: [44044925406](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44044925406)
+- CI run: [44045502636](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44045502636)
 - Script: `scripts/run_r15d_v2_custody_tabletop.py`
-- The synthetic scenario completed primary receipt creation/verification, primary merge, independent staged-merge verification, disagreement-only third receipt, finalization, freeze and independent frozen-manifest verification.
+- The synthetic scenario completed GnuPG AES-256 symmetric encryption/decryption round trips for both primary bundles and the third bundle, primary receipt creation/verification, primary merge, independent staged-merge verification, disagreement-only third receipt, finalization, freeze and independent frozen-manifest verification. Plaintext sender-side submission copies were removed after encryption; receiver-side decrypted copies were validated.
 - Temporary private workspace permissions were verified as directories `0700` and files `0600`; the workspace was removed after the run.
-- The tabletop used synthetic reviewer IDs and synthetic labels only. It did not verify real human identity, encrypted external transfer, actual custodian operations or production readiness.
-- CI passed **346 tests** on Python 3.11, 3.12 and 3.13. The additional end-to-end tabletop ran on Python 3.11.
+- The tabletop used synthetic reviewer IDs and synthetic labels only. It verifies a local encrypted-delivery round trip, not real external transfer, real human identity, independent key custody, actual custodian operations or production readiness.
+- CI passed **346 tests** on Python 3.11, 3.12 and 3.13. GnuPG is installed only in the dedicated Python 3.11 job; the additional encrypted-delivery tabletop ran there. The tabletop's symmetric passphrase is held in a separate directory inside the same temporary test workspace, so this does not prove real external key custody or independent-channel security.
 
 **Operational gate remains closed:** a successful synthetic tabletop validates software and POSIX permission behavior, not a real human review operation. The custodian must still validate encrypted transfer, identity checks, key custody and private storage before inviting genuine reviewers.
