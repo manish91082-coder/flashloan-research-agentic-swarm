@@ -1,3 +1,19 @@
+## R15D v2 encrypted synthetic custody tabletop — CI verified; production intake still blocked
+
+- **Verified HEAD before this checkpoint update:** 7d717cc8c7116d2ae7831c0dbf770eddc6af83c3. CI run [44045502636](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44045502636) passed 346 tests on Python 3.11, 3.12 and 3.13.
+- The dedicated Python 3.11 CI job completed the full synthetic receipt-bound pipeline: fixture build; two primary receipts; primary merge and independent reconstruction; disagreement-only third review and receipt; complete adjudication; freeze; independent frozen-manifest verification.
+- Added a GnuPG AES-256 symmetric encrypted-delivery round trip for all three synthetic reviewer submissions. Sender plaintext is removed after encryption; receiver bytes are checked exactly. GnuPG is installed only in the dedicated Python 3.11 CI job; other matrix jobs skip this optional integration test.
+- The tabletop verifies a temporary workspace outside the repository, POSIX directory mode 0700, file mode 0600, and actual temporary-workspace removal. CI output reports encrypted_submissions_verified=3 and workspace_removed_after_test=true.
+- Earlier CI failures were resolved and must remain visible in the audit trail: the standalone script initially lacked the repository root on sys.path; PYTHONPATH was corrected. GnuPG was absent from the hosted runner; the dedicated matrix job now installs gnupg. A duplicate optional-dependency skip guard was removed. Final run 44045502636 is green.
+- **Latest label-free artifact:** artifact ID 14311191843, name r15d-v2-label-free-fixtures-7d717cc8c7116d2ae7831c0dbf770eddc6af83c3. ZIP SHA-256 103dd9bc104e69b113d6120c548506d4cbe80b23806f51ac6090e68725253649. Fixture manifest SHA-256 8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8. Direct ZIP inspection found six pinned excerpts, answer_key_included=false and zero forbidden answer-key JSON keys.
+- Added research/R15D_V2_CUSTODIAN_READINESS_CHECKLIST.md to make the remaining human operational gate explicit: reviewer identity and v1-contamination screening, public-key recipient verification, key custody, encrypted private storage, reviewer isolation, receipt-bound processing, incident response and independent approvals.
+- **What the tabletop proves:** software lifecycle, receipt binding, symmetric encryption/decryption integrity for synthetic payloads, POSIX permission checks and workspace cleanup under GitHub-hosted CI.
+- **What it does not prove:** real human identity, real reviewer independence, public-key recipient verification, real external encrypted transport, separate-device key custody, production encrypted storage or human authorization. The symmetric test passphrase is synthetic and held in the temporary test workspace.
+- **Production state:** zero genuine reviewer submissions, zero real identity checks, zero real receipts, zero production adjudication/freeze, zero model inference; semantic audit increment remains zero. V1 remains retired. V2 remains design/fixture verified only.
+- **Next action:** a human custodian must complete and sign the operational readiness checklist. Until that explicit authorization exists, do not solicit or accept genuine reviewer submissions. After approval, use only the v2 label-free fixture and receipt-bound intake chain. Model inference still requires a separate post-freeze authorization.
+
+---
+
 ## R15D v2 synthetic custody tabletop — CI verified (2026-11-17)
 
 - Added `scripts/run_r15d_v2_custody_tabletop.py` and `tests/test_r15d_v2_custody_tabletop.py`.
