@@ -805,7 +805,7 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 
 ---
 
-## Canonical continuity checkpoint — 2026-11-17 16:xx IST (supersedes older R15D v1 next-action notes)
+## Canonical continuity checkpoint — 2026-11-17 16:03 IST (supersedes older R15D v1 next-action notes)
 
 **Audited branch:** `main`  
 **Audited HEAD:** `6d0ca0d17c5c58deb0b155f0527b35047036b6b4`  
