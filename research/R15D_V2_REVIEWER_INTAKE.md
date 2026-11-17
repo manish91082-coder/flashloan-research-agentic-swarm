@@ -135,3 +135,7 @@ python scripts/verify_r15d_v2_frozen_manifest.py \
 ```
 
 The freeze manifest binds the exact complete packet bytes, fixture manifest digest, validator source, leakage scanner source and fixture builder source. The independent verifier reconstructs the expected frozen transformation and checks the expected digest. Even a verified freeze does not itself authorize model inference; that remains a separate governance decision.
+
+## Metadata-only custody receipt
+
+After validation and out-of-band identity verification, create a private receipt with `scripts/create_r15d_v2_intake_receipt.py`. It records the exact submission SHA-256, fixture digest, pseudonymous reviewer ID, reviewer slot, custodian ID, timestamps and attestation summary. It deliberately excludes labels, rationales, evidence text and raw payload. Keep the receipt outside the public repository with the encrypted original bundle.
