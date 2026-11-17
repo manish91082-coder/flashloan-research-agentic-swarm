@@ -188,5 +188,35 @@ class R15DV2FinalizationTests(unittest.TestCase):
         self.assertTrue(any("unanimous consensus" in error for error in result["errors"]))
 
 
+
+    def test_disagreement_finalization_requires_third_custody_receipt(self):
+        a, b, receipt_a, receipt_b, staged_path, merge = self.setup_inputs("NAV2-03")
+        staged = json.loads(staged_path.read_text(encoding="utf-8"))
+        third = self.root / "third-no-receipt.json"
+        third.write_text(json.dumps(self.make_third_bundle(staged)), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "verified third-adjudicator custody receipt"):
+            finalize_adjudication(
+                self.fixture_dir, a, b, receipt_a, receipt_b, staged_path,
+                self.root / "blocked-no-third-receipt.json", "custodian.v2", True,
+                third, None, True, merge["output_sha256"],
+            )
+
+    def test_tampered_third_custody_receipt_blocks_finalization(self):
+        a, b, receipt_a, receipt_b, staged_path, merge = self.setup_inputs("COB2-01")
+        staged = json.loads(staged_path.read_text(encoding="utf-8"))
+        third = self.root / "third-tamper.json"
+        receipt = self.root / "third-tamper-receipt.json"
+        third.write_text(json.dumps(self.make_third_bundle(staged)), encoding="utf-8")
+        create_intake_receipt(self.fixture_dir, third, receipt, "third_adjudicator", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
+        receipt_json = json.loads(receipt.read_text(encoding="utf-8"))
+        receipt_json["submission_sha256"] = "0" * 64
+        receipt.write_text(json.dumps(receipt_json), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "does not exactly match"):
+            finalize_adjudication(
+                self.fixture_dir, a, b, receipt_a, receipt_b, staged_path,
+                self.root / "blocked-tampered-third.json", "custodian.v2", True,
+                third, receipt, True, merge["output_sha256"],
+            )
+
 if __name__ == "__main__":
     unittest.main()
