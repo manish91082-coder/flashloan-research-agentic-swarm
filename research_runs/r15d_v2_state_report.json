@@ -32,10 +32,10 @@
     "propositions_atomic": true
   },
   "artifact": {
-    "workflow_run_id": 44039885278,
-    "artifact_id": 14308727443,
-    "artifact_name": "r15d-v2-label-free-fixtures-b8e01f699fae9a8d13dd0af361c795e89261bc8d",
-    "zip_sha256": "ab510711134b10a8a51dd366c1a4cf4e2329629d5c4651a42475b8765cb32f23",
+    "workflow_run_id": 44041990335,
+    "artifact_id": 14310026292,
+    "artifact_name": "r15d-v2-label-free-fixtures-d9b51bf65a587da8f6c3527cf344d397535dc529",
+    "zip_sha256": "f848c2f212472b0410c208d682e8b8777382eb2811fa945adb38705e412da127",
     "fixture_manifest_sha256": "8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8",
     "source_design_manifest_sha256": "51c8cc5ecaa1b97164654d7bb6bf5b367a59936de6da5405c32aee48be034f07",
     "case_count": 6,
@@ -46,9 +46,9 @@
     "exact_forbidden_json_keys_found": 0
   },
   "ci": {
-    "run_id": 44039885278,
+    "run_id": 44041990335,
     "conclusion": "success",
-    "tests_per_python_version": 289,
+    "tests_per_python_version": 331,
     "python_versions": [
       "3.11",
       "3.12",
@@ -64,7 +64,8 @@
     "primary_submissions_received": 0,
     "third_adjudicator_submissions_received": 0,
     "custodian_identity_checks_completed": 0,
-    "human_consensus_cases": 0
+    "human_consensus_cases": 0,
+    "actual_submissions_received": 0
   },
   "gates": {
     "design_only": true,
@@ -93,5 +94,18 @@
     "fixture_excerpt_sha256_rechecked": true,
     "identity_verification": "custodian_out_of_band_not_performed_by_validator",
     "actual_submissions_received": 0
+  },
+  "adjudication_pipeline": {
+    "staged_merge": "scripts/merge_r15d_v2_primary_reviews.py",
+    "staged_merge_verifier": "scripts/verify_r15d_v2_primary_merge.py",
+    "third_review_validator": "scripts/validate_r15d_v2_third_submission.py",
+    "complete_packet_validator": "scripts/validate_r15d_v2_adjudication.py",
+    "finalizer": "scripts/finalize_r15d_v2_adjudication.py",
+    "freeze_writer": "scripts/freeze_r15d_v2_adjudication.py",
+    "frozen_manifest_verifier": "scripts/verify_r15d_v2_frozen_manifest.py",
+    "implemented": true,
+    "synthetic_end_to_end_tests": "tests/test_r15d_v2_end_to_end_freeze.py",
+    "tests_in_latest_ci": 331,
+    "production_freeze_performed": false
   }
 }
