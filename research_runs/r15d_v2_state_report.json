@@ -32,10 +32,10 @@
     "propositions_atomic": true
   },
   "artifact": {
-    "workflow_run_id": 44041990335,
-    "artifact_id": 14310026292,
-    "artifact_name": "r15d-v2-label-free-fixtures-d9b51bf65a587da8f6c3527cf344d397535dc529",
-    "zip_sha256": "f848c2f212472b0410c208d682e8b8777382eb2811fa945adb38705e412da127",
+    "workflow_run_id": 44042601978,
+    "artifact_id": 14310306017,
+    "artifact_name": "r15d-v2-label-free-fixtures-6f69ab6cbe704ef5b6b042d2beefffb0f129682f",
+    "zip_sha256": "4a50229dce2dcf73b6972a74757161fcdec4d30161380cd37909a6a6432590c3",
     "fixture_manifest_sha256": "8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8",
     "source_design_manifest_sha256": "51c8cc5ecaa1b97164654d7bb6bf5b367a59936de6da5405c32aee48be034f07",
     "case_count": 6,
@@ -46,9 +46,9 @@
     "exact_forbidden_json_keys_found": 0
   },
   "ci": {
-    "run_id": 44041990335,
+    "run_id": 44042601978,
     "conclusion": "success",
-    "tests_per_python_version": 331,
+    "tests_per_python_version": 337,
     "python_versions": [
       "3.11",
       "3.12",
@@ -93,7 +93,13 @@
     "requires_v1_labels_not_consulted_attestation": true,
     "fixture_excerpt_sha256_rechecked": true,
     "identity_verification": "custodian_out_of_band_not_performed_by_validator",
-    "actual_submissions_received": 0
+    "actual_submissions_received": 0,
+    "receipt_schema": "research/R15D_V2_INTAKE_RECEIPT.schema.json",
+    "receipt_generator": "scripts/create_r15d_v2_intake_receipt.py",
+    "custody_security_review": "research/R15D_V2_CUSTODY_SECURITY_REVIEW.md",
+    "receipt_generation_implemented": true,
+    "receipt_contains_labels_or_rationales": false,
+    "actual_receipts_created": 0
   },
   "adjudication_pipeline": {
     "staged_merge": "scripts/merge_r15d_v2_primary_reviews.py",
