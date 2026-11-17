@@ -59,3 +59,38 @@ The validator re-runs the artifact leakage scanner, verifies the v2 design-manif
 ## Safety
 
 No candidate-code execution, wallet access, transaction signing, deployment, live trading, paid inference or cloud inference is authorized by this intake protocol.
+
+## Staged primary merge and independent verification
+
+After both genuine primary bundles pass validation and the custodian has independently verified both identities, run:
+
+```sh
+python scripts/merge_r15d_v2_primary_reviews.py \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --reviewer-a <private-a.json> \
+  --reviewer-b <private-b.json> \
+  --output <new-private-staged-packet.json> \
+  --custodian-id <custodian-id> \
+  --identity-verification-complete
+```
+
+The merge requires distinct reviewer IDs, preserves the fixture digest and source pins, keeps consensus pending, records disagreements, leaves the third-adjudicator slots blank except for their trigger flags, and keeps ground truth unfrozen.
+
+Independently reconstruct and verify the staged packet:
+
+```sh
+python scripts/verify_r15d_v2_primary_merge.py \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --reviewer-a <private-a.json> \
+  --reviewer-b <private-b.json> \
+  --staged-packet <private-staged-packet.json> \
+  --custodian-id <custodian-id> \
+  --identity-verification-complete \
+  --expected-sha256 <staged-packet-digest>
+```
+
+Both commands create or verify private adjudication material. Do not commit the output packet, reviewer identities, labels or rationales to the public repository.
+
+## Third-adjudication handoff
+
+Only cases with different primary labels are sent to a third adjudicator. The third reviewer sees both primary records for those cases, but must not see model outputs or v1 answer-key material. The v2 schema and validator are `research/R15D_V2_THIRD_ADJUDICATION_SUBMISSION.schema.json` and `scripts/validate_r15d_v2_third_submission.py`. The validator requires the exact disagreement set, a reviewer identity distinct from both primary reviewers, exact fixture pins, unique evidence, UTC timestamps, and v1 non-exposure attestations.
