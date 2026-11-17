@@ -1,3 +1,18 @@
+## R15D v2 receipt-enforced custody chain — CI verified; operational intake still gated
+
+- Added `scripts/verify_r15d_v2_intake_receipt.py` to reconstruct each metadata-only receipt against exact submission bytes, fixture digest, reviewer slot, custodian ID and attestation summary.
+- Primary merge now requires two slot-specific receipts; staged-merge verification rechecks both. Wrong slot, wrong custodian, missing or tampered receipts fail closed.
+- Finalization requires a third receipt for every disagreement and preserves all three receipt digests in the adjudication packet.
+- Freeze and frozen-manifest verification now require original primary/third bundles, receipts and staged packet. Both reconstruct the complete final packet through the receipt-verified finalizer and compare exact bytes before accepting the freeze.
+- Staged/final packet validators enforce primary receipt digests and disagreement-dependent third receipt presence.
+- Negative tests added for missing, swapped, wrong-custodian and tampered primary receipts; missing and tampered third receipts; and receipt-verified freeze reconstruction.
+- **CI:** run [44044227629](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44044227629) passed **345 tests** on Python 3.11, 3.12 and 3.13.
+- **Latest label-free artifact:** artifact ID `14309734239`; ZIP SHA-256 `15e1a730345909532061f8ba17c3a25bb160f15355993d2a751a67d4d066c9d3`; fixture manifest SHA-256 `8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8`. Direct inspection: six atomic cases, `answer_key_included=false`, zero forbidden answer-key JSON keys.
+- **Code-level custody gap:** closed. **Operational gate:** still closed. No real reviewer submissions, identity checks, receipts, production merge/freeze or model inference exist. Out-of-band identity proof, encrypted private transfer, filesystem permissions and key custody remain human operational controls, not facts CI can establish.
+- **Next sequence:** run a synthetic custody tabletop covering encrypted delivery, identity verification, receipt generation/verification, primary merge, disagreement third review, finalization, freeze and independent verification. Audit file permissions and ensure all private files remain outside the public repository and CI. Only after this tabletop and explicit custodian authorization may genuine independent v2 reviewers be invited.
+
+---
+
 ## R15D v2 custody-chain audit — production intake remains blocked
 
 - Added `research/R15D_V2_CUSTODY_CHAIN_AUDIT.md` and recorded the machine-readable gate in `research_runs/r15d_v2_state_report.json`.
