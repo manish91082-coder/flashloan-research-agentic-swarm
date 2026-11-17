@@ -27,8 +27,8 @@ class R15DFrozenManifestVerifierTests(unittest.TestCase):
         packet = json.loads(DEFAULT_PACKET.read_text(encoding="utf-8"))
         for case in packet["cases"]:
             case["reviewers"] = [
-                self.completed_review(case, case["id"] + "-reviewer-a"),
-                self.completed_review(case, case["id"] + "-reviewer-b"),
+                self.completed_review(case, "reviewer-a"),
+                self.completed_review(case, "reviewer-b"),
             ]
             case["consensus"] = {
                 "status": "adjudicated",
