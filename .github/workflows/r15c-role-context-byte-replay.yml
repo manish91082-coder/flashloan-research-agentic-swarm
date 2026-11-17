@@ -1,0 +1,45 @@
+name: R15C Role Context Byte Replay
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout current replay implementation
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Download frozen R15C artifact
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 14229725407
+          repository: ${{ github.repository }}
+          run-id: 43868846531
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: r15c-input
+
+      - name: Execute byte-level role-context replay
+        run: |
+          python scripts/replay_r15c_role_context.py \
+            --input-dir r15c-input \
+            --output reports/r15c-role-context-byte-replay.json
+
+      - name: Upload byte-level replay report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r15c-role-context-byte-replay
+          path: reports/r15c-role-context-byte-replay.json
+          if-no-files-found: warn
+          retention-days: 30
