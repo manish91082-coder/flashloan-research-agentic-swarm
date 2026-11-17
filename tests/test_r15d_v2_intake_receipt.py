@@ -8,6 +8,7 @@ from scripts.build_r15d_v2_semantic_fixtures import build
 from scripts.create_r15d_v2_intake_receipt import create_intake_receipt
 from scripts.merge_r15d_v2_primary_reviews import merge_primary_reviews
 from scripts.validate_r15d_v2_review_submission import load_fixture_bundle
+from scripts.verify_r15d_v2_intake_receipt import verify_intake_receipt
 
 ROOT = Path(__file__).resolve().parents[1]
 RECEIPT_SCHEMA = ROOT / "research/R15D_V2_INTAKE_RECEIPT.schema.json"
@@ -157,6 +158,39 @@ class R15DV2IntakeReceiptTests(unittest.TestCase):
         self.assertIs(schema["properties"]["rationales_included"]["const"], False)
         self.assertIs(schema["properties"]["payload_content_included"]["const"], False)
 
+
+
+    def test_receipt_verifier_binds_exact_bundle_slot_fixture_and_custodian(self):
+        submission = self.root / "verified-reviewer.json"
+        submission.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
+        receipt = self.root / "verified-receipt.json"
+        created = create_intake_receipt(
+            self.fixture_dir, submission, receipt, "primary_a", "custodian.v2",
+            "2026-11-17T00:00:00Z", "private_video_check", True,
+        )
+        verified = verify_intake_receipt(self.fixture_dir, submission, receipt, "primary_a", "custodian.v2", expected_receipt_sha256=created["receipt_sha256"])
+        self.assertTrue(verified["valid"])
+        with self.assertRaisesRegex(ValueError, "reviewer slot and custodian"):
+            verify_intake_receipt(self.fixture_dir, submission, receipt, "primary_b", "custodian.v2")
+        with self.assertRaisesRegex(ValueError, "reviewer slot and custodian"):
+            verify_intake_receipt(self.fixture_dir, submission, receipt, "primary_a", "custodian.other")
+
+    def test_receipt_verifier_detects_submission_or_receipt_tampering(self):
+        submission = self.root / "tamper-reviewer.json"
+        submission.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
+        receipt = self.root / "tamper-receipt.json"
+        create_intake_receipt(self.fixture_dir, submission, receipt, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        bundle = json.loads(submission.read_text(encoding="utf-8"))
+        bundle["cases"][0]["rationale"] = "changed after receipt"
+        submission.write_text(json.dumps(bundle), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "does not exactly match"):
+            verify_intake_receipt(self.fixture_dir, submission, receipt, "primary_a", "custodian.v2")
+        submission.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
+        receipt_json = json.loads(receipt.read_text(encoding="utf-8"))
+        receipt_json["custodian_id"] = "custodian.attacker"
+        receipt.write_text(json.dumps(receipt_json), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "does not exactly match"):
+            verify_intake_receipt(self.fixture_dir, submission, receipt, "primary_a", "custodian.v2")
 
 if __name__ == "__main__":
     unittest.main()
