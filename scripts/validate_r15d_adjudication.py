@@ -10,6 +10,25 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PACKET = ROOT / "research_runs/r15d_adjudication/blind_adjudication_packet.json"
 ALLOWED = {"present", "absent", "not_applicable", "unknown"}
 EXPECTED_CASES = {"NAV-01", "NAV-02", "NAV-03", "COB-01", "COB-02", "COB-03"}
+EXPECTED_TOP_LEVEL = {"schema_version", "benchmark_id", "packet_type", "status", "created_from_fixture_artifact", "blinding", "allowed_labels", "cases", "safety", "freeze"}
+REVIEW_FIELDS = {"reviewer_id", "label", "rationale", "evidence_references", "confidence", "completed_at", "independence_attestation"}
+THIRD_FIELDS = REVIEW_FIELDS | {"triggered"}
+CASE_FIELDS = {"id", "repository", "commit_sha", "tree_sha", "path", "git_blob_sha1", "line_start", "line_end", "excerpt_sha256", "proposition", "boundary", "question", "reviewers", "third_adjudicator", "consensus"}
+CONSENSUS_FIELDS = {"status", "label", "rationale", "disagreement"}
+BLINDING_FIELDS = {"expected_labels_omitted", "model_outputs_omitted", "reviewers_must_not_consult_model_outputs", "reviewers_must_work_independently"}
+FREEZE_FIELDS = {"ground_truth_frozen", "frozen_at", "reviewer_output_visibility", "model_inference_authorized"}
+SAFETY_FIELDS = {"candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference"}
+ARTIFACT_FIELDS = {"artifact_id", "artifact_zip_sha256", "manifest_sha256"}
+ALLOWED_LABEL_LIST = ["present", "absent", "not_applicable", "unknown"]
+
+
+def _has_exact_keys(value: object, required: set[str], optional: set[str] | None = None) -> bool:
+    if not isinstance(value, dict):
+        return False
+    allowed = required | (optional or set())
+    return required.issubset(value) and set(value).issubset(allowed)
+
+
 EVIDENCE_RE = re.compile(r"^(?P<path>.+):(?P<start>[1-9][0-9]*)(?:-(?P<end>[1-9][0-9]*))?#sha256:(?P<sha>[0-9a-f]{64})$")
 EXPECTED_ARTIFACT = {
     "artifact_id": 14262528859,
@@ -72,22 +91,30 @@ def _has_pinned_evidence(case: dict, review: dict) -> bool:
             and match.group("sha") == case.get("excerpt_sha256")
         ):
             return False
-    return True
+    return len(references) == len(set(references))
 
 
 def validate(packet: object, require_complete: bool = False) -> dict:
     errors: list[str] = []
     if not isinstance(packet, dict):
         return {"valid": False, "complete": False, "completed_cases": 0, "case_count": len(EXPECTED_CASES), "errors": ["packet must be a JSON object"]}
+    if set(packet) != EXPECTED_TOP_LEVEL:
+        errors.append("packet must contain exactly the schema-defined top-level fields")
+    if packet.get("schema_version") != "1.0":
+        errors.append("schema_version must equal 1.0")
+    if packet.get("allowed_labels") != ALLOWED_LABEL_LIST:
+        errors.append("allowed_labels must match the canonical ordered label list")
     if packet.get("packet_type") != "blind_ground_truth_adjudication":
         errors.append("packet_type must identify the blind ground-truth adjudication packet")
     if packet.get("status") != "pending_independent_review":
         errors.append("packet status must remain pending_independent_review before freeze")
     if packet.get("benchmark_id") != "r15d-semantic-source-facts-v1":
         errors.append("unexpected benchmark_id")
-    if packet.get("created_from_fixture_artifact") != EXPECTED_ARTIFACT:
+    if not _has_exact_keys(packet.get("created_from_fixture_artifact"), ARTIFACT_FIELDS) or packet.get("created_from_fixture_artifact") != EXPECTED_ARTIFACT:
         errors.append("fixture artifact identity or digest does not match frozen baseline")
     blinding = packet.get("blinding")
+    if not _has_exact_keys(blinding, BLINDING_FIELDS):
+        errors.append("blinding must contain exactly the schema-defined fields")
     if not isinstance(blinding, dict):
         errors.append("blinding must be an object")
         blinding = {}
@@ -95,9 +122,13 @@ def validate(packet: object, require_complete: bool = False) -> dict:
         if blinding.get(flag) is not True:
             errors.append(f"blinding invariant must remain true: {flag}")
     freeze_state = packet.get("freeze")
+    if not _has_exact_keys(freeze_state, FREEZE_FIELDS):
+        errors.append("freeze must contain exactly the schema-defined fields")
     if not isinstance(freeze_state, dict):
         errors.append("freeze must be an object")
         freeze_state = {}
+    if freeze_state.get("frozen_at") is not None:
+        errors.append("frozen_at must remain null before adjudication freeze")
     if freeze_state.get("ground_truth_frozen") is not False:
         errors.append("ground_truth_frozen must remain false before adjudication freeze")
     if freeze_state.get("reviewer_output_visibility") != "hidden_until_freeze":
@@ -105,8 +136,16 @@ def validate(packet: object, require_complete: bool = False) -> dict:
     if freeze_state.get("model_inference_authorized") is not False:
         errors.append("model inference must remain unauthorized")
     cases = packet.get("cases")
-    if not isinstance(cases, list) or {c.get("id") for c in cases if isinstance(c, dict)} != EXPECTED_CASES or len(cases) != len(EXPECTED_CASES):
-        errors.append("case set must contain exactly the six frozen R15D case IDs")
+    case_ids = [c.get("id") for c in cases if isinstance(c, dict)] if isinstance(cases, list) else []
+    case_ids_are_strings = all(isinstance(case_id, str) for case_id in case_ids)
+    if (
+        not isinstance(cases, list)
+        or len(cases) != len(EXPECTED_CASES)
+        or len(case_ids) != len(cases)
+        or not case_ids_are_strings
+        or set(case_ids) != EXPECTED_CASES
+    ):
+        errors.append("case set must contain exactly the six frozen R15D case IDs with no duplicates or extras")
         cases = cases if isinstance(cases, list) else []
 
     complete_count = 0
@@ -115,7 +154,9 @@ def validate(packet: object, require_complete: bool = False) -> dict:
         if not isinstance(case, dict):
             errors.append(f"{cid}: case must be an object")
             continue
-        expected = EXPECTED_PINS.get(cid)
+        if not _has_exact_keys(case, CASE_FIELDS):
+            errors.append(f"{cid}: case must contain exactly the schema-defined fields")
+        expected = EXPECTED_PINS.get(cid) if isinstance(cid, str) else None
         actual = (case.get("repository"), case.get("commit_sha"), case.get("tree_sha"), case.get("path"), case.get("git_blob_sha1"), case.get("line_start"), case.get("line_end"), case.get("excerpt_sha256"))
         if expected is None or actual != expected:
             errors.append(f"{cid}: immutable source pin does not match frozen R15D fixture baseline")
@@ -124,8 +165,8 @@ def validate(packet: object, require_complete: bool = False) -> dict:
             errors.append(f"{cid}: exactly two independent reviewer slots required")
             continue
         for index, review in enumerate(reviews):
-            if not isinstance(review, dict):
-                errors.append(f"{cid}: reviewer slot {index + 1} must be an object")
+            if not _has_exact_keys(review, REVIEW_FIELDS):
+                errors.append(f"{cid}: reviewer slot {index + 1} must contain exactly the schema-defined fields")
         complete = [_review_complete(review) for review in reviews]
         ids = [review.get("reviewer_id").strip() for review in reviews if isinstance(review, dict) and isinstance(review.get("reviewer_id"), str)]
         if all(complete) and len(set(ids)) != 2:
@@ -141,6 +182,8 @@ def validate(packet: object, require_complete: bool = False) -> dict:
             labels = [review["label"] for review in reviews]
             disagreement = labels[0] != labels[1]
             third = case.get("third_adjudicator")
+            if not _has_exact_keys(third, THIRD_FIELDS, optional={"independence_attestation"}):
+                errors.append(f"{cid}: third_adjudicator must contain exactly the schema-defined fields")
             if not isinstance(third, dict):
                 errors.append(f"{cid}: third_adjudicator must be an object")
             elif disagreement:
@@ -159,6 +202,8 @@ def validate(packet: object, require_complete: bool = False) -> dict:
                 if any(third.get(field) is not None for field in unused_fields) or third.get("evidence_references") != []:
                     errors.append(f"{cid}: unused third-adjudicator record must remain blank without disagreement")
             consensus = case.get("consensus")
+            if not _has_exact_keys(consensus, CONSENSUS_FIELDS):
+                errors.append(f"{cid}: consensus must contain exactly the schema-defined fields")
             if not isinstance(consensus, dict) or consensus.get("status") != "adjudicated" or not isinstance(consensus.get("label"), str) or consensus.get("label") not in ALLOWED or not isinstance(consensus.get("rationale"), str) or not consensus["rationale"].strip():
                 errors.append(f"{cid}: consensus must be adjudicated with an allowed label and written rationale")
             elif consensus.get("disagreement") is not disagreement:
@@ -172,8 +217,9 @@ def validate(packet: object, require_complete: bool = False) -> dict:
         elif require_complete:
             errors.append(f"{cid}: independent reviews are pending")
     safety = packet.get("safety")
+    if not _has_exact_keys(safety, SAFETY_FIELDS):
+        errors.append("safety must contain exactly the schema-defined fields")
     if not isinstance(safety, dict):
-        errors.append("safety must be an object")
         safety = {}
     for key in ("candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference"):
         if safety.get(key) is not False:
