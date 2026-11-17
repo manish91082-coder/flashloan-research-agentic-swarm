@@ -17,12 +17,19 @@ def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
         raise ValueError("frozen_at must be a timezone-aware UTC ISO-8601 timestamp")
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite frozen manifest: {output_path}")
-    packet = json.loads(packet_path.read_text(encoding="utf-8"))
+    try:
+        packet = json.loads(packet_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"unable to read a valid adjudication JSON packet: {exc}") from exc
+    if not isinstance(packet, dict):
+        raise ValueError("input packet must be a JSON object")
     if packet.get("packet_type") != "blind_ground_truth_adjudication":
         raise ValueError("input must be the designated blind ground-truth adjudication packet")
     if packet.get("status") != "pending_independent_review":
         raise ValueError("input packet must remain in pending_independent_review state until freeze")
-    freeze_state = packet.get("freeze", {})
+    freeze_state = packet.get("freeze")
+    if not isinstance(freeze_state, dict):
+        raise ValueError("input packet freeze state must be an object")
     if (
         freeze_state.get("ground_truth_frozen") is not False
         or freeze_state.get("reviewer_output_visibility") != "hidden_until_freeze"
@@ -32,10 +39,14 @@ def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
     result = validate(packet, require_complete=True)
     if not result["valid"] or not result["complete"]:
         raise ValueError("adjudication packet failed fail-closed validation: " + "; ".join(result["errors"]))
-    blinding = packet.get("blinding", {})
+    blinding = packet.get("blinding")
+    if not isinstance(blinding, dict):
+        raise ValueError("blind packet integrity flags must be an object")
     if blinding.get("expected_labels_omitted") is not True or blinding.get("model_outputs_omitted") is not True:
         raise ValueError("blind packet integrity flags are not satisfied")
-    safety = packet.get("safety", {})
+    safety = packet.get("safety")
+    if not isinstance(safety, dict):
+        raise ValueError("safety invariants must be an object")
     required_false = ("candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference")
     if any(safety.get(key) is not False for key in required_false):
         raise ValueError("safety invariant missing or enabled")
