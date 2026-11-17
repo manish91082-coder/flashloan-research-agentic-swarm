@@ -45,3 +45,26 @@ After every disagreement has a valid third adjudication, the final assembly step
 6. keep the freeze state false and model inference unauthorized.
 
 Only the separate freeze writer and independent frozen-manifest verifier may create and attest a frozen ground-truth artifact.
+
+## Final consensus assembly
+
+After the staged primary packet has passed independent merge verification and the third-adjudicator bundle has passed validation, run the final assembly utility.
+
+For a packet with one or more disagreements:
+
+```sh
+python scripts/finalize_r15d_adjudication.py \
+  --reviewer-a <private-a.json> \
+  --reviewer-b <private-b.json> \
+  --staged-packet <private-staged-packet.json> \
+  --output <new-private-final-adjudication.json> \
+  --custodian-id <custodian-id> \
+  --primary-identity-verification-complete \
+  --third-submission <private-third-adjudicator.json> \
+  --third-identity-verification-complete \
+  --expected-staged-sha256 <staged-packet-digest>
+```
+
+For a packet with no disagreements, omit both third-adjudicator arguments. The finalizer derives consensus only from unanimous primary labels or a valid third-adjudicator record, then runs the complete R15D packet validator. It writes a separate file atomically and never overwrites an existing output.
+
+The finalizer does **not** freeze ground truth, authorize model inference, execute candidate code, access wallets, sign transactions, deploy contracts or enable live trading. After final assembly, independently run `python scripts/validate_r15d_adjudication.py --packet <private-final-adjudication.json> --require-complete`. Only then may the separate freeze writer and manifest verifier be used.
