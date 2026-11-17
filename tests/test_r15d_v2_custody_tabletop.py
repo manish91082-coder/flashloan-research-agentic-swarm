@@ -1,12 +1,10 @@
 import shutil
-import shutil
 import unittest
 
 from scripts.run_r15d_v2_custody_tabletop import run_tabletop
 
 
 class R15DV2CustodyTabletopTests(unittest.TestCase):
-    @unittest.skipUnless(shutil.which("gpg"), "GnuPG installed in the dedicated Python 3.11 CI tabletop job")
     @unittest.skipUnless(shutil.which("gpg"), "GnuPG is installed only in the dedicated Python 3.11 custody tabletop job")
     def test_synthetic_receipt_bound_pipeline_and_private_permissions(self):
         result = run_tabletop()
