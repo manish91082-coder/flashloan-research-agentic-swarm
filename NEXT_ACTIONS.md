@@ -1,3 +1,17 @@
+## R15D freeze-gate hardening checkpoint — CI verified (2026-11-17)
+
+- **Verified current code commits:** freeze utility hardening `d06f050244edd9892f98e06bbbe7036941dc46bb`; regression tests `09bfd57946f630a69153099f2eecba66e717a1fd`.
+- **CI implementation run:** [44032030994](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44032030994) completed successfully on Python 3.11, 3.12 and 3.13.
+- **CI regression run:** [44032040517](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44032040517) completed successfully on Python 3.11, 3.12 and 3.13. Standard-library tests passed in all three jobs; source-pinned fixture build/upload succeeded on 3.11 and was skipped on 3.12/3.13 as configured.
+- **Freeze utility changes:** rejects non-object top-level JSON; converts unreadable/invalid JSON to controlled `ValueError`; explicitly checks `freeze`, `blinding`, and `safety` gates are objects before reading fields. It still requires canonical packet type/status, valid UTC freeze timestamp, complete validator result, blinding flags, all safety invariants false, and creates a separate output with exclusive-create semantics.
+- **New regression coverage:** top-level arrays/scalars/null, malformed nested freeze/blinding/safety objects, and invalid JSON are rejected without creating an output manifest.
+- **Immutable blind packet:** blob remains `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`; no edits were made.
+- **No adjudication or freeze:** packet remains `pending_independent_review`; twelve primary reviewer slots and six third-adjudicator records remain blank; no ground truth freeze; model inference unauthorized; semantic audit increment zero.
+- **Prior third-adjudicator state hardening:** commits `2e74291e073e47c4ed1c81f50b8f94313925d96a`, `97b8e07cae5229a8e9e434f39485bf81408f333d`, `01d67e27af9d842d1a3ca392cb10c6b13ff685d0`; CI run [44027512197](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44027512197) is green on all three Python versions.
+- **Next audit:** check schema/validator consistency for all nested objects and reviewer/third-adjudicator required fields; add tests for malformed consensus, reviewer evidence arrays, and duplicate/extra case IDs. Then inspect source-fixture provenance and freeze-manifest verification. Do not execute freeze or authorize model inference.
+
+---
+
 ## Authoritative continuation checkpoint — R15D validator regression repaired and CI verified (2026-11-17)
 
 - **Canonical repository/branch:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
