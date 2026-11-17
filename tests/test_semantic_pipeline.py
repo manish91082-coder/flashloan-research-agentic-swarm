@@ -29,10 +29,11 @@ class FakeLocalProvider:
     def generate_json(self, system_prompt, user_payload, required_keys):
         self.calls.append({"system_prompt": system_prompt, "payload": user_payload})
         self.assert_context(user_payload, system_prompt)
-        evidence = user_payload["source_evidence_catalog"][0]["evidence_id"]
         role = user_payload["role"]
-        dependency_sources_missing = (
-            role == "dependency_license"
+        evidence_catalog = user_payload.get("source_evidence_catalog", [])
+        evidence = evidence_catalog[0]["evidence_id"] if evidence_catalog else None
+        role_sources_missing = (
+            role in {"dependency_license", "test_verification"}
             and not user_payload.get("role_source_coverage", {}).get("present_families")
         )
         if role == "independent_reviewer":
@@ -60,8 +61,8 @@ class FakeLocalProvider:
             "summary": "Fixture analysis; all material claims are linked to a pinned source signal.",
             "purpose": "Flash-loan liquidation research implementation.",
             "purpose_category": "flash_loan_liquidation_bot",
-            "implementation_status": "unknown" if role in {"independent_reviewer", "dependency_license"} else "partial",
-            "findings": [] if role == "independent_reviewer" or dependency_sources_missing else [{
+            "implementation_status": "unknown" if role == "independent_reviewer" or role_sources_missing else "partial",
+            "findings": [] if role == "independent_reviewer" or role_sources_missing else [{
                 "finding_id": f"F-{role}",
                 "claim": "The pinned source excerpt contains the executeOperation callback declaration.",
                 "category": category_by_role[role],
@@ -70,10 +71,12 @@ class FakeLocalProvider:
                 "confidence": "low",
                 "evidence_refs": [evidence],
             }],
-            "evidence": [] if dependency_sources_missing else [evidence],
+            "evidence": [evidence] if evidence else [],
             "unknowns": (
+                ["No role-admissible test, CI or test-configuration source was captured for this candidate."]
+                if role_sources_missing and role == "test_verification" else
                 ["No package manifest, lockfile, compiler/build configuration or license artifact was captured for this candidate."]
-                if dependency_sources_missing else
+                if role_sources_missing and role == "dependency_license" else
                 ["Pool caller authentication, initiator binding and repayment behavior are not established by the supplied callback declaration."]
                 if role == "independent_reviewer" else
                 ["No live execution or profitability proof."]
@@ -87,9 +90,18 @@ class FakeLocalProvider:
     @staticmethod
     def assert_context(user_payload, system_prompt):
         excerpts = user_payload.get("verified_source_excerpts", [])
-        assert excerpts, "verified source excerpts must reach every model task"
-        assert "blob_sha" in excerpts[0] and "excerpt_sha256" in excerpts[0]
-        assert user_payload.get("source_evidence_catalog"), "pinned evidence catalog must reach every model task"
+        catalog = user_payload.get("source_evidence_catalog", [])
+        role = user_payload.get("role")
+        missing_role_sources = (
+            role in {"dependency_license", "test_verification"}
+            and not user_payload.get("role_source_coverage", {}).get("present_families")
+        )
+        if missing_role_sources:
+            assert not excerpts and not catalog, "roles with no admissible source families must receive no source context"
+        else:
+            assert excerpts, "verified source excerpts must reach every eligible model task"
+            assert "blob_sha" in excerpts[0] and "excerpt_sha256" in excerpts[0]
+            assert catalog, "pinned evidence catalog must reach every eligible model task"
         assert "task_type" in user_payload and "role" in user_payload
         if user_payload["role"] == "independent_reviewer":
             assert len(user_payload.get("prior_specialist_outputs", [])) == 7, (
@@ -199,6 +211,10 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             self.assertTrue(all(
                 call["payload"].get("verified_source_excerpts")
                 for call in FakeLocalProvider.calls
+                if not (
+                    call["payload"]["role"] in {"dependency_license", "test_verification"}
+                    and not call["payload"].get("role_source_coverage", {}).get("present_families")
+                )
             ))
             gate = json.loads(Path(result["evidence_validation"]["completed"][0]["report"]).read_text())
             self.assertEqual(gate["evidence_gate"], "pinned_evidence_semantic_quality_and_claim_linkage_pass")
