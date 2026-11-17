@@ -1,9 +1,13 @@
 import copy
 import json
 import unittest
+from pathlib import Path
 
 from scripts.validate_r15d_adjudication import DEFAULT_PACKET
 from scripts.validate_r15d_review_submission import validate_submission
+
+ROOT = Path(__file__).resolve().parents[1]
+SUBMISSION_SCHEMA = ROOT / "research/R15D_REVIEWER_SUBMISSION.schema.json"
 
 
 class R15DReviewSubmissionTests(unittest.TestCase):
@@ -134,6 +138,27 @@ class R15DReviewSubmissionTests(unittest.TestCase):
             bundle["reviewer_id"] = reviewer_id
             with self.subTest(reviewer_id=reviewer_id):
                 self.assertFalse(validate_submission(bundle)["valid"])
+
+
+    def test_submission_schema_is_strict_draft_2020_12(self):
+        schema = json.loads(SUBMISSION_SCHEMA.read_text(encoding="utf-8"))
+        self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
+        self.assertFalse(schema["additionalProperties"])
+        self.assertEqual(set(schema["required"]), {"schema_version", "benchmark_id", "reviewer_id", "submitted_at", "attestations", "cases"})
+
+    def test_submission_schema_pins_six_cases_and_unique_evidence(self):
+        schema = json.loads(SUBMISSION_SCHEMA.read_text(encoding="utf-8"))
+        cases = schema["properties"]["cases"]
+        self.assertEqual((cases["minItems"], cases["maxItems"]), (6, 6))
+        props = cases["items"]["properties"]
+        self.assertTrue(props["evidence_references"]["uniqueItems"])
+        self.assertEqual(set(props["case_id"]["enum"]), {"NAV-01", "NAV-02", "NAV-03", "COB-01", "COB-02", "COB-03"})
+
+    def test_submission_schema_requires_blindness_attestations(self):
+        schema = json.loads(SUBMISSION_SCHEMA.read_text(encoding="utf-8"))
+        attestations = schema["properties"]["attestations"]
+        for field in ("independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "conflicts_disclosed"):
+            self.assertIs(attestations["properties"][field]["const"], True)
 
 
 if __name__ == "__main__":
