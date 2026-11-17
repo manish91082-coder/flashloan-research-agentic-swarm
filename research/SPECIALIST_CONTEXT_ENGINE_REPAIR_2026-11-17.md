@@ -51,3 +51,16 @@ The latest CI run for the corrected test commit must be read from GitHub Actions
 ## Acceptance boundary
 
 This is a code-level repair batch, not operational acceptance. It does not prove that all 14 prior specialist reports are now adequate, that a full mission completes, that autonomous continuation/restart works, or that the system is 24x7 production-operational. R15D v2 human adjudication remains independently gated.
+
+
+## Follow-up refinement and latest CI result
+
+- Tightened source-family selection so unmatched paths are excluded from role context rather than appended as a fallback.
+- Removed generic runtime sources from the test-verification role's admissible families. Test verification now receives only test sources, CI workflows and test configuration.
+- Filtered the evidence catalog and captured-file inventory by role admissibility before model invocation. Post-generation validation remains in place as a second independent barrier.
+- Updated the deterministic semantic-pipeline fixture: when a candidate has no dependency manifests/build/license files or test/CI files, the corresponding role receives no excerpts, no evidence catalog and no captured-file inventory. Its correct result is zero findings, empty evidence, unknown implementation status and low confidence.
+- Added assertions that source-starved roles receive no inadmissible content, and updated the corrective-retry fixture to cite a test path for the test-verification role.
+
+**Latest verified CI:** run [44073293999](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073293999), HEAD `e7ef78ae6e58a9b8764965b3dc9cff0056c77212`. Python 3.11, 3.12 and 3.13 all passed; the standard-library suite reports 353 tests passed. The Python 3.11 R15D v2 synthetic custody tabletop also completed successfully as part of the workflow.
+
+**Important:** the 353-test result and synthetic custody tabletop validate the software and fixture path only. They do not establish specialist semantic adequacy, a complete autonomous mission, genuine human reviewer identity, R15D v2 production intake, or 24x7 operational acceptance.
