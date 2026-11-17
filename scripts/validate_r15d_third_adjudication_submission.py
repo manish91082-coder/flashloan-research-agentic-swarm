@@ -6,8 +6,9 @@ import re
 from pathlib import Path
 
 from scripts.validate_r15d_adjudication import (
-    CASE_FIELDS, CONSENSUS_FIELDS, EXPECTED_CASES, EXPECTED_PINS, EVIDENCE_RE,
-    REVIEW_FIELDS, THIRD_FIELDS, _has_exact_keys, _has_pinned_evidence,
+    ARTIFACT_FIELDS, BLINDING_FIELDS, CASE_FIELDS, CONSENSUS_FIELDS, EXPECTED_ARTIFACT,
+    EXPECTED_CASES, EXPECTED_PINS, EXPECTED_TOP_LEVEL, EVIDENCE_RE, REVIEW_FIELDS,
+    SAFETY_FIELDS, THIRD_FIELDS, _has_exact_keys, _has_pinned_evidence,
     _review_complete, _valid_timestamp,
 )
 from scripts.validate_r15d_review_submission import _unique_object
@@ -54,8 +55,18 @@ def _validate_staged_packet(packet: object) -> tuple[list[str], list[str], set[s
     primary_ids_by_slot = [set(), set()]
     if not isinstance(packet, dict):
         return ["staged packet must be a JSON object"], disagreements, set()
+    if set(packet) != EXPECTED_TOP_LEVEL:
+        errors.append("staged packet top-level fields are not canonical")
     if packet.get("schema_version") != "1.0" or packet.get("benchmark_id") != "r15d-semantic-source-facts-v1":
         errors.append("staged packet schema version or benchmark ID is invalid")
+    if not _has_exact_keys(packet.get("created_from_fixture_artifact"), ARTIFACT_FIELDS) or packet.get("created_from_fixture_artifact") != EXPECTED_ARTIFACT:
+        errors.append("staged packet fixture artifact provenance is not canonical")
+    blinding = packet.get("blinding")
+    if not _has_exact_keys(blinding, BLINDING_FIELDS) or any(blinding.get(key) is not True for key in BLINDING_FIELDS):
+        errors.append("staged packet blinding invariants must all remain true")
+    safety = packet.get("safety")
+    if not _has_exact_keys(safety, SAFETY_FIELDS) or any(safety.get(key) is not False for key in SAFETY_FIELDS):
+        errors.append("staged packet safety controls must all remain disabled")
     if packet.get("packet_type") != "blind_ground_truth_adjudication" or packet.get("status") != "pending_independent_review":
         errors.append("staged packet must remain in pending independent-review state")
     if not _has_exact_keys(packet.get("freeze"), {"ground_truth_frozen", "frozen_at", "reviewer_output_visibility", "model_inference_authorized"}):
