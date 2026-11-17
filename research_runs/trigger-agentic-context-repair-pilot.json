@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Fresh isolated R15C specialist context-repair semantic pilot after role-aware byte-level source replay. The frozen source-capture checkpoint and historical R15C artifacts remain immutable.",
+  "checkpoint_run_id": 43799361897,
+  "checkpoint_artifact_id": 14196365507,
+  "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
+  "mission_run_id": 43600488013,
+  "mission_id": "flashloan-agent-form-context-repair-20261117",
+  "database": "data/agentic-mission-context-repair-20261117.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-context-repair-20261117",
+  "batch_limit": 2,
+  "model": "qwen2.5:3b",
+  "model_runtime": "Ollama local CPU",
+  "endpoint_policy": "http://127.0.0.1:11434 only; loopback-only; no cloud or paid inference",
+  "model_timeout_seconds": 1800,
+  "model_max_output_tokens": 2400,
+  "context_limits": {
+    "max_files": 3,
+    "max_chars": 6000,
+    "context_lines": 12,
+    "max_reviewer_chars": 18000
+  },
+  "expected_candidates": [
+    "0xnavarro/Aave-Liquiditor",
+    "cobibean/aave-liquidator-bot"
+  ],
+  "acceptance": [
+    "Restore exact immutable source-capture checkpoint 43799361897 artifact 14196365507 and verify pinned SHA-256.",
+    "Create a fresh isolated mission ID, SQLite database and artifact root; never reuse or mutate R15C historical pilot state.",
+    "Run two candidate-purpose tasks and twelve specialist tasks across the same two commit-pinned candidates.",
+    "Use the repaired role-aware context policy and retain role source-family coverage in each task context.",
+    "Dependency/license and test-verification roles receive no inadmissible source; absent source families produce zero findings, empty evidence, unknown implementation status and low confidence.",
+    "Every specialist finding links to exact candidate-specific evidence IDs and verified source excerpts.",
+    "Run both independent reviewer gates and persist explicit accept, accept_with_reservations, reject or inconclusive outcomes and disagreements.",
+    "Do not require a reviewer to accept in order for the pilot outcome to be recorded; non-accept decisions block dossier creation and audit promotion.",
+    "Do not create candidate dossiers or increment semantic audit count unless all existing acceptance gates are satisfied.",
+    "Candidate code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled.",
+    "Do not perform R15D v2 benchmark inference or synthetic human adjudication."
+  ],
+  "safety": {
+    "candidate_code_execution": false,
+    "wallet_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "paid_inference": false,
+    "cloud_inference": false,
+    "r15d_v2_benchmark_inference": false,
+    "synthetic_human_adjudication": false
+  },
+  "source_context_policy_commit": "859820608d03804d54303d51a2b98107032f9b48",
+  "byte_replay_workflow_run_id": 44074313870,
+  "byte_replay_artifact_id": 14324256232,
+  "byte_replay_report_sha256": "dba554a73769895be4dbef79cced4ab8539a6b4cb0c3f4eab88a79886eb11e8d",
+  "created_at_utc": "2026-11-17T00:00:00Z"
+}
