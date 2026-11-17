@@ -1,3 +1,13 @@
+## R15D v2 custody-chain audit — production intake remains blocked
+
+- Added `research/R15D_V2_CUSTODY_CHAIN_AUDIT.md` and recorded the machine-readable gate in `research_runs/r15d_v2_state_report.json`.
+- **Residual gap found:** the metadata-only receipt generator exists, but the primary merge, staged-merge verifier and finalizer still accept identity-verification booleans without requiring and verifying the corresponding receipt files. Receipt SHA-256 digests are not yet preserved in the staged/final packets.
+- **Do not authorize production reviewer intake.** No genuine submissions, identity checks, receipts, merges, freezes or model inference have occurred.
+- **Next mandatory engineering sequence:** (1) implement receipt verifier that reconstructs expected receipt from exact bundle bytes and fixture digest; (2) require two slot-specific primary receipts and custodian match in merge; (3) require and independently verify those receipts in staged-merge verification; (4) require a third receipt for every disagreement and bind it in finalization; (5) preserve receipt digests in staged/final packets and validate them before freeze; (6) add negative tests for missing/tampered/swapped/wrong-custodian/stale receipts; (7) rerun all three Python CI matrices.
+- Keep the existing v2 pipeline unfrozen, inference-disabled and semantic audit increment at zero until this custody chain is closed.
+
+---
+
 ## R15D v2 private custody receipt and identity-handling controls — CI verified (2026-11-17)
 
 - Added `research/R15D_V2_CUSTODY_SECURITY_REVIEW.md`: private-channel intake, separate identity custody, encrypted storage/transfer, immutable originals, least-privilege access, no public submissions/logs, third-review visibility boundary and incident response.
