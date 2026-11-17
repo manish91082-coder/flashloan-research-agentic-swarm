@@ -37,5 +37,18 @@ class R15DSchemaContractTests(unittest.TestCase):
         self.assertIs(freeze["model_inference_authorized"]["const"], False)
 
 
+    def test_evidence_arrays_reject_duplicate_references(self):
+        review_evidence = self.schema["$defs"]["review"]["properties"]["evidence_references"]
+        third_evidence = self.schema["properties"]["cases"]["items"]["properties"]["third_adjudicator"]["properties"]["evidence_references"]
+        self.assertIs(review_evidence["uniqueItems"], True)
+        self.assertIs(third_evidence["uniqueItems"], True)
+
+    def test_third_adjudicator_attestation_is_optional_only_for_blank_slot(self):
+        third = self.schema["properties"]["cases"]["items"]["properties"]["third_adjudicator"]
+        self.assertIn("independence_attestation", third["properties"])
+        self.assertNotIn("independence_attestation", third["required"])
+        self.assertIsNone(self.packet["cases"][0]["third_adjudicator"].get("independence_attestation"))
+
+
 if __name__ == "__main__":
     unittest.main()
