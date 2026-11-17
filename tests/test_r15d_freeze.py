@@ -92,6 +92,41 @@ class R15DFreezeTests(unittest.TestCase):
                 freeze(source, output, "2026-11-17T00:00:00Z")
             self.assertEqual(output.read_text(encoding="utf-8"), "immutable")
 
+    def test_malformed_top_level_json_values_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "blind.json"
+            output = root / "frozen.json"
+            for value in ([], "not-an-object", 7, None):
+                source.write_text(json.dumps(value), encoding="utf-8")
+                with self.subTest(value=value):
+                    with self.assertRaisesRegex(ValueError, "JSON object"):
+                        freeze(source, output, "2026-11-17T00:00:00Z")
+                    self.assertFalse(output.exists())
+
+    def test_malformed_nested_gate_objects_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "blind.json"
+            output = root / "frozen.json"
+            for field, value in (("freeze", []), ("blinding", "invalid"), ("safety", None)):
+                packet = self.complete_packet()
+                packet[field] = value
+                source.write_text(json.dumps(packet), encoding="utf-8")
+                with self.subTest(field=field):
+                    with self.assertRaises(ValueError):
+                        freeze(source, output, "2026-11-17T00:00:00Z")
+                    self.assertFalse(output.exists())
+
+    def test_invalid_json_fails_with_controlled_validation_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "blind.json"
+            output = Path(tmp) / "frozen.json"
+            source.write_text("{not valid json", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "valid adjudication JSON"):
+                freeze(source, output, "2026-11-17T00:00:00Z")
+            self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
