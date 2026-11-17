@@ -49,8 +49,8 @@ def _validate_staged_packet(staged: object, fixture: dict) -> tuple[list[str], l
     if not isinstance(blinding, dict) or set(blinding) != blinding_fields or any(blinding.get(k) is not True for k in blinding_fields):
         errors.append("staged packet blinding invariants must all remain true")
     custody = staged.get("custody")
-    custody_fields = {"custodian_id", "primary_reviewer_identities_verified_out_of_band", "identity_verification_is_custodian_attestation_not_cryptographic_proof"}
-    if not isinstance(custody, dict) or set(custody) != custody_fields or not isinstance(custody.get("custodian_id"), str) or len(custody.get("custodian_id", "").strip()) < 3 or custody.get("primary_reviewer_identities_verified_out_of_band") is not True or custody.get("identity_verification_is_custodian_attestation_not_cryptographic_proof") is not True:
+    custody_fields = {"custodian_id", "primary_reviewer_identities_verified_out_of_band", "third_adjudicator_identity_verified_out_of_band", "identity_verification_is_custodian_attestation_not_cryptographic_proof"}
+    if not isinstance(custody, dict) or set(custody) != custody_fields or not isinstance(custody.get("custodian_id"), str) or len(custody.get("custodian_id", "").strip()) < 3 or custody.get("primary_reviewer_identities_verified_out_of_band") is not True or custody.get("third_adjudicator_identity_verified_out_of_band") is not False or custody.get("identity_verification_is_custodian_attestation_not_cryptographic_proof") is not True:
         errors.append("staged packet must carry the exact custodian identity-verification attestation")
     safety = staged.get("safety")
     if not isinstance(safety, dict) or set(safety) != {"candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference"} or any(value is not False for value in safety.values()):
