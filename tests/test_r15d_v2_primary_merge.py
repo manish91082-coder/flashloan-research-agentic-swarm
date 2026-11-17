@@ -108,7 +108,7 @@ class R15DV2PrimaryMergeTests(unittest.TestCase):
             verify_primary_merge(self.fixture_dir, a, b, receipt_a, receipt_b, output, "custodian.v2", True, created["output_sha256"])
 
     def test_independent_verifier_detects_staged_packet_tampering(self):
-        a, b, output = self.setup_inputs()
+        a, b, receipt_a, receipt_b, output = self.setup_inputs()
         merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, output, "custodian.v2", True)
         packet = json.loads(output.read_text(encoding="utf-8"))
         packet["cases"][0]["consensus"]["label"] = "present"
@@ -121,7 +121,7 @@ class R15DV2PrimaryMergeTests(unittest.TestCase):
         excerpt = self.fixture_dir / self.fixture["cases"][0]["excerpt_file"]
         excerpt.write_bytes(excerpt.read_bytes() + b"tamper")
         with self.assertRaisesRegex(ValueError, "excerpt bytes or SHA-256"):
-            merge_primary_reviews(self.fixture_dir, a, b, output, "custodian.v2", True)
+            merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, output, "custodian.v2", True)
         self.assertFalse(output.exists())
 
 
