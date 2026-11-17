@@ -55,6 +55,10 @@ def finalize_adjudication(
     expected_staged_sha256: str | None = None,
 ) -> dict:
     inputs = {fixture_path.resolve(), reviewer_a_path.resolve(), reviewer_b_path.resolve(), receipt_a_path.resolve(), receipt_b_path.resolve(), staged_packet_path.resolve()}
+    if third_submission_path is not None:
+        inputs.add(third_submission_path.resolve())
+    if third_receipt_path is not None:
+        inputs.add(third_receipt_path.resolve())
     if output_path.resolve() in inputs:
         raise ValueError("final adjudication output must be separate from every source input")
     primary_verification = verify_primary_merge(
