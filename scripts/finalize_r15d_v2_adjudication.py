@@ -11,6 +11,7 @@ from scripts.merge_r15d_v2_primary_reviews import _read_strict
 from scripts.validate_r15d_v2_adjudication import validate_final_packet
 from scripts.validate_r15d_v2_review_submission import load_fixture_bundle
 from scripts.validate_r15d_v2_third_submission import validate_third_submission
+from scripts.verify_r15d_v2_intake_receipt import verify_intake_receipt
 from scripts.verify_r15d_v2_primary_merge import verify_primary_merge
 
 
@@ -42,19 +43,22 @@ def finalize_adjudication(
     fixture_path: Path,
     reviewer_a_path: Path,
     reviewer_b_path: Path,
+    receipt_a_path: Path,
+    receipt_b_path: Path,
     staged_packet_path: Path,
     output_path: Path,
     custodian_id: str,
     primary_identity_verified: bool,
     third_submission_path: Path | None = None,
+    third_receipt_path: Path | None = None,
     third_identity_verified: bool = False,
     expected_staged_sha256: str | None = None,
 ) -> dict:
-    inputs = {fixture_path.resolve(), reviewer_a_path.resolve(), reviewer_b_path.resolve(), staged_packet_path.resolve()}
+    inputs = {fixture_path.resolve(), reviewer_a_path.resolve(), reviewer_b_path.resolve(), receipt_a_path.resolve(), receipt_b_path.resolve(), staged_packet_path.resolve()}
     if output_path.resolve() in inputs:
         raise ValueError("final adjudication output must be separate from every source input")
     primary_verification = verify_primary_merge(
-        fixture_path, reviewer_a_path, reviewer_b_path, staged_packet_path,
+        fixture_path, reviewer_a_path, reviewer_b_path, receipt_a_path, receipt_b_path, staged_packet_path,
         custodian_id, primary_identity_verified, expected_sha256=expected_staged_sha256,
     )
     fixture = load_fixture_bundle(fixture_path)
@@ -66,12 +70,15 @@ def finalize_adjudication(
     if disagreements:
         if third_submission_path is None:
             raise ValueError("a private third-adjudicator bundle is required for every disagreement")
+        if third_receipt_path is None:
+            raise ValueError("a verified third-adjudicator custody receipt is required for every disagreement")
         if not third_identity_verified:
             raise ValueError("custodian must verify third-adjudicator identity out of band")
         third_submission = _read_strict(third_submission_path, "third-adjudicator bundle")
         third_result = validate_third_submission(fixture, staged, third_submission)
         if not third_result["valid"]:
             raise ValueError("third-adjudicator bundle failed validation: " + "; ".join(third_result["errors"]))
+        third_receipt = verify_intake_receipt(fixture_path, third_submission_path, third_receipt_path, "third_adjudicator", custodian_id, staged_packet_path)
         third_by_id = {case["case_id"]: case for case in third_submission["cases"]}
         third_attestations = {
             "reviewer_id": third_submission["reviewer_id"],
@@ -80,13 +87,14 @@ def finalize_adjudication(
                 "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed", "conflict_statement",
             )},
         }
-    elif third_submission_path is not None:
-        raise ValueError("third-adjudicator submission is not permitted when no primary disagreement exists")
+    elif third_submission_path is not None or third_receipt_path is not None:
+        raise ValueError("third-adjudicator submission or receipt is not permitted when no primary disagreement exists")
 
     final_packet = json.loads(json.dumps(staged))
     final_packet["status"] = "complete_adjudication_pending_freeze"
     final_packet["third_reviewer_attestations"] = third_attestations
     final_packet["custody"]["third_adjudicator_identity_verified_out_of_band"] = bool(third_submission_path)
+    final_packet["custody_receipts"]["third_adjudicator_receipt_sha256"] = third_receipt["receipt_sha256"] if third_submission_path else None
     for case in final_packet["cases"]:
         case_id = case["id"]
         reviewer_a, reviewer_b = case["reviewers"]
@@ -146,18 +154,21 @@ def main() -> None:
     parser.add_argument("--fixture", type=Path, required=True)
     parser.add_argument("--reviewer-a", type=Path, required=True)
     parser.add_argument("--reviewer-b", type=Path, required=True)
+    parser.add_argument("--receipt-a", type=Path, required=True)
+    parser.add_argument("--receipt-b", type=Path, required=True)
     parser.add_argument("--staged-packet", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--custodian-id", required=True)
     parser.add_argument("--primary-identity-verification-complete", action="store_true")
     parser.add_argument("--third-submission", type=Path)
+    parser.add_argument("--third-receipt", type=Path)
     parser.add_argument("--third-identity-verification-complete", action="store_true")
     parser.add_argument("--expected-staged-sha256")
     args = parser.parse_args()
     result = finalize_adjudication(
-        args.fixture, args.reviewer_a, args.reviewer_b, args.staged_packet,
+        args.fixture, args.reviewer_a, args.reviewer_b, args.receipt_a, args.receipt_b, args.staged_packet,
         args.output, args.custodian_id, args.primary_identity_verification_complete,
-        args.third_submission, args.third_identity_verification_complete,
+        args.third_submission, args.third_receipt, args.third_identity_verification_complete,
         args.expected_staged_sha256,
     )
     print(json.dumps(result, indent=2))
