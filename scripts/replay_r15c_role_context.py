@@ -129,10 +129,19 @@ def replay_candidate(
             role=role,
         )
         excerpt_paths = [item["path"] for item in excerpts]
+        if excerpt_paths != expected_paths:
+            raise AssertionError(
+                f"{repository}/{role}: emitted excerpt paths differ from deterministic shortlist; "
+                f"expected={expected_paths}, actual={excerpt_paths}"
+            )
         if any(not role_path_admissible(role, path) for path in excerpt_paths):
             raise AssertionError(f"{repository}/{role}: inadmissible path entered context")
         manifest_by_path = {item["path"]: item for item in manifest}
+        per_path_characters: dict[str, int] = {}
         for excerpt in excerpts:
+            per_path_characters[excerpt["path"]] = (
+                per_path_characters.get(excerpt["path"], 0) + len(excerpt["excerpt"]) + 1
+            )
             source = manifest_by_path.get(excerpt["path"])
             if not source or source["blob_sha"] != excerpt["blob_sha"]:
                 raise AssertionError(f"{repository}/{role}: excerpt source pin mismatch")
@@ -145,7 +154,9 @@ def replay_candidate(
                 raise AssertionError(f"{repository}/{role}: invalid inclusive line range")
             if len(excerpt["excerpt"]) > max_chars // max_files:
                 raise AssertionError(f"{repository}/{role}: per-file context budget exceeded")
-        if sum(len(item["excerpt"]) for item in excerpts) > max_chars:
+        if any(value > max_chars // max_files for value in per_path_characters.values()):
+            raise AssertionError(f"{repository}/{role}: aggregate per-file context budget exceeded")
+        if sum(per_path_characters.values()) > max_chars:
             raise AssertionError(f"{repository}/{role}: total context budget exceeded")
 
         # The context builder may emit fewer files than the path shortlist if a
