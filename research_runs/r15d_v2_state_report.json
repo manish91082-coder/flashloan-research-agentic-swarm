@@ -46,7 +46,7 @@
     "exact_forbidden_json_keys_found": 0
   },
   "ci": {
-    "run_id": 44046102249,
+    "run_id": 44046190863,
     "conclusion": "success",
     "tests_per_python_version": 346,
     "python_versions": [
@@ -107,7 +107,7 @@
     "receipt_generator_implemented": true,
     "receipt_to_merge_binding_enforced": true,
     "production_intake_authorized": false,
-    "residual_blocker": "No genuine reviewers or identity checks exist. Synthetic GnuPG symmetric delivery and POSIX permission checks passed, but public-key recipient verification, real external transport, separate-device key custody and explicit human custodian authorization remain unverified.",
+    "residual_blocker": "No genuine reviewers or identity checks exist. Synthetic OpenPGP public-key round trips, sender/receiver versus private-key directory separation, POSIX permissions and cleanup passed; real external key fingerprint verification, separate-device key custody, private transport/storage and explicit human custodian authorization remain unverified.",
     "receipt_verifier": "scripts/verify_r15d_v2_intake_receipt.py",
     "primary_merge_requires_two_slot_receipts": true,
     "third_review_receipt_required_on_disagreement": true,
@@ -120,8 +120,11 @@
     "private_workspace_file_mode": "0600",
     "private_workspace_removed_after_test": true,
     "encrypted_delivery_tabletop_passed": true,
-    "encrypted_delivery_tool": "GnuPG AES-256 symmetric encrypted-delivery round trip",
-    "encrypted_submissions_verified": 3
+    "encrypted_delivery_tool": "GnuPG OpenPGP RSA-2048 public-key encrypted-delivery round trip",
+    "encrypted_submissions_verified": 3,
+    "public_key_recipient_fingerprint_established": true,
+    "private_key_separate_from_sender_receiver": true,
+    "production_key_identity_verified_out_of_band": false
   },
   "adjudication_pipeline": {
     "staged_merge": "scripts/merge_r15d_v2_primary_reviews.py",
@@ -142,7 +145,7 @@
   "custody_tabletop": {
     "implemented": true,
     "status": "passed_synthetic_only",
-    "workflow_run_id": 44046102249,
+    "workflow_run_id": 44046190863,
     "tests_per_python_version": 346,
     "python_versions": [
       "3.11",
@@ -164,6 +167,10 @@
     "real_external_transport": false,
     "separate_device_key_custody": false,
     "production_reviewer_intake_authorized": false,
-    "model_inference_authorized": false
+    "model_inference_authorized": false,
+    "encryption_tool": "GnuPG OpenPGP RSA-2048 public-key encrypted-delivery round trip",
+    "public_key_recipient_fingerprint_established": true,
+    "private_key_separate_from_sender_receiver": true,
+    "production_key_identity_verified_out_of_band": false
   }
 }
