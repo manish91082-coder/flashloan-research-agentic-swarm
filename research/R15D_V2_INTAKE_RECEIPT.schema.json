@@ -93,6 +93,8 @@
       "required": [
         "independent_review",
         "model_outputs_not_seen",
+        "other_reviews_not_seen",
+        "primary_reviews_seen",
         "v1_answer_key_not_seen",
         "v1_labels_not_consulted",
         "conflicts_disclosed"
@@ -112,6 +114,12 @@
         },
         "conflicts_disclosed": {
           "const": true
+        },
+        "other_reviews_not_seen": {
+          "type": "boolean"
+        },
+        "primary_reviews_seen": {
+          "type": "boolean"
         }
       }
     },
