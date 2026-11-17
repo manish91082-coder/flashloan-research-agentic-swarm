@@ -89,7 +89,10 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
 
     if output_dir is None:
         raise ValueError("R15D v1 is retired; an explicit isolated forensic output directory is required")
-    out = output_dir
+    out = output_dir.resolve()
+    repository_root = ROOT.resolve()
+    if out == repository_root or repository_root in out.parents:
+        raise ValueError("R15D v1 forensic fixture output must be outside the public repository")
     excerpts_dir = out / "excerpts"
     excerpts_dir.mkdir(parents=True, exist_ok=True)
     built_cases = []
