@@ -78,5 +78,13 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
         self.assertEqual(git_blob_sha(b"abc"), hashlib.sha1(b"blob 3\0abc").hexdigest())
 
 
+
+    def test_ci_does_not_publish_retired_r15d_fixture_artifacts(self):
+        repository_root = Path(__file__).resolve().parents[1]
+        workflow = (repository_root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertNotIn("r15d-semantic-fixtures", workflow)
+        self.assertNotIn("scripts/build_r15d_semantic_fixtures.py", workflow)
+        self.assertNotIn("actions/upload-artifact", workflow)
+
 if __name__ == "__main__":
     unittest.main()
