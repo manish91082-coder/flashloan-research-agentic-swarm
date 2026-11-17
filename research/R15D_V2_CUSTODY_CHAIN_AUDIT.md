@@ -46,10 +46,11 @@ The original gap is closed in the current code path:
 ## Remaining operational trust controls
 
 - Out-of-band identity verification is still a custodian operation, not a cryptographic identity proof. The receipt records that attestation; it cannot independently prove the human's identity.
-- File encryption, private-channel transfer, actual filesystem permissions, key custody and reviewer separation are documented operational controls. CI cannot prove that a real custodian executed them.
+- The synthetic tabletop now verifies a GnuPG AES-256 symmetric encryption/decryption round trip for three synthetic bundles, but its passphrase is held in a separate directory inside the same temporary workspace. It does not prove independent production key custody, public-key recipient verification or real external transport.
+- POSIX permissions are tested as directory `0700` and file `0600`, and the temporary workspace is removed. This does not prove permissions or encryption on a real custodian workstation or external storage.
 - No genuine reviewers, identity checks or production receipts exist. Synthetic tests prove software behavior only.
 
-**Disposition:** the code-level receipt-to-merge gap is closed. Production reviewer intake remains unauthorized until a custodian completes a synthetic tabletop of the private transfer/identity workflow, confirms encrypted storage and access controls, and explicitly authorizes genuine human intake. No model inference or semantic audit increment is permitted before a real v2 freeze and independent verification.
+**Disposition:** the code-level receipt-to-merge gap is closed and the synthetic encrypted-delivery tabletop passed. Production reviewer intake remains unauthorized until a human custodian validates a real private transfer design, independent key custody, identity screening and storage/access controls, then explicitly authorizes genuine human intake. No model inference or semantic audit increment is permitted before a real v2 freeze and independent verification.
 
 ## Current state
 
@@ -61,4 +62,4 @@ The original gap is closed in the current code path:
 - Model inference: unauthorized
 - Semantic audit increment: 0
 
-**Decision:** Do not solicit or accept production v2 reviewer submissions until receipt-to-merge binding is implemented and passes CI. The existing receipt generator, merge/finalization tools and freeze pipeline remain engineering components under test, not an authorized operational intake system.
+**Decision:** Do not solicit or accept production v2 reviewer submissions until the custodian completes the remaining real-world identity, key-custody and encrypted-transfer controls. The code-level receipt chain is CI-verified; operational intake remains a separate human authorization.
