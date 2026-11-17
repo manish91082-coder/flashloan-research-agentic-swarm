@@ -21,13 +21,6 @@ from scripts.verify_r15d_v2_frozen_manifest import verify_frozen_manifest
 from scripts.verify_r15d_v2_primary_merge import verify_primary_merge
 
 
-def _write_private(path: Path, value: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2), encoding="utf-8")
-    if os.name == "posix":
-        path.chmod(0o600)
-
-
 def _primary_bundle(fixture: dict, reviewer_id: str, disagreement_case: str | None = None) -> dict:
     cases = []
     for source in fixture["cases"]:
