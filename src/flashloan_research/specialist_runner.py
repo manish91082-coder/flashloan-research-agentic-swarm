@@ -248,6 +248,7 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
         lines = raw.decode("utf-8", errors="replace").splitlines()
         if not lines:
             continue
+        file_used_chars = 0
         targets = sorted(signal_lines.get(source_path, set()))
         ranges: list[tuple[int, int]] = []
         if targets:
@@ -264,10 +265,13 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
         for start, end in merged[:6]:
             chunk: list[str] = []
             chunk_chars = 0
+            remaining_file_budget = file_budget - file_used_chars
+            if remaining_file_budget <= 0:
+                break
             for number in range(start, end + 1):
                 rendered = f"{number:06d}: {lines[number-1]}"
                 required = len(rendered) + 1
-                if required > file_budget - chunk_chars:
+                if required > remaining_file_budget - chunk_chars:
                     break
                 chunk.append(rendered)
                 chunk_chars += required
@@ -277,6 +281,7 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
             excerpts.append({"path": source_path, "blob_sha": blob_sha, "start_line": start,
                              "end_line": start + len(chunk) - 1, "excerpt": excerpt,
                              "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest()})
+            file_used_chars += chunk_chars
             used_chars += chunk_chars
             if used_chars >= max_chars:
                 return excerpts
