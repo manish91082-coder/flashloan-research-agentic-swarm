@@ -1,3 +1,17 @@
+## R15D v2 private custody receipt and identity-handling controls — CI verified (2026-11-17)
+
+- Added `research/R15D_V2_CUSTODY_SECURITY_REVIEW.md`: private-channel intake, separate identity custody, encrypted storage/transfer, immutable originals, least-privilege access, no public submissions/logs, third-review visibility boundary and incident response.
+- Added `research/R15D_V2_INTAKE_RECEIPT.schema.json` and `scripts/create_r15d_v2_intake_receipt.py`.
+- The receipt generator revalidates the primary or third-review bundle against the label-free fixture, requires custodian out-of-band identity verification and a UTC verification timestamp, and creates a metadata-only receipt containing submission SHA-256, fixture digest, pseudonymous reviewer ID, reviewer slot, custodian ID, timestamps and attestation booleans. It excludes labels, rationales, evidence text and raw submission payload.
+- It refuses private submission, staged-packet or receipt paths inside the public repository; uses atomic no-overwrite publication; and preserves the distinction between primary-review isolation and third-review visibility of primary records.
+- Added `tests/test_r15d_v2_intake_receipt.py` covering metadata-only receipts, identity-verification gate, public-repository path rejection, invalid submission rejection and third-review visibility attestations.
+- **CI:** run [44042601978](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44042601978) passed **337 tests** on Python 3.11, 3.12 and 3.13.
+- **Latest v2 fixture artifact:** run `44042601978`, artifact ID `14310306017`, ZIP SHA-256 `4a50229dce2dcf73b6972a74757161fcdec4d30161380cd37909a6a6432590c3`, fixture manifest SHA-256 `8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8`. Direct inspection confirmed six cases, six excerpts, `answer_key_included=false`, and zero forbidden answer-key JSON keys.
+- **Production status:** zero genuine reviewer submissions, zero custody receipts, zero identity checks, zero production merges/freezes, zero model inference. All pipeline end-to-end tests remain synthetic and isolated. V1 is retired; v2 is ready for independent security review but not yet authorized for production reviewer intake.
+- **Next sequence:** perform a full code-level audit of v2 custody receipt, merge, third-adjudication, finalization and freeze tools as one trust chain; tighten any gaps in receipt/identity consistency; then conduct an operational tabletop test with synthetic data only. Actual human intake remains a separate explicit governance step.
+
+---
+
 ## R15D v2 complete adjudication, freeze writer and independent verifier — CI verified (2026-11-17)
 
 - **Verified implementation/test HEAD:** `d9b51bf65a587da8f6c3527cf344d397535dc529`.
