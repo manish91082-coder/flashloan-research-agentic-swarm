@@ -1,3 +1,12 @@
+## OpenPGP public-key encrypted-delivery tabletop — CI verified (2026-11-17)
+
+- Upgraded the synthetic encrypted-delivery path from symmetric encryption to OpenPGP public-key encryption. A temporary recipient keypair is generated in a key-custody directory; the sender imports only the exported public key into a separate GnuPG home; all three synthetic submissions are encrypted to the recipient and decrypted only with the private-key home.
+- The tabletop establishes a recipient fingerprint, checks byte-for-byte decryption equality, removes sender plaintext after encryption, and verifies that the private-key directory is separate from sender and receiver working directories.
+- CI run [44046190863](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44046190863) passed 346 tests on Python 3.11, 3.12 and 3.13. The dedicated Python 3.11 job completed all three public-key round trips and the full receipt-bound merge/adjudication/freeze/verification tabletop.
+- This is still synthetic key generation and local CI transport. It does not prove real recipient fingerprint verification over an independent channel, a separate physical device or hardware-backed key custody, real external transport, or actual identity. Production intake remains unauthorized.
+
+---
+
 ## Synthetic custody tabletop and encrypted-delivery verification — CI passed (2026-11-17)
 
 - The end-to-end synthetic tabletop now runs in CI and exercises fixture build, primary A/B receipt creation and verification, receipt-bound merge, independent merge reconstruction, disagreement-only third review and receipt, final consensus assembly, freeze, and independent frozen-manifest verification.
