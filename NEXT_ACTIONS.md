@@ -1,3 +1,18 @@
+## Authoritative continuation checkpoint — R15D validator regression repaired and CI verified (2026-11-17)
+
+- **Canonical repository/branch:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
+- **Verified HEAD:** `86c4e3dac28911d6b70683ae873ccbefe032435f` — `Reject malformed reviewer slot objects in R15D packet validator`.
+- **Regression history:** run [43949274859](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43949274859) exposed a fail-closed defect: a non-object reviewer slot could be treated as merely incomplete. Repair commit `86c4e3dac28911d6b70683ae873ccbefe032435f` now explicitly rejects every non-object reviewer slot.
+- **Repair CI:** run [43949467277](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/43949467277) completed with conclusion `success`; Python 3.11, 3.12 and 3.13 jobs all passed. The 3.11 job also built and uploaded the source-pinned R15D fixture artifact; the corresponding optional steps were skipped on 3.12/3.13 as configured.
+- **Schema / validator CI:** schema run `43947954036`, schema-test run `43947982897`, validator implementation run `43949242640`, and repair run `43949467277` are green. The intermediate regression run `43949274859` failed and was repaired; it is retained as a visible audit event, not represented as green.
+- **Current files re-opened:** validator blob `2216c911a6b59e02c13c31ed7d904a79fc2706ad`; validator test blob `7cb165153e27b386e4f2b66e7f30ef2fcaa5e2a5`; schema blob `bd5c1a422aa396136e5b57b3de14406569094ba2`; blank packet blob `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`.
+- **Packet state:** still six cases, twelve blank primary reviewer slots, six blank third-adjudicator records, status `pending_independent_review`; `ground_truth_frozen=false`; `model_inference_authorized=false`. Packet SHA/blob is unchanged. No reviewer identities, labels, rationales or timestamps were fabricated.
+- **Safety/accounting:** candidate execution, wallet access, signing, deployment, live trading, paid inference and cloud inference remain false. Candidate dossiers remain pending; semantic audit increment remains zero.
+- **Known schema limitation:** the JSON Schema is a structural contract and its current tests inspect the schema contract; do not claim full Draft 2020-12 runtime validation. Python semantic validation remains a separate gate.
+- **Audit continuation:** next inspect third-adjudicator and consensus state invariants against protocol/schema; verify freeze tooling and manifest behavior; test malformed nested values fail-closed. Any discovered gap must be fixed with targeted regression tests and CI. Do not freeze or authorize inference.
+
+---
+
 ## Latest authoritative continuation checkpoint — blind adjudication workflow scaffold verified (2026-11-16)
 
 - **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`, branch `main`; current implementation head `36c7feedbd60f33d6b78765e284992f2e1fa1cc6`.
