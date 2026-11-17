@@ -5,6 +5,7 @@ from pathlib import Path
 
 from scripts.build_r15d_v2_semantic_fixtures import build
 from scripts.merge_r15d_v2_primary_reviews import merge_primary_reviews
+from scripts.validate_r15d_v2_review_submission import load_fixture_bundle
 from scripts.validate_r15d_v2_third_submission import validate_third_submission
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,7 +19,7 @@ class R15DV2ThirdSubmissionTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.fixture_dir = self.root / "fixture"
         build(output_dir=self.fixture_dir)
-        self.fixture = json.loads((self.fixture_dir / "fixture_manifest.json").read_text(encoding="utf-8"))
+        self.fixture = load_fixture_bundle(self.fixture_dir)
 
     def primary_bundle(self, reviewer_id, disagreement_case=None):
         cases = []
