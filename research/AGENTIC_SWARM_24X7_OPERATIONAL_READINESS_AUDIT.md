@@ -198,3 +198,40 @@ Commit `1b1a5440e7cdcf77b869e5f703e7c7ad0c8ac1a5` adds append-only 30-second JSO
 CI [44077987391](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44077987391) passed on Python 3.11/3.12/3.13; 355 tests passed. This workflow revision is for future runs only. The already-running semantic pilot [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551) remains pinned to its earlier checkout and does not emit this new heartbeat file.
 
 The active pilot remains in progress with no published artifact at the latest check. No specialist/evidence/reviewer result is accepted until its final reports and ledger are inspected. Production/24x7 acceptance remains withheld.
+
+
+## Fresh context-repair pilot result and recovery patch — 2026-11-17
+
+**Pilot run:** [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551)  
+**Pinned execution HEAD:** `580e027d8ebbc5913c718c6a6ddfba3164f448eb`  
+**Result:** `completed / failure`, semantic pipeline status `blocked_specialist_failures`.  
+**Artifact:** ID `14325868561`, SHA-256 `d4d59667be945bcf0d5042aa1696608c204daeb733bf01e2f1e307e4db2e6d7f`.  
+**Elapsed semantic execution:** 1,568.95 seconds (about 26 minutes).
+
+### Evidence-based task result
+
+- Both candidate source captures and both candidate-purpose tasks completed.
+- Specialist reports: 11 of 14 completed; three COB tasks exhausted their bounded retries and failed: protocol forensics (`tsk-bb232087beb75cbc9e5650cf`), economics (`tsk-d93423d520dcc274c32a4d5a`) and execution (`tsk-e837d6c2a965fbc7f3cde168`).
+- The three failed tasks share the exact error `duplicate finding claim`. The task database confirms three attempts each, with no accepted result.
+- The model's COB security report also contains an irrelevant claim that the snippets are from different files/projects. Its evidence IDs resolve to pinned source signals, but provenance is not semantic correctness; the report must remain subject to role-adequacy review.
+- Both evidence-validation tasks and both independent-review tasks remained pending because the specialist prerequisite set was incomplete. Candidate dossiers, synthesis and continuation were not run.
+- Semantic audit count was not incremented; candidate code was not executed. No evidence gate, reviewer acceptance or dossier eligibility is claimed.
+
+### Root-cause classification
+
+The failure is **not** a checkpoint hash, source-blob, GitHub API, Ollama installation or workflow bootstrap failure. Those earlier steps passed. The failure occurred in local Qwen 2.5 3B specialist output validation for the COB candidate: the model repeated the same normalized finding claim after the existing corrective retry, and the strict duplicate-claim validator correctly rejected it. Three task retries were exhausted. This is a model-output quality/recovery-path failure, not proof that the candidate's source files belong to different projects.
+
+### Targeted recovery patch now committed
+
+- `fa2de2aa3f1ad7a01e84e43d149dab13b8aa1d81`: add a narrow retry-wrapper recovery that collapses only exact normalized duplicate claim text after the model's corrective retry, retaining the first finding and recording each discarded finding ID in `normalization_warnings`.
+- `2894cde674a94b7173aec0398b4f856b101183c3`: add regression coverage proving exact duplicate collapse is auditable and a generic claim still fails role-specific semantic adequacy.
+- The direct strict validator remains unchanged. The recovery does not manufacture findings, broaden evidence, or relax source provenance. A deduplicated weak claim remains inadequate and must lead the independent reviewer to `inconclusive`; it cannot become an accepted dossier by this patch.
+- CI for these commits must be checked before treating the patch as verified. Do not rerun the full model pilot until the regression suite is green.
+
+### Next sequence
+
+1. Verify the new source/test commits in the complete Python 3.11/3.12/3.13 CI matrix.
+2. Inspect the exact patch and test result; if green, start one fresh isolated pilot with a new mission ID, database and artifact root. Never resume or mutate the failed pilot database.
+3. On the fresh pilot, require all 14 specialist tasks to complete, then inspect both evidence gates and both independent-review decisions. A completed task is not an accepted claim.
+4. Compare COB role adequacy and source paths against the frozen R15C baseline; preserve all unknowns and any reviewer disagreement.
+5. Keep the 24x7 status **NOT YET production-operational**. One isolated model run, even if green, does not prove autonomous continuation/restart or a 72-hour soak.
