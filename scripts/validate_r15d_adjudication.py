@@ -141,14 +141,23 @@ def validate(packet: object, require_complete: bool = False) -> dict:
             labels = [review["label"] for review in reviews]
             disagreement = labels[0] != labels[1]
             third = case.get("third_adjudicator")
-            if disagreement:
+            if not isinstance(third, dict):
+                errors.append(f"{cid}: third_adjudicator must be an object")
+            elif disagreement:
                 if not _review_complete(third):
                     errors.append(f"{cid}: disagreement requires a complete independent third adjudication")
-                else:
-                    if third["reviewer_id"].strip() in ids:
-                        errors.append(f"{cid}: third adjudicator must be distinct from both reviewers")
-                    if not _has_pinned_evidence(case, third):
-                        errors.append(f"{cid}: third adjudicator evidence references must all match exact pinned path/range/excerpt SHA-256")
+                if third.get("triggered") is not True:
+                    errors.append(f"{cid}: third adjudicator must be explicitly marked triggered on disagreement")
+                if isinstance(third.get("reviewer_id"), str) and third["reviewer_id"].strip() in ids:
+                    errors.append(f"{cid}: third adjudicator must be distinct from both reviewers")
+                if _review_complete(third) and not _has_pinned_evidence(case, third):
+                    errors.append(f"{cid}: third adjudicator evidence references must all match exact pinned path/range/excerpt SHA-256")
+            elif isinstance(third, dict):
+                if third.get("triggered") is not False:
+                    errors.append(f"{cid}: third adjudicator must remain untriggered when primary reviewers agree")
+                unused_fields = ("reviewer_id", "label", "rationale", "confidence", "completed_at", "independence_attestation")
+                if any(third.get(field) is not None for field in unused_fields) or third.get("evidence_references") != []:
+                    errors.append(f"{cid}: unused third-adjudicator record must remain blank without disagreement")
             consensus = case.get("consensus")
             if not isinstance(consensus, dict) or consensus.get("status") != "adjudicated" or not isinstance(consensus.get("label"), str) or consensus.get("label") not in ALLOWED or not isinstance(consensus.get("rationale"), str) or not consensus["rationale"].strip():
                 errors.append(f"{cid}: consensus must be adjudicated with an allowed label and written rationale")
