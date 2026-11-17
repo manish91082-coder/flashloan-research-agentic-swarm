@@ -17,11 +17,17 @@ class RoleSourcePolicyTests(unittest.TestCase):
         ]
 
     def test_protocol_roles_prioritize_contract_over_large_bot_path(self):
-        for role in ("candidate_purpose", "protocol_specialist", "solidity_security",
-                     "execution_engineer", "independent_reviewer"):
+        expected_families = {
+            "candidate_purpose": "protocol_contract",
+            "protocol_specialist": "protocol_contract",
+            "solidity_security": "protocol_contract",
+            "execution_engineer": "execution_contract",
+            "independent_reviewer": "protocol_contract",
+        }
+        for role, expected_family in expected_families.items():
             ordered, coverage = order_role_source_manifest(role, self.manifest)
             self.assertEqual(ordered[0]["path"], "contracts/AaveLiquidator.sol")
-            self.assertIn("protocol_contract", coverage["present_families"])
+            self.assertIn(expected_family, coverage["present_families"])
 
     def test_dependency_role_prioritizes_manifest_then_license(self):
         ordered, coverage = order_role_source_manifest("dependency_license", self.manifest)
