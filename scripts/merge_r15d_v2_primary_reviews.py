@@ -125,6 +125,7 @@ def build_staged_packet(fixture: dict, bundle_a: dict, bundle_b: dict, fixture_s
         "custody": {
             "custodian_id": custodian_id.strip(),
             "primary_reviewer_identities_verified_out_of_band": True,
+            "third_adjudicator_identity_verified_out_of_band": False,
             "identity_verification_is_custodian_attestation_not_cryptographic_proof": True,
         },
         "safety": {
