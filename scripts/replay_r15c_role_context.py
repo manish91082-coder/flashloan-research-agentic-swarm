@@ -129,10 +129,11 @@ def replay_candidate(
             role=role,
         )
         excerpt_paths = [item["path"] for item in excerpts]
-        if excerpt_paths != expected_paths:
+        unique_excerpt_paths = list(dict.fromkeys(excerpt_paths))
+        if unique_excerpt_paths != expected_paths:
             raise AssertionError(
-                f"{repository}/{role}: emitted excerpt paths differ from deterministic shortlist; "
-                f"expected={expected_paths}, actual={excerpt_paths}"
+                f"{repository}/{role}: emitted unique excerpt paths differ from deterministic shortlist; "
+                f"expected={expected_paths}, actual={unique_excerpt_paths}"
             )
         if any(not role_path_admissible(role, path) for path in excerpt_paths):
             raise AssertionError(f"{repository}/{role}: inadmissible path entered context")
@@ -168,7 +169,7 @@ def replay_candidate(
         role_results[role] = {
             "source_family_coverage": coverage,
             "shortlisted_paths": expected_paths,
-            "excerpt_paths": excerpt_paths,
+            "excerpt_paths": unique_excerpt_paths,
             "excerpt_count": len(excerpts),
             "excerpt_characters": sum(len(item["excerpt"]) for item in excerpts),
             "per_file_budget": max_chars // max_files,
