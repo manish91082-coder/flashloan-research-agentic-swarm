@@ -14,7 +14,7 @@ from .mission_runtime import MissionTaskStore
 from .model_provider import LocalOpenAICompatibleProvider, ModelProviderError
 from .storage import write_json
 from .solidity_review import deterministic_protocol_review
-from .role_source_policy import order_role_source_manifest
+from .role_source_policy import order_role_source_manifest, role_path_admissible
 
 
 ROLE_PROMPTS = {
@@ -223,15 +223,7 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
             signal_lines.setdefault(path, set()).add(line)
     # Role-aware family priority prevents large off-chain files from starving
     # protocol contracts, test suites, manifests, lockfiles and license artifacts.
-    role_ordered, _role_coverage = order_role_source_manifest(role, manifest)
-    ordered = sorted(
-        role_ordered,
-        key=lambda x: (
-            next(i for i, item in enumerate(role_ordered) if item is x),
-            -len(signal_lines.get(str(x.get("path", "")), set())),
-            str(x.get("path", "")),
-        ),
-    )
+    ordered, _role_coverage = order_role_source_manifest(role, manifest)
     excerpts: list[dict[str, Any]] = []
     used_chars = 0
     per_file_budget = max(1, max_chars // max(1, max_files))
@@ -770,6 +762,12 @@ def validate_specialist_output(output: dict[str, Any], inspection: dict[str, Any
             raise SpecialistTaskError(f"finding {finding_id} has no evidence_refs")
         if any(not isinstance(ref, str) or ref not in selected_ids for ref in refs):
             raise SpecialistTaskError(f"finding {finding_id} cites evidence not selected from the pinned catalog")
+        for ref in refs:
+            source_path = catalog_by_id[ref]["path"]
+            if not role_path_admissible(role, source_path):
+                raise SpecialistTaskError(
+                    f"finding {finding_id} cites source path outside role {role} admissibility: {source_path}"
+                )
 
     if not accepted:
         if output["findings"]:
