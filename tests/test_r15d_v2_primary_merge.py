@@ -125,5 +125,34 @@ class R15DV2PrimaryMergeTests(unittest.TestCase):
         self.assertFalse(output.exists())
 
 
+
+    def test_missing_primary_receipt_blocks_merge(self):
+        a, b, receipt_a, receipt_b, output = self.setup_inputs()
+        receipt_b.unlink()
+        with self.assertRaisesRegex(ValueError, "receipt"):
+            merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, output, "custodian.v2", True)
+        self.assertFalse(output.exists())
+
+    def test_swapped_primary_receipts_are_rejected(self):
+        a, b, receipt_a, receipt_b, output = self.setup_inputs()
+        with self.assertRaisesRegex(ValueError, "reviewer slot and custodian"):
+            merge_primary_reviews(self.fixture_dir, a, b, receipt_b, receipt_a, output, "custodian.v2", True)
+        self.assertFalse(output.exists())
+
+    def test_wrong_custodian_receipt_is_rejected(self):
+        a, b, receipt_a, receipt_b, output = self.setup_inputs()
+        with self.assertRaisesRegex(ValueError, "custodian"):
+            merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, output, "custodian.other", True)
+        self.assertFalse(output.exists())
+
+    def test_tampered_receipt_is_rejected(self):
+        a, b, receipt_a, receipt_b, output = self.setup_inputs()
+        receipt = json.loads(receipt_a.read_text(encoding="utf-8"))
+        receipt["submission_sha256"] = "0" * 64
+        receipt_a.write_text(json.dumps(receipt), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "does not exactly match"):
+            merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, output, "custodian.v2", True)
+        self.assertFalse(output.exists())
+
 if __name__ == "__main__":
     unittest.main()
