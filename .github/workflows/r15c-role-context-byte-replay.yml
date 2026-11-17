@@ -2,6 +2,12 @@ name: R15C Role Context Byte Replay
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/r15c-role-context-byte-replay.yml"
+      - "scripts/replay_r15c_role_context.py"
+      - "src/flashloan_research/specialist_runner.py"
+      - "src/flashloan_research/role_source_policy.py"
 
 permissions:
   contents: read
