@@ -1,0 +1,48 @@
+# R15D Reviewer Submission Intake Contract
+
+**Status:** intake contract only; no real reviewer submissions have been received.
+
+## Purpose
+
+Accept one independently completed six-case review bundle from one reviewer. Keep the original public blind packet immutable. The bundle is a private intake object, not a public repository artifact and not a ground-truth manifest.
+
+## Confidentiality and blind separation
+
+- The repository is public. Do not commit plaintext reviewer bundles, reviewer identities, email addresses, or reviewer rationales before both primary submissions are complete.
+- Each reviewer receives only the six source-pinned propositions and the blank review instructions. They must not see model outputs, the other reviewer's work, or previous labels.
+- Deliver the completed bundle to the designated custodian through a private channel. The custodian verifies the reviewer's real-world/platform identity out of band and assigns a stable, distinct `reviewer_id`.
+- The validator checks the bundle's structure, pins, timestamps, evidence references and attestations. It does **not** cryptographically prove the reviewer's identity or independence; the custodian's out-of-band identity check remains a separate required control.
+- If a private channel and identity check are unavailable, do not accept plaintext submissions through public issues, pull requests, commits or workflow logs.
+
+## Bundle contract
+
+One bundle contains exactly six cases, one for each canonical case ID. Every case must include:
+- the exact immutable source pin from the blind packet;
+- one allowed label: `present`, `absent`, `not_applicable`, or `unknown`;
+- a non-empty bounded rationale;
+- one or more unique evidence references matching the exact pinned path, inclusive line range and excerpt SHA-256;
+- confidence from 0 to 1, excluding booleans;
+- a timezone-aware UTC completion timestamp.
+
+The bundle-level attestations must confirm independent work, no model-output exposure, no access to another review, and conflict disclosure. The conflict statement must say `none` or describe the disclosed conflict.
+
+## Intake and merge sequence
+
+1. Give reviewer A and reviewer B the same immutable blind source packet, independently.
+2. Receive each six-case bundle privately. Verify identity outside the repository, then run `python scripts/validate_r15d_review_submission.py --submission <private-file>`.
+3. Keep both bundles private until both are complete. Do not publish one review while the other reviewer is still working.
+4. Only after both are received, create a **new working packet** from the blank template. Preserve the blank template byte-for-byte. Insert each reviewer's six records into the two reviewer slots.
+5. Where labels disagree, obtain a third independent review privately and record it only after identity verification. The final packet validator enforces the distinct third adjudicator and consensus consistency.
+6. Run `python scripts/validate_r15d_adjudication.py --packet <working-packet> --require-complete`.
+7. Freeze to a separate output, then run `python scripts/verify_r15d_frozen_manifest.py --packet <working-packet> --manifest <frozen-manifest> --expected-sha256 <published-digest>`.
+8. Publish the frozen manifest and digest only after independent verification. Only then may the next model benchmark be considered.
+
+## Hard stop conditions
+
+- Any source pin or excerpt digest mismatch.
+- Any duplicate/missing case, duplicate evidence reference, invalid timestamp, missing attestation or malformed record.
+- Any identity uncertainty, conflict that compromises independence, or evidence that one reviewer saw another review or model output.
+- Any disagreement without a distinct third adjudicator.
+- Any attempt to mutate the original blank packet or run model inference before the frozen manifest is verified.
+
+A valid bundle is not itself a consensus result. Two valid bundles are not a frozen ground truth until the merged packet, disagreement resolution, freeze and independent manifest verification all pass.
