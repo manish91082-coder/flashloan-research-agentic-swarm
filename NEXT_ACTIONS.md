@@ -1,3 +1,36 @@
+# Current execution checkpoint — Specialist Context Engine Repair (2026-11-17)
+
+**Latest verified code HEAD:** `e7ef78ae6e58a9b8764965b3dc9cff0056c77212`  
+**Latest green CI:** [44073293999](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073293999), Python 3.11/3.12/3.13 PASS, 353 tests passed. Python 3.11 synthetic R15D v2 custody tabletop passed.
+
+## Completed in this repair batch
+
+- Added deterministic role-specific source-family policy in `src/flashloan_research/role_source_policy.py`.
+- Integrated role-aware source ordering and per-file character budgets in `specialist_runner._verified_source_context`.
+- Filtered captured source inventory and evidence catalog by role admissibility before model invocation.
+- Added post-generation role-to-source path validation as a second barrier.
+- Dependency/license role now receives only dependency manifests, lockfiles, compiler/build configuration and license artifacts.
+- Test-verification role now receives only test sources, CI workflows and test configuration.
+- If a required role source family is absent, the role receives no inadmissible excerpts/catalog/inventory and must report zero findings, empty evidence, unknown implementation status and low confidence.
+- Added regression coverage for role ordering, missing-family reporting, cross-role evidence rejection and source-starved role behavior.
+
+## Next mandatory actions
+
+1. Run deterministic context selection against the frozen R15C Aave and COB inspections without model inference. Confirm the COB Solidity contract is selected for protocol/security/execution/reviewer roles despite the large `bot.js`; confirm dependency and test roles receive only their own admissible source families.
+2. Compare per-role source-family coverage and selected paths with the immutable R15C baseline. Preserve exact commit/tree/blob pins and excerpt hashes.
+3. Only after deterministic R15C replay passes, run a fresh isolated pilot with a new mission ID, database and artifact root.
+4. Re-run specialist adequacy and claim-to-excerpt checks. Do not equate provenance pass with semantic truth; do not accept the previous 14 reports without new evidence.
+5. Persist `accept_with_reservations`, `reject` and `inconclusive` as non-approved research records and preserve next actions.
+6. Complete the full mission lifecycle, autonomous next-queue dispatch and interruption/restart/failure-injection tests.
+7. Only after the bounded mission passes, begin the 72-hour continuous soak and independent telemetry/hash verification.
+8. Keep R15D v2 genuine human intake and model-inference gates closed until the custodian readiness checklist is genuinely completed and signed.
+
+**Acceptance invariant:** the swarm remains NOT YET 24x7 production-operational until a fresh mission completes intake through dossier and autonomous continuation without manual prompting, durable state and artifacts are independently verified, restart recovery passes, and the 72-hour soak passes. R15D v2 human adjudication remains a separate gate.
+
+**Detailed repair record:** [research/SPECIALIST_CONTEXT_ENGINE_REPAIR_2026-11-17.md](research/SPECIALIST_CONTEXT_ENGINE_REPAIR_2026-11-17.md)
+
+---
+
 ## R15D v2 OpenPGP public-key custody tabletop — CI verified; real intake still gated
 
 - Upgraded the synthetic delivery test to OpenPGP public-key encryption. The recipient keypair is generated in a private key-custody directory; the sender imports only the public key into a separate GnuPG home; the recipient private-key home is separate from sender/receiver working directories.
