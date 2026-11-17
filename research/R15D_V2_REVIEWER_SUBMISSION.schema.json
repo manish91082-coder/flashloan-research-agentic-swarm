@@ -36,6 +36,8 @@
         "independent_review",
         "model_outputs_not_seen",
         "other_reviews_not_seen",
+        "v1_answer_key_not_seen",
+        "v1_labels_not_consulted",
         "conflicts_disclosed",
         "conflict_statement"
       ],
@@ -55,6 +57,12 @@
         "conflict_statement": {
           "type": "string",
           "minLength": 3
+        },
+        "v1_answer_key_not_seen": {
+          "const": true
+        },
+        "v1_labels_not_consulted": {
+          "const": true
         }
       }
     },
