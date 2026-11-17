@@ -1,3 +1,25 @@
+# Live continuation checkpoint — 2026-11-17 17:20 IST
+
+**Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`  
+**Active semantic pilot:** [GitHub Actions run 44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551)  
+**Run HEAD:** `580e027d8ebbc5913c718c6a6ddfba3164f448eb`  
+**Mission:** `flashloan-agent-form-context-repair-20261117`  
+**Current job:** `semantic-pilot`, job ID `134010173474`.
+
+## Freshly rechecked live state
+
+- Run remains `in_progress`; no conclusion yet.
+- Steps 1–8 are completed: trigger validation, frozen checkpoint SHA-256 verification/restoration, runtime installation, Ollama/Qwen model installation and fresh mission DAG bootstrap.
+- Step 9, bounded-parallel source-grounded specialist/evidence/reviewer execution, remains `in_progress`.
+- Steps 10–11 (task ledger and evidence artifact upload) have not started.
+- No workflow artifact has been published yet; therefore no specialist report, evidence-gate result or reviewer verdict is independently inspectable yet.
+- Latest adjacent Research Engine CI run [44075215361](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44075215361) passed Python 3.11, 3.12 and 3.13; Python 3.11 log reports 355 tests passed.
+
+**Execution interpretation:** this is not a failure and not a completed pilot. The CPU-only Qwen inference stage has been running since 17:03 IST. Keep the current run intact; do not start a duplicate pilot or mutate its mission database. Recheck its job, logs and artifact list. If the run fails, inspect the task ledger first and repair only the failed stage in a new isolated mission. If it succeeds, inspect every candidate-purpose/specialist report, evidence gate and reviewer decision before any dossier eligibility decision.
+
+**Important limitation:** the workflow currently publishes the SQLite task ledger only after the semantic step finishes. While it is running, the GitHub Actions API exposes the step state but not the runner's live SQLite state. Add per-task progress/heartbeat observability in a future workflow revision; do not imply live task-level progress that cannot be observed.
+
+---
 # Active execution update — fresh context-repair pilot reached semantic inference (2026-11-17)
 
 Workflow [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551) has passed:
