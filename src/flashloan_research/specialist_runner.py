@@ -1123,7 +1123,13 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                             "Do not spend findings on language/framework/test-file descriptions; each finding must identify a concrete protocol claim, defect, missing check or justified unknown.",
                             "Every disagreement must be a concise plain-language explanation with source path/evidence ID, never an opaque ID."
                         ]
-                reviewer_catalog = _evidence_catalog(inspection)
+                # Only expose evidence IDs from source families admissible to this role.
+                # This complements post-generation validation: disallowed source families
+                # are neither model context nor selectable evidence for dependency/test roles.
+                reviewer_catalog = [
+                    item for item in _evidence_catalog(inspection)
+                    if role_path_admissible(role, item["path"])
+                ]
                 reviewer_source_limits = {}
                 if role == "independent_reviewer":
                     signal_names = {str(x.get("signal", "")).casefold() for x in inspection.get("signals", []) if isinstance(x, dict)}
