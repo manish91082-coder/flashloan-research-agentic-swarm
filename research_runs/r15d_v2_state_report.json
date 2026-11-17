@@ -32,10 +32,10 @@
     "propositions_atomic": true
   },
   "artifact": {
-    "workflow_run_id": 44044227629,
-    "artifact_id": 14309734239,
-    "artifact_name": "r15d-v2-label-free-fixtures-17db273358c43cea1d0cad0bd67e17877b9d2ef1",
-    "zip_sha256": "15e1a730345909532061f8ba17c3a25bb160f15355993d2a751a67d4d066c9d3",
+    "workflow_run_id": 44044925406,
+    "artifact_id": 14310857998,
+    "artifact_name": "r15d-v2-label-free-fixtures-b5fc70c83c1a0080944e3a3b897f42937ead743f",
+    "zip_sha256": "c7163071959bfddb2571d4e2e944ee0a166cb08424c365f17bc65a13e5f8a00f",
     "fixture_manifest_sha256": "8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8",
     "source_design_manifest_sha256": "51c8cc5ecaa1b97164654d7bb6bf5b367a59936de6da5405c32aee48be034f07",
     "case_count": 6,
@@ -46,9 +46,9 @@
     "exact_forbidden_json_keys_found": 0
   },
   "ci": {
-    "run_id": 44044227629,
+    "run_id": 44044925406,
     "conclusion": "success",
-    "tests_per_python_version": 345,
+    "tests_per_python_version": 346,
     "python_versions": [
       "3.11",
       "3.12",
@@ -58,7 +58,9 @@
     "leakage_scan_before_upload": true,
     "artifact_upload_after_scan_only": true,
     "latest_reviewer_validator_run_id": 44040411388,
-    "latest_reviewer_validator_tests_per_python_version": 300
+    "latest_reviewer_validator_tests_per_python_version": 300,
+    "synthetic_custody_tabletop_passed": true,
+    "tabletop_python_version": "3.11"
   },
   "reviewer_state": {
     "primary_submissions_received": 0,
@@ -109,7 +111,13 @@
     "primary_merge_requires_two_slot_receipts": true,
     "third_review_receipt_required_on_disagreement": true,
     "freeze_requires_receipt_verified_reconstruction": true,
-    "frozen_manifest_verifier_reconstructs_from_receipts": true
+    "frozen_manifest_verifier_reconstructs_from_receipts": true,
+    "tabletop_script": "scripts/run_r15d_v2_custody_tabletop.py",
+    "tabletop_tests": "tests/test_r15d_v2_custody_tabletop.py",
+    "synthetic_tabletop_passed": true,
+    "private_workspace_directory_mode": "0700",
+    "private_workspace_file_mode": "0600",
+    "private_workspace_removed_after_test": true
   },
   "adjudication_pipeline": {
     "staged_merge": "scripts/merge_r15d_v2_primary_reviews.py",
