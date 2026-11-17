@@ -10,6 +10,8 @@ class R15DV2CustodyTabletopTests(unittest.TestCase):
         self.assertTrue(result["synthetic_only"])
         self.assertEqual(result["primary_receipts_verified"], 2)
         self.assertEqual(result["third_receipts_verified"], 1)
+        self.assertEqual(result["encrypted_submissions_verified"], 3)
+        self.assertEqual(result["encryption_tool"], "GnuPG AES-256 symmetric encrypted-delivery round trip")
         self.assertTrue(result["primary_merge_verified"])
         self.assertTrue(result["final_adjudication_complete"])
         self.assertTrue(result["frozen_manifest_verified"])
