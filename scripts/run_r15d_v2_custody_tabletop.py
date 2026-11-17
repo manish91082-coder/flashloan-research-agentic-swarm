@@ -1,0 +1,174 @@
+from __future__ import annotations
+
+import json
+import os
+import stat
+import tempfile
+from pathlib import Path
+
+from scripts.build_r15d_v2_semantic_fixtures import build
+from scripts.create_r15d_v2_intake_receipt import create_intake_receipt
+from scripts.finalize_r15d_v2_adjudication import finalize_adjudication
+from scripts.freeze_r15d_v2_adjudication import freeze_adjudication
+from scripts.merge_r15d_v2_primary_reviews import merge_primary_reviews
+from scripts.validate_r15d_v2_review_submission import load_fixture_bundle
+from scripts.verify_r15d_v2_frozen_manifest import verify_frozen_manifest
+from scripts.verify_r15d_v2_primary_merge import verify_primary_merge
+
+
+def _write_private(path: Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2), encoding="utf-8")
+    if os.name == "posix":
+        path.chmod(0o600)
+
+
+def _primary_bundle(fixture: dict, reviewer_id: str, disagreement_case: str | None = None) -> dict:
+    cases = []
+    for source in fixture["cases"]:
+        pin = {key: source[key] for key in (
+            "repository", "commit_sha", "tree_sha", "path",
+            "git_blob_sha1", "line_start", "line_end", "excerpt_sha256",
+        )}
+        evidence = [f'{pin["path"]}:{pin["line_start"]}-{pin["line_end"]}#sha256:{pin["excerpt_sha256"]}']
+        label = "unknown"
+        if reviewer_id == "tabletop.reviewer.b" and source["id"] == disagreement_case:
+            label = "present"
+        cases.append({
+            "case_id": source["id"], "source_pin": pin, "label": label,
+            "rationale": "Synthetic tabletop-only reviewer rationale.",
+            "evidence_references": evidence, "confidence": 0.8,
+            "completed_at": "2026-11-17T00:00:00Z", "independence_attestation": True,
+        })
+    return {
+        "schema_version": "1.0",
+        "benchmark_id": "r15d-semantic-source-facts-v2",
+        "reviewer_id": reviewer_id,
+        "submitted_at": "2026-11-17T00:00:00Z",
+        "attestations": {
+            "independent_review": True,
+            "model_outputs_not_seen": True,
+            "other_reviews_not_seen": True,
+            "v1_answer_key_not_seen": True,
+            "v1_labels_not_consulted": True,
+            "conflicts_disclosed": True,
+            "conflict_statement": "synthetic tabletop only",
+        },
+        "cases": cases,
+    }
+
+
+def _third_bundle(staged: dict) -> dict:
+    cases = []
+    for source in staged["cases"]:
+        if not source["disagreement"]:
+            continue
+        pin = {key: source[key] for key in (
+            "repository", "commit_sha", "tree_sha", "path",
+            "git_blob_sha1", "line_start", "line_end", "excerpt_sha256",
+        )}
+        evidence = [f'{pin["path"]}:{pin["line_start"]}-{pin["line_end"]}#sha256:{pin["excerpt_sha256"]}']
+        cases.append({
+            "case_id": source["id"], "source_pin": pin, "label": "present",
+            "rationale": "Synthetic tabletop-only third-review rationale.",
+            "evidence_references": evidence, "confidence": 0.9,
+            "completed_at": "2026-11-17T00:00:00Z", "independence_attestation": True,
+        })
+    return {
+        "schema_version": "1.0",
+        "benchmark_id": "r15d-semantic-source-facts-v2",
+        "reviewer_id": "tabletop.reviewer.gamma",
+        "submitted_at": "2026-11-17T00:00:00Z",
+        "attestations": {
+            "independent_review": True,
+            "model_outputs_not_seen": True,
+            "primary_reviews_seen": True,
+            "v1_answer_key_not_seen": True,
+            "v1_labels_not_consulted": True,
+            "conflicts_disclosed": True,
+            "conflict_statement": "synthetic tabletop only",
+        },
+        "cases": cases,
+    }
+
+
+def run_tabletop() -> dict:
+    if os.name != "posix":
+        raise RuntimeError("custody permission tabletop requires POSIX file-mode semantics")
+    with tempfile.TemporaryDirectory(prefix="r15d-v2-custody-tabletop-") as temporary:
+        root = Path(temporary).resolve()
+        repository_root = Path(__file__).resolve().parents[1]
+        if root == repository_root or repository_root in root.parents:
+            raise RuntimeError("tabletop workspace must be outside the public repository")
+        root.chmod(0o700)
+        fixture_dir = root / "fixture"
+        build(output_dir=fixture_dir)
+        fixture = load_fixture_bundle(fixture_dir)
+
+        a, b = root / "reviewer-a.json", root / "reviewer-b.json"
+        receipt_a, receipt_b = root / "receipt-a.json", root / "receipt-b.json"
+        staged_path = root / "staged-packet.json"
+        third_path, third_receipt = root / "third-review.json", root / "third-receipt.json"
+        final_path, frozen_path = root / "final-packet.json", root / "frozen-manifest.json"
+
+        _write_private(a, _primary_bundle(fixture, "tabletop.reviewer.a"))
+        _write_private(b, _primary_bundle(fixture, "tabletop.reviewer.b", "NAV2-02"))
+        create_intake_receipt(fixture_dir, a, receipt_a, "primary_a", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True)
+        create_intake_receipt(fixture_dir, b, receipt_b, "primary_b", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True)
+
+        merged = merge_primary_reviews(fixture_dir, a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True)
+        verified_merge = verify_primary_merge(fixture_dir, a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True, merged["output_sha256"])
+        staged = json.loads(staged_path.read_text(encoding="utf-8"))
+        _write_private(third_path, _third_bundle(staged))
+        create_intake_receipt(fixture_dir, third_path, third_receipt, "third_adjudicator", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
+
+        finalized = finalize_adjudication(
+            fixture_dir, a, b, receipt_a, receipt_b, staged_path, final_path,
+            "tabletop.custodian", True, third_path, third_receipt, True, merged["output_sha256"],
+        )
+        frozen = freeze_adjudication(
+            final_path, fixture_dir, frozen_path, "2026-11-17T00:00:00Z",
+            a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True,
+            third_path, third_receipt, True, merged["output_sha256"],
+        )
+        verified_frozen = verify_frozen_manifest(
+            final_path, fixture_dir, frozen_path, frozen["output_sha256"],
+            a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True,
+            third_path, third_receipt, True, merged["output_sha256"],
+        )
+
+        for path in root.rglob("*"):
+            if path.is_dir():
+                path.chmod(0o700)
+            elif path.is_file():
+                path.chmod(0o600)
+        root.chmod(0o700)
+        directory_modes = {stat.S_IMODE(path.stat().st_mode) for path in [root, *[p for p in root.rglob("*") if p.is_dir()]]}
+        file_modes = {stat.S_IMODE(path.stat().st_mode) for path in root.rglob("*") if path.is_file()}
+        if directory_modes != {0o700} or file_modes != {0o600}:
+            raise RuntimeError("private workspace permission audit failed")
+
+        return {
+            "status": "passed",
+            "synthetic_only": True,
+            "primary_receipts_verified": 2,
+            "third_receipts_verified": 1,
+            "primary_merge_verified": verified_merge["valid"],
+            "final_adjudication_complete": finalized["valid_complete_adjudication"],
+            "frozen_manifest_verified": verified_frozen["valid"],
+            "case_count": verified_frozen["completed_cases"],
+            "workspace_directory_mode": "0700",
+            "private_file_mode": "0600",
+            "workspace_removed_after_test": True,
+            "model_inference_authorized": False,
+            "production_reviewer_intake_authorized": False,
+        }
+
+
+def main() -> None:
+    print(json.dumps(run_tabletop(), indent=2))
+    raise SystemExit(0)
+
+
+if __name__ == "__main__":
+    main()
