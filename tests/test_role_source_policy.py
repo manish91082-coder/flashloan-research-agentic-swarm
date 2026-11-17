@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from flashloan_research.role_source_policy import order_role_source_manifest
+from flashloan_research.role_source_policy import order_role_source_manifest, role_path_admissible
 
 
 class RoleSourcePolicyTests(unittest.TestCase):
@@ -49,6 +49,17 @@ class RoleSourcePolicyTests(unittest.TestCase):
     def test_unknown_role_fails_closed(self):
         with self.assertRaises(ValueError):
             order_role_source_manifest("unregistered_role", self.manifest)
+
+    def test_dependency_findings_cannot_cite_bot_or_contract_execution_paths(self):
+        self.assertTrue(role_path_admissible("dependency_license", "package.json"))
+        self.assertTrue(role_path_admissible("dependency_license", "LICENSE"))
+        self.assertFalse(role_path_admissible("dependency_license", "bot.js"))
+        self.assertFalse(role_path_admissible("dependency_license", "contracts/Liquidator.sol"))
+
+    def test_test_findings_require_test_ci_or_test_configuration_sources(self):
+        self.assertTrue(role_path_admissible("test_verification", "tests/test_bot.py"))
+        self.assertTrue(role_path_admissible("test_verification", ".github/workflows/ci.yml"))
+        self.assertFalse(role_path_admissible("test_verification", "bot.js"))
 
 
 if __name__ == "__main__":
