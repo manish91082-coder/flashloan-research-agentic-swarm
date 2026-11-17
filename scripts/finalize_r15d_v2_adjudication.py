@@ -86,6 +86,7 @@ def finalize_adjudication(
     final_packet = json.loads(json.dumps(staged))
     final_packet["status"] = "complete_adjudication_pending_freeze"
     final_packet["third_reviewer_attestations"] = third_attestations
+    final_packet["custody"]["third_adjudicator_identity_verified_out_of_band"] = bool(third_submission_path)
     for case in final_packet["cases"]:
         case_id = case["id"]
         reviewer_a, reviewer_b = case["reviewers"]
