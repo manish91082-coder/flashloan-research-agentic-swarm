@@ -181,7 +181,8 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, os, time
+          import json, os, sqlite3, threading, time
+          from datetime import datetime, timezone
           from pathlib import Path
           from flashloan_research.mission_executor import MissionExecutor
           from flashloan_research.mission_runtime import MissionTaskStore
@@ -206,11 +207,57 @@ jobs:
                   f"actual={sorted(planned_candidates)}"
               )
           started = time.time()
+          heartbeat_path = Path("reports-agent-form-context-repair-heartbeat.jsonl")
+          heartbeat_path.write_text("", encoding="utf-8")
+          heartbeat_stop = threading.Event()
+
+          def write_heartbeat(final=False):
+              snapshot = {"timestamp_utc": datetime.now(timezone.utc).isoformat(),
+                          "elapsed_seconds": round(time.time() - started, 2),
+                          "final_snapshot": final}
+              connection = sqlite3.connect(os.environ["FLR_DATABASE"], timeout=10)
+              connection.row_factory = sqlite3.Row
+              try:
+                  task_rows = connection.execute(
+                      "SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks "
+                      "WHERE mission_id=? GROUP BY task_type,role,status ORDER BY task_type,role,status",
+                      (mission_id,),
+                  ).fetchall()
+                  mission_row = connection.execute(
+                      "SELECT status,rejection_reason FROM research_missions WHERE mission_id=?",
+                      (mission_id,),
+                  ).fetchone()
+                  snapshot["task_counts"] = [dict(row) for row in task_rows]
+                  snapshot["mission"] = dict(mission_row) if mission_row else {}
+              finally:
+                  connection.close()
+              with heartbeat_path.open("a", encoding="utf-8") as stream:
+                  stream.write(json.dumps(snapshot, sort_keys=True) + "\\n")
+              print("MISSION_HEARTBEAT " + json.dumps(snapshot, sort_keys=True), flush=True)
+
+          def heartbeat_loop():
+              while not heartbeat_stop.wait(30):
+                  try:
+                      write_heartbeat()
+                  except Exception as error:
+                      print(f"::warning::Mission heartbeat snapshot failed: {type(error).__name__}: {error}", flush=True)
+
+          write_heartbeat()
+          heartbeat_thread = threading.Thread(target=heartbeat_loop, name="mission-heartbeat", daemon=True)
+          heartbeat_thread.start()
           executor = MissionExecutor(
               database_path=Path(os.environ["FLR_DATABASE"]),
               artifact_root=artifact_root,
           )
-          result = executor.run_local_semantic_agents(mission_id)
+          try:
+              result = executor.run_local_semantic_agents(mission_id)
+          finally:
+              heartbeat_stop.set()
+              heartbeat_thread.join(timeout=10)
+              try:
+                  write_heartbeat(final=True)
+              except Exception as error:
+                  print(f"::warning::Final mission heartbeat snapshot failed: {type(error).__name__}: {error}", flush=True)
           result["elapsed_seconds"] = round(time.time() - started, 2)
           result["candidate_code_executed"] = False
           result["model_endpoint_policy"] = "127.0.0.1 loopback only; no cloud or paid inference"
@@ -332,6 +379,7 @@ jobs:
             reports-agent-form-context-repair-pilot.json
             reports-agent-form-context-repair-outcomes.json
             reports-agent-form-context-repair-ledger.json
+            reports-agent-form-context-repair-heartbeat.jsonl
             reports-ollama-modelfile.txt
             reports-ollama-model-manifest.json
           if-no-files-found: warn
