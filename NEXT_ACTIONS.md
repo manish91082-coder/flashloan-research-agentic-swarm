@@ -1027,3 +1027,38 @@ The failure is **not** a checkpoint hash, source-blob, GitHub API, Ollama instal
 3. On the fresh pilot, require all 14 specialist tasks to complete, then inspect both evidence gates and both independent-review decisions. A completed task is not an accepted claim.
 4. Compare COB role adequacy and source paths against the frozen R15C baseline; preserve all unknowns and any reviewer disagreement.
 5. Keep the 24x7 status **NOT YET production-operational**. One isolated model run, even if green, does not prove autonomous continuation/restart or a 72-hour soak.
+
+
+## Fresh isolated duplicate-recovery pilot launched — 2026-11-17 18:49 IST
+
+### CI verification
+
+The exact-duplicate recovery patch and regression test are now CI-green on all supported Python versions:
+
+- Source repair commit `fa2de2aa3f1ad7a01e84e43d149dab13b8aa1d81`, CI [44084064991](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44084064991): Python 3.11/3.12/3.13 all passed.
+- Regression test commit `2894cde674a94b7173aec0398b4f856b101183c3`, CI [44084074972](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44084074972): Python 3.11/3.12/3.13 all passed.
+- Readiness documentation CI [44084141471](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44084141471): all three versions passed.
+
+### New pilot identity and immutable boundaries
+
+- New workflow: [44091416056](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44091416056), currently `queued` at this checkpoint.
+- Trigger commit: `6b4d9099d12082f724f975981f7d2c70f3b5f5e7`.
+- Workflow guard commit: `48890f7a4cea07d95e128e9732c817ce04f9941d`.
+- Execution HEAD: `6b4d9099d12082f724f975981f7d2c70f3b5f5e7`, which includes the CI-verified duplicate-recovery code and regression test.
+- Mission: `flashloan-agent-form-context-repair-r2-20261117`.
+- Database: `data/agentic-mission-context-repair-r2-20261117.sqlite3`.
+- Artifact root: `research_runs/mission-pilots/flashloan-agent-form-context-repair-r2-20261117`.
+- Frozen source checkpoint remains run `43799361897`, artifact `14196365507`, SHA-256 `0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad`.
+- Candidate pair remains exactly `0xnavarro/Aave-Liquiditor` and `cobibean/aave-liquidator-bot`.
+- Model remains local Ollama `qwen2.5:3b`, loopback-only; no cloud/paid inference.
+- The failed first pilot database and artifacts remain untouched. This second run uses a new mission, database and artifact root.
+
+### Next verification
+
+1. Wait for run 44091416056 to initialize and verify trigger/checkpoint SHA, runtime/model installation and fresh mission bootstrap.
+2. Inspect its heartbeat and task ledger when available. Do not infer progress from elapsed time alone.
+3. Require 14/14 specialist task completions before judging the two evidence gates and two reviewers.
+4. Review every duplicate normalization warning; ensure discarded IDs are recorded and no claim is promoted without role-specific adequacy.
+5. Keep the mission non-promotional unless both evidence gates pass and each reviewer independently returns an unreserved `accept` with zero disagreements and source-linked evidence.
+6. No candidate-code execution, wallet access, signing, deployment, live trading or R15D v2 inference.
+7. 24x7 production readiness remains **NOT YET**; autonomous continuation/restart and a 72-hour soak remain unproven.
