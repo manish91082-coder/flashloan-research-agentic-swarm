@@ -130,9 +130,12 @@ class R15DV2IntakeReceiptTests(unittest.TestCase):
 
     def test_third_receipt_preserves_primary_visibility_attestation_without_payload(self):
         a, b, staged_path = self.root / "a.json", self.root / "b.json", self.root / "staged.json"
+        receipt_a, receipt_b = self.root / "receipt-a.json", self.root / "receipt-b.json"
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", "NAV2-01")), encoding="utf-8")
-        merge_primary_reviews(self.fixture_dir, a, b, staged_path, "custodian.v2", True)
+        create_intake_receipt(self.fixture_dir, a, receipt_a, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        create_intake_receipt(self.fixture_dir, b, receipt_b, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, "custodian.v2", True)
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
         third_path = self.root / "third.json"
         third_path.write_text(json.dumps(self.third_bundle(staged)), encoding="utf-8")
