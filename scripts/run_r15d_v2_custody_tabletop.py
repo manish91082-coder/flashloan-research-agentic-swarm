@@ -3,8 +3,13 @@ from __future__ import annotations
 import json
 import os
 import stat
+import sys
 import tempfile
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from scripts.build_r15d_v2_semantic_fixtures import build
 from scripts.create_r15d_v2_intake_receipt import create_intake_receipt
