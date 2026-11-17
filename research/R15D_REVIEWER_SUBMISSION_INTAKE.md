@@ -1,6 +1,6 @@
 # R15D Reviewer Submission Intake Contract
 
-**Status:** intake contract only; no real reviewer submissions have been received.
+**Status:** RETIRED FOR R15D v1. The intake implementation is preserved as engineering evidence, but this six-case answer key is exposed in the public repository and CI artifact. Do not use it to solicit genuine blind reviews. See `research/R15D_V1_BLINDNESS_LEAKAGE_AUDIT.md` and `research_runs/r15d_adjudication/r15d_state_report.json`.
 
 ## Purpose
 
