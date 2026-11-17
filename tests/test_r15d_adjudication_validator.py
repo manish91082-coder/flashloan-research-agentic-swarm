@@ -209,5 +209,92 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
         self.assertTrue(any("third_adjudicator must be an object" in error for error in result["errors"]))
 
 
+    def test_unhashable_case_ids_are_rejected_without_exception(self):
+        for bad_id in ([], {}, ["NAV-01"]):
+            packet = copy.deepcopy(self.packet)
+            packet["cases"][0]["id"] = bad_id
+            with self.subTest(bad_id=bad_id):
+                result = validate(packet)
+                self.assertFalse(result["valid"])
+                self.assertTrue(any("case set" in error for error in result["errors"]))
+
+    def test_duplicate_and_extra_case_ids_are_rejected(self):
+        for replacement in ("NAV-02", "UNEXPECTED-CASE"):
+            packet = copy.deepcopy(self.packet)
+            packet["cases"][0]["id"] = replacement
+            with self.subTest(replacement=replacement):
+                result = validate(packet)
+                self.assertFalse(result["valid"])
+                self.assertTrue(any("no duplicates or extras" in error for error in result["errors"]))
+
+    def test_malformed_third_adjudicator_on_disagreement_is_rejected_without_exception(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [
+            self.completed_review(case, "reviewer-a", "present"),
+            self.completed_review(case, "reviewer-b", "unknown"),
+        ]
+        case["third_adjudicator"] = []
+        case["consensus"] = {
+            "status": "adjudicated", "label": "present",
+            "rationale": "must not bypass third adjudication",
+            "disagreement": True,
+        }
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("third_adjudicator" in error for error in result["errors"]))
+
+    def test_malformed_consensus_object_is_rejected_without_exception(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [
+            self.completed_review(case, "reviewer-a"),
+            self.completed_review(case, "reviewer-b"),
+        ]
+        case["consensus"] = ["adjudicated", "present"]
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("consensus" in error for error in result["errors"]))
+
+    def test_duplicate_reviewer_evidence_references_are_rejected(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        evidence = self.evidence(case)
+        first = self.completed_review(case, "reviewer-a")
+        second = self.completed_review(case, "reviewer-b")
+        first["evidence_references"] = evidence + evidence
+        case["reviewers"] = [first, second]
+        case["consensus"] = {
+            "status": "adjudicated", "label": "present",
+            "rationale": "duplicate evidence must not be accepted",
+            "disagreement": False,
+        }
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("exact pinned" in error for error in result["errors"]))
+
+    def test_pre_freeze_timestamp_must_remain_null(self):
+        packet = copy.deepcopy(self.packet)
+        packet["freeze"]["frozen_at"] = "2026-11-17T00:00:00Z"
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("frozen_at must remain null" in error for error in result["errors"]))
+
+    def test_unknown_nested_fields_are_rejected(self):
+        packet = copy.deepcopy(self.packet)
+        packet["cases"][0]["consensus"]["unexpected"] = "extra"
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("consensus must contain exactly" in error for error in result["errors"]))
+
+    def test_schema_version_and_allowed_labels_are_enforced(self):
+        for field, value in (("schema_version", "2.0"), ("allowed_labels", ["present"])):
+            packet = copy.deepcopy(self.packet)
+            packet[field] = value
+            with self.subTest(field=field):
+                result = validate(packet)
+                self.assertFalse(result["valid"])
+
+
 if __name__ == "__main__":
     unittest.main()
