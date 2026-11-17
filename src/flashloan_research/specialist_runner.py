@@ -986,6 +986,7 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
     except SpecialistTaskError as exc:
         error_text = str(exc)
         duplicate_claim = "duplicate finding claim" in error_text
+        zero_evidence_contract = "zero-evidence output must be implementation_status=unknown and confidence=low" in error_text
         purpose_mismatch = "purpose category conflicts with source-pinned protocol signals" in error_text
         reviewer_relevance = (
             role == "independent_reviewer"
@@ -996,10 +997,18 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
         evidence_reference_error = (
             "cites evidence not selected from the pinned catalog" in error_text
         )
-        if not (duplicate_claim or purpose_mismatch or evidence_reference_error):
+        if not (duplicate_claim or purpose_mismatch or evidence_reference_error or zero_evidence_contract):
             raise
         retry_context = dict(context)
-        if evidence_reference_error:
+        if zero_evidence_contract:
+            retry_context["validation_feedback"] = (
+                "Your previous report selected zero accepted evidence IDs and returned no supported findings, "
+                "but its implementation_status and/or confidence violated the zero-evidence contract. "
+                "Regenerate the COMPLETE report with evidence=[], findings=[], "
+                "implementation_status=unknown, confidence=low. Do not infer implementation state "
+                "from missing test/CI excerpts. Preserve the missing test/CI details as unknowns."
+            )
+        elif evidence_reference_error:
             allowed_ids = [item["evidence_id"] for item in _evidence_catalog(inspection)]
             retry_context["validation_feedback"] = (
                 "Your previous report was rejected because at least one finding referenced an evidence ID "
@@ -1112,6 +1121,7 @@ def _is_retryable_specialist_error(exc: Exception) -> bool:
         or "duplicate finding claim" in message
         or "cites evidence not selected from the pinned catalog" in message
         or "model returned evidence IDs that are not in the pinned catalog" in message
+        or "zero-evidence output must be implementation_status=unknown and confidence=low" in message
     )
 
 
