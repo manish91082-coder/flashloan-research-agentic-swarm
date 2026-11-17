@@ -117,7 +117,7 @@ def validate_submission(submission: object) -> dict:
         pin = _expected_pin(case_id)
         if not _exact_keys(case.get("source_pin"), PIN_FIELDS) or case.get("source_pin") != pin:
             errors.append(f"{case_id}: source pin does not match immutable R15D baseline")
-        if case.get("label") not in ALLOWED:
+        if not isinstance(case.get("label"), str) or case.get("label") not in ALLOWED:
             errors.append(f"{case_id}: label is not in the allowed applicability taxonomy")
         if not isinstance(case.get("rationale"), str) or not case["rationale"].strip():
             errors.append(f"{case_id}: rationale must be non-empty")
