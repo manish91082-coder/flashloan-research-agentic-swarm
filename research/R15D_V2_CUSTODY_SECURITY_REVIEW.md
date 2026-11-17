@@ -57,3 +57,21 @@ If any private bundle or label appears in a public repository or CI artifact, st
 ## Current status
 
 No genuine reviewer bundles, identity checks, custody receipts, staged merges, adjudication or production freeze exist. This procedure is a control design, not evidence that the controls have been exercised.
+
+## Receipt generation
+
+After the bundle passes the appropriate validator and the custodian has verified the reviewer's identity, create a metadata-only receipt:
+
+```sh
+python scripts/create_r15d_v2_intake_receipt.py \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --submission <private-reviewer-bundle.json> \
+  --output <private-receipt.json> \
+  --reviewer-slot primary_a \
+  --custodian-id <custodian-pseudonym> \
+  --custodian-verified-at <UTC-ISO8601-timestamp> \
+  --identity-method private_video_check \
+  --identity-verification-complete
+```
+
+For a third adjudicator, use `--reviewer-slot third_adjudicator` and add `--staged-packet <private-staged-packet.json>`. The receipt generator revalidates the submission and writes only metadata and hashes. It refuses submission, staged-packet or receipt paths inside the public repository and never writes labels or rationales into the receipt.
