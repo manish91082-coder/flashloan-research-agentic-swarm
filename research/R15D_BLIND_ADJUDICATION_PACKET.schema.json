@@ -60,6 +60,7 @@
               "evidence_references": {"type": "array", "items": {"type": "string"}},
               "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
               "completed_at": {"type": ["string", "null"], "format": "date-time"},
+              "independence_attestation": {"type": ["boolean", "null"]},
               "triggered": {"type": "boolean"}
             }
           },
