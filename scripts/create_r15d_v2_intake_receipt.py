@@ -118,6 +118,8 @@ def create_intake_receipt(
         "attestation_summary": {
             "independent_review": attestation["independent_review"],
             "model_outputs_not_seen": attestation["model_outputs_not_seen"],
+            "other_reviews_not_seen": attestation.get("other_reviews_not_seen", False),
+            "primary_reviews_seen": attestation.get("primary_reviews_seen", False),
             "v1_answer_key_not_seen": attestation["v1_answer_key_not_seen"],
             "v1_labels_not_consulted": attestation["v1_labels_not_consulted"],
             "conflicts_disclosed": attestation["conflicts_disclosed"],
