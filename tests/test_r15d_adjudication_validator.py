@@ -160,6 +160,54 @@ class R15DAdjudicationValidatorTests(unittest.TestCase):
         result = validate(packet)
         self.assertFalse(result["valid"])
 
+    def test_third_adjudicator_must_be_triggered_for_disagreement(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [
+            self.completed_review(case, "reviewer-a", "present"),
+            self.completed_review(case, "reviewer-b", "unknown"),
+        ]
+        third = self.completed_review(case, "reviewer-c", "present")
+        third["triggered"] = False
+        case["third_adjudicator"] = third
+        case["consensus"] = {
+            "status": "adjudicated", "label": "present",
+            "rationale": "Third reviewer resolves disagreement.",
+            "disagreement": True,
+        }
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("explicitly marked triggered" in error for error in result["errors"]))
+
+    def test_unused_third_adjudicator_must_remain_blank_on_unanimity(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [
+            self.completed_review(case, "reviewer-a", "present"),
+            self.completed_review(case, "reviewer-b", "present"),
+        ]
+        case["third_adjudicator"]["reviewer_id"] = "unexpected-reviewer"
+        case["consensus"] = {
+            "status": "adjudicated", "label": "present",
+            "rationale": "Both independent reviewers agree.",
+            "disagreement": False,
+        }
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("unused third-adjudicator record must remain blank" in error for error in result["errors"]))
+
+    def test_malformed_third_adjudicator_rejected_without_exception(self):
+        packet = copy.deepcopy(self.packet)
+        case = packet["cases"][0]
+        case["reviewers"] = [
+            self.completed_review(case, "reviewer-a", "present"),
+            self.completed_review(case, "reviewer-b", "present"),
+        ]
+        case["third_adjudicator"] = []
+        result = validate(packet)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("third_adjudicator must be an object" in error for error in result["errors"]))
+
 
 if __name__ == "__main__":
     unittest.main()
