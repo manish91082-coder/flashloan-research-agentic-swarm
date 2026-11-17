@@ -149,7 +149,7 @@ class R15DEndToEndFreezePipelineTests(unittest.TestCase):
             merge_primary_submissions(a, b, staged, "custodian.synthetic", True)
             changed = json.loads(staged.read_text(encoding="utf-8"))
             changed["cases"][0]["reviewers"][0]["label"] = "absent"
-            staged.write_text(json.dumps(changed, indent=2) + "\\n", encoding="utf-8")
+            staged.write_text(json.dumps(changed, indent=2) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "does not exactly match"):
                 finalize_adjudication(a, b, staged, root / "final.json", "custodian.synthetic", True)
             self.assertFalse((root / "final.json").exists())
@@ -186,7 +186,7 @@ class R15DEndToEndFreezePipelineTests(unittest.TestCase):
             _, digest, _, final_path, manifest_path = self.run_pipeline(Path(tmp), "COB-01")
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["freeze_provenance"]["validator_sha256"] = "0" * 64
-            manifest_path.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+            manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "provenance"):
                 verify_frozen_manifest(final_path, manifest_path, digest)
 
