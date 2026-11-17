@@ -106,3 +106,15 @@ def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[lis
         "policy": "role_family_priority_then_deterministic_path_order",
     }
     return [item[2] for item in ranked], coverage
+
+
+def role_path_admissible(role: str, path: str) -> bool:
+    """Whether a finding from this role may cite this source family."""
+    _, family = _family_for_path(role, path)
+    if family is None:
+        return False
+    if role == "dependency_license":
+        return family in {"dependency_manifest", "compiler_build_config", "license_artifact"}
+    if role == "test_verification":
+        return family in {"test_source", "ci_workflow", "test_config", "runtime_source"}
+    return True
