@@ -93,6 +93,42 @@ class DuplicateClaimRetryTests(unittest.TestCase):
         self.assertEqual(len(result["findings"]), 1)
         self.assertTrue(result["evidence_validation"]["all_findings_linked_to_accepted_evidence"])
 
+    def test_repeated_duplicate_claim_after_correction_is_collapsed_with_audit_warning(self):
+        class Provider:
+            def __init__(self):
+                self.calls = []
+            def generate_json(self, prompt, context, required_keys):
+                self.calls.append((prompt, context))
+                duplicate = sample_output(findings=[
+                    {"finding_id": "F-1", "claim": "Same generic claim repeated by the model.",
+                     "category": "protocol_flow", "severity": "not_applicable",
+                     "claim_status": "source_observed", "confidence": "low",
+                     "evidence_refs": ["EV00001"]},
+                    {"finding_id": "F-2", "claim": "  SAME generic claim repeated by the model.  ",
+                     "category": "protocol_flow", "severity": "not_applicable",
+                     "claim_status": "source_observed", "confidence": "low",
+                     "evidence_refs": ["EV00001"]},
+                ])
+                return {k: v for k, v in duplicate.items() if k in required_keys}
+
+        provider = Provider()
+        result = _generate_validated_output(
+            provider, "prompt", {}, REQUIRED_KEYS, sample_inspection(), "protocol_specialist",
+            canonical_purpose_category="flash_loan_liquidation_bot",
+        )
+        self.assertEqual(len(provider.calls), 2)
+        self.assertEqual(len(result["findings"]), 1)
+        self.assertEqual(result["findings"][0]["finding_id"], "F-1")
+        self.assertEqual(result["normalization_warnings"], [{
+            "code": "exact_duplicate_finding_collapsed",
+            "kept_finding_id": "F-1",
+            "discarded_finding_id": "F-2",
+        }])
+        adequacy = _assess_specialist_report_adequacy(
+            "protocol_specialist", result["findings"], result["evidence"],
+        )
+        self.assertEqual(adequacy["status"], "insufficient")
+
     def test_source_pinned_aave_liquidation_signal_rejects_security_tooling_and_retries(self):
         inspection = sample_inspection()
         inspection["repository"] = "0xnavarro/Aave-Liquiditor"
