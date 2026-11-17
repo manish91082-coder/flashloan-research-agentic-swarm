@@ -56,7 +56,9 @@
     ],
     "fixture_build_python_version": "3.11",
     "leakage_scan_before_upload": true,
-    "artifact_upload_after_scan_only": true
+    "artifact_upload_after_scan_only": true,
+    "latest_reviewer_validator_run_id": 44040411388,
+    "latest_reviewer_validator_tests_per_python_version": 300
   },
   "reviewer_state": {
     "primary_submissions_received": 0,
@@ -78,5 +80,18 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "next_action": "Complete independent proposition/scope audit, then build v2 private reviewer bundle and identity/custody protocol. Only after those pass may private human reviews be solicited."
+  "next_action": "Complete independent proposition/scope audit, then build v2 private reviewer bundle and identity/custody protocol. Only after those pass may private human reviews be solicited.",
+  "reviewer_intake": {
+    "protocol": "research/R15D_V2_REVIEWER_INTAKE.md",
+    "schema": "research/R15D_V2_REVIEWER_SUBMISSION.schema.json",
+    "validator": "scripts/validate_r15d_v2_review_submission.py",
+    "tests": "tests/test_r15d_v2_reviewer_submission.py",
+    "implemented": true,
+    "primary_bundle_cases": 6,
+    "requires_v1_answer_key_not_seen_attestation": true,
+    "requires_v1_labels_not_consulted_attestation": true,
+    "fixture_excerpt_sha256_rechecked": true,
+    "identity_verification": "custodian_out_of_band_not_performed_by_validator",
+    "actual_submissions_received": 0
+  }
 }
