@@ -81,92 +81,127 @@ class R15DV2EndToEndFreezeTests(unittest.TestCase):
 
     def run_pipeline(self, disagreement_case=None):
         self.counter += 1
-        a, b = self.root / f"a-{self.counter}.json", self.root / f"b-{self.counter}.json"
-        receipt_a, receipt_b = self.root / f"receipt-a-{self.counter}.json", self.root / f"receipt-b-{self.counter}.json"
-        staged_path = self.root / f"staged-{self.counter}.json"
-        final_path = self.root / f"final-{self.counter}.json"
-        third_path = self.root / f"third-{self.counter}.json"
-        manifest_path = self.root / f"frozen-{self.counter}.json"
+        n = self.counter
+        a, b = self.root / f"a-{n}.json", self.root / f"b-{n}.json"
+        receipt_a, receipt_b = self.root / f"receipt-a-{n}.json", self.root / f"receipt-b-{n}.json"
+        staged_path = self.root / f"staged-{n}.json"
+        final_path = self.root / f"final-{n}.json"
+        third_path, third_receipt = self.root / f"third-{n}.json", self.root / f"third-receipt-{n}.json"
+        manifest_path = self.root / f"frozen-{n}.json"
+
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", disagreement_case)), encoding="utf-8")
         create_intake_receipt(self.fixture_dir, a, receipt_a, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
         create_intake_receipt(self.fixture_dir, b, receipt_b, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
         merge = merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, "custodian.v2", True)
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
-        third_arg = None
-        third_receipt_arg = None
+
+        third_submission = None
+        third_receipt_path = None
         if disagreement_case:
             third_path.write_text(json.dumps(self.third_bundle(staged)), encoding="utf-8")
-            third_receipt_arg = self.root / f"third-receipt-{self.counter}.json"
-            create_intake_receipt(self.fixture_dir, third_path, third_receipt_arg, "third_adjudicator", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
-            third_arg = third_path
+            create_intake_receipt(self.fixture_dir, third_path, third_receipt, "third_adjudicator", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
+            third_submission, third_receipt_path = third_path, third_receipt
+
         final = finalize_adjudication(
-            self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, final_path, "custodian.v2", True,
-            third_arg, third_receipt_arg, bool(third_arg), merge["output_sha256"],
+            self.fixture_dir, a, b, receipt_a, receipt_b, staged_path, final_path,
+            "custodian.v2", True, third_submission, third_receipt_path,
+            bool(third_submission), merge["output_sha256"],
         )
-        frozen = freeze_adjudication(final_path, self.fixture_dir, manifest_path, "2026-11-17T00:00:00Z")
-        verified = verify_frozen_manifest(final_path, self.fixture_dir, manifest_path, frozen["output_sha256"])
-        return final, frozen, verified, final_path, manifest_path
+        freeze = freeze_adjudication(
+            final_path, self.fixture_dir, manifest_path, "2026-11-17T00:00:00Z",
+            a, b, receipt_a, receipt_b, staged_path, "custodian.v2", True,
+            third_submission, third_receipt_path, bool(third_submission), merge["output_sha256"],
+        )
+        verified = verify_frozen_manifest(
+            final_path, self.fixture_dir, manifest_path, freeze["output_sha256"],
+            a, b, receipt_a, receipt_b, staged_path, "custodian.v2", True,
+            third_submission, third_receipt_path, bool(third_submission), merge["output_sha256"],
+        )
+        return {
+            "final": final, "freeze": freeze, "verified": verified,
+            "final_path": final_path, "manifest_path": manifest_path,
+            "reviewer_a": a, "reviewer_b": b, "receipt_a": receipt_a, "receipt_b": receipt_b,
+            "staged": staged_path, "third_submission": third_submission,
+            "third_receipt": third_receipt_path, "staged_sha256": merge["output_sha256"],
+        }
 
     def test_unanimous_path_freezes_and_verifies_with_inference_disabled(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            final, frozen, verified, packet_path, manifest_path = self.run_pipeline()
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            self.assertTrue(final["valid_complete_adjudication"])
-            self.assertTrue(frozen["valid_frozen_manifest"])
-            self.assertTrue(verified["valid"])
-            self.assertEqual(verified["completed_cases"], 6)
-            self.assertTrue(manifest["freeze"]["ground_truth_frozen"])
-            self.assertFalse(manifest["freeze"]["model_inference_authorized"])
+        result = self.run_pipeline()
+        manifest = json.loads(result["manifest_path"].read_text(encoding="utf-8"))
+        self.assertTrue(result["final"]["valid_complete_adjudication"])
+        self.assertTrue(result["freeze"]["valid_frozen_manifest"])
+        self.assertTrue(result["verified"]["valid"])
+        self.assertEqual(result["verified"]["completed_cases"], 6)
+        self.assertTrue(manifest["freeze"]["ground_truth_frozen"])
+        self.assertFalse(manifest["freeze"]["model_inference_authorized"])
+        self.assertIsNone(manifest["custody_receipts"]["third_adjudicator_receipt_sha256"])
 
-    def test_disagreement_path_freezes_after_third_adjudication(self):
-        final, frozen, verified, packet_path, manifest_path = self.run_pipeline("NAV2-02")
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    def test_disagreement_path_freezes_after_receipt_verified_third_adjudication(self):
+        result = self.run_pipeline("NAV2-02")
+        manifest = json.loads(result["manifest_path"].read_text(encoding="utf-8"))
         case = next(c for c in manifest["cases"] if c["id"] == "NAV2-02")
-        self.assertTrue(final["valid_complete_adjudication"])
-        self.assertTrue(frozen["valid_frozen_manifest"])
-        self.assertTrue(verified["valid"])
+        self.assertTrue(result["final"]["valid_complete_adjudication"])
+        self.assertTrue(result["freeze"]["valid_frozen_manifest"])
+        self.assertTrue(result["verified"]["valid"])
         self.assertEqual(case["third_adjudicator"]["reviewer_id"], "reviewer.gamma")
+        self.assertIsNotNone(manifest["custody_receipts"]["third_adjudicator_receipt_sha256"])
         self.assertTrue(manifest["freeze"]["ground_truth_frozen"])
         self.assertFalse(manifest["freeze"]["model_inference_authorized"])
 
     def test_incomplete_staged_packet_cannot_be_frozen(self):
-        self.counter += 1
         a, b, staged = self.root / "incomplete-a.json", self.root / "incomplete-b.json", self.root / "incomplete-staged.json"
-        receipt_a, receipt_b = self.root / "incomplete-receipt-a.json", self.root / "incomplete-receipt-b.json"
+        ra, rb = self.root / "incomplete-ra.json", self.root / "incomplete-rb.json"
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", "COB2-01")), encoding="utf-8")
-        create_intake_receipt(self.fixture_dir, a, receipt_a, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
-        create_intake_receipt(self.fixture_dir, b, receipt_b, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
-        merge_primary_reviews(self.fixture_dir, a, b, receipt_a, receipt_b, staged, "custodian.v2", True)
-        with self.assertRaisesRegex(ValueError, "not eligible for freeze"):
-            freeze_adjudication(staged, self.fixture_dir, self.root / "invalid-frozen.json", "2026-11-17T00:00:00Z")
+        create_intake_receipt(self.fixture_dir, a, ra, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        create_intake_receipt(self.fixture_dir, b, rb, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
+        merge_primary_reviews(self.fixture_dir, a, b, ra, rb, staged, "custodian.v2", True)
+        with self.assertRaisesRegex(ValueError, "third-adjudicator bundle is required"):
+            freeze_adjudication(staged, self.fixture_dir, self.root / "invalid-frozen.json", "2026-11-17T00:00:00Z", a, b, ra, rb, staged, "custodian.v2", True)
 
     def test_manifest_provenance_tampering_is_rejected(self):
-        _, frozen, _, packet, manifest_path = self.run_pipeline()
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        result = self.run_pipeline()
+        manifest = json.loads(result["manifest_path"].read_text(encoding="utf-8"))
         manifest["freeze_provenance"]["fixture_scanner_sha256"] = "0" * 64
-        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        result["manifest_path"].write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "content or provenance"):
-            verify_frozen_manifest(packet, self.fixture_dir, manifest_path, frozen["output_sha256"])
+            verify_frozen_manifest(
+                result["final_path"], self.fixture_dir, result["manifest_path"], result["freeze"]["output_sha256"],
+                result["reviewer_a"], result["reviewer_b"], result["receipt_a"], result["receipt_b"],
+                result["staged"], "custodian.v2", True, expected_staged_sha256=result["staged_sha256"],
+            )
 
     def test_input_packet_tampering_after_freeze_is_rejected(self):
-        _, frozen, _, packet, manifest_path = self.run_pipeline("COB2-03")
-        packet.write_bytes(packet.read_bytes() + b" ")
-        with self.assertRaisesRegex(ValueError, "content or provenance"):
-            verify_frozen_manifest(packet, self.fixture_dir, manifest_path, frozen["output_sha256"])
+        result = self.run_pipeline("COB2-03")
+        result["final_path"].write_bytes(result["final_path"].read_bytes() + b" ")
+        with self.assertRaisesRegex(ValueError, "does not exactly match receipt-verified"):
+            verify_frozen_manifest(
+                result["final_path"], self.fixture_dir, result["manifest_path"], result["freeze"]["output_sha256"],
+                result["reviewer_a"], result["reviewer_b"], result["receipt_a"], result["receipt_b"],
+                result["staged"], "custodian.v2", True, result["third_submission"], result["third_receipt"],
+                True, result["staged_sha256"],
+            )
 
     def test_expected_manifest_digest_mismatch_is_rejected(self):
-        _, _, _, packet, manifest_path = self.run_pipeline()
+        result = self.run_pipeline()
         with self.assertRaisesRegex(ValueError, "expected digest"):
-            verify_frozen_manifest(packet, self.fixture_dir, manifest_path, "0" * 64)
+            verify_frozen_manifest(
+                result["final_path"], self.fixture_dir, result["manifest_path"], "0" * 64,
+                result["reviewer_a"], result["reviewer_b"], result["receipt_a"], result["receipt_b"],
+                result["staged"], "custodian.v2", True, expected_staged_sha256=result["staged_sha256"],
+            )
 
     def test_freeze_output_collision_is_not_overwritten(self):
-        _, _, _, packet, _ = self.run_pipeline()
+        result = self.run_pipeline()
         output = self.root / "existing-manifest.json"
         output.write_text("preserve-me", encoding="utf-8")
         with self.assertRaises(FileExistsError):
-            freeze_adjudication(packet, self.fixture_dir, output, "2026-11-17T00:00:00Z")
+            freeze_adjudication(
+                result["final_path"], self.fixture_dir, output, "2026-11-17T00:00:00Z",
+                result["reviewer_a"], result["reviewer_b"], result["receipt_a"], result["receipt_b"],
+                result["staged"], "custodian.v2", True, expected_staged_sha256=result["staged_sha256"],
+            )
         self.assertEqual(output.read_text(encoding="utf-8"), "preserve-me")
 
 
