@@ -33,7 +33,6 @@ ROLE_FAMILY_PATTERNS = {
         ("test_source", ("test/", "tests/", "spec/", ".t.sol", ".test.", ".spec.")),
         ("ci_workflow", (".github/workflows/",)),
         ("test_config", ("foundry.toml", "hardhat.config", "pytest.ini", "tox.ini", "pyproject.toml")),
-        ("runtime_source", ("src/", "contracts/")),
     ),
     "economics_quant": (
         ("economic_contract", ("contracts/", "contract/", ".sol")),
@@ -93,7 +92,7 @@ def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[lis
         rank, family = _family_for_path(role, item["path"])
         if family:
             present.add(family)
-        ranked.append((rank, item["path"].casefold(), item))
+            ranked.append((rank, item["path"].casefold(), item))
     ranked.sort(key=lambda item: (item[0], item[1]))
     required = REQUIRED_FAMILIES.get(role, ())
     missing = [family for family in required if family not in present]
@@ -116,5 +115,5 @@ def role_path_admissible(role: str, path: str) -> bool:
     if role == "dependency_license":
         return family in {"dependency_manifest", "compiler_build_config", "license_artifact"}
     if role == "test_verification":
-        return family in {"test_source", "ci_workflow", "test_config", "runtime_source"}
+        return family in {"test_source", "ci_workflow", "test_config"}
     return True
