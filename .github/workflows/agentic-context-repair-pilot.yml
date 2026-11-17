@@ -180,9 +180,27 @@ jobs:
           import json, os, time
           from pathlib import Path
           from flashloan_research.mission_executor import MissionExecutor
+          from flashloan_research.mission_runtime import MissionTaskStore
 
           mission_id = os.environ["FLR_MISSION_ID"]
           artifact_root = Path(os.environ["FLR_ARTIFACT_ROOT"])
+          expected_candidates = set(json.loads(
+              Path("research_runs/trigger-agentic-context-repair-pilot.json").read_text(encoding="utf-8")
+          )["expected_candidates"])
+          store = MissionTaskStore(Path(os.environ["FLR_DATABASE"]))
+          try:
+              planned_candidates = {
+                  item["payload"].get("repository")
+                  for item in store.list_tasks(mission_id)
+                  if item["task_type"] == "candidate_purpose"
+              }
+          finally:
+              store.close()
+          if planned_candidates != expected_candidates:
+              raise SystemExit(
+                  f"Fresh mission candidate set mismatch: expected={sorted(expected_candidates)}, "
+                  f"actual={sorted(planned_candidates)}"
+              )
           started = time.time()
           executor = MissionExecutor(
               database_path=Path(os.environ["FLR_DATABASE"]),
@@ -212,6 +230,10 @@ jobs:
           reviewers = result.get("independent_review", {}).get("completed", [])
           if len(gates) != 2 or len(reviewers) != 2:
               raise SystemExit(f"Expected 2 evidence gates and 2 reviewers; got {len(gates)} and {len(reviewers)}.")
+          if {item["repository"] for item in gates} != expected_candidates:
+              raise SystemExit("Evidence-gate candidate set differs from the frozen R15C candidate pair.")
+          if {item["repository"] for item in reviewers} != expected_candidates:
+              raise SystemExit("Independent-review candidate set differs from the frozen R15C candidate pair.")
 
           decisions = []
           for gate in gates:
@@ -252,7 +274,7 @@ jobs:
           Path("reports-agent-form-context-repair-outcomes.json").write_text(
               json.dumps({"review_decisions": decisions, "task_counts": counts,
                           "all_reviewers_unreserved_accept": promotion_eligible,
-                          "dossier_creation_permitted": promotion_eligible,
+                          "dossier_gate_eligible": promotion_eligible,
                           "semantic_audit_count_incremented": False,
                           "candidate_code_executed": False,
                           "r15d_v2_benchmark_inference": False}, indent=2, sort_keys=True) + "\n",
