@@ -108,6 +108,14 @@ def build_staged_packet(fixture: dict, bundle_a: dict, bundle_b: dict, fixture_s
         "status": "primary_reviews_received_pending_consensus",
         "fixture_manifest_sha256": fixture_sha256,
         "cases": cases,
+        "primary_reviewer_attestations": [
+            {
+                "reviewer_id": bundle["reviewer_id"],
+                **{key: bundle["attestations"][key] for key in ("independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed", "conflict_statement")},
+            }
+            for bundle in (bundle_a, bundle_b)
+        ],
+        "third_reviewer_attestations": None,
         "blinding": {
             "expected_labels_omitted": True,
             "model_outputs_omitted": True,
