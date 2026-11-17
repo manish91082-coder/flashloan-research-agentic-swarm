@@ -178,3 +178,14 @@ This workflow is still running. Its final result and uploaded task ledger must b
 At the time of this update, workflow [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551) has completed trigger validation, immutable source-capture artifact download/SHA-256 verification, checkpoint restoration, Agent Form runtime installation, local Ollama/model installation and fresh isolated mission DAG bootstrap. The current workflow step is the bounded-parallel specialist/evidence/reviewer semantic pilot.
 
 No model-task completion, evidence-gate completion, reviewer decision or pilot acceptance is claimed yet. The run must finish and its uploaded artifact/task ledger must be inspected. The system remains **NOT YET 24x7 production-operational**.
+
+
+## Live continuation audit — 2026-11-17 17:20 IST
+
+The active isolated context-repair semantic pilot [run 44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551), HEAD `580e027d8ebbc5913c718c6a6ddfba3164f448eb`, remains in progress. Job `134010173474` has completed trigger validation, immutable source-capture checkpoint download/SHA-256 verification/restoration, Agent Form runtime setup, local Ollama/Qwen installation and fresh mission DAG bootstrap. The bounded-parallel specialist/evidence/reviewer stage remains active. Task-ledger and evidence-artifact upload steps are pending; the run currently exposes no artifact.
+
+Latest adjacent Research Engine CI [44075215361](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44075215361) passed Python 3.11/3.12/3.13; Python 3.11 reports 355 tests passed.
+
+**Observability limitation:** the current workflow uploads the SQLite task ledger only after semantic execution returns. During the active step, the GitHub Actions API exposes only step-level in-progress state; live SQLite task counts and per-task model latency are not externally visible. A future workflow revision should add per-task progress events/heartbeat and partial, append-only ledger artifacts. Do not modify or duplicate the currently running pilot.
+
+**Status:** semantic pilot not yet complete; no reports accepted; no dossier eligibility granted; no autonomous mission continuation/restart or 72-hour soak proven. The system remains **NOT YET 24x7 production-operational**.
