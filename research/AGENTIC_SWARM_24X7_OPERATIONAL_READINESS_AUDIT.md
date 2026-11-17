@@ -3,7 +3,7 @@
 **Audit date:** 2026-11-17  
 **Canonical repository:** `manish91082-coder/flashloan-research-agentic-swarm`  
 **Branch:** `main`  
-**Audited HEAD:** `0d68c011fa6636b37854199de04a0a9d72afeab7`
+**Audited code HEAD:** `e7ef78ae6e58a9b8764965b3dc9cff0056c77212`
 
 ## Executive disposition
 
@@ -19,8 +19,8 @@ This audit separates three kinds of evidence:
 ### A. Engineering and CI
 
 - Latest audited main commit: `0d68c011fa6636b37854199de04a0a9d72afeab7`.
-- Latest full Research Engine CI: [run 44046436114](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44046436114).
-- Python 3.11, 3.12 and 3.13 jobs all completed successfully; each reports 346 standard-library tests passed.
+- Latest full Research Engine CI: [run 44073293999](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073293999).
+- Python 3.11, 3.12 and 3.13 jobs all completed successfully; each reports 353 standard-library tests passed.
 - Python 3.11 additionally passed the synthetic R15D v2 custody tabletop, label-free fixture build, answer-key leakage scan and artifact upload.
 - The synthetic custody tabletop completed receipt-bound merge, disagreement adjudication, freeze and independent frozen-manifest verification. It used synthetic identities and keys only.
 
@@ -104,3 +104,35 @@ Do not call the swarm 24x7 operational until all gates below have machine-verifi
 ## Safety and accounting invariants
 
 At audit time, do not infer any permission from CI success. Candidate code execution, wallet access, transaction signing, deployment and live trading remain disabled. Source capture is not semantic audit; specialist completion is not independent acceptance; a synthetic custody tabletop is not real human identity verification. No semantic audit increment is authorized by this operational-readiness audit.
+
+
+## Addendum — Specialist Context Engine Repair (2026-11-17)
+
+**Audited code HEAD:** `e7ef78ae6e58a9b8764965b3dc9cff0056c77212`  
+**Latest green CI:** [44073293999](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073293999). Python 3.11, 3.12 and 3.13 all passed; 353 standard-library tests passed. The Python 3.11 synthetic R15D v2 custody tabletop, label-free fixture build, leakage scan and artifact upload completed successfully.
+
+### Specialist context repair evidence
+
+- Added deterministic role-specific source-family ranking and explicit coverage reporting.
+- Replaced globally signal-ranked source selection with role-aware source-family ordering and bounded per-file context allocation.
+- Filtered captured source inventory and evidence catalog to the role's admissible paths before model invocation.
+- Added post-generation source-path admissibility checks for dependency/license and test-verification findings.
+- Dependency/license receives only package manifests, lockfiles, compiler/build configuration and license artifacts. Test verification receives only test sources, CI workflows and test configuration.
+- Missing role-specific source families are explicit. In the absence of admissible source, the specialist receives no unrelated excerpts/catalog/inventory and must return zero findings, empty evidence, unknown implementation status and low confidence.
+- The deterministic semantic pipeline now verifies this fail-closed behavior.
+
+### What this repair proves and does not prove
+
+- **Proves:** the role-source policy, context filtering, path-admissibility gates and their regression fixtures pass the latest three-version CI matrix.
+- **Does not prove:** the frozen R15C Aave/COB candidates now produce adequate specialist reports; no fresh model pilot has yet been accepted after this repair.
+- **Does not change:** the 14/14 R15C report-adequacy baseline remains insufficient until fresh, independent evidence changes that assessment.
+- **Does not authorize:** R15D v2 genuine reviewer intake or model inference, candidate-code execution, wallet access, signing, deployment or trading.
+- **Operational status remains:** NOT YET 24x7 production-operational. No accepted full mission lifecycle, autonomous continuation/restart proof or 72-hour soak is established by this CI.
+
+### Immediate next actions
+
+1. Replay deterministic source selection against the frozen R15C Aave and COB inspection packets without model inference.
+2. Confirm the COB Solidity contract is included for protocol/security/execution/reviewer roles despite the high-signal `bot.js`.
+3. Confirm dependency/license and test-verification contexts contain only their own admissible source families; missing families must remain explicit unknowns.
+4. Compare selected paths and role-family coverage with the immutable R15C baseline.
+5. Only after deterministic replay passes, run a fresh isolated model pilot with a new mission/database/artifact root and re-evaluate claim-to-excerpt adequacy.
