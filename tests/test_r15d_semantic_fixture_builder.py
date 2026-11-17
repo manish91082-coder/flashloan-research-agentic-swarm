@@ -69,6 +69,11 @@ class SemanticFixtureBuilderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "explicit isolated forensic output directory"):
             build()
 
+    def test_public_repository_output_path_is_refused(self):
+        repository_root = Path(__file__).resolve().parents[1]
+        with self.assertRaisesRegex(ValueError, "outside the public repository"):
+            build(output_dir=repository_root / "research_runs" / "forensic-r15d-v1")
+
     def test_git_blob_hash_is_git_object_hash(self):
         self.assertEqual(git_blob_sha(b"abc"), hashlib.sha1(b"blob 3\0abc").hexdigest())
 
