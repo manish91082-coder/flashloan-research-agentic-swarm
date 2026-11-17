@@ -136,3 +136,22 @@ At audit time, do not infer any permission from CI success. Candidate code execu
 3. Confirm dependency/license and test-verification contexts contain only their own admissible source families; missing families must remain explicit unknowns.
 4. Compare selected paths and role-family coverage with the immutable R15C baseline.
 5. Only after deterministic replay passes, run a fresh isolated model pilot with a new mission/database/artifact root and re-evaluate claim-to-excerpt adequacy.
+
+
+## Addendum — R15C role-context manifest replay (2026-11-17)
+
+**Latest verified code HEAD:** `45b8418f5f6c1c893ad16a010ba9fbcc18c6edec`  
+**Latest green CI:** [44073705502](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073705502). Python 3.11, 3.12 and 3.13 passed; 354 standard-library tests passed. The Python 3.11 synthetic R15D v2 custody tabletop passed.
+
+- Frozen R15C artifact 14229725407 was downloaded and its ZIP SHA-256 verified as `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`.
+- Manifest-only deterministic replay shows the COB Solidity contract is selected first for candidate-purpose, protocol, Solidity security, execution, economics and independent-review roles, ahead of the high-signal `bot.js`.
+- COB dependency/license has no admissible source family in the frozen capture; the role must return zero findings and explicit unknowns.
+- COB test verification receives monitor test files only; missing CI and test configuration are explicit. Those monitor tests are not evidence of Solidity liquidation contract coverage.
+- Aave test verification lacks captured test source/CI; Aave dependency/license has only `hardhat.config.ts` and lacks dependency manifest/license evidence.
+- Protocol-security and independent-review roles exclude generic monitoring/UI tests from scarce context slots.
+
+**Limit:** this is manifest-level selection replay only. The frozen R15C artifact does not include the source-vault blobs; byte-level blob re-hashing and exact excerpt reconstruction through the actual context builder remain unverified. No new model pilot was run, and the prior 14/14 specialist adequacy failure remains the baseline.
+
+**Next:** build a byte-level, model-free replay harness against exact R15C commit SHAs, verify each Git blob SHA, invoke the actual context builder for every role, and assert excerpt paths/ranges/hashes and character budgets. Only after this passes may a fresh isolated model pilot begin.
+
+The swarm remains **NOT YET 24x7 production-operational**. Full mission completion, autonomous continuation/restart and the 72-hour soak remain unproven. R15D v2 human adjudication remains independently gated.
