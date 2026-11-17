@@ -93,40 +93,92 @@ def _third_bundle(staged: dict) -> dict:
     }
 
 
-def _encrypted_delivery(root: Path, name: str, value: dict) -> Path:
+def _prepare_encryption_context(root: Path) -> dict:
     gpg = shutil.which("gpg")
     if gpg is None:
         raise RuntimeError("GnuPG is required for the synthetic encrypted-delivery tabletop")
     sender = root / "sender"
     receiver = root / "receiver"
     key_custody = root / "key-custody"
-    gnupg_home = root / "gnupg-home"
-    for directory in (sender, receiver, key_custody, gnupg_home):
+    sender_home = sender / "gnupg-home"
+    key_home = key_custody / "gnupg-home"
+    for directory in (sender, receiver, key_custody, sender_home, key_home):
         directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         directory.chmod(0o700)
     passphrase_file = key_custody / "tabletop.passphrase"
-    if not passphrase_file.exists():
-        passphrase_file.write_text(secrets.token_urlsafe(32) + "\n", encoding="utf-8")
-        passphrase_file.chmod(0o600)
-    env = os.environ.copy()
-    env["GNUPGHOME"] = str(gnupg_home)
+    passphrase_file.write_text(secrets.token_urlsafe(32) + "\n", encoding="utf-8")
+    passphrase_file.chmod(0o600)
+    key_env = os.environ.copy()
+    key_env["GNUPGHOME"] = str(key_home)
+    recipient = "r15d-v2-tabletop@example.invalid"
+    subprocess.run(
+        [gpg, "--batch", "--pinentry-mode", "loopback", "--passphrase-file", str(passphrase_file),
+         "--quick-generate-key", "R15D v2 tabletop <" + recipient + ">", "rsa2048", "encr", "1d"],
+        check=True, capture_output=True, env=key_env,
+    )
+    public_key = key_custody / "recipient-public.asc"
+    with public_key.open("wb") as handle:
+        exported = subprocess.run(
+            [gpg, "--batch", "--armor", "--export", recipient],
+            check=True, capture_output=True, env=key_env,
+        )
+        handle.write(exported.stdout)
+    public_key.chmod(0o600)
+    subprocess.run(
+        [gpg, "--batch", "--import", str(public_key)],
+        check=True, capture_output=True, env={**os.environ, "GNUPGHOME": str(sender_home)},
+    )
+    fingerprint_result = subprocess.run(
+        [gpg, "--batch", "--with-colons", "--fingerprint", recipient],
+        check=True, capture_output=True, env=key_env, text=True,
+    )
+    fingerprints = [line.split(":")[9] for line in fingerprint_result.stdout.splitlines() if line.startswith("fpr:")]
+    if not fingerprints or len(fingerprints[0]) < 32:
+        raise RuntimeError("GnuPG recipient fingerprint could not be established")
+    return {
+        "gpg": gpg,
+        "sender": sender,
+        "receiver": receiver,
+        "sender_home": sender_home,
+        "key_home": key_home,
+        "key_env": key_env,
+        "passphrase_file": passphrase_file,
+        "recipient": recipient,
+        "recipient_fingerprint": fingerprints[0],
+    }
+
+
+def _encrypted_delivery(context: dict, name: str, value: dict) -> Path:
+    sender = context["sender"]
+    receiver = context["receiver"]
     plaintext = sender / f"{name}.json"
     ciphertext = sender / f"{name}.json.gpg"
     decrypted = receiver / f"{name}.json"
     payload = (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
     plaintext.write_bytes(payload)
     plaintext.chmod(0o600)
-    subprocess.run([gpg, "--batch", "--yes", "--pinentry-mode", "loopback", "--passphrase-file", str(passphrase_file), "--symmetric", "--cipher-algo", "AES256", "--output", str(ciphertext), str(plaintext)], check=True, capture_output=True, env=env)
+    subprocess.run(
+        [context["gpg"], "--batch", "--yes", "--trust-model", "always",
+         "--homedir", str(context["sender_home"]), "--output", str(ciphertext),
+         "--encrypt", "--recipient", context["recipient"], str(plaintext)],
+        check=True, capture_output=True,
+    )
     ciphertext.chmod(0o600)
     encrypted_bytes = ciphertext.read_bytes()
     if not encrypted_bytes or payload in encrypted_bytes:
-        raise RuntimeError("GnuPG encryption did not produce opaque ciphertext")
+        raise RuntimeError("GnuPG public-key encryption did not produce opaque ciphertext")
     plaintext.unlink()
-    subprocess.run([gpg, "--batch", "--yes", "--pinentry-mode", "loopback", "--passphrase-file", str(passphrase_file), "--output", str(decrypted), "--decrypt", str(ciphertext)], check=True, capture_output=True, env=env)
+    subprocess.run(
+        [context["gpg"], "--batch", "--yes", "--pinentry-mode", "loopback",
+         "--passphrase-file", str(context["passphrase_file"]), "--homedir", str(context["key_home"]),
+         "--output", str(decrypted), "--decrypt", str(ciphertext)],
+        check=True, capture_output=True, env=context["key_env"],
+    )
     decrypted.chmod(0o600)
     if decrypted.read_bytes() != payload:
-        raise RuntimeError("GnuPG encrypted-delivery round trip changed the private submission bytes")
+        raise RuntimeError("GnuPG public-key encrypted-delivery round trip changed the private submission bytes")
     return decrypted
+
 
 def run_tabletop() -> dict:
     if os.name != "posix":
@@ -143,6 +195,7 @@ def run_tabletop() -> dict:
         fixture_dir = root / "fixture"
         build(output_dir=fixture_dir)
         fixture = load_fixture_bundle(fixture_dir)
+        encryption_context = _prepare_encryption_context(root)
 
         a, b = root / "reviewer-a.json", root / "reviewer-b.json"
         receipt_a, receipt_b = root / "receipt-a.json", root / "receipt-b.json"
@@ -150,15 +203,15 @@ def run_tabletop() -> dict:
         third_path, third_receipt = root / "third-review.json", root / "third-receipt.json"
         final_path, frozen_path = root / "final-packet.json", root / "frozen-manifest.json"
 
-        a = _encrypted_delivery(root, "primary-a", _primary_bundle(fixture, "tabletop.reviewer.a"))
-        b = _encrypted_delivery(root, "primary-b", _primary_bundle(fixture, "tabletop.reviewer.b", "NAV2-02"))
+        a = _encrypted_delivery(encryption_context, "primary-a", _primary_bundle(fixture, "tabletop.reviewer.a"))
+        b = _encrypted_delivery(encryption_context, "primary-b", _primary_bundle(fixture, "tabletop.reviewer.b", "NAV2-02"))
         create_intake_receipt(fixture_dir, a, receipt_a, "primary_a", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True)
         create_intake_receipt(fixture_dir, b, receipt_b, "primary_b", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True)
 
         merged = merge_primary_reviews(fixture_dir, a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True)
         verified_merge = verify_primary_merge(fixture_dir, a, b, receipt_a, receipt_b, staged_path, "tabletop.custodian", True, merged["output_sha256"])
         staged = json.loads(staged_path.read_text(encoding="utf-8"))
-        third_path = _encrypted_delivery(root, "third-adjudicator", _third_bundle(staged))
+        third_path = _encrypted_delivery(encryption_context, "third-adjudicator", _third_bundle(staged))
         create_intake_receipt(fixture_dir, third_path, third_receipt, "third_adjudicator", "tabletop.custodian", "2026-11-17T00:00:00Z", "private_video_check", True, staged_path)
 
         finalized = finalize_adjudication(
@@ -193,7 +246,10 @@ def run_tabletop() -> dict:
             "primary_receipts_verified": 2,
             "third_receipts_verified": 1,
             "encrypted_submissions_verified": 3,
-            "encryption_tool": "GnuPG AES-256 symmetric encrypted-delivery round trip",
+            "encryption_tool": "GnuPG OpenPGP RSA-2048 public-key encrypted-delivery round trip",
+            "recipient_fingerprint_established": bool(encryption_context["recipient_fingerprint"]),
+            "private_key_separate_from_sender_receiver": encryption_context["key_home"] not in (encryption_context["sender_home"], encryption_context["receiver"]),
+            "production_key_identity_verified_out_of_band": False,
             "primary_merge_verified": verified_merge["valid"],
             "final_adjudication_complete": finalized["valid_complete_adjudication"],
             "frozen_manifest_verified": verified_frozen["valid"],
