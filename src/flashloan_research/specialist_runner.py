@@ -1165,7 +1165,11 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     "role": role,
                     "commit_sha": inspection["commit_sha"],
                     "tree_sha": inspection["tree_sha"],
-                    "source_files_captured": inspection.get("captured_files", []),
+                    "source_files_captured": [
+                        item for item in inspection.get("captured_files", [])
+                        if isinstance(item, dict)
+                        and role_path_admissible(role, str(item.get("path", "")))
+                    ],
                     "source_evidence_catalog": reviewer_catalog,
                     "verified_source_excerpts": verified_excerpts,
                     "role_source_coverage": role_source_coverage,
