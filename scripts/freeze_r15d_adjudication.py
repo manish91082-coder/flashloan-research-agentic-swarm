@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import tempfile
 from pathlib import Path
 
 from scripts.validate_r15d_adjudication import _valid_timestamp, validate
@@ -77,9 +79,32 @@ def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
     }
     payload = (json.dumps(frozen, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("xb") as handle:
-        handle.write(payload)
-    return hashlib.sha256(payload).hexdigest()
+    file_descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{output_path.name}.", suffix=".tmp", dir=output_path.parent
+    )
+    temporary_path = Path(temporary_name)
+    try:
+        with os.fdopen(file_descriptor, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        # Same-directory hard-link creation is atomic and fails if output already exists.
+        os.link(temporary_path, output_path)
+        try:
+            directory_fd = os.open(output_path.parent, os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        except OSError:
+            # The file itself is already fsynced; some platforms do not support directory fsync.
+            pass
+        written = output_path.read_bytes()
+        if written != payload:
+            raise OSError("frozen manifest bytes differ from the validated payload")
+        return hashlib.sha256(written).hexdigest()
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def main() -> None:
