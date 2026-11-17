@@ -1,3 +1,33 @@
+# Latest checkpoint — R15C manifest replay completed (2026-11-17)
+
+**Latest verified code HEAD:** `45b8418f5f6c1c893ad16a010ba9fbcc18c6edec`  
+**Latest green CI:** [44073705502](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073705502), Python 3.11/3.12/3.13 PASS, 354 tests passed; Python 3.11 R15D v2 synthetic custody tabletop PASS.
+
+## Completed after the prior checkpoint
+
+- Role-specific context ordering, per-file budgets, role-filtered captured inventory/evidence catalog and post-generation path admissibility are implemented.
+- Dependency/license and test-verification roles receive no unrelated source when their required source families are absent.
+- Protocol-security and independent-review roles exclude generic monitoring/UI tests from protocol review context.
+- Frozen R15C artifact 14229725407 was downloaded and its ZIP SHA-256 verified against the previously frozen manifest: `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`.
+- Manifest-only deterministic replay confirms the COB Solidity contract is first for candidate-purpose, protocol, security, execution, economics and independent-review roles; `bot.js` is second where runtime evidence is admissible.
+- COB dependency/license receives no admissible paths because the frozen capture contains no manifests, lockfiles, compiler/build configuration or license artifact.
+- COB test verification receives monitor test files only; missing CI/test configuration is explicit. Aave test verification has no captured test source/CI workflow. Aave dependency/license has only `hardhat.config.ts`.
+- Replay report: [research/R15C_ROLE_CONTEXT_MANIFEST_REPLAY_2026-11-17.md](research/R15C_ROLE_CONTEXT_MANIFEST_REPLAY_2026-11-17.md).
+
+## Immediate next execution: byte-level source-vault replay
+
+1. Fetch the exact R15C source files from the frozen candidate commit SHAs; do not use default-branch HEAD.
+2. Reconstruct the content-addressed source vault and verify every source byte against the frozen Git blob SHA before context building.
+3. Invoke the actual `_verified_source_context` for every role and both candidates.
+4. Assert exact selected excerpt paths, inclusive line ranges, per-file character limits, total context budget, excerpt SHA-256 and role missing-family metadata.
+5. Preserve the R15C artifact and reports as immutable baseline. This replay is model-free.
+6. If byte-level replay passes, create a fresh isolated mission/database/artifact root and run the new specialist pilot. Do not overwrite or mutate the frozen R15C run.
+7. Re-evaluate claim-to-excerpt adequacy and independent review. No prior report is accepted merely because provenance passes.
+
+**Still not accepted:** full mission completion, autonomous continuation/restart, 72-hour soak, 24x7 production operation, genuine R15D v2 human intake or benchmark inference. Keep wallet access, signing, deployment, candidate-code execution and live trading disabled.
+
+---
+
 # Current execution checkpoint — Specialist Context Engine Repair (2026-11-17)
 
 **Latest verified code HEAD:** `e7ef78ae6e58a9b8764965b3dc9cff0056c77212`  
