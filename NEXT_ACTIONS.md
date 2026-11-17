@@ -1,3 +1,15 @@
+## R15D v2 OpenPGP public-key custody tabletop — CI verified; real intake still gated
+
+- Upgraded the synthetic delivery test to OpenPGP public-key encryption. The recipient keypair is generated in a private key-custody directory; the sender imports only the public key into a separate GnuPG home; the recipient private-key home is separate from sender/receiver working directories.
+- All three synthetic submissions (two primary, one third adjudicator) complete encryption/decryption round trips with exact byte equality. Sender plaintext is removed after encryption; recipient fingerprint is established.
+- **Verified run:** [44046190863](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44046190863), 346 tests passed on Python 3.11, 3.12 and 3.13. The dedicated Python 3.11 job also completed the full receipt-bound merge, disagreement adjudication, freeze and independent manifest verification tabletop.
+- The latest fixture artifact remains artifact 14311191843 with ZIP SHA-256 103dd9bc104e69b113d6120c548506d4cbe80b23806f51ac6090e68725253649 and fixture manifest SHA-256 8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8. Direct inspection confirmed six pinned excerpts, answer_key_included=false and zero forbidden answer-key JSON keys.
+- **Limits:** this is synthetic key generation and local CI transport. It does not prove real fingerprint verification over an independent channel, separate physical-device or hardware-backed key custody, real external transport/storage, real identity or real reviewer independence.
+- **Current gate:** zero genuine reviewer submissions, zero real identity checks, zero real receipts, zero production freeze, zero model inference. V1 remains retired. V2 remains design/fixture verified only.
+- **Next action:** complete the custodian readiness checklist with real reviewer eligibility and identity verification, independently verified recipient fingerprints, a separate-device/private-key custody plan, encrypted private storage, and explicit written authorization. Do not open production reviewer intake or model inference before the relevant gates are independently signed off.
+
+---
+
 ## R15D v2 encrypted-delivery custody tabletop — CI verified
 
 - Extended `scripts/run_r15d_v2_custody_tabletop.py` to perform GnuPG AES-256 symmetric encryption/decryption round trips for two primary reviewer bundles and one third-adjudicator bundle.
