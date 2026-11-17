@@ -1,3 +1,16 @@
+## R15D v1 answer-key leakage finding, retirement and containment — CI verified (2026-11-17)
+
+- **Finding:** the repository is public. `research_runs/r15d_semantic_case_manifest.json` contains `expected_label` for all six R15D v1 cases. Downloaded GitHub Actions artifact `14307778314` also contains all six `expected_label` fields in `fixture_manifest.json`. The artifact's fixture manifest SHA-256 is `2c0eb9ef589963ad48f430eeb838c416f90251a73b9ad876f201be20e6eda305`, matching the manifest digest pinned by the v1 adjudication validator. Downloaded ZIP SHA-256: `83f1665e69ede8a269b2c2d397f50bb6c1d46645fb441cf36edd7dc61e0f67b8`.
+- **Disposition:** R15D v1 is `blinding_compromised_retired_for_new_blind_adjudication`. The blank packet itself remains unchanged at blob `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`, but the wider benchmark information boundary is compromised. No real reviewer submissions exist, so actual reviewer contamination is not observed or established. Do not solicit v1 reviews, freeze v1 ground truth or run blind model-quality evaluation against these six cases.
+- Added `research/R15D_V1_BLINDNESS_LEAKAGE_AUDIT.md` and machine-readable `research_runs/r15d_adjudication/r15d_state_report.json`. Updated the v1 adjudication and reviewer intake protocols to mark them retired while preserving all forensic evidence.
+- **Leakage containment:** removed the v1 fixture build/upload steps from `.github/workflows/ci.yml`; the old fixture builder now requires an explicit isolated forensic output directory, refuses paths inside the public repository, strips `expected_label` from generated forensic manifests, sets status `retired_forensic_fixture_not_for_blind_adjudication`, and requires `--forensic-only` for CLI use.
+- Added regression tests proving the builder refuses default/public-repository output, generated forensic manifests omit expected labels, and CI cannot republish the retired fixture artifact.
+- **CI:** run [44038929810](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44038929810) passed **283 tests** on Python 3.11, 3.12 and 3.13. GitHub Actions artifact count for this run: **0**. The old public manifest and previously uploaded artifact remain preserved as forensic evidence; containment does not restore v1 blindness.
+- **Production gates:** no real primary/third submissions; no custodian identity checks; no production merge or freeze; model inference unauthorized; semantic audit increment zero; candidate execution/wallet/signing/deployment/live trading/paid/cloud inference remain disabled.
+- **Next sequence:** design R15D v2 (or successor) from new, previously undisclosed propositions. Keep public repository files limited to source pins, propositions, boundaries and evidence rules. Keep any answer key outside the public repository and all public CI artifacts. Add a leakage scanner that fails if `expected_label`, answer-key values or reference-label files appear in reviewer-facing bundles or uploaded artifacts. Only after this design and isolation audit passes should new private reviewer intake begin.
+
+---
+
 ## R15D adversarial end-to-end negative tests — CI verified (2026-11-17)
 
 - **Verified test HEAD:** `9e1ec0a9f42c0b8403b4166db0c5ab340f15f495`.
