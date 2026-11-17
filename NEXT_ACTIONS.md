@@ -1,3 +1,17 @@
+## R15D private reviewer intake contract and validator — CI verified (2026-11-17)
+
+- **Verified code HEAD before this documentation update:** `889a9bddd3d2157d0a9e329c06090dfb2c498e54`.
+- Added `research/R15D_REVIEWER_SUBMISSION_INTAKE.md`: six-case private intake sequence, strict blind separation, custodian identity check, private staging, merge only after both primary submissions, third adjudication on disagreement, and final validate/freeze/verify commands.
+- Added `research/R15D_REVIEWER_SUBMISSION.schema.json`: exact six-case single-reviewer bundle, source-pin structure, allowed labels, evidence uniqueness, UTC timestamp formats and required blindness/conflict attestations.
+- Added `scripts/validate_r15d_review_submission.py`: fail-closed checks for exact fields, stable reviewer ID, six unique case IDs, immutable source pins, exact evidence path/range/excerpt SHA-256, unique references, label, rationale, confidence, UTC timestamps and attestations. Malformed non-string labels and unhashable case IDs are rejected without exceptions.
+- Added `tests/test_r15d_review_submission.py`: ten focused regression tests using synthetic fixtures only. No synthetic reviewer records were written into the canonical blind packet.
+- **Important limitation:** this validator checks submission format and source provenance; it cannot cryptographically establish a real person's identity or prove their independence. A designated custodian must verify identity out of band. Because the canonical repository is public, plaintext reviewer submissions must not be committed or exposed to the other reviewer before both submissions are complete.
+- **CI:** run [44035815381](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44035815381) passed Python 3.11, 3.12 and 3.13; **240 tests passed in each matrix job**. Python 3.11 source-fixture build/upload succeeded. Artifact ID `14306243930`, 4,669 bytes.
+- **Current adjudication status:** no real reviewer bundles received; no identity verification; no packet merge; no freeze. Original blind packet remains unchanged at blob `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`. Twelve primary reviewer slots and six third-adjudicator slots remain blank. Ground truth unfrozen; model inference unauthorized; semantic audit increment zero; dossiers pending; execution/wallet/signing/deployment/live-trading/paid/cloud-inference remain disabled.
+- **Next decision boundary:** actual independent reviewer participation through a private, identity-verifiable channel is now the only blocker to ground-truth freeze. Do not replace it with model-generated labels or public plaintext PRs. Once two genuine bundles arrive, validate each, merge into a new working packet (never modify the blank template), resolve disagreements with a distinct third reviewer, then freeze and independently verify the digest.
+
+---
+
 ## R15D atomic freeze publication and schema parity checkpoint — CI verified (2026-11-17)
 
 - **Verified code HEAD before this documentation update:** `58a936bcd9d9cfc24c4dd2c0b03bfac844363c85`.
