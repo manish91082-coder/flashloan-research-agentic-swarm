@@ -39,9 +39,8 @@ class RoleSourcePolicyTests(unittest.TestCase):
         ordered, coverage = order_role_source_manifest("test_verification", self.manifest)
         paths = [item["path"] for item in ordered]
         self.assertLess(paths.index("tests/test_liquidation.py"),
-                        paths.index("bot.js"))
-        self.assertLess(paths.index(".github/workflows/ci.yml"),
-                        paths.index("bot.js"))
+                        paths.index(".github/workflows/ci.yml"))
+        self.assertNotIn("bot.js", paths)
         self.assertIn("test_source", coverage["present_families"])
 
     def test_missing_required_family_is_explicit(self):
