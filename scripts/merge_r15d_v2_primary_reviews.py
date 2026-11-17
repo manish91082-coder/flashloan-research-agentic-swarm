@@ -10,6 +10,7 @@ from pathlib import Path
 
 from scripts.validate_r15d_review_submission import _unique_object
 from scripts.validate_r15d_v2_review_submission import load_fixture_bundle, validate_submission
+from scripts.verify_r15d_v2_intake_receipt import verify_intake_receipt
 
 
 def _read_strict(path: Path, label: str):
@@ -116,6 +117,11 @@ def build_staged_packet(fixture: dict, bundle_a: dict, bundle_b: dict, fixture_s
             for bundle in (bundle_a, bundle_b)
         ],
         "third_reviewer_attestations": None,
+        "custody_receipts": {
+            "primary_a_receipt_sha256": None,
+            "primary_b_receipt_sha256": None,
+            "third_adjudicator_receipt_sha256": None,
+        },
         "blinding": {
             "expected_labels_omitted": True,
             "model_outputs_omitted": True,
@@ -149,6 +155,8 @@ def merge_primary_reviews(
     fixture_path: Path,
     reviewer_a_path: Path,
     reviewer_b_path: Path,
+    receipt_a_path: Path,
+    receipt_b_path: Path,
     output_path: Path,
     custodian_id: str,
     identity_verification_complete: bool,
@@ -157,10 +165,12 @@ def merge_primary_reviews(
         raise ValueError("custodian must verify both reviewer identities out of band before merge")
     if not isinstance(custodian_id, str) or len(custodian_id.strip()) < 3:
         raise ValueError("custodian_id must be a stable identifier")
-    resolved = [fixture_path.resolve(), reviewer_a_path.resolve(), reviewer_b_path.resolve(), output_path.resolve()]
-    if len(set(resolved)) != 4:
-        raise ValueError("fixture, both reviewer submissions and output must be separate paths")
+    resolved = [fixture_path.resolve(), reviewer_a_path.resolve(), reviewer_b_path.resolve(), receipt_a_path.resolve(), receipt_b_path.resolve(), output_path.resolve()]
+    if len(set(resolved)) != 6:
+        raise ValueError("fixture, both reviewer submissions, both receipts and output must be separate paths")
 
+    receipt_a = verify_intake_receipt(fixture_path, reviewer_a_path, receipt_a_path, "primary_a", custodian_id)
+    receipt_b = verify_intake_receipt(fixture_path, reviewer_b_path, receipt_b_path, "primary_b", custodian_id)
     fixture = load_fixture_bundle(fixture_path)
     fixture_hash = hashlib.sha256(_fixture_manifest_bytes(fixture_path)).hexdigest()
     bundle_a = _read_strict(reviewer_a_path, "reviewer A bundle")
@@ -174,6 +184,11 @@ def merge_primary_reviews(
     if result_a["reviewer_id"] == result_b["reviewer_id"]:
         raise ValueError("primary reviewer identities must be distinct")
     packet = build_staged_packet(fixture, bundle_a, bundle_b, fixture_hash, custodian_id)
+    packet["custody_receipts"] = {
+        "primary_a_receipt_sha256": receipt_a["receipt_sha256"],
+        "primary_b_receipt_sha256": receipt_b["receipt_sha256"],
+        "third_adjudicator_receipt_sha256": None,
+    }
     payload = (json.dumps(packet, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
     _atomic_create(output_path, payload)
     disagreements = [case["id"] for case in packet["cases"] if case["disagreement"]]
@@ -196,6 +211,8 @@ def main() -> None:
     parser.add_argument("--fixture", type=Path, required=True)
     parser.add_argument("--reviewer-a", type=Path, required=True)
     parser.add_argument("--reviewer-b", type=Path, required=True)
+    parser.add_argument("--receipt-a", type=Path, required=True)
+    parser.add_argument("--receipt-b", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--custodian-id", required=True)
     parser.add_argument("--identity-verification-complete", action="store_true")
