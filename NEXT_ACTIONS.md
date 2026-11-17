@@ -1,3 +1,20 @@
+## R15D schema/validator and freeze-manifest integrity checkpoint — CI verified (2026-11-17)
+
+- **Canonical repository/branch:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
+- **Verified HEAD before this documentation update:** `773652be5c3a3c66e41c01cc4978a762d8460250`.
+- **Validator hardening:** malformed/unhashable case IDs now fail closed without Python exceptions; duplicate and extra case IDs are rejected; malformed consensus and third-adjudicator objects are structurally checked even while reviewer slots are blank; duplicate evidence references are rejected; exact nested-object key sets, schema version, allowed-label order and pre-freeze null timestamp are enforced.
+- **Schema alignment:** evidence-reference arrays now declare `uniqueItems: true`; third-adjudicator independence attestation is explicitly optional only for the unused blank slot and required by semantic validation when adjudication is active.
+- **Freeze input integrity:** freeze now reads the blind packet bytes once, parses those exact bytes, and hashes the same byte sequence. Duplicate JSON object keys are rejected. The manifest records both the exact input SHA-256 and validator source SHA-256.
+- **Independent verifier:** added `scripts/verify_r15d_frozen_manifest.py`. It reopens the exact blind input and frozen manifest, recomputes both hashes, revalidates complete adjudication, verifies the validator digest and checks the entire frozen output against the expected transformation. It can additionally compare an externally supplied expected manifest SHA-256.
+- **Regression coverage:** malformed case IDs, duplicate/extra IDs, malformed consensus, malformed third adjudicator during disagreement, duplicate evidence references, unknown nested fields, pre-freeze timestamp tampering, duplicate JSON keys, exact input-byte provenance, manifest tampering, digest mismatch and input/output path collision.
+- **CI:** run [44035109817](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44035109817) completed successfully on Python 3.11, 3.12 and 3.13; **227 tests passed in each matrix job**. Python 3.11 source-fixture build and upload passed. Artifact ID `14307525747`, 4,669 bytes.
+- **Immutable input:** original blind packet remains unchanged at blob `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`; six cases, twelve primary reviewer slots and six third-adjudicator slots remain blank.
+- **No adjudication/freeze:** no genuine reviewer submissions exist; no production freeze was run. Ground truth remains unfrozen, model inference unauthorized, semantic audit increment zero, dossiers pending. Candidate execution, wallet access, signing, deployment, live trading, paid inference and cloud inference remain disabled.
+- **CI audit history:** earlier red runs `44034687962`, `44034700327`, `44034725975`, and `44034774561` are retained as visible regression events. Their defects were corrected; do not relabel those runs as successful. The authoritative green run is `44035109817`.
+- **Next sequence:** (1) audit the freeze writer and verifier as a pair for filesystem race/partial-write behavior and add any necessary atomicity tests; (2) add a reviewer-submission intake path that preserves blind separation and accepts only genuine, independently attributable records; (3) keep the freeze command unused until all six cases have valid independent reviews and all disagreements have a distinct third adjudicator; (4) only after a real frozen manifest exists, prepare held-out semantic cases. Do not authorize inference or increment semantic audit counts before that point.
+
+---
+
 ## R15D freeze-gate hardening checkpoint — CI verified (2026-11-17)
 
 - **Verified current code commits:** freeze utility hardening `d06f050244edd9892f98e06bbbe7036941dc46bb`; regression tests `09bfd57946f630a69153099f2eecba66e717a1fd`.
