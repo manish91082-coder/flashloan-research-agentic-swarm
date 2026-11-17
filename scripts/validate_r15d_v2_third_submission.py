@@ -32,14 +32,16 @@ def _validate_staged_packet(staged: object, fixture: dict) -> tuple[list[str], l
         errors.append("staged packet benchmark identity is invalid")
     if staged.get("status") != "primary_reviews_received_pending_consensus":
         errors.append("staged packet must remain pending consensus")
-    if not isinstance(staged.get("fixture_manifest_sha256"), str) or len(staged["fixture_manifest_sha256"]) != 64:
-        errors.append("staged packet fixture manifest digest is invalid")
+    if staged.get("fixture_manifest_sha256") != fixture.get("_artifact_manifest_sha256"):
+        errors.append("staged packet fixture manifest digest does not match the verified artifact")
     blinding = staged.get("blinding")
-    if not isinstance(blinding, dict) or any(blinding.get(k) is not True for k in ("expected_labels_omitted", "model_outputs_omitted", "primary_reviews_completed_independently", "v1_answer_key_non_exposure_attested")):
+    blinding_fields = {"expected_labels_omitted", "model_outputs_omitted", "primary_reviews_completed_independently", "v1_answer_key_non_exposure_attested"}
+    if not isinstance(blinding, dict) or set(blinding) != blinding_fields or any(blinding.get(k) is not True for k in blinding_fields):
         errors.append("staged packet blinding invariants must all remain true")
     custody = staged.get("custody")
-    if not isinstance(custody, dict) or custody.get("primary_reviewer_identities_verified_out_of_band") is not True or custody.get("identity_verification_is_custodian_attestation_not_cryptographic_proof") is not True:
-        errors.append("staged packet must carry custodian identity-verification attestation")
+    custody_fields = {"custodian_id", "primary_reviewer_identities_verified_out_of_band", "identity_verification_is_custodian_attestation_not_cryptographic_proof"}
+    if not isinstance(custody, dict) or set(custody) != custody_fields or not isinstance(custody.get("custodian_id"), str) or len(custody.get("custodian_id", "").strip()) < 3 or custody.get("primary_reviewer_identities_verified_out_of_band") is not True or custody.get("identity_verification_is_custodian_attestation_not_cryptographic_proof") is not True:
+        errors.append("staged packet must carry the exact custodian identity-verification attestation")
     safety = staged.get("safety")
     if not isinstance(safety, dict) or set(safety) != {"candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference"} or any(value is not False for value in safety.values()):
         errors.append("staged packet safety controls must all remain disabled")
