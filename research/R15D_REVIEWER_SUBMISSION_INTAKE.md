@@ -46,3 +46,7 @@ The bundle-level attestations must confirm independent work, no model-output exp
 - Any attempt to mutate the original blank packet or run model inference before the frozen manifest is verified.
 
 A valid bundle is not itself a consensus result. Two valid bundles create only a staged primary-review packet. They are not frozen ground truth until consensus is completed, every disagreement has a distinct third adjudicator, the final packet validator passes, the freeze is written separately and the manifest is independently verified.
+
+## Third-adjudication handoff
+
+When the independently verified staged merge contains disagreements, follow `research/R15D_THIRD_ADJUDICATION_INTAKE.md`. The third adjudicator sees both primary reviews for disputed cases but must not see model outputs. The third submission must cover exactly the disagreement set and must use an identity distinct from both primary reviewers. Validate it with `python scripts/validate_r15d_third_adjudication_submission.py --staged-packet <private-staged-packet.json> --submission <private-third-adjudicator.json>`. No third review is accepted for unanimous cases.
