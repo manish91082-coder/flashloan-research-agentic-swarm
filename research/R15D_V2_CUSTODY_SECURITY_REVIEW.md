@@ -1,0 +1,59 @@
+# R15D v2 Reviewer Custody and Security Review
+
+**Status:** operating procedure drafted; no real submissions or identity checks have occurred.
+
+## Trust boundaries
+
+- Public repository and CI artifacts may contain v2 source excerpts, immutable source pins, propositions, evidence rules, schemas and scanner output only.
+- Primary reviewer bundles contain labels, rationales, confidence and evidence references. They are private records and must never enter public commits, pull requests, issues, workflow logs, public artifacts or public releases.
+- Third-adjudicator bundles are private and include only disputed cases. The third reviewer may see both primary reviews for those cases, but not model outputs or v1 answer-key material.
+- Real-world identity records are held separately by the custodian. The repository stores only pseudonymous reviewer IDs and a custodian attestation that an out-of-band identity check occurred.
+
+## Required intake procedure
+
+1. Verify reviewer identity privately and independently. Assign a stable pseudonymous reviewer ID. Reject anyone who has seen or consulted R15D v1 answer-key material.
+2. Give each primary reviewer the same v2 label-free fixture artifact through separate private channels. Do not reveal another reviewer's identity, work or labels.
+3. Require the signed/attested v2 bundle and receive it through an encrypted private channel.
+4. Compute SHA-256 immediately on receipt. Preserve the original encrypted submission as read-only evidence; validate a working copy.
+5. Generate a metadata-only intake receipt with `scripts/create_r15d_v2_intake_receipt.py`. The receipt contains hashes, pseudonymous IDs, timestamps and attestation booleans only. It must not contain labels, rationales or evidence text.
+6. Store raw submissions, staged packets, receipts and identity records outside the public repository in an encrypted, access-controlled location. Use separate access controls for the custodian and the reviewers.
+7. Do not merge until both primary bundles have arrived and passed validation. Preserve original bundle hashes and verify the staged merge independently.
+8. Obtain a third review only for the exact disagreement set. The third reviewer must be distinct from both primary reviewers.
+9. Keep all model inference disabled until a complete packet is frozen and independently verified. A freeze is not itself authorization to infer.
+
+## Local file handling
+
+- Use a dedicated directory outside the repository and outside automatically synchronized public/shared folders.
+- On POSIX systems, use a directory mode equivalent to `0700` and file modes equivalent to `0600`; verify actual permissions after creation.
+- Encrypt submissions at rest and in transit using an established open-source tool such as age or GnuPG. Keep decryption keys separate from the encrypted files.
+- Do not paste raw reviewer submissions into public issues, code review, shared chat rooms or CI logs.
+- Keep identity documents and real names out of the repository and out of intake receipts.
+- Preserve originals; perform validation and merging on copies. Never edit a received bundle to make it pass.
+
+## Custody receipt constraints
+
+The metadata-only receipt must include:
+- benchmark ID and fixture manifest digest;
+- reviewer slot and pseudonymous reviewer ID;
+- SHA-256 of the exact received submission bytes;
+- submitted and custodian-verified timestamps;
+- custodian ID and out-of-band identity verification status;
+- v1 non-exposure, model-blindness and independence attestation booleans;
+- explicit booleans that payload content, labels and rationales are not included.
+
+The receipt is not a cryptographic identity certificate. The custodian's identity verification remains an operational control.
+
+## Incident response
+
+If a reviewer saw v1 answer-key material, another primary review, or model output:
+- quarantine the submission;
+- do not merge or use its labels;
+- record a private incident receipt without exposing content;
+- replace the reviewer with a newly screened independent person;
+- preserve the incident evidence privately.
+
+If any private bundle or label appears in a public repository or CI artifact, stop the benchmark, preserve the evidence, mark the affected revision compromised, and do not attempt to restore blindness by deleting only the latest copy.
+
+## Current status
+
+No genuine reviewer bundles, identity checks, custody receipts, staged merges, adjudication or production freeze exist. This procedure is a control design, not evidence that the controls have been exercised.
