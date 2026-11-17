@@ -22,7 +22,7 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
     errors = []
     if not isinstance(packet, dict):
         return {"valid": False, "complete": False, "case_count": 0, "completed_cases": 0, "errors": ["final packet must be a JSON object"]}
-    expected_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "blinding", "custody", "safety", "freeze"}
+    expected_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "primary_reviewer_attestations", "third_reviewer_attestations", "blinding", "custody", "safety", "freeze"}
     if set(packet) != expected_top:
         errors.append("final packet top-level fields are not canonical")
     if packet.get("schema_version") != "1.0" or packet.get("benchmark_id") != "r15d-semantic-source-facts-v2" or packet.get("status") != FINAL_STATUS:
@@ -35,7 +35,7 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
     if not isinstance(blinding, dict) or set(blinding) != blinding_fields or any(blinding.get(k) is not True for k in blinding_fields):
         errors.append("final packet blinding invariants must all remain true")
     custody = packet.get("custody")
-    custody_fields = {"custodian_id", "primary_reviewer_identities_verified_out_of_band", "identity_verification_is_custodian_attestation_not_cryptographic_proof"}
+    custody_fields = {"custodian_id", "primary_reviewer_identities_verified_out_of_band", "third_adjudicator_identity_verified_out_of_band", "identity_verification_is_custodian_attestation_not_cryptographic_proof"}
     if not isinstance(custody, dict) or set(custody) != custody_fields or not isinstance(custody.get("custodian_id"), str) or len(custody.get("custodian_id", "").strip()) < 3 or custody.get("primary_reviewer_identities_verified_out_of_band") is not True or custody.get("identity_verification_is_custodian_attestation_not_cryptographic_proof") is not True:
         errors.append("final packet custodian identity attestation is invalid")
     safety = packet.get("safety")
@@ -56,6 +56,7 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
         return {"valid": False, "complete": False, "case_count": len(cases), "completed_cases": 0, "errors": errors}
 
     primary_ids_by_slot = [set(), set()]
+    third_reviewer_ids = set()
     completed = 0
     for case in cases:
         case_id = case["id"]
@@ -122,6 +123,8 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
                 continue
             if not isinstance(third.get("reviewer_id"), str) or third["reviewer_id"].strip() in {reviewers[0]["reviewer_id"].strip(), reviewers[1]["reviewer_id"].strip()}:
                 errors.append(f"{case_id}: third reviewer identity must differ from both primary reviewers")
+            elif isinstance(third.get("reviewer_id"), str):
+                third_reviewer_ids.add(third["reviewer_id"].strip())
             if not isinstance(third.get("label"), str) or third["label"] not in ALLOWED or consensus.get("label") != third.get("label"):
                 errors.append(f"{case_id}: consensus label must equal the third-adjudicator label")
             if not isinstance(third.get("rationale"), str) or not third["rationale"].strip() or consensus.get("rationale") != third.get("rationale"):
@@ -153,6 +156,39 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
             errors.append(f"primary reviewer slot {index + 1} must retain one stable identity across all six cases")
     if primary_ids_by_slot[0] & primary_ids_by_slot[1]:
         errors.append("primary reviewer identities must be globally distinct")
+
+    primary_attestations = packet.get("primary_reviewer_attestations")
+    attestation_fields = {"reviewer_id", "independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed", "conflict_statement"}
+    if not isinstance(primary_attestations, list) or len(primary_attestations) != 2:
+        errors.append("final packet must preserve exactly two primary reviewer attestation records")
+    else:
+        for index, attestation in enumerate(primary_attestations):
+            if not isinstance(attestation, dict) or set(attestation) != attestation_fields:
+                errors.append(f"primary reviewer attestation {index + 1} has an invalid shape")
+                continue
+            if any(attestation.get(k) is not True for k in ("independent_review", "model_outputs_not_seen", "other_reviews_not_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed")) or not isinstance(attestation.get("conflict_statement"), str) or len(attestation["conflict_statement"].strip()) < 3:
+                errors.append(f"primary reviewer attestation {index + 1} is incomplete")
+            if index < 2 and len(primary_ids_by_slot[index]) == 1 and attestation.get("reviewer_id") not in primary_ids_by_slot[index]:
+                errors.append(f"primary reviewer attestation {index + 1} does not match the case records")
+
+    has_disagreements = any(case.get("disagreement") is True for case in cases)
+    third_attestations = packet.get("third_reviewer_attestations")
+    if has_disagreements:
+        if len(third_reviewer_ids) != 1:
+            errors.append("all third-adjudicated cases must retain one stable third reviewer identity")
+        third_fields = {"reviewer_id", "independent_review", "model_outputs_not_seen", "primary_reviews_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed", "conflict_statement"}
+        if not isinstance(third_attestations, dict) or set(third_attestations) != third_fields:
+            errors.append("final packet must preserve the third reviewer attestation record")
+        else:
+            if third_attestations.get("reviewer_id") not in third_reviewer_ids:
+                errors.append("third reviewer attestation identity does not match case records")
+            if any(third_attestations.get(k) is not True for k in ("independent_review", "model_outputs_not_seen", "primary_reviews_seen", "v1_answer_key_not_seen", "v1_labels_not_consulted", "conflicts_disclosed")) or not isinstance(third_attestations.get("conflict_statement"), str) or len(third_attestations["conflict_statement"].strip()) < 3:
+                errors.append("third reviewer attestation record is incomplete")
+    elif third_attestations is not None or third_reviewer_ids:
+        errors.append("unanimous packet must not contain third-review identity or attestation")
+    if isinstance(custody, dict) and custody.get("third_adjudicator_identity_verified_out_of_band") is not has_disagreements:
+        errors.append("custody third-adjudicator identity state does not match disagreement resolution")
+
     valid = not errors and completed == 6
     return {
         "valid": valid,
