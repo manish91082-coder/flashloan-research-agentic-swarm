@@ -29,6 +29,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install optional agentic runtime
         run: pip install -e '.[agentic]'
+      - name: Install GnuPG for encrypted custody tabletop
+        if: matrix.python-version == '3.11'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gnupg
       - name: Validate WSL resume helper syntax
         run: bash -n scripts/resume_source_capture.sh
       - name: Compile source
