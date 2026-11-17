@@ -87,7 +87,9 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
     if set(identities) != set(EXPECTED):
         raise ValueError("candidate set differs from the two approved source pins")
 
-    out = output_dir or ROOT / "research_runs/r15d_semantic_fixtures"
+    if output_dir is None:
+        raise ValueError("R15D v1 is retired; an explicit isolated forensic output directory is required")
+    out = output_dir
     excerpts_dir = out / "excerpts"
     excerpts_dir.mkdir(parents=True, exist_ok=True)
     built_cases = []
@@ -105,8 +107,9 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
             raise ValueError(f"invalid applicability label: {case['expected_label']}")
         filename = f"{case['id']}.sol.txt"
         (excerpts_dir / filename).write_bytes(excerpt)
+        public_case = {key: value for key, value in case.items() if key != "expected_label"}
         built_cases.append({
-            **case,
+            **public_case,
             "commit_sha": identities[repo]["commit_sha"],
             "tree_sha": identities[repo]["tree_sha"],
             "git_blob_sha1": identities[repo]["files"][0]["git_blob_sha1"],
@@ -117,7 +120,7 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
     result = {
         "schema_version": "1.0",
         "benchmark_id": manifest["benchmark_id"],
-        "status": "built_pending_independent_adjudication",
+        "status": "retired_forensic_fixture_not_for_blind_adjudication",
         "source_manifest_sha256": sha256(manifest_path.read_bytes()),
         "cases": built_cases,
         "safety": manifest["safety"],
@@ -130,10 +133,13 @@ def build(manifest_path: Path = MANIFEST, output_dir: Path | None = None) -> dic
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build source-pinned R15D semantic fixtures; never executes candidate code.")
-    parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--output-dir", type=Path, required=True, help="Explicit isolated forensic output directory; never use a public reviewer-facing path.")
+    parser.add_argument("--forensic-only", action="store_true", help="Acknowledge that R15D v1 is retired and output must not be used for blind review.")
     args = parser.parse_args()
+    if not args.forensic_only:
+        parser.error("R15D v1 is retired; pass --forensic-only to build a non-blind forensic fixture.")
     result = build(output_dir=args.output_dir)
-    target = args.output_dir or ROOT / "research_runs/r15d_semantic_fixtures"
+    target = args.output_dir
     print(json.dumps({"status": result["status"], "cases": len(result["cases"]), "manifest_sha256": sha256((target / "fixture_manifest.json").read_bytes())}, indent=2))
 
 
