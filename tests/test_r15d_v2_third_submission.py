@@ -20,6 +20,7 @@ class R15DV2ThirdSubmissionTests(unittest.TestCase):
         self.fixture_dir = self.root / "fixture"
         build(output_dir=self.fixture_dir)
         self.fixture = load_fixture_bundle(self.fixture_dir)
+        self.stage_counter = 0
 
     def primary_bundle(self, reviewer_id, disagreement_case=None):
         cases = []
@@ -51,7 +52,8 @@ class R15DV2ThirdSubmissionTests(unittest.TestCase):
         }
 
     def make_staged(self, disagreement_case="NAV2-02"):
-        a, b, staged = self.root / "a.json", self.root / "b.json", self.root / "staged.json"
+        self.stage_counter += 1
+        a, b, staged = self.root / "a.json", self.root / "b.json", self.root / f"staged-{self.stage_counter}.json"
         a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
         b.write_text(json.dumps(self.primary_bundle("reviewer.beta", disagreement_case)), encoding="utf-8")
         merge_primary_reviews(self.fixture_dir, a, b, staged, "custodian.v2", True)
