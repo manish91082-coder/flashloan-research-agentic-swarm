@@ -1,3 +1,15 @@
+## R15D adversarial end-to-end negative tests — CI verified (2026-11-17)
+
+- **Verified test HEAD:** `9e1ec0a9f42c0b8403b4166db0c5ab340f15f495`.
+- Expanded `tests/test_r15d_end_to_end_freeze_pipeline.py` with negative-path checks: primary bundle changed after staged merge; staged packet tampering; third-adjudicator identity collision with a primary reviewer; missing third review for a disagreement; frozen-manifest provenance tampering.
+- The first adversarial test run [44038170000](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44038170000) exposed a test-fixture serialization issue: the tampered manifest was malformed JSON rather than valid JSON with a bad provenance digest. The fixture newline was corrected in commit `9e1ec0a9f42c0b8403b4166db0c5ab340f15f495`. The failure was in the test's expected error classification, not a production validator bypass. The failed run remains visible in the audit trail.
+- **Corrected CI:** run [44038191152](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44038191152) passed **280 tests** on Python 3.11, 3.12 and 3.13.
+- **End-to-end green baseline:** run [44037991842](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44037991842) passed the original synthetic unanimous/disagreement freeze-to-verifier pipeline on all three Python versions.
+- **Current production boundary unchanged:** only synthetic fixtures were used. Canonical blind packet blob remains `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`; no genuine reviewer bundles or custodian identity checks; no production merge, adjudication or freeze; model inference unauthorized; semantic audit increment zero; execution/wallet/signing/deployment/live-trading/paid/cloud-inference remain disabled.
+- **Next sequence:** audit the CI fixture artifact's provenance chain and repository evidence pins; add a single consolidated machine-readable R15D state report that distinguishes (a) code/CI readiness, (b) synthetic pipeline proof, and (c) real-world ground-truth status. Keep the production freeze gate closed until actual private human submissions are received and verified.
+
+---
+
 ## R15D end-to-end finalization-to-freeze dry-run — CI verified (2026-11-17)
 
 - **Verified implementation/test HEAD:** `75d10ddb39cf3ceb26aa92e0745399c65c6ce256`.
