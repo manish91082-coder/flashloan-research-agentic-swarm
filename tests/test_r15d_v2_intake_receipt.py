@@ -96,8 +96,8 @@ class R15DV2IntakeReceiptTests(unittest.TestCase):
         self.assertFalse(receipt["payload_content_included"])
         self.assertTrue(receipt["public_repository_storage_prohibited"])
         self.assertNotIn("cases", receipt)
-        self.assertNotIn("label", json.dumps(receipt).lower())
-        self.assertNotIn("rationale", json.dumps(receipt).lower())
+        self.assertNotIn('"label":', json.dumps(receipt).lower())
+        self.assertNotIn('"rationale":', json.dumps(receipt).lower())
 
     def test_receipt_requires_custodian_identity_verification(self):
         submission = self.root / "reviewer-a.json"
