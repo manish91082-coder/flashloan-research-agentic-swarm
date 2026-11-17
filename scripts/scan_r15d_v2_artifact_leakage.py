@@ -82,8 +82,8 @@ def scan_artifact(path: Path) -> dict:
             cases = manifest.get("cases")
             if not isinstance(cases, list) or len(cases) != 6:
                 findings.append("fixture manifest must contain exactly six cases")
-            elif len({case.get("id") for case in cases if isinstance(case, dict)}) != 6 or any(not isinstance(case, dict) for case in cases):
-                findings.append("fixture manifest case IDs must be six unique objects")
+            elif any(not isinstance(case, dict) or not isinstance(case.get("id"), str) for case in cases) or len({case["id"] for case in cases}) != 6:
+                findings.append("fixture manifest case IDs must be six unique objects with string IDs")
             if any(isinstance(case, dict) and "label" in case for case in (cases if isinstance(cases, list) else [])):
                 findings.append("fixture manifest must not contain adjudication label fields")
 
