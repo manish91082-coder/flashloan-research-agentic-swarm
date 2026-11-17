@@ -19,12 +19,12 @@ It contains no expected labels, reference labels, model outputs, reviewer identi
 ## New six-case proposition set
 
 The six new propositions are recorded in `research_runs/r15d_v2_semantic_case_design.json`:
-- NAV2-01: `onlyOwner` modifier behavior.
-- NAV2-02: `executeLiquidation` parameter encoding and flash-loan call construction.
-- NAV2-03: owner-only token and native-asset withdrawal behavior.
-- COB2-01: constructor zero-address checks, reference assignments and fee-tier initialization.
-- COB2-02: per-call minimum-profit floor selection and forwarding.
-- COB2-03: direct and intermediate Uniswap V3 path-selection behavior.
+- NAV2-01: the `onlyOwner` modifier's sender-to-owner equality guard.
+- NAV2-02: the receiver, asset and amount arguments supplied to `flashLoanSimple`.
+- NAV2-03: the native-asset balance transfer performed by `withdrawETH`.
+- COB2-01: the constructor's zero-address guard for `_aavePool`.
+- COB2-02: the ternary selection of the larger stored/per-call minimum-profit floor.
+- COB2-03: the direct-pair fee-tier branch in `_resolveSwapPath`.
 
 These propositions are not the six v1 propositions. They are design statements, not adjudicated facts. Reviewers must determine the applicable labels from the pinned source excerpts.
 
