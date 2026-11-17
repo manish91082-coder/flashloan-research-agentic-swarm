@@ -25,7 +25,7 @@ def _validate_staged_packet(staged: object, fixture: dict) -> tuple[list[str], l
     reviewer_ids_by_slot = [set(), set()]
     if not isinstance(staged, dict):
         return ["staged packet must be a JSON object"], disagreements, set()
-    required_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "primary_reviewer_attestations", "third_reviewer_attestations", "blinding", "custody", "safety", "freeze"}
+    required_top = {"schema_version", "benchmark_id", "status", "fixture_manifest_sha256", "cases", "primary_reviewer_attestations", "third_reviewer_attestations", "custody_receipts", "blinding", "custody", "safety", "freeze"}
     if set(staged) != required_top:
         errors.append("staged packet top-level fields are not canonical")
     if staged.get("schema_version") != "1.0" or staged.get("benchmark_id") != "r15d-semantic-source-facts-v2":
@@ -42,6 +42,10 @@ def _validate_staged_packet(staged: object, fixture: dict) -> tuple[list[str], l
                 errors.append("a preserved primary reviewer attestation record is invalid")
     if staged.get("third_reviewer_attestations") is not None:
         errors.append("third reviewer attestations must remain null before third-review intake")
+    custody_receipts = staged.get("custody_receipts")
+    receipt_fields = {"primary_a_receipt_sha256", "primary_b_receipt_sha256", "third_adjudicator_receipt_sha256"}
+    if not isinstance(custody_receipts, dict) or set(custody_receipts) != receipt_fields or not all(isinstance(custody_receipts.get(k), str) and re.fullmatch(r"[0-9a-f]{64}", custody_receipts[k]) for k in ("primary_a_receipt_sha256", "primary_b_receipt_sha256")) or custody_receipts.get("third_adjudicator_receipt_sha256") is not None:
+        errors.append("staged packet must contain two verified primary receipt digests and no third receipt yet")
     if staged.get("fixture_manifest_sha256") != fixture.get("_artifact_manifest_sha256"):
         errors.append("staged packet fixture manifest digest does not match the verified artifact")
     blinding = staged.get("blinding")
