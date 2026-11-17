@@ -587,6 +587,39 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             self.assertEqual(result[0]["blob_sha"], blob_sha)
             self.assertIn("000002:     function executeOperation()", result[0]["excerpt"])
 
+    def test_verified_source_context_enforces_aggregate_per_file_budget(self):
+        payload_a = ("\\n".join(f"source line {i:03d}" for i in range(1, 151)) + "\\n").encode()
+        payload_b = b"contract B { function run() external {} }\\n"
+        blob_a, blob_b = git_blob_sha(payload_a), git_blob_sha(payload_b)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            rel_a, rel_b = f"{blob_a[:2]}/{blob_a[2:]}", f"{blob_b[:2]}/{blob_b[2:]}"
+            for rel, payload in ((rel_a, payload_a), (rel_b, payload_b)):
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(payload)
+            inspection = {
+                "signals": [
+                    {"path": "contracts/A.sol", "line": 30},
+                    {"path": "contracts/A.sol", "line": 100},
+                ],
+                "captured_files": [
+                    {"path": "contracts/A.sol", "blob_sha": blob_a, "vault_relative_path": rel_a},
+                    {"path": "contracts/B.sol", "blob_sha": blob_b, "vault_relative_path": rel_b},
+                ],
+            }
+            result = _verified_source_context(
+                inspection, snapshot_root=root, max_files=2, max_chars=600,
+                context_lines=3, role="protocol_specialist",
+            )
+            per_path = {}
+            for item in result:
+                per_path[item["path"]] = per_path.get(item["path"], 0) + len(item["excerpt"]) + 1
+            self.assertLessEqual(per_path["contracts/A.sol"], 300)
+            self.assertLessEqual(per_path["contracts/B.sol"], 300)
+            self.assertIn("contracts/B.sol", per_path)
+            self.assertLessEqual(sum(per_path.values()), 600)
+
     def test_verified_source_context_rejects_tampered_blob(self):
         payload = b"contract X {}"
         blob_sha = git_blob_sha(payload)
