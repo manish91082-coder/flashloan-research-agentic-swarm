@@ -163,8 +163,10 @@ class DuplicateClaimRetryTests(unittest.TestCase):
                 return {k: v for k, v in output.items() if k in required_keys}
 
         provider = Provider()
+        inspection = sample_inspection()
+        inspection["signals"][0]["path"] = "tests/test_execution.py"
         result = _generate_validated_output(
-            provider, "test prompt", {}, REQUIRED_KEYS, sample_inspection(), "test_verification",
+            provider, "test prompt", {}, REQUIRED_KEYS, inspection, "test_verification",
             canonical_purpose_category="flash_loan_liquidation_bot",
         )
         self.assertEqual(len(provider.calls), 2)
