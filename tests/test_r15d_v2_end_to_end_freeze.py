@@ -157,7 +157,7 @@ class R15DV2EndToEndFreezeTests(unittest.TestCase):
         create_intake_receipt(self.fixture_dir, a, ra, "primary_a", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
         create_intake_receipt(self.fixture_dir, b, rb, "primary_b", "custodian.v2", "2026-11-17T00:00:00Z", "private_video_check", True)
         merge_primary_reviews(self.fixture_dir, a, b, ra, rb, staged, "custodian.v2", True)
-        with self.assertRaisesRegex(ValueError, "third-adjudicator bundle is required"):
+        with self.assertRaisesRegex(ValueError, "must all be separate paths"):
             freeze_adjudication(staged, self.fixture_dir, self.root / "invalid-frozen.json", "2026-11-17T00:00:00Z", a, b, ra, rb, staged, "custodian.v2", True)
 
     def test_manifest_provenance_tampering_is_rejected(self):
