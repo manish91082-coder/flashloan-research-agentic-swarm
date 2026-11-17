@@ -31,8 +31,8 @@ The bundle-level attestations must confirm independent work, no model-output exp
 1. Give reviewer A and reviewer B the same immutable blind source packet, independently.
 2. Receive each six-case bundle privately. Verify identity outside the repository, then run `python scripts/validate_r15d_review_submission.py --submission <private-file>`.
 3. Keep both bundles private until both are complete. Do not publish one review while the other reviewer is still working.
-4. Only after both are received, create a **new working packet** from the blank template. Preserve the blank template byte-for-byte. Insert each reviewer's six records into the two reviewer slots.
-5. Where labels disagree, obtain a third independent review privately and record it only after identity verification. The final packet validator enforces the distinct third adjudicator and consensus consistency.
+4. Only after both are received and the custodian has completed out-of-band identity checks, run `python scripts/merge_r15d_primary_reviews.py --reviewer-a <private-a.json> --reviewer-b <private-b.json> --output <new-private-working-packet.json> --custodian-id <custodian-id> --identity-verification-complete`. The explicit flag is a custodian attestation, not cryptographic identity proof. The tool validates both bundles, requires distinct stable reviewer IDs, preserves the blank template byte-for-byte, writes a new staged packet atomically without overwriting an existing output, and leaves consensus pending. Keep the output private.
+5. Review the staged packet's disagreement list. Where labels disagree, obtain a third independent review privately and record it only after identity verification. Do not mark consensus adjudicated until unanimous primary labels or a valid third adjudication establish it. The final packet validator enforces the distinct third adjudicator and consensus consistency.
 6. Run `python scripts/validate_r15d_adjudication.py --packet <working-packet> --require-complete`.
 7. Freeze to a separate output, then run `python scripts/verify_r15d_frozen_manifest.py --packet <working-packet> --manifest <frozen-manifest> --expected-sha256 <published-digest>`.
 8. Publish the frozen manifest and digest only after independent verification. Only then may the next model benchmark be considered.
@@ -45,4 +45,4 @@ The bundle-level attestations must confirm independent work, no model-output exp
 - Any disagreement without a distinct third adjudicator.
 - Any attempt to mutate the original blank packet or run model inference before the frozen manifest is verified.
 
-A valid bundle is not itself a consensus result. Two valid bundles are not a frozen ground truth until the merged packet, disagreement resolution, freeze and independent manifest verification all pass.
+A valid bundle is not itself a consensus result. Two valid bundles create only a staged primary-review packet. They are not frozen ground truth until consensus is completed, every disagreement has a distinct third adjudicator, the final packet validator passes, the freeze is written separately and the manifest is independently verified.
