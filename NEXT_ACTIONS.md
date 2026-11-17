@@ -801,3 +801,43 @@ Public read-only research. Never execute candidate code. No wallet/key/signer ac
 - Consensus.status=adjudicated requirement passed: runs 43946324932 and 43946344837, all three versions green.
 - Combined latest freeze-gate test commit run 43947340179 passed all three versions; Python 3.11 fixture build and upload also passed.
 - Current changes verified so far are CI-green. Next: re-read latest HEAD and inspect further fail-closed edge cases in validator/freeze logic; keep packet blank and do not freeze.
+
+
+---
+
+## Canonical continuity checkpoint — 2026-11-17 16:xx IST (supersedes older R15D v1 next-action notes)
+
+**Audited branch:** `main`  
+**Audited HEAD:** `6d0ca0d17c5c58deb0b155f0527b35047036b6b4`  
+**Latest CI:** run `44064919521`, Research Engine CI, completed successfully on Python 3.11, 3.12 and 3.13.  
+**24x7 disposition:** NOT YET production-operational. CI success is not full mission acceptance.
+
+### Correct benchmark boundary
+
+- R15D v1 (`r15d-semantic-source-facts-v1`) is retired because expected labels were exposed in the public repository and a historical CI artifact. Preserve it as forensic evidence only. Do not use its reviewers, labels or fixtures as a valid blind benchmark.
+- R15D v2 (`r15d-semantic-source-facts-v2`) is the active label-free design with six cases: NAV2-01..03 and COB2-01..03. Its public fixture and leakage scan passed; expected labels are not in the public design or fixture.
+- The R15D v2 receipt, merge, third-review, finalization, freeze and independent-verification software path has passed a **synthetic-only** OpenPGP public-key encrypted-delivery tabletop. The latest recorded tabletop CI is run `44046190863` (346 tests per Python version); the latest main CI `44064919521` is green on all three supported Python versions.
+- Synthetic identities and generated keys prove software behavior only. Real custodian identity checks = 0; genuine primary submissions = 0; genuine third submissions = 0; real recipient fingerprint verification through an independent channel and separate-device/private-key custody remain unverified. Production reviewer intake remains unauthorized. Ground truth remains unfrozen; benchmark model inference remains unauthorized. Never synthesize reviewer identities or labels.
+
+### Swarm operational truth
+
+- The system is a substantial, checkpointed, partially tested agentic research engine.
+- Discovery produced 7,901 unique candidates, but 10/38 query templates were incomplete; this is not exhaustive discovery.
+- Source capture is batch-oriented self-chaining GitHub Actions automation, not a continuously running 24x7 daemon.
+- The R15C Agent Form pilot completed candidate-purpose, specialist and evidence-validation tasks, but independent review failed; dossier, synthesis and continuation tasks remained pending.
+- Deterministic R15D adequacy replay found 14/14 specialist reports insufficient for adversarial review (29 role-relevance misses and 6 missing cited-excerpt anchors). This is lexical/anchor triage, not proof every claim is false.
+- No complete mission from intake through dossier, autonomous next-queue dispatch and restart recovery has been accepted. No uninterrupted 72-hour soak has been evidenced.
+- No candidate code execution, wallet access, signing, deployment, live trading, paid inference or cloud inference is authorized.
+
+### Next execution sequence
+
+1. Preserve the R15D v2 human-intake boundary. The human custodian must complete and sign `research/R15D_V2_CUSTODIAN_READINESS_CHECKLIST.md`, including real identity eligibility, independent recipient-key fingerprint verification, separate-device/protected private-key custody, private encrypted transport/storage, incident controls and explicit intake authorization. Do not start production intake before this human gate is actually signed.
+2. In parallel, keep the R15C evaluation packet immutable and use its failure categories to improve specialist prompts and claim-to-excerpt quality. Preserve held-out evaluation cases; do not tune against R15D v2 human labels or expose model outputs to reviewers.
+3. Implement explicit non-approved research-record/dossier states for reviewer outcomes `accept_with_reservations`, `reject` and `inconclusive`. These must retain evidence and next actions without being silently dropped; only a valid accepted review may promote a candidate to an accepted dossier.
+4. Build a fresh isolated Agent Form pilot using source-complete candidates. Require every material claim to resolve to a small, claim-specific, exact pinned source excerpt. Keep provenance validation separate from semantic truth.
+5. Prove one complete mission, automatic next-queue creation/dispatch, and interruption/restart recovery with no lost, duplicate or falsely completed tasks. Inject API rate limits/5xx, model timeout/invalid JSON, retry exhaustion, stale leases, missing blobs, corrupted checkpoints and artifact expiry.
+6. Only after the bounded mission passes, start a 72-hour continuous soak with heartbeat, queue depth, failure/retry rates, resource/cost policy, checkpoint age and independent artifact-hash verification.
+
+**Acceptance invariant:** do not call the swarm fully autonomous or 24x7 operational until one fresh mission completes end-to-end without manual prompting, its artifacts and task ledger are independently verified, autonomous continuation and restart recovery pass, and the 72-hour soak is complete. R15D v2 human ground-truth authorization remains a separate gate and cannot be replaced by synthetic tabletop results.
+
+**Immediate next engineering task:** inspect and improve specialist report adequacy / claim-to-excerpt support using the frozen R15C failure evidence; do not broaden candidate processing or claim semantic acceptance until that gate is demonstrated.
