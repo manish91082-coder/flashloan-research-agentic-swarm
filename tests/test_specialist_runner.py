@@ -58,6 +58,38 @@ class DuplicateClaimRetryTests(unittest.TestCase):
         self.assertTrue(_is_retryable_specialist_error(TimeoutError("model timeout")))
         self.assertFalse(_is_retryable_specialist_error(SpecialistTaskError("invalid evidence ID")))
 
+    def test_zero_evidence_contract_violation_gets_one_corrective_retry(self):
+        self.assertTrue(_is_retryable_specialist_error(
+            SpecialistTaskError("zero-evidence output must be implementation_status=unknown and confidence=low")
+        ))
+
+        class Provider:
+            def __init__(self):
+                self.calls = []
+            def generate_json(self, prompt, context, required_keys):
+                self.calls.append((prompt, context))
+                if len(self.calls) == 1:
+                    output = sample_output(
+                        evidence=[], findings=[], implementation_status="partial", confidence="low",
+                    )
+                else:
+                    output = sample_output(
+                        evidence=[], findings=[], implementation_status="unknown", confidence="low",
+                    )
+                return {k: v for k, v in output.items() if k in required_keys}
+
+        provider = Provider()
+        result = _generate_validated_output(
+            provider, "test prompt", {}, REQUIRED_KEYS, sample_inspection(), "test_verification",
+            canonical_purpose_category="flash_loan_liquidation_bot",
+        )
+        self.assertEqual(len(provider.calls), 2)
+        feedback = provider.calls[1][1]["validation_feedback"]
+        self.assertIn("zero-evidence contract", feedback)
+        self.assertEqual(result["evidence"], [])
+        self.assertEqual(result["implementation_status"], "unknown")
+        self.assertEqual(result["confidence"], "low")
+
     def test_duplicate_claim_gets_one_corrective_retry_and_remains_strict(self):
         class Provider:
             def __init__(self):
