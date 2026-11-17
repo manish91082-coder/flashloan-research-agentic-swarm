@@ -123,5 +123,73 @@ class R15DEndToEndFreezePipelineTests(unittest.TestCase):
                 verify_frozen_manifest(final_path, manifest_path, digest)
 
 
+
+    def test_primary_bundle_tampering_after_merge_blocks_finalization(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b, staged = root / "a.json", root / "b.json", root / "staged.json"
+            a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
+            b.write_text(json.dumps(self.primary_bundle("reviewer.beta")), encoding="utf-8")
+            merge_primary_submissions(a, b, staged, "custodian.synthetic", True)
+            changed = json.loads(a.read_text(encoding="utf-8"))
+            changed["cases"][0]["rationale"] = "tampered after staged merge"
+            a.write_text(json.dumps(changed), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "does not exactly match"):
+                finalize_adjudication(a, b, staged, root / "final.json", "custodian.synthetic", True)
+            self.assertFalse((root / "final.json").exists())
+
+    def test_staged_packet_tampering_blocks_finalization(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a = root / "a.json"
+            b = root / "b.json"
+            staged = root / "staged.json"
+            a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
+            b.write_text(json.dumps(self.primary_bundle("reviewer.beta")), encoding="utf-8")
+            merge_primary_submissions(a, b, staged, "custodian.synthetic", True)
+            changed = json.loads(staged.read_text(encoding="utf-8"))
+            changed["cases"][0]["reviewers"][0]["label"] = "absent"
+            staged.write_text(json.dumps(changed, indent=2) + "\\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "does not exactly match"):
+                finalize_adjudication(a, b, staged, root / "final.json", "custodian.synthetic", True)
+            self.assertFalse((root / "final.json").exists())
+
+    def test_third_identity_collision_blocks_disagreement_finalization(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b, staged = root / "a.json", root / "b.json", root / "staged.json"
+            a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
+            b.write_text(json.dumps(self.primary_bundle("reviewer.beta", "NAV-02")), encoding="utf-8")
+            merge_primary_submissions(a, b, staged, "custodian.synthetic", True)
+            staged_packet = json.loads(staged.read_text(encoding="utf-8"))
+            third = self.third_bundle(staged_packet)
+            third["reviewer_id"] = "reviewer.alpha"
+            third_path = root / "third.json"
+            third_path.write_text(json.dumps(third), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "third-adjudicator submission failed validation"):
+                finalize_adjudication(a, b, staged, root / "final.json", "custodian.synthetic", True, third_path, True)
+            self.assertFalse((root / "final.json").exists())
+
+    def test_disagreement_without_third_bundle_blocks_end_to_end_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b, staged = root / "a.json", root / "b.json", root / "staged.json"
+            a.write_text(json.dumps(self.primary_bundle("reviewer.alpha")), encoding="utf-8")
+            b.write_text(json.dumps(self.primary_bundle("reviewer.beta", "NAV-03")), encoding="utf-8")
+            merge_primary_submissions(a, b, staged, "custodian.synthetic", True)
+            with self.assertRaisesRegex(ValueError, "third-adjudicator submission is required"):
+                finalize_adjudication(a, b, staged, root / "final.json", "custodian.synthetic", True)
+            self.assertFalse((root / "final.json").exists())
+
+    def test_frozen_manifest_tampering_is_rejected_end_to_end(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _, digest, _, final_path, manifest_path = self.run_pipeline(Path(tmp), "COB-01")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["freeze_provenance"]["validator_sha256"] = "0" * 64
+            manifest_path.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "provenance"):
+                verify_frozen_manifest(final_path, manifest_path, digest)
+
+
 if __name__ == "__main__":
     unittest.main()
