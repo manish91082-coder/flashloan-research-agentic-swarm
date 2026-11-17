@@ -937,6 +937,42 @@ def run_evidence_validation_batch(mission_id: str, database_path: Path,
         return {"claimed": len(claims), "completed": completed, "failures": failures}
     finally:
         store.close()
+def _collapse_exact_duplicate_findings(output: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, str]]]:
+    """Collapse byte-for-byte equivalent claim text without weakening semantic review gates.
+
+    This is a recovery path for small local models that repeat a finding after one
+    corrective retry. The strict public validator still rejects duplicates. Only
+    the retry wrapper may collapse exact normalized duplicates, and it records
+    every discarded finding ID. Role-specific adequacy and independent review
+    remain mandatory; this does not make a weak claim acceptable.
+    """
+    findings = output.get("findings", [])
+    if not isinstance(findings, list):
+        return output, []
+    seen: dict[str, str] = {}
+    kept: list[dict[str, Any]] = []
+    collapsed: list[dict[str, str]] = []
+    for finding in findings:
+        if not isinstance(finding, dict):
+            kept.append(finding)
+            continue
+        claim = finding.get("claim", "")
+        normalized = " ".join(str(claim).casefold().split())
+        if normalized and normalized in seen:
+            collapsed.append({
+                "code": "exact_duplicate_finding_collapsed",
+                "kept_finding_id": seen[normalized],
+                "discarded_finding_id": str(finding.get("finding_id", "")),
+            })
+            continue
+        if normalized:
+            seen[normalized] = str(finding.get("finding_id", ""))
+        kept.append(finding)
+    result = dict(output)
+    result["findings"] = kept
+    return result, collapsed
+
+
 def _generate_validated_output(provider: Any, prompt: str, context: dict[str, Any],
                              required_keys: set[str], inspection: dict[str, Any], role: str,
                              canonical_purpose_category: str | None = None) -> dict[str, Any]:
@@ -1039,10 +1075,27 @@ def _generate_validated_output(provider: Any, prompt: str, context: dict[str, An
             "Return a complete corrected JSON object; do not weaken evidence or schema requirements."
         )
         corrected = provider.generate_json(retry_prompt, retry_context, required_keys)
-        return validate_specialist_output(
-            corrected, inspection, role,
-            canonical_purpose_category=canonical_purpose_category,
-        )
+        try:
+            return validate_specialist_output(
+                corrected, inspection, role,
+                canonical_purpose_category=canonical_purpose_category,
+            )
+        except SpecialistTaskError as corrected_error:
+            if "duplicate finding claim" not in str(corrected_error):
+                raise
+            normalized, collapsed = _collapse_exact_duplicate_findings(corrected)
+            if not collapsed:
+                raise
+            validated = validate_specialist_output(
+                normalized, inspection, role,
+                canonical_purpose_category=canonical_purpose_category,
+            )
+            validated["normalization_warnings"] = collapsed
+            validated["normalization_policy"] = (
+                "Exact normalized duplicate claims were collapsed after one corrective model retry. "
+                "This is not a semantic acceptance; role adequacy and independent review remain mandatory."
+            )
+            return validated
 
 
 def _is_retryable_specialist_error(exc: Exception) -> bool:
