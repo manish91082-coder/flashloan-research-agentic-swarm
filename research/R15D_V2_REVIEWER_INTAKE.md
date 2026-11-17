@@ -97,11 +97,7 @@ Both commands create or verify private adjudication material. Do not commit the 
 
 ## Third-adjudication handoff
 
-Only cases with different primary labels are sent to a third adjudicator. The third reviewer sees both primary records for those cases, but must not see model outputs or v1 answer-key material. The v2 schema and validator are `research/R15D_V2_THIRD_ADJUDICATION_SUBMISSION.schema.json` and `scripts/validate_r15d_v2_third_submission.py`. The validator requires the exact disagreement set, a reviewer identity distinct from both primary reviewers, exact fixture pins, unique evidence, UTC timestamps, and v1 non-exposure attestations.
-
-## Third-review validation
-
-For each disagreement case, the third adjudicator must see both primary reviews but must not see model outputs or v1 answer-key material. Validate the bundle with:
+Only cases with different primary labels are sent to a third adjudicator. The third reviewer sees both primary records for those cases, but must not see model outputs or v1 answer-key material. The v2 schema and validator are `research/R15D_V2_THIRD_ADJUDICATION_SUBMISSION.schema.json` and `scripts/validate_r15d_v2_third_submission.py`.
 
 ```sh
 python scripts/validate_r15d_v2_third_submission.py \
@@ -110,15 +106,34 @@ python scripts/validate_r15d_v2_third_submission.py \
   --submission <private-third-review.json>
 ```
 
-The third bundle must contain exactly the disagreement set, no unanimous cases, and use a reviewer identity distinct from both primary reviewers. The custodian must verify that identity out of band.
+After custodian identity verification, create the third review receipt with `scripts/create_r15d_v2_intake_receipt.py`, using `--reviewer-slot third_adjudicator` and `--staged-packet <private-staged-packet.json>`. Verify the receipt with `scripts/verify_r15d_v2_intake_receipt.py` before finalization.
 
 ## Final consensus assembly
 
-After independent staged-merge verification and valid third-review intake (when required), run `scripts/finalize_r15d_v2_adjudication.py`. It preserves both primary reviewer attestation records and, where applicable, the third reviewer attestations. It derives consensus from unanimous primary labels or the third adjudicator's label, then runs the complete v2 adjudication validator. It writes a new packet with `ground_truth_frozen=false` and `model_inference_authorized=false`.
+For a disagreement packet, the finalizer requires the third submission and its verified receipt. For a unanimous packet, omit both. The primary receipts are always required.
+
+```sh
+python scripts/finalize_r15d_v2_adjudication.py \
+  --fixture <label-free-fixture-directory-or-zip> \
+  --reviewer-a <private-a.json> \
+  --reviewer-b <private-b.json> \
+  --receipt-a <private-a-receipt.json> \
+  --receipt-b <private-b-receipt.json> \
+  --staged-packet <private-staged-packet.json> \
+  --output <private-complete-adjudication.json> \
+  --custodian-id <custodian-id> \
+  --primary-identity-verification-complete \
+  --third-submission <private-third-review.json> \
+  --third-receipt <private-third-receipt.json> \
+  --third-identity-verification-complete \
+  --expected-staged-sha256 <staged-packet-digest>
+```
+
+The finalizer independently reconstructs the staged merge from both primary bundles and receipts, verifies the third receipt when required, preserves all attestation records and receipt digests, then validates consensus. It writes an unfrozen packet with model inference unauthorized.
 
 ## Separate freeze and independent verification
 
-Only after the complete adjudication packet passes validation may the custodian run:
+Freeze and verification require the original primary bundles, their receipts, the staged packet, custodian ID and (for disagreement cases) the third bundle and receipt. This prevents a caller from bypassing the receipt chain by presenting only a syntactically valid final packet.
 
 ```sh
 python scripts/validate_r15d_v2_adjudication.py \
@@ -129,16 +144,32 @@ python scripts/freeze_r15d_v2_adjudication.py \
   --packet <private-complete-adjudication.json> \
   --fixture <label-free-fixture-directory-or-zip> \
   --output <new-private-frozen-manifest.json> \
-  --frozen-at <UTC-ISO8601-timestamp>
+  --frozen-at <UTC-ISO8601-timestamp> \
+  --reviewer-a <private-a.json> \
+  --reviewer-b <private-b.json> \
+  --receipt-a <private-a-receipt.json> \
+  --receipt-b <private-b-receipt.json> \
+  --staged-packet <private-staged-packet.json> \
+  --custodian-id <custodian-id> \
+  --primary-identity-verification-complete \
+  --expected-staged-sha256 <staged-packet-digest>
 
 python scripts/verify_r15d_v2_frozen_manifest.py \
   --packet <private-complete-adjudication.json> \
   --fixture <label-free-fixture-directory-or-zip> \
   --manifest <private-frozen-manifest.json> \
-  --expected-sha256 <frozen-manifest-digest>
+  --expected-sha256 <frozen-manifest-digest> \
+  --reviewer-a <private-a.json> \
+  --reviewer-b <private-b.json> \
+  --receipt-a <private-a-receipt.json> \
+  --receipt-b <private-b-receipt.json> \
+  --staged-packet <private-staged-packet.json> \
+  --custodian-id <custodian-id> \
+  --primary-identity-verification-complete \
+  --expected-staged-sha256 <staged-packet-digest>
 ```
 
-The freeze manifest binds the exact complete packet bytes, fixture manifest digest, validator source, leakage scanner source and fixture builder source. The independent verifier reconstructs the expected frozen transformation and checks the expected digest. Even a verified freeze does not itself authorize model inference; that remains a separate governance decision.
+For disagreement cases, add `--third-submission`, `--third-receipt` and `--third-identity-verification-complete` to both freeze and verify commands. The freeze manifest binds exact complete-packet bytes, fixture digest, custody receipt digests, validator source, leakage scanner source and fixture builder source. The verifier reconstructs the final packet from the receipt-verified human submissions before checking the frozen transformation and expected digest. Even a verified freeze does not itself authorize model inference.
 
 ## Metadata-only custody receipt
 
