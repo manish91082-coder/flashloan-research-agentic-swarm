@@ -75,3 +75,57 @@ The replay applied the current deterministic role-family ordering and the curren
 2. Assert the emitted excerpt paths, line ranges, per-file character limits, total context budget, excerpt hashes and missing-family metadata.
 3. Keep R15C outputs immutable; run a new isolated pilot only after this byte-level replay passes.
 4. Compare new specialist claims to their cited excerpt, then run independent reviewer adequacy checks. No report is promoted merely because its provenance is valid.
+
+
+## Byte-level replay result — verified 2026-11-17
+
+**Workflow:** [R15C Role Context Byte Replay run 44074313870](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074313870)  
+**Implementation commit:** `a4504cc6ac56950c2fe68f28b96ea8aeb3a66f28`  
+**Replay artifact ID:** `14324256232` (`r15c-role-context-byte-replay`)  
+**Replay report SHA-256:** `dba554a73769895be4dbef79cced4ab8539a6b4cb0c3f4eab88a79886eb11e8d`  
+**Replay result:** PASS; model inference used: false.
+
+The harness fetched all source files from the exact frozen candidate commits, verified Git blob SHA-1 for every file, reconstructed the content-addressed vault, and invoked the actual `_verified_source_context` for all eight roles on both candidates.
+
+| Candidate | Source files fetched and blob-verified | Total bytes |
+|---|---:|---:|
+| Aave | 8 | 23,167 |
+| COB | 30 | 297,202 |
+| **Total** | **38** | **320,369** |
+
+### Byte-level assertions passed
+
+- Every fetched source file matched its frozen Git blob SHA-1.
+- Actual excerpt paths matched the deterministic role shortlist.
+- Every excerpt's blob pin and SHA-256 matched the verified source/actual excerpt.
+- Inclusive line ranges were valid.
+- Unique source-file counts respected role `max_files`.
+- Aggregate per-file character budgets and total context budgets were respected.
+- Role admissibility held for every emitted excerpt.
+- COB Solidity protocol contract was first for candidate-purpose, protocol, security, execution, economics and independent-review roles.
+- COB dependency/license emitted zero excerpts and reported all three required source families missing.
+- COB test verification emitted only monitor test files and explicitly reported missing CI/test configuration.
+- COB independent reviewer emitted no monitor-only tests.
+- Aave test verification emitted only the captured Hardhat config and explicitly reported missing test source and CI workflow.
+
+The output artifact was downloaded and inspected independently. It records two candidates, 38 verified source files, exact excerpt paths/ranges/hashes and role-family coverage.
+
+## Latest Research Engine CI
+
+[Run 44074385730](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074385730) passed on Python 3.11, 3.12 and 3.13. The standard-library suite reports 355 tests passed. The Python 3.11 synthetic R15D v2 custody tabletop passed.
+
+## Revised acceptance status
+
+- Manifest-level role ordering: **PASS**.
+- Exact commit-pinned source fetch and Git blob SHA-1 verification: **PASS, 38/38 files**.
+- Actual `_verified_source_context` byte-level replay across 16 candidate/role combinations: **PASS**.
+- Excerpt line ranges, hashes and per-file/total budgets: **PASS**.
+- Model inference during replay: **NOT USED**.
+- Fresh model pilot after repair: **NOT RUN**.
+- Historical R15C specialist report adequacy: unchanged; the previous 14/14 insufficient assessment remains the baseline.
+- Full mission lifecycle, autonomous continuation/restart and 72-hour soak: **NOT PROVEN**.
+- 24x7 production acceptance: **NOT GRANTED**.
+
+## Next action
+
+Proceed to a fresh isolated model pilot only after checking the repository's current pilot runner and model-provider availability. Use a new mission ID, SQLite database and artifact root. Keep the frozen R15C packet read-only. Compare the new seven specialist outputs per candidate to the actual excerpt evidence, role-specific adequacy, reviewer challenge and persisted decision lifecycle. No R15D v2 adjudication or benchmark inference is authorized by this replay.
