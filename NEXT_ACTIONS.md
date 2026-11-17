@@ -1,3 +1,16 @@
+## R15D atomic freeze publication and schema parity checkpoint — CI verified (2026-11-17)
+
+- **Verified code HEAD before this documentation update:** `58a936bcd9d9cfc24c4dd2c0b03bfac844363c85`.
+- **Atomic freeze publication:** `scripts/freeze_r15d_adjudication.py` now writes to a unique same-directory temporary file, flushes and fsyncs it, atomically publishes with no-overwrite hard-link semantics, fsyncs the directory where supported, verifies published bytes and removes the temporary file. A failed publish leaves no partial target manifest.
+- **Freeze/verifier pairing:** exact input bytes are parsed and hashed once; duplicate JSON keys are rejected. The frozen manifest records input packet SHA-256 and validator source SHA-256. `scripts/verify_r15d_frozen_manifest.py` independently verifies the exact input/output relationship, validator digest, full manifest transformation and optional expected output digest.
+- **Schema parity regression:** CI exposed that reviewer evidence `uniqueItems` was missing even though third-adjudicator evidence had it. Added the missing reviewer schema constraint in commit `58a936bcd9d9cfc24c4dd2c0b03bfac844363c85`; schema tests now explicitly cover both reviewer and third-adjudicator evidence uniqueness and the optional unused third-adjudicator attestation.
+- **CI:** run [44035480524](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44035480524) passed Python 3.11, 3.12 and 3.13; **230 tests passed in each matrix job**. Python 3.11 fixture build/upload succeeded. Artifact ID `14307042251`, 4,669 bytes.
+- **Visible regression history:** run `44035337253` failed because the schema test caught the missing reviewer `uniqueItems` constraint; it was corrected and verified green in `44035480524`. Earlier atomic-writer runs `44035290089` and `44035303219` passed.
+- **Blind packet:** unchanged blob `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`. No production freeze has been executed; six cases remain pending with twelve primary reviewer slots and six third-adjudicator slots blank. Ground truth remains unfrozen; model inference unauthorized; semantic audit increment zero; candidate dossiers pending; all execution/wallet/signing/deployment/live-trading/paid/cloud-inference controls remain disabled.
+- **Next sequence:** prepare a blind reviewer-submission intake contract that accepts genuine, independently attributable records without exposing model outputs or changing the blank template. Validate each submission against the immutable case pins and exact excerpt digest. The freeze writer remains disabled until six complete case adjudications exist and every disagreement has a distinct third adjudicator. No inference or semantic-audit increment before a real freeze.
+
+---
+
 ## R15D schema/validator and freeze-manifest integrity checkpoint — CI verified (2026-11-17)
 
 - **Canonical repository/branch:** `manish91082-coder/flashloan-research-agentic-swarm`, `main`.
