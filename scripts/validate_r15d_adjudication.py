@@ -160,6 +160,10 @@ def validate(packet: object, require_complete: bool = False) -> dict:
         actual = (case.get("repository"), case.get("commit_sha"), case.get("tree_sha"), case.get("path"), case.get("git_blob_sha1"), case.get("line_start"), case.get("line_end"), case.get("excerpt_sha256"))
         if expected is None or actual != expected:
             errors.append(f"{cid}: immutable source pin does not match frozen R15D fixture baseline")
+        if not _has_exact_keys(case.get("third_adjudicator"), THIRD_FIELDS, optional={"independence_attestation"}):
+            errors.append(f"{cid}: third_adjudicator must contain exactly the schema-defined fields")
+        if not _has_exact_keys(case.get("consensus"), CONSENSUS_FIELDS):
+            errors.append(f"{cid}: consensus must contain exactly the schema-defined fields")
         reviews = case.get("reviewers")
         if not isinstance(reviews, list) or len(reviews) != 2:
             errors.append(f"{cid}: exactly two independent reviewer slots required")
@@ -182,8 +186,6 @@ def validate(packet: object, require_complete: bool = False) -> dict:
             labels = [review["label"] for review in reviews]
             disagreement = labels[0] != labels[1]
             third = case.get("third_adjudicator")
-            if not _has_exact_keys(third, THIRD_FIELDS, optional={"independence_attestation"}):
-                errors.append(f"{cid}: third_adjudicator must contain exactly the schema-defined fields")
             if not isinstance(third, dict):
                 errors.append(f"{cid}: third_adjudicator must be an object")
             elif disagreement:
@@ -202,8 +204,6 @@ def validate(packet: object, require_complete: bool = False) -> dict:
                 if any(third.get(field) is not None for field in unused_fields) or third.get("evidence_references") != []:
                     errors.append(f"{cid}: unused third-adjudicator record must remain blank without disagreement")
             consensus = case.get("consensus")
-            if not _has_exact_keys(consensus, CONSENSUS_FIELDS):
-                errors.append(f"{cid}: consensus must contain exactly the schema-defined fields")
             if not isinstance(consensus, dict) or consensus.get("status") != "adjudicated" or not isinstance(consensus.get("label"), str) or consensus.get("label") not in ALLOWED or not isinstance(consensus.get("rationale"), str) or not consensus["rationale"].strip():
                 errors.append(f"{cid}: consensus must be adjudicated with an allowed label and written rationale")
             elif consensus.get("disagreement") is not disagreement:
