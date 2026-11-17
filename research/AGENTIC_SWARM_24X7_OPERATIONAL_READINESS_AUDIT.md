@@ -155,3 +155,19 @@ At audit time, do not infer any permission from CI success. Candidate code execu
 **Next:** build a byte-level, model-free replay harness against exact R15C commit SHAs, verify each Git blob SHA, invoke the actual context builder for every role, and assert excerpt paths/ranges/hashes and character budgets. Only after this passes may a fresh isolated model pilot begin.
 
 The swarm remains **NOT YET 24x7 production-operational**. Full mission completion, autonomous continuation/restart and the 72-hour soak remain unproven. R15D v2 human adjudication remains independently gated.
+
+
+## Addendum — fresh isolated specialist context-repair pilot started (2026-11-17)
+
+Workflow [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551) has accepted the fresh pilot trigger and passed trigger validation.
+
+- Mission ID: `flashloan-agent-form-context-repair-20261117`
+- Database: `data/agentic-mission-context-repair-20261117.sqlite3`
+- Artifact root: `research_runs/mission-pilots/flashloan-agent-form-context-repair-20261117`
+- Source checkpoint: run `43799361897`, artifact `14196365507`, SHA-256 `0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad`
+- Model: `qwen2.5:3b`, Ollama local CPU, loopback-only, two bounded workers.
+- Current observed step: immutable source-capture checkpoint download and verification. Specialist inference has not yet been confirmed as started.
+
+This is a new isolated run; historical R15C data is not reused as writable mission state. Reviewer outcomes are persisted without forcing acceptance. A non-accept outcome blocks dossier eligibility; semantic audit count remains unchanged. R15D v2 benchmark inference, synthetic human adjudication, candidate-code execution, wallet access, signing, deployment and live trading remain disabled.
+
+This workflow is still running. Its final result and uploaded task ledger must be inspected before changing operational readiness. The system remains **NOT YET 24x7 production-operational**.
