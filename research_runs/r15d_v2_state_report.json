@@ -99,7 +99,12 @@
     "custody_security_review": "research/R15D_V2_CUSTODY_SECURITY_REVIEW.md",
     "receipt_generation_implemented": true,
     "receipt_contains_labels_or_rationales": false,
-    "actual_receipts_created": 0
+    "actual_receipts_created": 0,
+    "custody_chain_audit": "research/R15D_V2_CUSTODY_CHAIN_AUDIT.md",
+    "receipt_generator_implemented": true,
+    "receipt_to_merge_binding_enforced": false,
+    "production_intake_authorized": false,
+    "residual_blocker": "Merge, staged-merge verifier and finalizer do not yet require and verify the corresponding metadata-only custody receipts."
   },
   "adjudication_pipeline": {
     "staged_merge": "scripts/merge_r15d_v2_primary_reviews.py",
@@ -113,5 +118,8 @@
     "synthetic_end_to_end_tests": "tests/test_r15d_v2_end_to_end_freeze.py",
     "tests_in_latest_ci": 331,
     "production_freeze_performed": false
-  }
+  },
+  "reason_codes": [
+    "CUSTODY_RECEIPT_NOT_BOUND_TO_MERGE"
+  ]
 }
