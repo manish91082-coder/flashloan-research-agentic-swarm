@@ -3,6 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+THIRD_SCHEMA = ROOT / "research/R15D_THIRD_ADJUDICATION_SUBMISSION.schema.json"
+
 from scripts.validate_r15d_adjudication import DEFAULT_PACKET
 from scripts.merge_r15d_primary_reviews import merge_primary_submissions
 from scripts.validate_r15d_third_adjudication_submission import validate_third_submission
@@ -155,6 +158,27 @@ class R15DThirdAdjudicationSubmissionTests(unittest.TestCase):
             result = validate_third_submission(staged, self.make_third_bundle(staged))
             self.assertFalse(result["valid"])
             self.assertTrue(any("stable identity" in error for error in result["errors"]))
+
+
+
+    def test_staged_packet_safety_mutation_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            staged = self.staged_packet(Path(tmp))
+            staged["safety"]["wallet_access"] = True
+            result = validate_third_submission(staged, self.make_third_bundle(staged))
+            self.assertFalse(result["valid"])
+            self.assertTrue(any("safety controls" in error for error in result["errors"]))
+
+    def test_third_schema_requires_primary_visibility_and_model_blindness(self):
+        schema = json.loads(THIRD_SCHEMA.read_text(encoding="utf-8"))
+        self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
+        self.assertFalse(schema["additionalProperties"])
+        attestations = schema["properties"]["attestations"]["properties"]
+        self.assertIs(attestations["primary_reviews_seen"]["const"], True)
+        self.assertIs(attestations["model_outputs_not_seen"]["const"], True)
+        cases = schema["properties"]["cases"]
+        self.assertEqual((cases["minItems"], cases["maxItems"]), (1, 6))
+        self.assertTrue(cases["items"]["properties"]["evidence_references"]["uniqueItems"])
 
 
 if __name__ == "__main__":
