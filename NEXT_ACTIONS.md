@@ -1,3 +1,17 @@
+## R15D v2 atomic case redesign and label-free artifact verification — CI verified (2026-11-17)
+
+- **Verified code/design checkpoint:** `b8e01f699fae9a8d13dd0af361c795e89261bc8d`; state report commit `5e1744724b1a23d562ac354c011f26d9906b8904`.
+- Replaced the first broader v2 propositions with six narrower, atomic source facts: `NAV2-01` onlyOwner guard; `NAV2-02` flashLoanSimple receiver/asset/amount arguments; `NAV2-03` withdrawETH transfer; `COB2-01` constructor pool zero-address guard; `COB2-02` per-call/stored minProfit maximum expression; `COB2-03` direct-pair path branch.
+- New public design remains answer-key-free: `research_runs/r15d_v2_semantic_case_design.json`. Source pins are the two existing immutable repository commit/tree/blob identities; the six excerpt hashes are generated from exact pinned line ranges.
+- **Verified artifact:** CI run [44039885278](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44039885278), artifact ID `14308727443`, name `r15d-v2-label-free-fixtures-b8e01f699fae9a8d13dd0af361c795e89261bc8d`. Downloaded ZIP SHA-256 `ab510711134b10a8a51dd366c1a4cf4e2329629d5c4651a42475b8765cb32f23`; fixture manifest SHA-256 `8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8`; source design manifest SHA-256 `51c8cc5ecaa1b97164654d7bb6bf5b367a59936de6da5405c32aee48be034f07`.
+- Downloaded artifact inspected directly: six excerpt files, six case IDs, no exact forbidden answer-key JSON keys, `answer_key_included=false`. CI's scanner passed before artifact upload.
+- **CI:** 289 tests passed on Python 3.11, 3.12 and 3.13. Python 3.11 built/scanned/uploaded; other matrix jobs skipped artifact publication.
+- The earlier v2 artifact `14308717210` is superseded because its propositions were broader; do not use it for reviewer intake. Current artifact `14308727443` is the atomic revision.
+- **No human adjudication yet:** no primary submissions, no third reviews, no identity checks, no consensus, no freeze, no model inference. V2 remains design/fixture stage.
+- **Next sequence:** implement a v2-specific private reviewer bundle schema and validator that loads the label-free artifact, rechecks every excerpt hash and source pin, validates exact six-case coverage, blinding attestations and unique evidence references. Then add independent custodian intake/merge and third-adjudication stages for v2; do not reuse v1 validators or answer-key material.
+
+---
+
 ## R15D v1 answer-key leakage finding, retirement and containment — CI verified (2026-11-17)
 
 - **Finding:** the repository is public. `research_runs/r15d_semantic_case_manifest.json` contains `expected_label` for all six R15D v1 cases. Downloaded GitHub Actions artifact `14307778314` also contains all six `expected_label` fields in `fixture_manifest.json`. The artifact's fixture manifest SHA-256 is `2c0eb9ef589963ad48f430eeb838c416f90251a73b9ad876f201be20e6eda305`, matching the manifest digest pinned by the v1 adjudication validator. Downloaded ZIP SHA-256: `83f1665e69ede8a269b2c2d397f50bb6c1d46645fb441cf36edd7dc61e0f67b8`.
