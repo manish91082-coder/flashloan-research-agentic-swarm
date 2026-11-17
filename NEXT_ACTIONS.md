@@ -1,3 +1,13 @@
+## R15D reviewer-intake schema parity — CI verified (2026-11-17)
+
+- **Verified code HEAD before this documentation update:** `888733938d8639286fdaa5f23d1e84aaaff94235`.
+- Added schema-to-validator contract tests for the private reviewer bundle schema: Draft 2020-12, strict top-level keys, exact six-case cardinality, canonical case IDs, unique evidence references and required blindness/conflict attestations.
+- **CI:** run [44036000938](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44036000938) passed Python 3.11, 3.12 and 3.13; **243 tests passed in each matrix job**. Python 3.11 fixture build/upload passed. Artifact ID `14307685376`, 4,669 bytes.
+- **No real reviewer input:** all tests use isolated synthetic fixtures. No actual identity verification, reviewer submission, packet merge, freeze or model inference occurred. Original blind packet remains unchanged at blob `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`; semantic audit increment remains zero.
+- **Next action remains external:** receive two genuine six-case review bundles through a private identity-verifiable channel. The validator cannot establish human identity. Do not accept public plaintext PRs or replace human ground truth with model-generated labels. Once genuine bundles exist, merge into a new working packet, validate all six cases, obtain distinct third adjudication for disagreements, freeze separately and independently verify the digest.
+
+---
+
 ## R15D private reviewer intake contract and validator — CI verified (2026-11-17)
 
 - **Verified code HEAD before this documentation update:** `889a9bddd3d2157d0a9e329c06090dfb2c498e54`.
