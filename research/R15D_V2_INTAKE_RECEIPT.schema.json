@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "R15D v2 metadata-only reviewer intake receipt",
+  "description": "Private custody receipt. Must not include reviewer labels, rationales, evidence text, personal identity documents or raw submission payload.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "benchmark_id",
+    "reviewer_slot",
+    "reviewer_id",
+    "submission_sha256",
+    "fixture_manifest_sha256",
+    "submitted_at",
+    "custodian_id",
+    "custodian_verified_at",
+    "identity_verification",
+    "attestation_summary",
+    "payload_content_included",
+    "labels_included",
+    "rationales_included",
+    "public_repository_storage_prohibited"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "benchmark_id": {
+      "const": "r15d-semantic-source-facts-v2"
+    },
+    "reviewer_slot": {
+      "enum": [
+        "primary_a",
+        "primary_b",
+        "third_adjudicator"
+      ]
+    },
+    "reviewer_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "submission_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "fixture_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "custodian_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128
+    },
+    "custodian_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "identity_verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "method",
+        "cryptographic_proof"
+      ],
+      "properties": {
+        "status": {
+          "const": "verified_out_of_band"
+        },
+        "method": {
+          "enum": [
+            "private_video_check",
+            "institutional_identity_check",
+            "in_person_check",
+            "other_private_method"
+          ]
+        },
+        "cryptographic_proof": {
+          "const": false
+        }
+      }
+    },
+    "attestation_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "independent_review",
+        "model_outputs_not_seen",
+        "v1_answer_key_not_seen",
+        "v1_labels_not_consulted",
+        "conflicts_disclosed"
+      ],
+      "properties": {
+        "independent_review": {
+          "const": true
+        },
+        "model_outputs_not_seen": {
+          "const": true
+        },
+        "v1_answer_key_not_seen": {
+          "const": true
+        },
+        "v1_labels_not_consulted": {
+          "const": true
+        },
+        "conflicts_disclosed": {
+          "const": true
+        }
+      }
+    },
+    "payload_content_included": {
+      "const": false
+    },
+    "labels_included": {
+      "const": false
+    },
+    "rationales_included": {
+      "const": false
+    },
+    "public_repository_storage_prohibited": {
+      "const": true
+    }
+  }
+}
