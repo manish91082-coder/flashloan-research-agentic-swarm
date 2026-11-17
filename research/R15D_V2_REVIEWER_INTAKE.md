@@ -16,8 +16,8 @@ A reviewer who has seen or consulted the v1 answer key is not eligible for this 
 ## Public fixture artifact
 
 The current label-free fixture is published as a GitHub Actions artifact only after the CI leakage scanner passes:
-- CI run: [44039885278](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44039885278)
-- Artifact ID: `14308727443`
+- CI run: [44041990335](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44041990335)
+- Artifact ID: `14310026292`
 - Benchmark: `r15d-semantic-source-facts-v2`
 
 The artifact contains six pinned source excerpts, propositions, boundaries and SHA-256 digests. It contains no reference labels. Verify the artifact with the current `scripts/scan_r15d_v2_artifact_leakage.py` before distributing it.
