@@ -116,7 +116,7 @@ class R15DV2PrimaryMergeTests(unittest.TestCase):
         a, b, output = self.setup_inputs()
         excerpt = self.fixture_dir / self.fixture["cases"][0]["excerpt_file"]
         excerpt.write_bytes(excerpt.read_bytes() + b"tamper")
-        with self.assertRaisesRegex(ValueError, "leakage scan"):
+        with self.assertRaisesRegex(ValueError, "excerpt bytes or SHA-256"):
             merge_primary_reviews(self.fixture_dir, a, b, output, "custodian.v2", True)
         self.assertFalse(output.exists())
 
