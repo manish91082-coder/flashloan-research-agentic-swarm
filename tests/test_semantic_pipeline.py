@@ -31,6 +31,10 @@ class FakeLocalProvider:
         self.assert_context(user_payload, system_prompt)
         evidence = user_payload["source_evidence_catalog"][0]["evidence_id"]
         role = user_payload["role"]
+        dependency_sources_missing = (
+            role == "dependency_license"
+            and not user_payload.get("role_source_coverage", {}).get("present_families")
+        )
         if role == "independent_reviewer":
             self.__class__.reviewer_prior_count = len(user_payload["prior_specialist_outputs"])
             decision = "inconclusive"
@@ -56,8 +60,8 @@ class FakeLocalProvider:
             "summary": "Fixture analysis; all material claims are linked to a pinned source signal.",
             "purpose": "Flash-loan liquidation research implementation.",
             "purpose_category": "flash_loan_liquidation_bot",
-            "implementation_status": "unknown" if role == "independent_reviewer" else "partial",
-            "findings": [] if role == "independent_reviewer" else [{
+            "implementation_status": "unknown" if role in {"independent_reviewer", "dependency_license"} else "partial",
+            "findings": [] if role == "independent_reviewer" or dependency_sources_missing else [{
                 "finding_id": f"F-{role}",
                 "claim": "The pinned source excerpt contains the executeOperation callback declaration.",
                 "category": category_by_role[role],
@@ -66,8 +70,14 @@ class FakeLocalProvider:
                 "confidence": "low",
                 "evidence_refs": [evidence],
             }],
-            "evidence": [evidence],
-            "unknowns": ["Pool caller authentication, initiator binding and repayment behavior are not established by the supplied callback declaration."] if role == "independent_reviewer" else ["No live execution or profitability proof."],
+            "evidence": [] if dependency_sources_missing else [evidence],
+            "unknowns": (
+                ["No package manifest, lockfile, compiler/build configuration or license artifact was captured for this candidate."]
+                if dependency_sources_missing else
+                ["Pool caller authentication, initiator binding and repayment behavior are not established by the supplied callback declaration."]
+                if role == "independent_reviewer" else
+                ["No live execution or profitability proof."]
+            ),
             "confidence": "low",
             "review_decision": decision,
             "review_disagreements": disagreements,
