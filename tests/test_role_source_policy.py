@@ -49,6 +49,7 @@ class RoleSourcePolicyTests(unittest.TestCase):
             "dependency_license", [{"path": "bot.js"}]
         )
         self.assertEqual(coverage["coverage_status"], "incomplete")
+        self.assertEqual(ordered, [], "dependency role must not receive unrelated execution source")
         self.assertEqual(set(coverage["missing_families"]),
                          {"dependency_manifest", "compiler_build_config", "license_artifact"})
 
