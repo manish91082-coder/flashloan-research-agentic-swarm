@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from scripts.validate_r15d_adjudication import _valid_timestamp
@@ -44,7 +45,7 @@ def validate_final_packet(fixture: dict, packet: object) -> dict:
         errors.append("final packet safety controls must all remain disabled")
     custody_receipts = packet.get("custody_receipts")
     receipt_fields = {"primary_a_receipt_sha256", "primary_b_receipt_sha256", "third_adjudicator_receipt_sha256"}
-    if not isinstance(custody_receipts, dict) or set(custody_receipts) != receipt_fields or not all(isinstance(custody_receipts.get(k), str) and __import__("re").fullmatch(r"[0-9a-f]{64}", custody_receipts[k]) for k in ("primary_a_receipt_sha256", "primary_b_receipt_sha256")):
+    if not isinstance(custody_receipts, dict) or set(custody_receipts) != receipt_fields or not all(isinstance(custody_receipts.get(k), str) and re.fullmatch(r"[0-9a-f]{64}", custody_receipts[k]) for k in ("primary_a_receipt_sha256", "primary_b_receipt_sha256")):
         errors.append("final packet must preserve two valid primary custody receipt digests")
     freeze = packet.get("freeze")
     if not isinstance(freeze, dict) or freeze != {"ground_truth_frozen": False, "frozen_at": None, "model_inference_authorized": False}:
