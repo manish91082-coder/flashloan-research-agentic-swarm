@@ -588,8 +588,8 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
             self.assertIn("000002:     function executeOperation()", result[0]["excerpt"])
 
     def test_verified_source_context_enforces_aggregate_per_file_budget(self):
-        payload_a = ("\\n".join(f"source line {i:03d}" for i in range(1, 151)) + "\\n").encode()
-        payload_b = b"contract B { function run() external {} }\\n"
+        payload_a = ("\n".join(f"source line {i:03d}" for i in range(1, 151)) + "\n").encode()
+        payload_b = b"contract B { function run() external {} }\n"
         blob_a, blob_b = git_blob_sha(payload_a), git_blob_sha(payload_b)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
