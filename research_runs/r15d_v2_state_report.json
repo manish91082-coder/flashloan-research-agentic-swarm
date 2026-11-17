@@ -3,7 +3,7 @@
   "report_type": "r15d_v2_benchmark_state",
   "audit_timestamp": "2026-11-17",
   "benchmark_id": "r15d-semantic-source-facts-v2",
-  "disposition": "design_and_label_free_fixture_verified_no_human_adjudication_yet",
+  "disposition": "synthetic_custody_tabletop_verified_no_human_adjudication_yet",
   "repository": {
     "full_name": "manish91082-coder/flashloan-research-agentic-swarm",
     "branch": "main",
@@ -84,7 +84,7 @@
     "paid_inference": false,
     "cloud_inference": false
   },
-  "next_action": "Complete independent proposition/scope audit, then build v2 private reviewer bundle and identity/custody protocol. Only after those pass may private human reviews be solicited.",
+  "next_action": "Complete the human custodian's signed operational readiness review using research/R15D_V2_CUSTODIAN_READINESS_CHECKLIST.md. Keep genuine reviewer intake disabled until identity eligibility, public-key delivery/key custody, private storage and independent approvals are explicitly verified.",
   "reviewer_intake": {
     "protocol": "research/R15D_V2_REVIEWER_INTAKE.md",
     "schema": "research/R15D_V2_REVIEWER_SUBMISSION.schema.json",
@@ -107,7 +107,7 @@
     "receipt_generator_implemented": true,
     "receipt_to_merge_binding_enforced": true,
     "production_intake_authorized": false,
-    "residual_blocker": "No genuine reviewers or identity checks exist yet; out-of-band identity verification and private encrypted custody remain operational controls requiring a synthetic tabletop and then explicit human authorization.",
+    "residual_blocker": "No genuine reviewers or identity checks exist. Synthetic GnuPG symmetric delivery and POSIX permission checks passed, but public-key recipient verification, real external transport, separate-device key custody and explicit human custodian authorization remain unverified.",
     "receipt_verifier": "scripts/verify_r15d_v2_intake_receipt.py",
     "primary_merge_requires_two_slot_receipts": true,
     "third_review_receipt_required_on_disagreement": true,
@@ -138,5 +138,32 @@
   },
   "reason_codes": [
     "NO_GENUINE_REVIEWERS_OR_IDENTITY_CHECKS"
-  ]
+  ],
+  "custody_tabletop": {
+    "implemented": true,
+    "status": "passed_synthetic_only",
+    "workflow_run_id": 44045502636,
+    "tests_per_python_version": 346,
+    "python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "gpg_symmetric_encryption_roundtrips": 3,
+    "gpg_cipher": "AES-256",
+    "primary_receipts_verified": 2,
+    "third_receipts_verified": 1,
+    "primary_merge_verified": true,
+    "final_adjudication_complete": true,
+    "frozen_manifest_verified": true,
+    "workspace_directory_mode": "0700",
+    "private_file_mode": "0600",
+    "workspace_removed_after_test": true,
+    "real_identity_verification": false,
+    "public_key_recipient_verification": false,
+    "real_external_transport": false,
+    "separate_device_key_custody": false,
+    "production_reviewer_intake_authorized": false,
+    "model_inference_authorized": false
+  }
 }
