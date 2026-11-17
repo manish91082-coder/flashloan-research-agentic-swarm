@@ -1,3 +1,18 @@
+## R15D end-to-end finalization-to-freeze dry-run — CI verified (2026-11-17)
+
+- **Verified implementation/test HEAD:** `75d10ddb39cf3ceb26aa92e0745399c65c6ce256`.
+- Added `tests/test_r15d_end_to_end_freeze_pipeline.py`, using isolated temporary files and explicitly synthetic reviewer records only.
+- **Unanimous path exercised end to end:** two synthetic primary bundles → staged merge → independent staged-merge verification → final consensus assembly → complete packet validation → separate freeze writer → independent frozen-manifest verification.
+- **Disagreement path exercised end to end:** two synthetic primary bundles with a deliberately conflicting label → staged merge → third-adjudicator bundle → third-submission validation → final consensus assembly → complete packet validation → separate freeze writer → independent frozen-manifest verification.
+- **Tamper test:** changing the adjudication input after freeze is rejected by frozen-manifest provenance verification.
+- **Canonical input protection:** tests confirm the repository's canonical blank R15D packet bytes remain unchanged. No synthetic labels or reviewer identities were written into the canonical packet.
+- **CI:** run [44037991842](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44037991842) passed **275 tests** on Python 3.11, 3.12 and 3.13. The source-pinned fixture build/upload passed on Python 3.11. Documentation CI runs [44037935094](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44037935094) and [44037906036](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44037906036) also completed successfully.
+- **Interpretation boundary:** this proves the software pipeline can process synthetic fixtures; it does not create real-world ground truth or prove reviewer identity. The temporary freeze in these tests is not a production freeze and does not authorize model inference.
+- **Production state unchanged:** canonical blind packet blob remains `b9dac92fb354eea8abfddb04b68b1a2d7c9a604b`; no real primary or third submissions; no identity verification; no production staged merge, final adjudication or freeze; model inference unauthorized; semantic audit increment zero; all candidate execution/wallet/signing/deployment/live-trading/paid/cloud-inference controls remain disabled.
+- **Next sequence:** (1) run an adversarial end-to-end negative-test pass across both unanimous and disagreement paths, including missing/extra reviewer cases, identity collisions, invalid evidence, third-review misuse, malformed JSON, output collisions and manifest tampering; (2) verify all CI artifacts and provenance references remain reproducible; (3) hold production freeze and semantic model inference until genuine private human submissions are received and custodian identity checks are completed.
+
+---
+
 ## R15D independent staged-merge verification, third review and final consensus assembly — CI verified (2026-11-17)
 
 - **Verified implementation/test HEAD:** `8d915cbdc48ffab0b058c0c245307c37266efba5`. Protocol documentation commits: `9a0679983e55b947db50c375ad275f007ad2210e` and `1374f9a97cd0b24f633c9fec4b361c9edaa875b7`.
