@@ -55,13 +55,13 @@ Candidate code execution, wallet access, transaction signing, deployment, live t
 
 - Builder: `scripts/build_r15d_v2_semantic_fixtures.py`
 - Scanner: `scripts/scan_r15d_v2_artifact_leakage.py`
-- CI run: [44039885278](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44039885278)
-- Artifact ID: `14308727443`
-- Artifact name: `r15d-v2-label-free-fixtures-b8e01f699fae9a8d13dd0af361c795e89261bc8d`
-- Downloaded ZIP SHA-256: `ab510711134b10a8a51dd366c1a4cf4e2329629d5c4651a42475b8765cb32f23`
+- CI run: [44041990335](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44041990335)
+- Artifact ID: `14310026292`
+- Artifact name: `r15d-v2-label-free-fixtures-d9b51bf65a587da8f6c3527cf344d397535dc529`
+- Downloaded ZIP SHA-256: `f848c2f212472b0410c208d682e8b8777382eb2811fa945adb38705e412da127`
 - Fixture manifest SHA-256: `8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8`
 - Source design manifest SHA-256: `51c8cc5ecaa1b97164654d7bb6bf5b367a59936de6da5405c32aee48be034f07`
-- CI matrix: **289 tests passed** on Python 3.11, 3.12 and 3.13.
+- CI matrix: **331 tests passed** on Python 3.11, 3.12 and 3.13.
 - Python 3.11 built the fixture, passed the leakage scanner, then uploaded it. Python 3.12 and 3.13 skipped build/upload by design.
 - Direct ZIP inspection confirmed exactly six atomic case IDs (`NAV2-01` through `COB2-03`), six excerpt files, six excerpt SHA-256 values, and zero forbidden answer-key JSON keys. `answer_key_included=false`.
 - The earlier v2 artifact `14308717210` is superseded because its propositions were broader; the current artifact uses the narrowed atomic propositions.
