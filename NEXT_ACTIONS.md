@@ -1,3 +1,18 @@
+# Active execution — fresh specialist context-repair pilot (2026-11-17)
+
+**Workflow:** [44074867551](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44074867551)  
+**Mission ID:** `flashloan-agent-form-context-repair-20261117`  
+**Database:** `data/agentic-mission-context-repair-20261117.sqlite3`  
+**Artifact root:** `research_runs/mission-pilots/flashloan-agent-form-context-repair-20261117`  
+**Model:** local Ollama `qwen2.5:3b`, CPU-only, loopback-only, two bounded workers.  
+**Frozen source checkpoint:** run `43799361897`, artifact `14196365507`, SHA-256 `0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad`.
+
+The trigger validation passed. The workflow is currently in **Download and verify immutable source-capture checkpoint**. No specialist inference is reported as started yet. Do not claim the pilot is complete until the workflow artifact and task ledger confirm all stages.
+
+The historical R15C artifact/database remain read-only. The new mission must preserve explicit reviewer decisions (accept, accept_with_reservations, reject, inconclusive); only unreserved accept with zero disagreements and non-empty pinned evidence is dossier-gate eligible. No semantic audit count is incremented by this pilot. R15D v2 benchmark inference and synthetic human adjudication remain disabled.
+
+---
+
 # Latest checkpoint — R15C manifest replay completed (2026-11-17)
 
 **Latest verified code HEAD:** `45b8418f5f6c1c893ad16a010ba9fbcc18c6edec`  
