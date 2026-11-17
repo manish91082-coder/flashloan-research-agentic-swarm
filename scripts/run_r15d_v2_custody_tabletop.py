@@ -95,8 +95,11 @@ def _third_bundle(staged: dict) -> dict:
 def run_tabletop() -> dict:
     if os.name != "posix":
         raise RuntimeError("custody permission tabletop requires POSIX file-mode semantics")
+    workspace_path = None
+    result = None
     with tempfile.TemporaryDirectory(prefix="r15d-v2-custody-tabletop-") as temporary:
         root = Path(temporary).resolve()
+        workspace_path = root
         repository_root = Path(__file__).resolve().parents[1]
         if root == repository_root or repository_root in root.parents:
             raise RuntimeError("tabletop workspace must be outside the public repository")
@@ -148,7 +151,7 @@ def run_tabletop() -> dict:
         if directory_modes != {0o700} or file_modes != {0o600}:
             raise RuntimeError("private workspace permission audit failed")
 
-        return {
+        result = {
             "status": "passed",
             "synthetic_only": True,
             "primary_receipts_verified": 2,
@@ -163,6 +166,12 @@ def run_tabletop() -> dict:
             "model_inference_authorized": False,
             "production_reviewer_intake_authorized": False,
         }
+    if workspace_path is None or workspace_path.exists():
+        raise RuntimeError("synthetic private workspace was not removed after tabletop")
+    if result is None:
+        raise RuntimeError("synthetic custody tabletop produced no result")
+    result["workspace_removed_after_test"] = True
+    return result
 
 
 def main() -> None:
