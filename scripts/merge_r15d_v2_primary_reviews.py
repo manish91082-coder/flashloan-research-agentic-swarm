@@ -217,7 +217,7 @@ def main() -> None:
     parser.add_argument("--custodian-id", required=True)
     parser.add_argument("--identity-verification-complete", action="store_true")
     args = parser.parse_args()
-    result = merge_primary_reviews(args.fixture, args.reviewer_a, args.reviewer_b, args.output, args.custodian_id, args.identity_verification_complete)
+    result = merge_primary_reviews(args.fixture, args.reviewer_a, args.reviewer_b, args.receipt_a, args.receipt_b, args.output, args.custodian_id, args.identity_verification_complete)
     print(json.dumps(result, indent=2))
     raise SystemExit(0)
 
