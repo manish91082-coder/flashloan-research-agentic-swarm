@@ -18,8 +18,9 @@ def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite frozen manifest: {output_path}")
     try:
-        packet = json.loads(packet_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        packet_bytes = packet_path.read_bytes()
+        packet = json.loads(packet_bytes.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError(f"unable to read a valid adjudication JSON packet: {exc}") from exc
     if not isinstance(packet, dict):
         raise ValueError("input packet must be a JSON object")
@@ -59,8 +60,9 @@ def freeze(packet_path: Path, output_path: Path, frozen_at: str) -> str:
         "model_inference_authorized": False,
     }
     frozen["freeze_provenance"] = {
-        "input_packet_sha256": hashlib.sha256(packet_path.read_bytes()).hexdigest(),
+        "input_packet_sha256": hashlib.sha256(packet_bytes).hexdigest(),
         "validator": "scripts/validate_r15d_adjudication.py",
+        "validator_sha256": hashlib.sha256(Path(__file__).with_name("validate_r15d_adjudication.py").read_bytes()).hexdigest(),
         "validation": result,
         "output_is_separate_from_blind_input": True,
     }
