@@ -28,23 +28,25 @@
     "expected_label_fields_present": false,
     "answer_key_in_public_repository": false,
     "answer_key_in_public_ci_artifact": false,
-    "source_commit_pins_verified": true
+    "source_commit_pins_verified": true,
+    "propositions_atomic": true
   },
   "artifact": {
-    "workflow_run_id": 44039591500,
-    "artifact_id": 14308717210,
-    "artifact_name": "r15d-v2-label-free-fixtures-4bcf8413b4190db34105eec74aa65f50aad49322",
-    "zip_sha256": "d1aa9a8f3512e83c7e93a7166c46e01f5e49ed8c3bf8b6b3ca326878364894f6",
-    "fixture_manifest_sha256": "52ed5fda1e28795a721b6840f8bc6655fd9255465024c84094c2881a328618e5",
-    "source_design_manifest_sha256": "237ca66fd71a0a3d678a97007b2414c3476e214c199f989c47fb073d2accef5b",
+    "workflow_run_id": 44039885278,
+    "artifact_id": 14308727443,
+    "artifact_name": "r15d-v2-label-free-fixtures-b8e01f699fae9a8d13dd0af361c795e89261bc8d",
+    "zip_sha256": "ab510711134b10a8a51dd366c1a4cf4e2329629d5c4651a42475b8765cb32f23",
+    "fixture_manifest_sha256": "8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8",
+    "source_design_manifest_sha256": "51c8cc5ecaa1b97164654d7bb6bf5b367a59936de6da5405c32aee48be034f07",
     "case_count": 6,
     "excerpt_count": 6,
     "answer_key_included": false,
     "leakage_scanner_passed": true,
-    "direct_zip_inspection_passed": true
+    "direct_zip_inspection_passed": true,
+    "exact_forbidden_json_keys_found": 0
   },
   "ci": {
-    "run_id": 44039591500,
+    "run_id": 44039885278,
     "conclusion": "success",
     "tests_per_python_version": 289,
     "python_versions": [
