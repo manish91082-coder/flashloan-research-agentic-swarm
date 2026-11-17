@@ -1,6 +1,6 @@
 # R15D Third-Adjudication Intake Protocol
 
-**Status:** contract and validator only; no genuine third-adjudicator submission has been received.
+**Status:** RETIRED FOR R15D v1. The third-adjudication contract remains a reusable engineering pattern, but must not be applied to the compromised six-case v1 benchmark. See `research/R15D_V1_BLINDNESS_LEAKAGE_AUDIT.md`.
 
 ## Activation condition
 
