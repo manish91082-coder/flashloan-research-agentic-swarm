@@ -1,3 +1,21 @@
+## R15D v2 complete adjudication, freeze writer and independent verifier — CI verified (2026-11-17)
+
+- **Verified implementation/test HEAD:** `d9b51bf65a587da8f6c3527cf344d397535dc529`.
+- **Primary review merge:** `scripts/merge_r15d_v2_primary_reviews.py` validates both private six-case bundles, requires distinct reviewer identities and custodian identity attestation, preserves primary reviewer attestations (including v1 non-exposure and conflict declarations), creates a separate staged packet, and keeps consensus pending.
+- **Independent merge verification:** `scripts/verify_r15d_v2_primary_merge.py` reconstructs the exact staged packet from the two source bundles and the verified fixture artifact, then compares exact bytes and optional SHA-256.
+- **Third-review gate:** `scripts/validate_r15d_v2_third_submission.py` accepts exactly the disagreement set, checks a distinct third identity, primary-review visibility, model-output blindness, v1 answer-key non-exposure, exact source pins, evidence and timestamps.
+- **Complete adjudication validator:** `scripts/validate_r15d_v2_adjudication.py` checks all six cases, stable primary identities, stable distinct third identity for disagreements, preserved reviewer attestations, consensus consistency, source pins, safety controls and the unfrozen/no-inference state.
+- **Finalizer:** `scripts/finalize_r15d_v2_adjudication.py` independently verifies the staged merge, validates third reviews where needed, derives unanimous or third-adjudicated consensus, preserves all attestation records, and writes a new complete packet atomically without freezing.
+- **Freeze writer:** `scripts/freeze_r15d_v2_adjudication.py` accepts only a complete valid final packet and writes a separate immutable manifest with exact input bytes, fixture digest, validator/scanner/builder source hashes and validation result.
+- **Independent frozen-manifest verifier:** `scripts/verify_r15d_v2_frozen_manifest.py` revalidates the source packet, recomputes the toolchain provenance, reconstructs the exact frozen transformation and checks the expected output digest.
+- **End-to-end synthetic harness:** `tests/test_r15d_v2_end_to_end_freeze.py` exercises both unanimous and disagreement paths through merge, verification, third review, finalization, freeze and independent manifest verification, plus incomplete-packet, tamper, digest mismatch and output-collision negative cases. All data are synthetic and isolated in temporary directories.
+- **CI:** run [44041990335](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44041990335) passed **331 tests** on Python 3.11, 3.12 and 3.13.
+- **Latest label-free fixture artifact:** run `44041990335`, artifact ID `14310026292`, ZIP SHA-256 `f848c2f212472b0410c208d682e8b8777382eb2811fa945adb38705e412da127`, fixture manifest SHA-256 `8c7e461c9d08f9e328f34195d431b59031f2f235e44cb5a3e2527739ffaf94b8`. Direct inspection: six atomic case IDs, six excerpts, zero forbidden answer-key JSON keys, `answer_key_included=false`.
+- **Production state:** no genuine reviewer submissions, no custodian identity checks, no production merge/finalization/freeze, no model inference. All end-to-end freeze tests use synthetic fixtures only. V1 remains retired; v2 remains pending genuine independent human review.
+- **Next sequence:** add an artifact-to-private-review handoff receipt and reviewer bundle intake ledger without storing reviewer identities or labels publicly; run a full security review of custody, file permissions and identity-verification operations; then wait for two genuinely independent, v1-unexposed human reviewers. Do not open model inference or semantic audit increments before verified v2 ground truth exists.
+
+---
+
 ## R15D v2 private reviewer intake schema and validator — CI verified (2026-11-17)
 
 - Added `research/R15D_V2_REVIEWER_SUBMISSION.schema.json` and `scripts/validate_r15d_v2_review_submission.py`, plus `tests/test_r15d_v2_reviewer_submission.py`.
