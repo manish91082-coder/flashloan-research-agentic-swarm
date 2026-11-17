@@ -62,8 +62,12 @@ jobs:
             echo "Invalid immutable source-capture checkpoint identity." >&2
             exit 1
           fi
-          if [[ "$CHECKPOINT_RUN_ID" != "43799361897" || "$ARTIFACT_ID" != "14196365507" ]]; then
-            echo "Context-repair pilot must use the frozen, approved source-capture checkpoint." >&2
+          if [[ "$CHECKPOINT_RUN_ID" != "43799361897" || "$ARTIFACT_ID" != "14196365507" || "$ARTIFACT_SHA256" != "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad" ]]; then
+            echo "Context-repair pilot must use the exact frozen, approved source-capture checkpoint and SHA-256." >&2
+            exit 1
+          fi
+          if [[ "$MISSION_ID" != "flashloan-agent-form-context-repair-20261117" || "$DATABASE" != "data/agentic-mission-context-repair-20261117.sqlite3" || "$ARTIFACT_ROOT" != "research_runs/mission-pilots/flashloan-agent-form-context-repair-20261117" ]]; then
+            echo "Fresh mission identity, database or artifact root does not match the approved isolated pilot." >&2
             exit 1
           fi
           if [[ ! "$ARTIFACT_SHA256" =~ ^[0-9a-f]{64}$ || "$DATABASE" != data/*.sqlite3 || "$ARTIFACT_ROOT" != research_runs/mission-pilots/* ]]; then
