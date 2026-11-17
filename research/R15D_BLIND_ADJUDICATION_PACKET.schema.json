@@ -5,115 +5,407 @@
   "description": "Structural contract only. Source-pin, evidence, independence, consensus and freeze eligibility remain enforced by scripts/validate_r15d_adjudication.py. Third-adjudicator independence_attestation is optional only while the slot is unused; it must be true when a disagreement triggers adjudication.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "benchmark_id", "packet_type", "status", "created_from_fixture_artifact", "blinding", "allowed_labels", "cases", "safety", "freeze"],
+  "required": [
+    "schema_version",
+    "benchmark_id",
+    "packet_type",
+    "status",
+    "created_from_fixture_artifact",
+    "blinding",
+    "allowed_labels",
+    "cases",
+    "safety",
+    "freeze"
+  ],
   "properties": {
-    "schema_version": {"const": "1.0"},
-    "benchmark_id": {"const": "r15d-semantic-source-facts-v1"},
-    "packet_type": {"const": "blind_ground_truth_adjudication"},
-    "status": {"enum": ["pending_independent_review", "frozen_ground_truth"]},
+    "schema_version": {
+      "const": "1.0"
+    },
+    "benchmark_id": {
+      "const": "r15d-semantic-source-facts-v1"
+    },
+    "packet_type": {
+      "const": "blind_ground_truth_adjudication"
+    },
+    "status": {
+      "enum": [
+        "pending_independent_review",
+        "frozen_ground_truth"
+      ]
+    },
     "created_from_fixture_artifact": {
-      "type": "object", "additionalProperties": false,
-      "required": ["artifact_id", "artifact_zip_sha256", "manifest_sha256"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "artifact_zip_sha256",
+        "manifest_sha256"
+      ],
       "properties": {
-        "artifact_id": {"type": "integer"},
-        "artifact_zip_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-        "manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        "artifact_id": {
+          "type": "integer"
+        },
+        "artifact_zip_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
       }
     },
     "blinding": {
-      "type": "object", "additionalProperties": false,
-      "required": ["expected_labels_omitted", "model_outputs_omitted", "reviewers_must_not_consult_model_outputs", "reviewers_must_work_independently"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_labels_omitted",
+        "model_outputs_omitted",
+        "reviewers_must_not_consult_model_outputs",
+        "reviewers_must_work_independently"
+      ],
       "properties": {
-        "expected_labels_omitted": {"const": true},
-        "model_outputs_omitted": {"const": true},
-        "reviewers_must_not_consult_model_outputs": {"const": true},
-        "reviewers_must_work_independently": {"const": true}
+        "expected_labels_omitted": {
+          "const": true
+        },
+        "model_outputs_omitted": {
+          "const": true
+        },
+        "reviewers_must_not_consult_model_outputs": {
+          "const": true
+        },
+        "reviewers_must_work_independently": {
+          "const": true
+        }
       }
     },
-    "allowed_labels": {"const": ["present", "absent", "not_applicable", "unknown"]},
+    "allowed_labels": {
+      "const": [
+        "present",
+        "absent",
+        "not_applicable",
+        "unknown"
+      ]
+    },
     "cases": {
-      "type": "array", "minItems": 6, "maxItems": 6,
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
       "items": {
-        "type": "object", "additionalProperties": false,
-        "required": ["id", "repository", "commit_sha", "tree_sha", "path", "git_blob_sha1", "line_start", "line_end", "excerpt_sha256", "proposition", "boundary", "question", "reviewers", "third_adjudicator", "consensus"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "repository",
+          "commit_sha",
+          "tree_sha",
+          "path",
+          "git_blob_sha1",
+          "line_start",
+          "line_end",
+          "excerpt_sha256",
+          "proposition",
+          "boundary",
+          "question",
+          "reviewers",
+          "third_adjudicator",
+          "consensus"
+        ],
         "properties": {
-          "id": {"enum": ["NAV-01", "NAV-02", "NAV-03", "COB-01", "COB-02", "COB-03"]},
-          "repository": {"type": "string", "minLength": 1},
-          "commit_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
-          "tree_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
-          "path": {"type": "string", "minLength": 1},
-          "git_blob_sha1": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
-          "line_start": {"type": "integer", "minimum": 1},
-          "line_end": {"type": "integer", "minimum": 1},
-          "excerpt_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-          "proposition": {"type": "string", "minLength": 1},
-          "boundary": {"type": "string", "minLength": 1},
-          "question": {"type": "string", "minLength": 1},
-          "reviewers": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/review"}},
+          "id": {
+            "enum": [
+              "NAV-01",
+              "NAV-02",
+              "NAV-03",
+              "COB-01",
+              "COB-02",
+              "COB-03"
+            ]
+          },
+          "repository": {
+            "type": "string",
+            "minLength": 1
+          },
+          "commit_sha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "tree_sha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "git_blob_sha1": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "excerpt_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "proposition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "boundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reviewers": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "$ref": "#/$defs/review"
+            }
+          },
           "third_adjudicator": {
-            "type": "object", "additionalProperties": false,
-            "required": ["reviewer_id", "label", "rationale", "evidence_references", "confidence", "completed_at", "triggered"],
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reviewer_id",
+              "label",
+              "rationale",
+              "evidence_references",
+              "confidence",
+              "completed_at",
+              "triggered"
+            ],
             "properties": {
-              "reviewer_id": {"type": ["string", "null"]},
-              "label": {"$ref": "#/$defs/nullableLabel"},
-              "rationale": {"type": ["string", "null"]},
-              "evidence_references": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
-              "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-              "completed_at": {"type": ["string", "null"], "format": "date-time"},
-              "independence_attestation": {"type": ["boolean", "null"]},
-              "triggered": {"type": "boolean"}
+              "reviewer_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "label": {
+                "$ref": "#/$defs/nullableLabel"
+              },
+              "rationale": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evidence_references": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confidence": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "independence_attestation": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "triggered": {
+                "type": "boolean"
+              }
             }
           },
           "consensus": {
-            "type": "object", "additionalProperties": false,
-            "required": ["status", "label", "rationale", "disagreement"],
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "label",
+              "rationale",
+              "disagreement"
+            ],
             "properties": {
-              "status": {"enum": ["pending", "adjudicated"]},
-              "label": {"$ref": "#/$defs/nullableLabel"},
-              "rationale": {"type": ["string", "null"]},
-              "disagreement": {"type": "boolean"}
+              "status": {
+                "enum": [
+                  "pending",
+                  "adjudicated"
+                ]
+              },
+              "label": {
+                "$ref": "#/$defs/nullableLabel"
+              },
+              "rationale": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "disagreement": {
+                "type": "boolean"
+              }
             }
           }
         }
       }
     },
     "safety": {
-      "type": "object", "additionalProperties": false,
-      "required": ["candidate_code_execution", "wallet_access", "transaction_signing", "deployment", "live_trading", "paid_inference", "cloud_inference"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_code_execution",
+        "wallet_access",
+        "transaction_signing",
+        "deployment",
+        "live_trading",
+        "paid_inference",
+        "cloud_inference"
+      ],
       "properties": {
-        "candidate_code_execution": {"const": false},
-        "wallet_access": {"const": false},
-        "transaction_signing": {"const": false},
-        "deployment": {"const": false},
-        "live_trading": {"const": false},
-        "paid_inference": {"const": false},
-        "cloud_inference": {"const": false}
+        "candidate_code_execution": {
+          "const": false
+        },
+        "wallet_access": {
+          "const": false
+        },
+        "transaction_signing": {
+          "const": false
+        },
+        "deployment": {
+          "const": false
+        },
+        "live_trading": {
+          "const": false
+        },
+        "paid_inference": {
+          "const": false
+        },
+        "cloud_inference": {
+          "const": false
+        }
       }
     },
     "freeze": {
-      "type": "object", "additionalProperties": false,
-      "required": ["ground_truth_frozen", "frozen_at", "reviewer_output_visibility", "model_inference_authorized"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ground_truth_frozen",
+        "frozen_at",
+        "reviewer_output_visibility",
+        "model_inference_authorized"
+      ],
       "properties": {
-        "ground_truth_frozen": {"type": "boolean"},
-        "frozen_at": {"type": ["string", "null"], "format": "date-time"},
-        "reviewer_output_visibility": {"enum": ["hidden_until_freeze", "released_after_freeze"]},
-        "model_inference_authorized": {"const": false}
+        "ground_truth_frozen": {
+          "type": "boolean"
+        },
+        "frozen_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "reviewer_output_visibility": {
+          "enum": [
+            "hidden_until_freeze",
+            "released_after_freeze"
+          ]
+        },
+        "model_inference_authorized": {
+          "const": false
+        }
       }
     }
   },
   "$defs": {
-    "nullableLabel": {"type": ["string", "null"], "enum": ["present", "absent", "not_applicable", "unknown", null]},
+    "nullableLabel": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "present",
+        "absent",
+        "not_applicable",
+        "unknown",
+        null
+      ]
+    },
     "review": {
-      "type": "object", "additionalProperties": false,
-      "required": ["reviewer_id", "label", "rationale", "evidence_references", "confidence", "completed_at", "independence_attestation"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewer_id",
+        "label",
+        "rationale",
+        "evidence_references",
+        "confidence",
+        "completed_at",
+        "independence_attestation"
+      ],
       "properties": {
-        "reviewer_id": {"type": ["string", "null"]},
-        "label": {"$ref": "#/$defs/nullableLabel"},
-        "rationale": {"type": ["string", "null"]},
-        "evidence_references": {"type": "array", "items": {"type": "string"}},
-        "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-        "completed_at": {"type": ["string", "null"], "format": "date-time"},
-        "independence_attestation": {"type": ["boolean", "null"]}
+        "reviewer_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/nullableLabel"
+        },
+        "rationale": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence_references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "completed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "independence_attestation": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
       }
     }
   }
