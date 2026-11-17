@@ -2,6 +2,7 @@ import hashlib
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from scripts.freeze_r15d_adjudication import freeze
@@ -147,6 +148,19 @@ class R15DFreezeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate JSON object key"):
                 freeze(source, output, "2026-11-17T00:00:00Z")
             self.assertFalse(output.exists())
+
+
+    def test_atomic_publish_failure_leaves_no_partial_manifest_or_temp_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "blind.json"
+            output = root / "frozen.json"
+            source.write_text(json.dumps(self.complete_packet()), encoding="utf-8")
+            with patch("scripts.freeze_r15d_adjudication.os.link", side_effect=OSError("simulated atomic publish failure")):
+                with self.assertRaisesRegex(OSError, "simulated atomic publish failure"):
+                    freeze(source, output, "2026-11-17T00:00:00Z")
+            self.assertFalse(output.exists())
+            self.assertEqual(list(root.glob(".frozen.json.*.tmp")), [])
 
 
 if __name__ == "__main__":
