@@ -25,8 +25,8 @@ class R15DFreezeTests(unittest.TestCase):
         packet = json.loads(DEFAULT_PACKET.read_text(encoding="utf-8"))
         for case in packet["cases"]:
             case["reviewers"] = [
-                self.completed_review(case, case["id"] + "-reviewer-a", "present"),
-                self.completed_review(case, case["id"] + "-reviewer-b", "present"),
+                self.completed_review(case, "reviewer-a", "present"),
+                self.completed_review(case, "reviewer-b", "present"),
             ]
             case["consensus"] = {
                 "status": "adjudicated",
