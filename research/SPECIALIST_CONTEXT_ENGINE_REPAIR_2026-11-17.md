@@ -64,3 +64,20 @@ This is a code-level repair batch, not operational acceptance. It does not prove
 **Latest verified CI:** run [44073293999](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073293999), HEAD `e7ef78ae6e58a9b8764965b3dc9cff0056c77212`. Python 3.11, 3.12 and 3.13 all passed; the standard-library suite reports 353 tests passed. The Python 3.11 R15D v2 synthetic custody tabletop also completed successfully as part of the workflow.
 
 **Important:** the 353-test result and synthetic custody tabletop validate the software and fixture path only. They do not establish specialist semantic adequacy, a complete autonomous mission, genuine human reviewer identity, R15D v2 production intake, or 24x7 operational acceptance.
+
+
+## Protocol-test relevance refinement and frozen R15C replay
+
+- Protocol-security and independent-review roles now exclude generic monitor/UI tests unless the path itself identifies a protocol, liquidation, flash-loan, callback, contract or security test. This prevents monitoring tests from occupying scarce protocol-review context slots.
+- Added regression coverage for excluding monitor-only tests while retaining liquidation-specific test paths.
+- Replayed role-family selection, without model inference, against the two frozen R15C inspection manifests in artifact 14229725407 (ZIP SHA-256 `98fdccc443072374a753ec6c3c045f859a8a0624ec901952ed4a4e7073a4cbe3`).
+- The COB Solidity contract is selected first for candidate-purpose, protocol, Solidity security, execution, economics and independent-review roles. `bot.js` is selected second for roles where runtime source is admissible.
+- COB dependency/license has no admissible manifest, lockfile, compiler/build or license artifact and therefore selects no files. Its dependency specialist must remain zero-findings/unknown/low-confidence.
+- COB test verification selects actual monitor test files only; missing CI and test configuration are explicit. These tests must not be described as tests of the Solidity liquidation contract.
+- Aave test verification has no captured test source or CI workflow. Aave dependency/license has only `hardhat.config.ts`, with dependency manifest and license artifact missing.
+
+**Latest code CI:** run [44073705502](https://github.com/manish91082-coder/flashloan-research-agentic-swarm/actions/runs/44073705502), code HEAD `45b8418f5f6c1c893ad16a010ba9fbcc18c6edec`. Python 3.11, 3.12 and 3.13 all passed; 354 standard-library tests passed. Python 3.11 synthetic R15D v2 custody tabletop passed.
+
+**Replay limitation:** this was a manifest-level deterministic path-selection replay. The frozen R15C artifact does not include the source-vault blobs, so exact source-byte re-hashing and actual excerpt reconstruction through `_verified_source_context` have not yet been performed. No new model pilot was run; the historical 14/14 insufficient report assessment remains unchanged.
+
+**Next mandatory task:** build a byte-level replay harness that fetches the exact source files at the frozen commit SHAs, verifies Git blob hashes, invokes the actual context builder for each role, and asserts selected excerpt paths, line ranges, per-file and total character budgets, excerpt hashes and missing-family metadata. Only after that replay passes should a fresh isolated model pilot begin.
