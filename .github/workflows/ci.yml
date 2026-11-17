@@ -40,7 +40,7 @@ jobs:
       - name: Run synthetic R15D v2 custody tabletop
         if: matrix.python-version == '3.11'
         env:
-          PYTHONPATH: src
+          PYTHONPATH: .:src
         run: python scripts/run_r15d_v2_custody_tabletop.py
       # R15D v1 fixture publication remains disabled; v2 artifacts are label-free and scanned before upload.
       - name: Build label-free R15D v2 fixture
