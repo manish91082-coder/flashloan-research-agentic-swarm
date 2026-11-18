@@ -231,3 +231,13 @@ Using public GitHub tree metadata at the exact R3 candidate commits (no candidat
 - New recapture workflow now triggers when analyzer/config/specialist source capture logic changes and requires source_capture_complete_within_configured_scope=true, exact frozen commit identities, and presence of protocol contract, package manifest/lockfile and license artifacts.
 - Repair commits: b07c731 (lockfile cap setting), fab916b (capture uses per-artifact cap), bb65cbf (verified context enforces same cap), ed173a8 (regression test), c4a3e97 (workflow gate/trigger update). CI and recapture at c4a3e97 are pending at this log creation. The prior R15E failure is retained as a regression record.
 - Do not mark acquisition repair PASS until latest CI matrix and fresh R15E artifact both pass, exact blob SHA verification is present, and selected artifact family counts are reviewed.
+
+
+### R15E frozen candidate recapture: PASS
+
+- Workflow run 44347794422 completed successfully at code commit c4a3e97316e46a99bde96441365aac6875aa9f49; artifact 14446333023, SHA-256 9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8.
+- Aave-Liquiditor frozen commit 9197ee3002d7d9b35e9c2da324128a38f7569038 / tree 14de2312e96c369bcc52c9bae96215051aea22b4: 12/12 research artifacts captured, including contract, package.json, 372,706-byte package-lock.json, hardhat config, LICENSE and README; source capture complete within configured scope.
+- cobibean/aave-liquidator-bot frozen commit 3159c15f4dcfb0df215b4c3024f47753a1133b84 / tree 1a9ee7218304b95654385fc11f255a7c5d532bc4: 67/67 research artifacts captured, including contract, package manifests/lockfile, Dockerfile, LICENSE and README; source capture complete within configured scope. No protocol test/CI family was found in selected non-monitor evidence; monitor-only test suites remain excluded and this is disclosed as coverage debt.
+- Independent artifact audit: all 79/79 captured Git blobs recomputed against Git blob SHA-1 framing and matched their manifest blob_sha; SQLite PRAGMA integrity_check returned ok; no candidate code was executed. ZIP SHA-256 independently recomputed as 9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8.
+- CI at c4a3e97 exposed only a regression-test import NameError for max_research_artifact_bytes. Corrected in commit b085079bfcdc1b4a3395fbdcdda528e3d8b71d54; latest CI run 44348100255 was queued at log time. Do not infer CI success from the successful recapture workflow.
+- Next: verify CI at b085079; then build a fresh semantic pilot input from this R15E artifact (not the old R3 seed), with independent artifact/DB reconciliation before model execution.
