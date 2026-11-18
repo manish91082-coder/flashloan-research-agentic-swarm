@@ -145,6 +145,33 @@ def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[lis
     return ordered, coverage
 
 
+
+def selected_role_source_coverage(role: str, selected_paths: Iterable[str]) -> dict:
+    """Measure role-family coverage in files that actually produced verified excerpts."""
+    patterns = ROLE_FAMILY_PATTERNS.get(role)
+    if patterns is None:
+        raise ValueError(f"unknown specialist source role: {role}")
+    unique_paths = sorted({path for path in selected_paths if isinstance(path, str)})
+    counts: dict[str, int] = {}
+    for path in unique_paths:
+        _, family = _family_for_path(role, path)
+        if family:
+            counts[family] = counts.get(family, 0) + 1
+    required = list(REQUIRED_FAMILIES.get(role, ()))
+    present = sorted(counts)
+    missing = [family for family in required if family not in counts]
+    return {
+        "role": role,
+        "selected_file_paths": unique_paths,
+        "selected_file_count": len(unique_paths),
+        "selected_family_file_counts": counts,
+        "selected_present_families": present,
+        "selected_required_families": required,
+        "selected_missing_families": missing,
+        "selected_coverage_status": "complete" if not missing else "incomplete",
+        "method": "unique_verified_excerpt_paths_after_file_and_character_budgets",
+    }
+
 def role_path_admissible(role: str, path: str) -> bool:
     """Whether a finding from this role may cite this source family."""
     _, family = _family_for_path(role, path)
