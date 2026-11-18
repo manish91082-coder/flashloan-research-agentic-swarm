@@ -257,6 +257,11 @@ class ResearchPipeline:
         source_cap_hit = len(eligible_research_items) > len(source_items)
         eligible_source_items = [item for item in source_items_all if isinstance(item.get("size"), int) and 0 <= item["size"] <= self.settings.max_blob_bytes]
         captured_source_count = sum(1 for item in source_items if is_source_file(item["path"]))
+        capture_family_counts: dict[str, int] = {}
+        for selected_item in source_items:
+            family = _capture_family(selected_item["path"])
+            if family:
+                capture_family_counts[family] = capture_family_counts.get(family, 0) + 1
         captured: list[CapturedFile] = []
         captured_manifest: list[dict[str, Any]] = []
         all_signals: list[dict[str, Any]] = []
@@ -310,6 +315,8 @@ class ResearchPipeline:
             "research_artifacts_eligible_by_size": len(eligible_research_items),
             "research_artifacts_selected": len(source_items),
             "research_artifacts_captured": len(captured),
+            "research_artifact_capture_family_counts": capture_family_counts,
+            "research_artifact_selected_paths": [item["path"] for item in source_items],
             "source_cap_hit": source_cap_hit,
             "oversized_or_invalid_source_count": oversized_source_count,
             "source_capture_complete_within_configured_scope": source_capture_complete,
