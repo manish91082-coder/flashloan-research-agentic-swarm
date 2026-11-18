@@ -166,8 +166,21 @@ def replay_candidate(
         if len(set(excerpt_paths)) > max_files:
             raise AssertionError(f"{repository}/{role}: max_files exceeded")
 
+        selected_manifest = [
+            item for item in manifest if item.get("path") in set(expected_paths)
+        ]
+        _, selected_coverage = order_role_source_manifest(role, selected_manifest)
+        # Manifest-level presence is not enough: record whether required families
+        # actually survived the bounded max_files selection into specialist context.
+        if coverage["coverage_status"] == "complete" and selected_coverage["coverage_status"] != "complete":
+            raise AssertionError(
+                f"{repository}/{role}: bounded shortlist starved a required source family; "
+                f"missing={selected_coverage['missing_families']}"
+            )
+
         role_results[role] = {
             "source_family_coverage": coverage,
+            "selected_source_family_coverage": selected_coverage,
             "shortlisted_paths": expected_paths,
             "excerpt_paths": unique_excerpt_paths,
             "excerpt_count": len(excerpts),
