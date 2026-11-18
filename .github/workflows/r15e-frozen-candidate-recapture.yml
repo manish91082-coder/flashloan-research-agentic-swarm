@@ -1,0 +1,83 @@
+name: R15E Frozen Candidate Research Artifact Recapture
+
+on:
+  push:
+    branches:
+      - phase-a/r4b-balanced-source-family-context
+    paths:
+      - .github/workflows/r15e-frozen-candidate-recapture.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recapture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout research engine
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install research engine
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Recapture exact frozen candidates without executing candidate code
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FLR_DATABASE: data/r15e-recapture/research.sqlite3
+          FLR_SNAPSHOT_DIR: data/r15e-recapture/snapshots
+        run: |
+          set -euo pipefail
+          mkdir -p reports/r15e-recapture
+          python -m flashloan_research.cli inspect cobibean/aave-liquidator-bot
+          python -m flashloan_research.cli inspect 0xnavarro/Aave-Liquiditor
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          expected = {
+              "cobibean__aave-liquidator-bot": "3159c15f4dcfb0df215b4c3024f47753a1133b84",
+              "0xnavarro__Aave-Liquiditor": "9197ee3002d7d9b35e9c2da324128a38f7569038",
+          }
+          required_paths = {
+              "cobibean__aave-liquidator-bot": {"contracts/AaveLiquidatorSwapRouter02.sol", "package.json", "package-lock.json", "LICENSE"},
+              "0xnavarro__Aave-Liquiditor": {"src/contracts/FlashLiquidator.sol", "package.json", "package-lock.json", "LICENSE"},
+          }
+          for name, commit in expected.items():
+              path = Path("reports") / f"{name}__inspection.json"
+              report = json.loads(path.read_text(encoding="utf-8"))
+              if report.get("commit_sha") != commit:
+                  raise SystemExit(f"frozen commit mismatch for {name}: {report.get('commit_sha')}")
+              if report.get("tree_truncated") or report.get("source_cap_hit"):
+                  raise SystemExit(f"coverage incomplete for {name}: {report.get('limitations')}")
+              selected = set(report.get("research_artifact_selected_paths", []))
+              missing = sorted(required_paths[name] - selected)
+              if missing:
+                  raise SystemExit(f"required evidence artifacts were not captured for {name}: {missing}")
+              print(json.dumps({
+                  "repository": report["repository"],
+                  "commit_sha": report["commit_sha"],
+                  "tree_sha": report["tree_sha"],
+                  "research_artifacts_available": report.get("research_artifacts_available_in_tree"),
+                  "research_artifacts_captured": report.get("research_artifacts_captured"),
+                  "family_counts": report.get("research_artifact_capture_family_counts"),
+                  "selected_paths": report.get("research_artifact_selected_paths"),
+                  "required_artifacts_present": True,
+                  "candidate_code_executed": False,
+              }, indent=2))
+          PY
+      - name: Upload immutable recapture evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r15e-frozen-candidate-recapture
+          path: |
+            reports/*__inspection.json
+            data/r15e-recapture/research.sqlite3
+            data/r15e-recapture/snapshots/
+          if-no-files-found: error
+          retention-days: 30
