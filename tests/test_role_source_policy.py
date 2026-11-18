@@ -79,6 +79,19 @@ class RoleSourcePolicyTests(unittest.TestCase):
         self.assertFalse(role_path_admissible("test_verification", "monitor/test/apiLogs.test.js"))
         self.assertFalse(role_path_admissible("test_verification", "dashboard/tests/test_ui.py"))
 
+    def test_monitoring_and_presentation_paths_are_not_protocol_runtime_evidence(self):
+        for role in ("candidate_purpose", "protocol_specialist", "execution_engineer",
+                     "economics_quant", "independent_reviewer"):
+            ordered, _ = order_role_source_manifest(role, [
+                {"path": "src/index.ts"},
+                {"path": "monitor/src/chainMetadata.js"},
+                {"path": "monitor/public/app.js"},
+                {"path": "dashboard/src/view.ts"},
+            ])
+            paths = [item["path"] for item in ordered]
+            self.assertIn("src/index.ts", paths)
+            self.assertFalse(any(path.startswith(("monitor/", "dashboard/")) for path in paths))
+
     def test_bounded_prefix_interleaves_source_families_instead_of_starving_them(self):
         manifest = [
             {"path": f"contracts/Contract{i:02d}.sol"} for i in range(12)
