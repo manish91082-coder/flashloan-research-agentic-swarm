@@ -357,12 +357,12 @@ def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]]
             reasons.append(f"finding {index} claim is too short to express a reviewable mechanism")
         if any(marker in claim for marker in generic_markers):
             reasons.append(f"finding {index} is generic repository/language boilerplate")
-        if not isinstance(refs, list) or not refs or any(ref not in allowed_ids for ref in refs):
+        valid_refs = refs if isinstance(refs, list) else []
+        if not valid_refs or any(ref not in allowed_ids for ref in valid_refs):
             reasons.append(f"finding {index} does not resolve exclusively to accepted evidence IDs")
-            continue
         if topic_terms and not any(term in claim for term in topic_terms):
             reasons.append(f"finding {index} lacks a role-relevant technical mechanism")
-        cited_text = " ".join(evidence_by_id.get(ref, "") for ref in refs)
+        cited_text = " ".join(evidence_by_id.get(ref, "") for ref in valid_refs if ref in allowed_ids)
         if topic_terms and not any(term in claim and term in cited_text for term in topic_terms):
             reasons.append(f"finding {index} has no shared role-specific technical anchor in its cited source excerpt")
         claim_tokens = {token for token in claim.split() if len(token) >= 4 and token not in stopwords}
@@ -532,7 +532,13 @@ def _prior_specialist_reports(task_rows: list[dict[str, Any]], repository: str,
             "purpose_category": data.get("purpose_category"),
             "implementation_status": data.get("implementation_status"),
             "findings": findings,
-            "semantic_adequacy": adequacy,
+            "semantic_adequacy": {
+                "status": adequacy.get("status"),
+                "finding_count": adequacy.get("finding_count", 0),
+                "reason_count": adequacy.get("reason_count", 0),
+                "reasons": [str(reason)[:180] for reason in adequacy.get("reasons", [])[:3]],
+                "method": adequacy.get("method"),
+            },
             "accepted_evidence_ids": evidence_ids,
             "accepted_evidence_count": len(data.get("evidence", [])),
             "rejected_evidence_count": len(data.get("rejected_evidence", [])),
