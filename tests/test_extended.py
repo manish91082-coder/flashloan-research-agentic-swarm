@@ -13,7 +13,7 @@ from io import BytesIO
 from pathlib import Path
 from urllib.error import HTTPError
 
-from flashloan_research.analyzer import decode_blob, extract_signals, is_source_file, is_research_artifact, select_research_artifacts
+from flashloan_research.analyzer import decode_blob, extract_signals, is_source_file, is_research_artifact, select_research_artifacts, max_research_artifact_bytes
 from flashloan_research.config import SETTINGS
 from flashloan_research.github_api import GitHubClient
 from flashloan_research.models import EvidenceRecord, RepositoryCandidate
