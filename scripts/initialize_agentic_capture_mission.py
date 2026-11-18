@@ -21,7 +21,7 @@ MISSION_ID = "flashloan-research-43600488013"
 DISCOVERY_RUN_ID = "43600488013"
 
 
-def load_reports(report_dir: Path, vault: Path, limit: int, source_run_id: str, normalize_inspection_reports: bool = False) -> list[dict[str, Any]]:
+def load_reports(report_dir: Path, vault: Path, limit: int, source_run_id: str = DISCOVERY_RUN_ID, normalize_inspection_reports: bool = False) -> list[dict[str, Any]]:
     reports: list[dict[str, Any]] = []
     for path in sorted(report_dir.glob("*.json")):
         report = json.loads(path.read_text(encoding="utf-8"))
