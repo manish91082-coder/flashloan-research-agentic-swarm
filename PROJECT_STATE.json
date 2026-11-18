@@ -1430,9 +1430,9 @@
     "continuity_rule": "Every chat thread must reload this plan and PROJECT_STATE.json from canonical repository before continuing."
   },
   "current_execution_checkpoint": {
-    "verified_at_utc": "2026-11-18T17:00:00Z",
+    "verified_at_utc": "2026-11-18T17:04:00Z",
     "engineering_branch": "phase-a/r4b-balanced-source-family-context",
-    "engineering_head": "2d1dfaf8cdd4dbb2336c035f9a51b5709837dc1a",
+    "engineering_head": "c252ff78009f5c96aac79e14fe783433bddcc0fe",
     "last_passed_ci": {
       "id": 44348100255,
       "sha": "b085079bfcdc1b4a3395fbdcdda528e3d8b71d54",
@@ -1444,8 +1444,8 @@
       ]
     },
     "latest_ci": {
-      "id": 44348921843,
-      "sha": "9bc7dd038eab26085fd390b0038b45d45b8eee84",
+      "id": 44353503484,
+      "sha": "c252ff78009f5c96aac79e14fe783433bddcc0fe",
       "status": "completed",
       "conclusion": "success",
       "python_versions": [
@@ -1468,9 +1468,9 @@
       "sqlite_integrity": "ok"
     },
     "semantic_pilot": {
-      "run_id": 44348572199,
-      "mission_id": "r4b-r15f-semantic-pilot-20261118",
-      "status": "FAILED_CLOSED",
+      "run_id": 44353218082,
+      "mission_id": "r4b-r15f-semantic-pilot-20261118-r2",
+      "status": "IN_PROGRESS",
       "artifact_id": 14448757300,
       "artifact_sha256": "45e12a0a0dea058c77d3eb692c760fcc95347445b850f48f2ee0ff2945f45fcf",
       "elapsed_seconds": 1096.3,
@@ -1490,12 +1490,22 @@
         "Aave test and dependency roles returned no source-grounded findings; test evidence coverage remains explicitly incomplete.",
         "R15F's evidence gate checks signal IDs and role categories but did not enforce sufficient distinctive claim-to-excerpt overlap."
       ],
-      "artifact_audit": "ZIP SHA-256 independently matched GitHub artifact digest; database PRAGMA integrity_check=ok; 27 files present including all 14 specialist reports, 2 evidence reports, 2 reviewer reports and task ledger."
+      "artifact_audit": "ZIP SHA-256 independently matched GitHub artifact digest; database PRAGMA integrity_check=ok; 27 files present including all 14 specialist reports, 2 evidence reports, 2 reviewer reports and task ledger.",
+      "immutable_source_artifact_id": 14446333023,
+      "immutable_source_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8",
+      "current_stage": "Run bounded local semantic agent swarm",
+      "completed_steps": [
+        "immutable source checkpoint validation",
+        "source artifact download and SHA-256 verification",
+        "fresh mission bootstrap",
+        "local Ollama runtime installation"
+      ],
+      "artifact_available": false
     },
     "audit_finding": "Upstream source cap starved dependencies/tests/licenses; family-aware capture and separate 1MB lockfile cap now implemented and verified by live recapture.",
     "main_code_changes": "NONE; only plan/state documentation",
     "readiness": "NOT_24x7_PRODUCTION_READY",
-    "next_action": "Audit R15F-R2 terminal artifact. Verify CI for semantic grounding changes, especially the adequacy regression and reviewer context budget. If R2 fails because the model still produces unsupported claims, improve role-specific source selection/prompt examples before a fresh R3 pilot.",
+    "next_action": "Poll R15F-R2 run 44353218082 until terminal; download and independently audit its artifact, all 14 specialist reports, 2 evidence reports, both reviewers, task ledger and SQLite integrity. Do not proceed to repeatability until the semantic acceptance gate passes.",
     "semantic_repair_replay": {
       "run_id": 44353218082,
       "mission_id": "r4b-r15f-semantic-pilot-20261118-r2",
@@ -1528,6 +1538,18 @@
         44353217975
       ],
       "status": "IN_PROGRESS_OR_QUEUED"
+    },
+    "latest_code_followup": {
+      "commit": "2d1dfaf8cdd4dbb2336c035f9a51b5709837dc1a",
+      "changes": [
+        "continue checking role relevance even when an evidence reference is invalid",
+        "compact adequacy diagnostics to preserve all seven specialist reports within reviewer context budget"
+      ],
+      "ci_run_ids": [
+        44353439614,
+        44353503484
+      ],
+      "status": "PASS"
     }
   },
   "execution_objective": {
