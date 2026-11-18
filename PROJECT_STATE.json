@@ -1430,9 +1430,9 @@
     "continuity_rule": "Every chat thread must reload this plan and PROJECT_STATE.json from canonical repository before continuing."
   },
   "current_execution_checkpoint": {
-    "verified_at_utc": "2026-11-18T16:42:00Z",
+    "verified_at_utc": "2026-11-18T16:45:00Z",
     "engineering_branch": "phase-a/r4b-balanced-source-family-context",
-    "engineering_head": "9bc7dd038eab26085fd390b0038b45d45b8eee84",
+    "engineering_head": "59c8ab5487725d669a231d54458fe1c67ad2de60",
     "last_passed_ci": {
       "id": 44348100255,
       "sha": "b085079bfcdc1b4a3395fbdcdda528e3d8b71d54",
@@ -1472,7 +1472,8 @@
       "mission_id": "r4b-r15f-semantic-pilot-20261118",
       "status": "IN_PROGRESS",
       "job_id": 134957602661,
-      "current_stage": "bounded local semantic agent swarm execution",
+      "current_stage": "Run bounded local semantic agent swarm",
+      "last_polled_at_utc": "2026-11-18T16:45:00Z",
       "completed_steps": [
         "immutable R15E checkpoint validation",
         "artifact download and SHA-256 verification",
@@ -1480,12 +1481,19 @@
         "Agent Form runtime installation",
         "fresh isolated mission bootstrap",
         "local Ollama qwen2.5:3b installation"
-      ]
+      ],
+      "pending_steps": [
+        "semantic agent execution completion",
+        "durable task ledger summary",
+        "artifact upload"
+      ],
+      "artifacts_available": false,
+      "semantic_acceptance": "NOT_YET_VERIFIED"
     },
     "audit_finding": "Upstream source cap starved dependencies/tests/licenses; family-aware capture and separate 1MB lockfile cap now implemented and verified by live recapture.",
     "main_code_changes": "NONE; only plan/state documentation",
     "readiness": "NOT_24x7_PRODUCTION_READY",
-    "next_action": "Poll R15F to terminal; download and independently audit task ledger, specialist/evidence/reviewer reports and SQLite; repair evidenced defects; then prove a fresh autonomous mission, restart recovery and 72-hour soak."
+    "next_action": "Continue polling R15F without duplicating the active mission; when terminal, audit complete task ledger, all specialist/evidence/reviewer reports and SQLite integrity. If execution exceeds the workflow's 360-minute limit, classify the exact failed step and optimize only measured bottleneck before a fresh run."
   },
   "execution_objective": {
     "status": "ACTIVE",
