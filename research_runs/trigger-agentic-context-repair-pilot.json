@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "purpose": "Fresh isolated R15C specialist context-repair recovery pilot after exact-duplicate recovery patch passed three-version CI. Historical R15C artifacts and failed first pilot remain immutable.",
+  "purpose": "Fresh isolated R3 semantic pilot after R2 identified a zero-evidence validation recovery gap and the targeted correction passed three-version Research Engine CI. R1/R2 databases and artifacts remain immutable.",
   "checkpoint_run_id": 43799361897,
   "checkpoint_artifact_id": 14196365507,
   "checkpoint_artifact_sha256": "0c28a6ead92ed6d8150cfec42f2be9c38f7742d802a580cd25c692010bb2fdad",
   "mission_run_id": 43600488013,
-  "mission_id": "flashloan-agent-form-context-repair-r2-20261117",
-  "database": "data/agentic-mission-context-repair-r2-20261117.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-context-repair-r2-20261117",
+  "mission_id": "flashloan-agent-form-context-repair-r3-20261118",
+  "database": "data/agentic-mission-context-repair-r3-20261118.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/flashloan-agent-form-context-repair-r3-20261118",
   "batch_limit": 2,
   "model": "qwen2.5:3b",
   "model_runtime": "Ollama local CPU",
@@ -36,7 +36,9 @@
     "Do not create candidate dossiers or increment semantic audit count unless all existing acceptance gates are satisfied.",
     "Candidate code execution, wallet access, transaction signing, deployment, live trading, paid inference and cloud inference remain disabled.",
     "Do not perform R15D v2 benchmark inference or synthetic human adjudication.",
-    "If exact duplicate finding text persists after one corrective model retry, collapse only exact normalized duplicates with explicit discarded finding IDs; do not weaken direct validation, evidence provenance, role adequacy or reviewer acceptance."
+    "If exact duplicate finding text persists after one corrective model retry, collapse only exact normalized duplicates with explicit discarded finding IDs; do not weaken direct validation, evidence provenance, role adequacy or reviewer acceptance.",
+    "A zero-evidence contract validation failure must receive one corrective model retry; corrected output must pass the unchanged strict validator with evidence=[], findings=[], implementation_status=unknown and confidence=low.",
+    "If zero-evidence corrective retry fails, persist the exact validation failure and do not advance the task, evidence gate, reviewer gate or dossier."
   ],
   "safety": {
     "candidate_code_execution": false,
@@ -50,9 +52,9 @@
     "synthetic_human_adjudication": false
   },
   "source_context_policy_commit": "a4504cc6ac56950c2fe68f28b96ea8aeb3a66f28",
-  "trigger_revision": "r15c-role-context-byte-replay-and-duplicate-recovery-r2",
+  "trigger_revision": "r15c-role-context-byte-replay-zero-evidence-recovery-r3",
   "byte_replay_workflow_run_id": 44074313870,
   "byte_replay_artifact_id": 14324256232,
   "byte_replay_report_sha256": "dba554a73769895be4dbef79cced4ab8539a6b4cb0c3f4eab88a79886eb11e8d",
-  "created_at_utc": "2026-11-17T13:15:00Z"
+  "created_at_utc": "2026-11-18T09:15:00Z"
 }
