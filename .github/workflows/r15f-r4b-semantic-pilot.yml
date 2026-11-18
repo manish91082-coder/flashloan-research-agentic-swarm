@@ -1,0 +1,216 @@
+name: R15F R4B Fresh Recaptured-Source Semantic Pilot
+
+on:
+  push:
+    branches:
+      - phase-a/r4b-balanced-source-family-context
+    paths:
+      - research_runs/trigger-r15f-semantic-pilot.json
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: r15f-semantic-pilot-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  semantic-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      FLR_SNAPSHOT_DIR: data/source-capture-pilot-vault
+      FLR_MODEL_BASE_URL: http://127.0.0.1:11434
+      FLR_MODEL_MAX_PARALLEL_TASKS: '2'
+      FLR_MODEL_CONTEXT_TOKENS: '16384'
+      OLLAMA_NUM_PARALLEL: '2'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout isolated engineering branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Validate R15E immutable recapture checkpoint
+        id: checkpoint
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          p=json.loads(Path("research_runs/trigger-r15f-semantic-pilot.json").read_text())
+          if not re.fullmatch(r"[0-9]+", str(p.get("artifact_id",""))):
+              raise SystemExit("Invalid R15E artifact id")
+          if not re.fullmatch(r"[0-9a-f]{64}", str(p.get("artifact_sha256",""))):
+              raise SystemExit("Invalid R15E artifact SHA-256")
+          if p.get("source_run_id") != "44347794422":
+              raise SystemExit("R15F must consume the exact successful R15E source run")
+          if p.get("model") != "qwen2.5:3b" or p.get("batch_limit") != 2:
+              raise SystemExit("R15F model/batch policy mismatch")
+          if p.get("mission_id") != "r4b-r15f-semantic-pilot-20261118":
+              raise SystemExit("Unexpected mission identity")
+          for key in ("database","artifact_root"):
+              if not isinstance(p.get(key),str) or not p[key]:
+                  raise SystemExit(f"Missing {key}")
+          if not p["database"].startswith("data/") or not p["database"].endswith(".sqlite3"):
+              raise SystemExit("Unsafe mission database path")
+          if not p["artifact_root"].startswith("research_runs/mission-pilots/"):
+              raise SystemExit("Unsafe mission artifact root")
+          for k,v in {
+              "FLR_DATABASE":p["database"],"FLR_ARTIFACT_ROOT":p["artifact_root"],
+              "FLR_MISSION_ID":p["mission_id"],"FLR_MODEL_NAME":p["model"],
+              "FLR_MODEL_TIMEOUT_SECONDS":str(p.get("model_timeout_seconds",900)),
+              "FLR_MODEL_MAX_FILES":str(p["context_limits"]["max_files"]),
+              "FLR_MODEL_MAX_CONTEXT_CHARS":str(p["context_limits"]["max_chars"]),
+              "FLR_MODEL_CONTEXT_LINES":str(p["context_limits"]["context_lines"]),
+              "FLR_MODEL_MAX_REVIEWER_CONTEXT_CHARS":str(p["context_limits"]["max_reviewer_chars"]),
+              "FLR_MODEL_MAX_OUTPUT_TOKENS":str(p.get("model_max_output_tokens",2048)),
+              "R15E_ARTIFACT_ID":str(p["artifact_id"]),
+              "R15E_ARTIFACT_SHA256":p["artifact_sha256"],
+              "R15E_SOURCE_RUN_ID":p["source_run_id"],
+          }.items():
+              with open(os.environ["GITHUB_ENV"],"a") as f:f.write(f"{k}={v}\n")
+          print(json.dumps({k:p[k] for k in ("artifact_id","source_run_id","mission_id","database","artifact_root","model","batch_limit")},indent=2))
+          PY
+      - name: Download and verify immutable R15E source capture
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r15e"
+          python scripts/download_github_workflow_artifact.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --artifact-id "$R15E_ARTIFACT_ID" \
+            --destination "$RUNNER_TEMP/r15e/r15e.zip" \
+            --extract-to "$RUNNER_TEMP/r15e/unpacked" \
+            --max-wait-seconds 7200
+          echo "$R15E_ARTIFACT_SHA256  $RUNNER_TEMP/r15e/r15e.zip" | sha256sum --check -
+          mkdir -p data/source-capture-pilot-vault reports/r15e-recapture
+          cp -a "$RUNNER_TEMP/r15e/unpacked/data/r15e-recapture/snapshots/." data/source-capture-pilot-vault/
+          cp -a "$RUNNER_TEMP/r15e/unpacked/reports/." reports/r15e-recapture/
+          test -f reports/r15e-recapture/cobibean__aave-liquidator-bot__inspection.json
+          test -f reports/r15e-recapture/0xnavarro__Aave-Liquiditor__inspection.json
+      - name: Install Agent Form runtime
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[agentic]'
+          python -m compileall -q src/flashloan_research scripts
+      - name: Bootstrap a fresh isolated mission from R15E
+        run: |
+          set -euo pipefail
+          test ! -e "$FLR_DATABASE"
+          python scripts/initialize_agentic_capture_mission.py \
+            --report-dir reports/r15e-recapture \
+            --vault "$FLR_SNAPSHOT_DIR" \
+            --mission-db "$FLR_DATABASE" \
+            --artifact-root "$FLR_ARTIFACT_ROOT" \
+            --batch-limit 2 \
+            --mission-id "$FLR_MISSION_ID" \
+            --source-run-id "$R15E_SOURCE_RUN_ID" \
+            --candidate-inventory-count 2 \
+            --normalize-inspection-reports \
+            | tee reports-r15f-bootstrap.json
+      - name: Install local open-weight inference runtime
+        run: |
+          set -euo pipefail
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          bash -n "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          sudo systemctl start ollama
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          PULL_OK=0
+          for attempt in 1 2 3 4 5; do
+            if ollama pull "$FLR_MODEL_NAME"; then PULL_OK=1; break; fi
+            if (( attempt < 5 )); then WAIT_SECONDS=$((15 * (2 ** (attempt - 1)))); sleep "$WAIT_SECONDS"; fi
+          done
+          if (( PULL_OK != 1 )); then
+            echo "Local model pull failed; no semantic tasks were started." >&2
+            exit 1
+          fi
+          ollama show "$FLR_MODEL_NAME" --modelfile > reports-r15f-ollama-modelfile.txt
+          curl --fail --silent http://127.0.0.1:11434/api/tags > reports-r15f-ollama-model-manifest.json
+      - name: Run bounded local semantic agent swarm
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time
+          from pathlib import Path
+          from flashloan_research.mission_executor import MissionExecutor
+          mission_id=os.environ["FLR_MISSION_ID"]
+          root=Path(os.environ["FLR_ARTIFACT_ROOT"])
+          started=time.time()
+          executor=MissionExecutor(database_path=Path(os.environ["FLR_DATABASE"]),artifact_root=root)
+          result=executor.run_local_semantic_agents(mission_id)
+          result["elapsed_seconds"]=round(time.time()-started,2)
+          result["candidate_code_executed"]=False
+          result["model_endpoint_policy"]="127.0.0.1 loopback only; no cloud or paid inference"
+          Path("reports-r15f-semantic-pilot.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
+          print(json.dumps(result,indent=2,sort_keys=True))
+          if result.get("status")!="executed_with_evidence_gate":
+              raise SystemExit("R15F did not complete all required semantic stages; inspect durable task ledger.")
+          failures=[item for batch in result.get("specialist_batches",[]) for item in batch.get("failures",[])]
+          failures+=result.get("evidence_validation",{}).get("failures",[])
+          failures+=result.get("independent_review",{}).get("failures",[])
+          if failures: raise SystemExit(f"R15F contains failed specialist/evidence/reviewer tasks: {failures}")
+          gates=result.get("evidence_validation",{}).get("completed",[])
+          reviewers=result.get("independent_review",{}).get("completed",[])
+          if len(gates)!=2 or len(reviewers)!=2: raise SystemExit(f"Expected 2 evidence gates and reviewers, got {len(gates)} and {len(reviewers)}")
+          decisions=[]
+          for gate in gates:
+              report=json.loads(Path(gate["report"]).read_text())
+              if report.get("evidence_gate")!="pinned_evidence_semantic_quality_and_claim_linkage_pass" or report.get("provenance_pass") is not True or report.get("claim_linkage_pass") is not True:
+                  raise SystemExit("Evidence gate did not pass source provenance and claim linkage")
+          for reviewer in reviewers:
+              report=json.loads(Path(reviewer["report"]).read_text())
+              if report.get("review_decision")!="accept" or report.get("review_disagreements") or not report.get("evidence"):
+                  raise SystemExit(f"Reviewer did not issue unreserved evidence-backed accept for {reviewer['repository']}")
+              decisions.append({"repository":reviewer["repository"],"decision":report["review_decision"],"evidence_count":len(report["evidence"])})
+          Path("reports-r15f-acceptance.json").write_text(json.dumps({
+              "review_decisions":decisions,"semantic_audit_count_incremented":False,"candidate_code_executed":False
+          },indent=2,sort_keys=True)+"\n")
+          PY
+      - name: Write durable task ledger summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,os,sqlite3
+          from pathlib import Path
+          db=Path(os.environ["FLR_DATABASE"])
+          out={"mission_id":os.environ["FLR_MISSION_ID"],"database_exists":db.is_file(),"candidate_code_executed":False,"semantic_audit_count_incremented":False}
+          if db.is_file():
+              con=sqlite3.connect(db);con.row_factory=sqlite3.Row
+              try:
+                  rows=con.execute("SELECT task_type,role,status,COUNT(*) AS n FROM mission_tasks WHERE mission_id=? GROUP BY task_type,role,status ORDER BY task_type,role,status",(out["mission_id"],)).fetchall()
+                  out["task_counts"]=[dict(x) for x in rows]
+                  out["integrity_check"]=con.execute("PRAGMA integrity_check").fetchone()[0]
+              finally: con.close()
+          Path("reports-r15f-task-ledger.json").write_text(json.dumps(out,indent=2,sort_keys=True)+"\n")
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+      - name: Upload R15F semantic pilot evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: r15f-r4b-semantic-pilot-${{ github.run_id }}
+          path: |
+            ${{ env.FLR_DATABASE }}
+            ${{ env.FLR_ARTIFACT_ROOT }}/
+            reports-r15f-bootstrap.json
+            reports-r15f-semantic-pilot.json
+            reports-r15f-acceptance.json
+            reports-r15f-task-ledger.json
+            reports-r15f-ollama-modelfile.txt
+            reports-r15f-ollama-model-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
