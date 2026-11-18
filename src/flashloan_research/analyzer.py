@@ -38,6 +38,94 @@ def is_source_file(path: str) -> bool:
     return p.suffix.lower() in SOURCE_EXTENSIONS and not any(part in {"node_modules", "vendor", "lib", "out", "build", "target"} for part in p.parts)
 
 
+RESEARCH_ARTIFACT_NAMES = {
+    "package.json", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock",
+    "requirements.txt", "requirements.lock", "pyproject.toml", "poetry.lock", "pipfile", "pipfile.lock",
+    "cargo.toml", "cargo.lock", "go.mod", "go.sum", "composer.json", "composer.lock",
+    "foundry.toml", "pytest.ini", "tox.ini", "truffle-config.js", "truffle-config.ts",
+    "tsconfig.json", "makefile", "dockerfile", "license", "license.md", "license.txt",
+    "copying", "notice", "readme", "readme.md", "readme.rst",
+}
+
+NON_PROTOCOL_CAPTURE_SEGMENTS = {
+    "monitor", "monitoring", "telemetry", "dashboard", "ui", "frontend",
+    "observability", "web", "public",
+}
+
+
+def is_research_artifact(path: str) -> bool:
+    """Include source plus small, high-value test/build/dependency/license evidence files."""
+    from pathlib import PurePosixPath
+    p = PurePosixPath(path)
+    parts = {part.casefold() for part in p.parts}
+    if parts.intersection({"node_modules", "vendor", "lib", "out", "build", "target"}):
+        return False
+    name = p.name.casefold()
+    if is_source_file(path) or name in RESEARCH_ARTIFACT_NAMES:
+        return True
+    if ".github" in parts and "workflows" in parts and p.suffix.casefold() in {".yml", ".yaml"}:
+        return True
+    return False
+
+
+def _capture_family(path: str) -> str | None:
+    from pathlib import PurePosixPath
+    p = PurePosixPath(path)
+    name = p.name.casefold()
+    parts = {part.casefold() for part in p.parts}
+    if parts.intersection(NON_PROTOCOL_CAPTURE_SEGMENTS):
+        return None
+    if any(part in {"test", "tests", "spec", "specs"} for part in parts) or name.endswith((".test.js", ".test.ts", ".spec.js", ".spec.ts", ".t.sol")):
+        return "test_source"
+    if p.suffix.casefold() == ".sol" or any(term in name for term in ("liquidat", "flashloan", "flash_loan", "executor", "router")):
+        return "protocol_contract"
+    if name in {"package.json", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock",
+                "requirements.txt", "requirements.lock", "pyproject.toml", "poetry.lock", "pipfile", "pipfile.lock",
+                "cargo.toml", "cargo.lock", "go.mod", "go.sum", "composer.json", "composer.lock"}:
+        return "dependency_manifest"
+    if name in {"license", "license.md", "license.txt", "copying", "notice"}:
+        return "license_artifact"
+    if ".github" in parts and "workflows" in parts:
+        return "ci_workflow"
+    if name in {"foundry.toml", "pytest.ini", "tox.ini", "truffle-config.js", "truffle-config.ts", "tsconfig.json", "makefile", "dockerfile"} or name.startswith("hardhat.config"):
+        return "build_config"
+    if p.suffix.casefold() in SOURCE_EXTENSIONS:
+        return "runtime_entrypoint"
+    if name.startswith("readme"):
+        return "documentation"
+    return None
+
+
+def select_research_artifacts(items: list[dict[str, Any]], max_files: int) -> list[dict[str, Any]]:
+    """Deterministically round-robin evidence families before applying the capture cap."""
+    if max_files < 1:
+        raise ValueError("max_files must be positive")
+    family_order = ("protocol_contract", "runtime_entrypoint", "test_source", "dependency_manifest",
+                    "build_config", "license_artifact", "ci_workflow", "documentation")
+    buckets: dict[str, list[dict[str, Any]]] = {family: [] for family in family_order}
+    for item in items:
+        if not isinstance(item, dict) or not isinstance(item.get("path"), str):
+            continue
+        family = _capture_family(item["path"])
+        if family in buckets:
+            buckets[family].append(item)
+    for bucket in buckets.values():
+        bucket.sort(key=lambda item: item["path"].casefold())
+    selected: list[dict[str, Any]] = []
+    depth = 0
+    while len(selected) < max_files:
+        added = False
+        for family in family_order:
+            bucket = buckets[family]
+            if depth < len(bucket) and len(selected) < max_files:
+                selected.append(bucket[depth])
+                added = True
+        if not added:
+            break
+        depth += 1
+    return selected
+
+
 def decode_blob(raw: dict[str, Any]) -> bytes:
     if raw.get("encoding") != "base64" or not isinstance(raw.get("content"), str):
         raise ValueError("GitHub blob response must contain base64 content")
@@ -146,24 +234,27 @@ class ResearchPipeline:
         tree_items, tree_status = collect_repository_tree(self.client, full_name, tree_sha, self.settings)
         tree_truncated = not tree_status["tree_recovery_complete"]
         store.save_snapshot(full_name, commit_sha, tree_sha, tree_truncated)
-        source_items_all = [
+        research_items_all = [
             item for item in tree_items
             if isinstance(item, dict)
             and item.get("type") == "blob"
             and isinstance(item.get("path"), str)
             and isinstance(item.get("sha"), str)
-            and is_source_file(item["path"])
+            and is_research_artifact(item["path"])
         ]
+        source_items_all = [item for item in research_items_all if is_source_file(item["path"])]
         oversized_source_count = sum(
-            1 for item in source_items_all
+            1 for item in research_items_all
             if not isinstance(item.get("size"), int) or item["size"] < 0 or item["size"] > self.settings.max_blob_bytes
         )
-        eligible_source_items = [
-            item for item in source_items_all
+        eligible_research_items = [
+            item for item in research_items_all
             if isinstance(item.get("size"), int) and 0 <= item["size"] <= self.settings.max_blob_bytes
         ]
-        source_items = eligible_source_items[: self.settings.max_source_files]
-        source_cap_hit = len(eligible_source_items) > len(source_items)
+        source_items = select_research_artifacts(eligible_research_items, self.settings.max_source_files)
+        source_cap_hit = len(eligible_research_items) > len(source_items)
+        eligible_source_items = [item for item in source_items_all if isinstance(item.get("size"), int) and 0 <= item["size"] <= self.settings.max_blob_bytes]
+        captured_source_count = sum(1 for item in source_items if is_source_file(item["path"]))
         captured: list[CapturedFile] = []
         captured_manifest: list[dict[str, Any]] = []
         all_signals: list[dict[str, Any]] = []
@@ -211,8 +302,12 @@ class ResearchPipeline:
             **tree_status,
             "source_files_available_in_tree": len(source_items_all),
             "source_files_eligible_by_size": len(eligible_source_items),
-            "source_files_selected": len(source_items),
-            "source_files_captured": len(captured),
+            "source_files_selected": captured_source_count,
+            "source_files_captured": captured_source_count,
+            "research_artifacts_available_in_tree": len(research_items_all),
+            "research_artifacts_eligible_by_size": len(eligible_research_items),
+            "research_artifacts_selected": len(source_items),
+            "research_artifacts_captured": len(captured),
             "source_cap_hit": source_cap_hit,
             "oversized_or_invalid_source_count": oversized_source_count,
             "source_capture_complete_within_configured_scope": source_capture_complete,
