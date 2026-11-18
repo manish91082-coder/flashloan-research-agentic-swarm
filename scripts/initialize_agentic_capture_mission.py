@@ -21,13 +21,24 @@ MISSION_ID = "flashloan-research-43600488013"
 DISCOVERY_RUN_ID = "43600488013"
 
 
-def load_reports(report_dir: Path, vault: Path, limit: int) -> list[dict[str, Any]]:
+def load_reports(report_dir: Path, vault: Path, limit: int, source_run_id: str, normalize_inspection_reports: bool = False) -> list[dict[str, Any]]:
     reports: list[dict[str, Any]] = []
     for path in sorted(report_dir.glob("*.json")):
         report = json.loads(path.read_text(encoding="utf-8"))
         if report.get("record_type") != "commit_pinned_source_capture":
-            continue
-        if report.get("run_id") != DISCOVERY_RUN_ID or report.get("candidate_code_executed") is not False:
+            if not normalize_inspection_reports or not report.get("commit_sha") or not report.get("tree_sha") or not isinstance(report.get("captured_files"), list):
+                continue
+            report = {
+                **report,
+                "record_type": "commit_pinned_source_capture",
+                "run_id": source_run_id,
+                "candidate_index": len(reports),
+                "matched_families": [],
+                "discovered_by": [],
+                "candidate_code_executed": False,
+                "audit_status": "source_captured_pending_semantic_review",
+            }
+        if report.get("run_id") != source_run_id or report.get("candidate_code_executed") is not False:
             raise SystemExit(f"Report identity/safety mismatch: {path}")
         if not report.get("commit_sha") or not report.get("tree_sha"):
             raise SystemExit(f"Missing commit/tree pin: {path}")
@@ -64,13 +75,13 @@ def load_reports(report_dir: Path, vault: Path, limit: int) -> list[dict[str, An
     return reports[:limit]
 
 
-def form_payload(repository_limit: int, mission_id: str = MISSION_ID) -> dict[str, Any]:
+def form_payload(repository_limit: int, mission_id: str = MISSION_ID, source_run_id: str = DISCOVERY_RUN_ID, candidate_inventory_count: int = 7901) -> dict[str, Any]:
     taxonomy = json.loads(Path("research/keyword-taxonomy.json").read_text(encoding="utf-8"))
     return {
         "mission_id": mission_id,
         "title": "Flash Loan & DeFi Autonomous Public Repository Research",
         "objective": (
-            "Research the 7,901-repository public GitHub inventory discovered by the locked "
+            f"Research the {candidate_inventory_count}-repository frozen public GitHub candidate inventory from source run {source_run_id}, discovered by the locked "
             "11-family flash-loan taxonomy. Establish actual repository purpose and implemented "
             "call flow from commit-pinned source; classify implementation completeness; inspect "
             "flash-loan callbacks, initiator/asset binding, repayment and premium accounting, "
@@ -155,6 +166,9 @@ def main() -> None:
     parser.add_argument("--artifact-root", type=Path, default=Path("research_runs/mission"))
     parser.add_argument("--batch-limit", type=int, default=12)
     parser.add_argument("--mission-id", default=MISSION_ID)
+    parser.add_argument("--source-run-id", default=DISCOVERY_RUN_ID)
+    parser.add_argument("--candidate-inventory-count", type=int, default=7901)
+    parser.add_argument("--normalize-inspection-reports", action="store_true")
     args = parser.parse_args()
     if not 1 <= args.batch_limit <= 100:
         raise SystemExit("--batch-limit must be between 1 and 100")
@@ -163,8 +177,12 @@ def main() -> None:
 
     os.environ["FLR_DATABASE"] = str(args.mission_db)
     os.environ["FLR_SNAPSHOT_DIR"] = str(args.vault)
-    reports = load_reports(args.report_dir, args.vault, args.batch_limit)
-    payload = form_payload(args.batch_limit, args.mission_id)
+    if args.candidate_inventory_count < args.batch_limit:
+        raise SystemExit("candidate inventory count cannot be smaller than batch limit")
+    reports = load_reports(args.report_dir, args.vault, args.batch_limit, args.source_run_id,
+                           normalize_inspection_reports=args.normalize_inspection_reports)
+    payload = form_payload(args.batch_limit, args.mission_id, args.source_run_id,
+                           args.candidate_inventory_count)
     taxonomy = json.loads(Path("research/keyword-taxonomy.json").read_text(encoding="utf-8"))
     queue = MissionQueue(args.mission_db)
     tasks = MissionTaskStore(args.mission_db)
@@ -188,16 +206,16 @@ def main() -> None:
         complete_ready(tasks, args.mission_id, "discover_family",
                        lambda task: {"status": "discovery_imported_from_verified_inventory",
                                      "family_id": task["payload"]["family_id"],
-                                     "source_run_id": DISCOVERY_RUN_ID,
+                                     "source_run_id": args.source_run_id,
                                      "live_discovery_repeated": False},
                        worker)
         complete_ready(tasks, args.mission_id, "merge_candidates",
-                       lambda task: {"unique_repository_count": 7901,
+                       lambda task: {"unique_repository_count": args.candidate_inventory_count,
                                      "source": "immutable_11_family_discovery_manifest",
                                      "candidate_purpose_verified": False},
                        worker)
         complete_ready(tasks, args.mission_id, "purpose_triage",
-                       lambda task: {"candidate_count": 7901,
+                       lambda task: {"candidate_count": args.candidate_inventory_count,
                                      "purpose_status": "purpose_unverified_until_semantic_review",
                                      "triage_basis": "discovery provenance only"},
                        worker)
@@ -215,8 +233,8 @@ def main() -> None:
             tasks.complete_task(args.mission_id, expansion["task_id"], worker, {
                 **expanded,
                 "batch_limit": args.batch_limit,
-                "candidate_inventory_count": 7901,
-                "candidates_remaining_unplanned": 7901 - len(repositories),
+                "candidate_inventory_count": args.candidate_inventory_count,
+                "candidates_remaining_unplanned": args.candidate_inventory_count - len(repositories),
                 "repository_batch": repositories,
                 "source": "verified_source_capture_checkpoint",
             })
@@ -249,6 +267,8 @@ def main() -> None:
         output = {
             "status": "agent_form_mission_initialized_from_verified_capture",
             "mission_id": args.mission_id,
+            "source_run_id": args.source_run_id,
+            "candidate_inventory_count": args.candidate_inventory_count,
             "form_payload_accepted": True,
             "mission_queue": queued,
             "plan_tasks": len(plan),
