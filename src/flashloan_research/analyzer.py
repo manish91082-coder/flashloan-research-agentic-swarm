@@ -79,7 +79,7 @@ def _capture_family(path: str) -> str | None:
         return None
     if any(part in {"test", "tests", "spec", "specs"} for part in parts) or name.endswith((".test.js", ".test.ts", ".spec.js", ".spec.ts", ".t.sol")):
         return "test_source"
-    if p.suffix.casefold() == ".sol" or any(term in name for term in ("liquidat", "flashloan", "flash_loan", "executor", "router")):
+    if p.suffix.casefold() == ".sol":
         return "protocol_contract"
     if name in {"package.json", "package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock",
                 "requirements.txt", "requirements.lock", "pyproject.toml", "poetry.lock", "pipfile", "pipfile.lock",
