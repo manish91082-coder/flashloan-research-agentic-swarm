@@ -284,3 +284,30 @@ The governing objective for every continuation is measurable progress toward a z
 
 ### Current checkpoint and next action
 At this decision, R15E recapture is PASS (run 44347794422; artifact 14446333023; SHA-256 9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8; 79/79 Git blobs verified; SQLite integrity ok). R15F run 44348572199 remains IN_PROGRESS; its semantic-pilot job 134957602661 has completed immutable seed validation, artifact restore, Agent Form bootstrap and Ollama setup, while bounded semantic swarm execution is still running. Artifact list was empty while the job remained active. Next action is to re-poll R15F, inspect its terminal job logs/artifact and audit the complete semantic output. No semantic acceptance and no 24x7 readiness claim is authorized yet.
+
+
+## 16. R15F forensic outcome and semantic grounding repair (2026-11-18)
+
+### R15F terminal result
+- Run 44348572199 completed with workflow conclusion FAILURE at the semantic acceptance gate; this is a fail-closed result, not a successful pilot.
+- Artifact 14448757300; SHA-256 45e12a0a0dea058c77d3eb692c760fcc95347445b850f48f2ee0ff2945f45fcf. Independently recomputed ZIP digest matched the GitHub artifact digest.
+- Runtime 1,096.3 seconds. All 14 specialist tasks completed without task-level exceptions; both evidence validation tasks passed; both independent reviewers completed but returned INCONCLUSIVE; accepted dossiers = 0.
+- SQLite PRAGMA integrity_check = ok. Candidate code execution = false. Artifact contained 14 specialist reports, two evidence-validation reports, two reviewer reports, bootstrap/model metadata and task ledger.
+- Evidence gate's two PASS outcomes prove pinned evidence-ID provenance, report identity, category and confidence checks; they do not prove claim-to-excerpt semantic relevance. This limitation was exposed by independent review.
+
+### Forensic root cause
+- Several Cobi specialist claims were generic or unrelated to their cited source excerpts. Examples include ownership-transfer event claims and environment-variable/oracle claims cited against chain/router configuration and minProfit/gas excerpts.
+- The prior adequacy validator required role-topic terms and at least one shared topic anchor, but this allowed weak overlap such as a broad word (e.g. gas, contract, token) to make unrelated claims appear adequate.
+- Both candidates' test-verification reports had no accepted test evidence; the selected source context showed missing test/CI families. Dependency role also returned no findings for one candidate despite manifest/config/license excerpts being available. These are coverage/analysis debt, not grounds to invent claims.
+- Independent reviewer correctly applied the fail-closed policy: both candidates INCONCLUSIVE, no disagreements asserted, no findings fabricated, no dossier accepted.
+
+### R15F-R2 repair
+- Added a strict source-grounding instruction to all specialist prompts: each claim must describe a mechanism visible in the exact cited excerpt; no broad unrelated evidence bundles; zero findings and explicit unknowns are preferred over unsupported claims.
+- Extended deterministic adequacy triage with a minimum of two distinctive claim-to-excerpt token anchors, in addition to role-topic and pinned evidence-ID checks. This is a lexical guard, not a semantic proof; independent review remains mandatory.
+- Added regression tests: reject provenance-valid but semantically unrelated ownership-transfer claim; accept a specific minProfit/gas/callStatic claim when its cited excerpt contains those anchors.
+- Triggered fresh isolated replay R15F-R2 from the same immutable R15E source artifact, with a new database and artifact root. Run 44353218082; mission r4b-r15f-semantic-pilot-20261118-r2. At checkpoint it was QUEUED.
+- Relevant engineering commits: source repair 6f9ec75f26a02ead22555ae2d97fe5b1ba48de74; regression tests ad4c143a8d7b6d61e74edf8a7a04a6658e3f2712; workflow mission identity e700c55e3c4f06fc1fc5ff0f8879971d6169d5fe; replay trigger d46c0f54e0fff83347a58a82aa0a35a9676273d0.
+- CI runs 44353127493, 44353192243 and 44353217975 were in progress/queued at checkpoint; verify their terminal results before treating code as validated.
+
+### Next gate
+Audit R15F-R2 and its CI. Confirm unsupported claims fail adequacy, source-specific claims survive, both evidence gates retain provenance/claim linkage, both reviewers issue unreserved accept with nonempty evidence and no disagreements. If no-test evidence remains absent, preserve explicit unknowns and do not infer test coverage. No main-code promotion and no 24x7 claim until fresh repeatability, restart recovery and 72-hour soak pass.
