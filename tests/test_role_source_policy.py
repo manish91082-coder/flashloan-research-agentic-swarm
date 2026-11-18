@@ -49,6 +49,7 @@ class RoleSourcePolicyTests(unittest.TestCase):
         self.assertLess(paths.index("tests/test_liquidation.py"),
                         paths.index(".github/workflows/ci.yml"))
         self.assertNotIn("bot.js", paths)
+        self.assertNotIn("monitor/test/apiLogs.test.js", paths)
         self.assertIn("test_source", coverage["present_families"])
 
     def test_missing_required_family_is_explicit(self):
@@ -74,6 +75,7 @@ class RoleSourcePolicyTests(unittest.TestCase):
         self.assertTrue(role_path_admissible("test_verification", "tests/test_bot.py"))
         self.assertTrue(role_path_admissible("test_verification", ".github/workflows/ci.yml"))
         self.assertFalse(role_path_admissible("test_verification", "bot.js"))
+        self.assertFalse(role_path_admissible("test_verification", "monitor/test/apiLogs.test.js"))
 
     def test_bounded_prefix_interleaves_source_families_instead_of_starving_them(self):
         manifest = [
@@ -84,17 +86,14 @@ class RoleSourcePolicyTests(unittest.TestCase):
             {"path": "foundry.toml"},
         ]
         ordered, coverage = order_role_source_manifest("execution_engineer", manifest)
-        # The source-context loader takes a bounded prefix. A 4-file prefix
-        # must include the first contract plus runtime, test and build config.
         prefix = ordered[:4]
         prefix_families = [
-            next((family for family, _ in (
+            next((family for family, needles in (
                 ("execution_contract", ("contracts/", ".sol")),
                 ("execution_runtime", ("src/", "bot.")),
                 ("execution_test", ("test/", "tests/", "spec/")),
                 ("execution_config", ("foundry.toml", "hardhat.config", "package.json")),
-            ) if any(needle in item["path"].casefold() for needle in _)),
-                 None)
+            ) if any(needle in item["path"].casefold() for needle in needles)), None)
             for item in prefix
         ]
         self.assertEqual(
