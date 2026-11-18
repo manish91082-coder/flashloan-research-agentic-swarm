@@ -1430,40 +1430,46 @@
     "continuity_rule": "Every chat thread must reload this plan and PROJECT_STATE.json from canonical repository before continuing."
   },
   "current_execution_checkpoint": {
-    "verified_at_utc": "2026-11-18T16:20:00Z",
+    "verified_at_utc": "2026-11-18T16:34:00Z",
     "engineering_branch": "phase-a/r4b-balanced-source-family-context",
-    "engineering_head": "42ed4c63d7203e5e3dc23ca84ccd2bae82a38b94",
+    "engineering_head": "5f25e3096df6eeae24499b74c9b4a2b4f1ea7c5a",
     "last_passed_ci": {
-      "id": 44342746904,
-      "sha": "c8b7c17644349029e2246b863699ec4d1fd86742",
+      "id": 44348100255,
+      "sha": "b085079bfcdc1b4a3395fbdcdda528e3d8b71d54",
+      "conclusion": "success",
+      "python_versions": [
+        "3.11",
+        "3.12",
+        "3.13"
+      ]
+    },
+    "latest_ci": {
+      "id": 44348707691,
+      "sha": "5f25e3096df6eeae24499b74c9b4a2b4f1ea7c5a",
+      "status": "in_progress"
+    },
+    "source_context_replay": {
+      "id": 44347731319,
+      "sha": "bb65cbf7ccca978437025a01d9f9fe1fd852e8a9",
       "conclusion": "success"
     },
-    "prior_passed_replay": {
-      "id": 44341842158,
-      "sha": "4a04a6f4b77d4959ca6d5c6744615bebd6ee3efc",
-      "artifact_id": 14444236938,
-      "artifact_sha256": "09b19e00f9679ac93dc4f84711e6663b4f47cdc3a5f1fd3530d75edcffb2661d"
+    "source_recapture": {
+      "run_id": 44347794422,
+      "artifact_id": 14446333023,
+      "artifact_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8",
+      "status": "PASS",
+      "independent_blob_verification": "79/79",
+      "sqlite_integrity": "ok"
     },
-    "audit_finding": "Production specialist context carried full-manifest role coverage, not selected-context coverage. Fixed in isolation by computing selected coverage and persisting source_context_audit in specialist reports.",
-    "repair_commits": [
-      "05009a2c51a093932d600f8095af2bda47eb8bae",
-      "3ad8c78f001aade1c016e8f86b6d7a877fbe02b4",
-      "20fe1075b001909df1d3d80437a48f33763ae5dd",
-      "42ed4c63d7203e5e3dc23ca84ccd2bae82a38b94"
-    ],
-    "latest_ci": {
-      "id": 44345863691,
-      "status": "queued",
-      "sha": "42ed4c63d7203e5e3dc23ca84ccd2bae82a38b94"
+    "semantic_pilot": {
+      "run_id": 44348572199,
+      "mission_id": "r4b-r15f-semantic-pilot-20261118",
+      "status": "IN_PROGRESS",
+      "current_stage": "local Ollama qwen2.5:3b installation/pull"
     },
-    "latest_replay": {
-      "id": 44345863524,
-      "status": "queued",
-      "sha": "42ed4c63d7203e5e3dc23ca84ccd2bae82a38b94"
-    },
-    "semantic_pilot": "NOT_STARTED",
-    "main_code_changes": "NONE",
+    "audit_finding": "Upstream source cap starved dependencies/tests/licenses; family-aware capture and separate 1MB lockfile cap now implemented and verified by live recapture.",
+    "main_code_changes": "NONE; only plan/state documentation",
     "readiness": "NOT_24x7_PRODUCTION_READY",
-    "next_action": "Verify CI and replay at 42ed4c6; inspect runtime source_context_audit in a fresh isolated semantic pilot only after deterministic replay and artifact checks pass."
+    "next_action": "Finish R15F local-model semantic pilot; inspect every specialist/evidence/reviewer report and task ledger; require two unreserved independent ACCEPT decisions before dossier."
   }
 }
