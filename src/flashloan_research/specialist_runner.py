@@ -1353,6 +1353,24 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     "model": provider.identity.model,
                     "prompt_template_version": provider.identity.prompt_template_version,
                 }
+                # Persist the exact context-selection audit beside the model report;
+                # context-only metadata would otherwise disappear after inference.
+                validated["source_context_audit"] = {
+                    "role": role,
+                    "manifest_coverage": role_source_coverage,
+                    "selected_excerpt_paths": sorted({
+                        item.get("path") for item in verified_excerpts
+                        if isinstance(item, dict) and isinstance(item.get("path"), str)
+                    }),
+                    "verified_excerpt_count": len(verified_excerpts),
+                    "verified_excerpt_characters": sum(
+                        len(str(item.get("excerpt", ""))) for item in verified_excerpts
+                        if isinstance(item, dict)
+                    ),
+                    "max_files_budget": reviewer_source_limits.get("max_files"),
+                    "max_characters_budget": reviewer_source_limits.get("max_chars"),
+                    "context_lines": reviewer_source_limits.get("context_lines"),
+                }
                 path = artifact_root / mission_id / "specialists" / (
                     repository.replace("/", "__") + f"__{task_type}.json"
                 )
