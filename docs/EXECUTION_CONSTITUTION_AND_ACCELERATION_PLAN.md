@@ -214,3 +214,11 @@ A green CI run means code tests passed for that commit; it does not imply semant
 - Implementation commits on isolated branch: fb931c1 adds research-artifact recognition and family-aware capture selection; 89eb9f3 adds regression tests for inclusion/exclusion and round-robin cap behavior. CI run 44346661753 at fb931c1 and follow-up CI at 89eb9f3 were pending at log creation; verify both before accepting.
 - The 5f1cb7c selected-context metadata repair passed CI run 44346077836 on all three Python versions and replay run 44346077869. Replay artifact 14445508702 digest sha256:69aab867df5299af380fe806b10fe6da4afc9a5ee729c3a79846f99c990d49d3.
 - No semantic pilot yet. Next: verify acquisition selector CI, replay actual candidate tree inventory through the deterministic selector, confirm expected manifests/tests/license paths selected where they exist, and then run a fresh isolated semantic pilot with the new acquisition logic.
+
+
+### Acquisition-selector dry-run against frozen candidate trees
+
+Using public GitHub tree metadata at the exact R3 candidate commits (no candidate code execution):
+- cobibean/aave-liquidator-bot, commit 3159c15f4dcfb0df215b4c3024f47753a1133b84: tree not truncated; 67 eligible research artifacts; family-aware cap selects 30. Selected set includes the Solidity contract, package.json, package-lock.json, Dockerfile, LICENSE and README. It selects no test-source/CI artifacts outside excluded monitoring paths; this remains explicit test-coverage debt.
+- 0xnavarro/Aave-Liquiditor, commit 9197ee3002d7d9b35e9c2da324128a38f7569038: tree not truncated; 12 eligible research artifacts; all 12 selected, including package.json, package-lock.json, hardhat.config.ts, tsconfig.json, LICENSE and README. No test-source/CI artifacts exist in the eligible tree inventory.
+- This dry-run shows the revised acquisition policy repairs dependency/license starvation while preserving the missing-test distinction. It is a deterministic selector simulation over pinned public tree metadata, not yet a live ResearchPipeline capture artifact. A fresh capture/pilot must verify exact downloaded blob hashes and persisted manifest output.
