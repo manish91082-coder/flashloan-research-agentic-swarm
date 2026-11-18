@@ -193,3 +193,13 @@ Use exactly these distinctions:
 - NOT_APPLICABLE
 
 A green CI run means code tests passed for that commit; it does not imply semantic correctness, accepted dossiers or 24x7 operation.
+
+
+## 13. Decision log: 2026-11-18 selected-context audit
+
+- P0 verified: CI run 44341842169 passed on Python 3.11/3.12/3.13; byte-level replay 44341842158 passed. Artifacts: 14442994737 (SHA-256 c1a012fad001c24f0da9603643d3a48dfec7947dec702361ae56e2eb21d645b0) and 14444236938 (SHA-256 09b19e00f9679ac93dc4f84711e6663b4f47cdc3a5f1fd3530d75edcffb2661d).
+- Frozen R15C replay inspection confirms both candidate contexts are source-pinned and deterministic. For Aave-Liquiditor, test verification had no selected test/CI source and dependency/license lacked dependency manifest and license artifact. For cobibean/aave-liquidator-bot, test verification and dependency/license had no selected admissible excerpts. These are context/coverage limitations, not proof that the repositories contain no such files.
+- Critical audit finding: specialist_runner computed role coverage from the full captured manifest, then passed that metadata as role_source_coverage while _verified_source_context applied max_files/character budgets. The selected-prefix coverage was not explicitly represented in the production task context. The replay harness's independently calculated selected coverage must not be confused with runtime report metadata.
+- Repair commits on isolated engineering branch: 05009a2 adds selected_role_source_coverage(); 3ad8c78 adds a regression test; 20fe107 passes selected-context coverage into the model context; 42ed4c6 persists source_context_audit in every specialist report, including selected excerpt paths/count/characters and budgets.
+- Verification of commits 20fe107 and 42ed4c6 is pending at the time of this log. No semantic pilot is authorized until latest CI and replay pass and the new report metadata is inspected in an actual fresh pilot.
+- Next action: verify latest CI/replay at 42ed4c6; inspect replay artifact; run frozen candidate source-context replay with runtime metadata checks; only then decide whether the R4B semantic pilot is ready.
