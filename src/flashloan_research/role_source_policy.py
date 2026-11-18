@@ -95,19 +95,45 @@ def _family_for_path(role: str, path: str) -> tuple[int, str | None]:
 
 
 def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[list[dict], dict]:
-    """Prioritize role-admissible source families without discarding provenance."""
+    """Order sources with deterministic family interleaving to prevent context starvation.
+
+    The previous rank-then-path ordering could fill max_files with many files from
+    one family. Since the caller applies a bounded prefix, runtime, tests, config
+    or license sources could be starved even when present in the manifest.
+    Round-robin family selection keeps the prefix representative without relaxing
+    role admissibility or changing source provenance.
+    """
     patterns = ROLE_FAMILY_PATTERNS.get(role)
     if patterns is None:
         raise ValueError(f"unknown specialist source role: {role}")
     rows = [item for item in manifest if isinstance(item, dict) and isinstance(item.get("path"), str)]
-    ranked = []
+    buckets: dict[str, list[tuple[str, dict]]] = {}
     present = set()
     for item in rows:
         rank, family = _family_for_path(role, item["path"])
         if family:
             present.add(family)
-            ranked.append((rank, item["path"].casefold(), item))
-    ranked.sort(key=lambda item: (item[0], item[1]))
+            buckets.setdefault(family, []).append((item["path"].casefold(), item))
+    for family in buckets:
+        buckets[family].sort(key=lambda pair: pair[0])
+
+    # Iterate families in declared policy order, taking one source from each
+    # family per pass. This preserves first-family priority while avoiding
+    # monopolization by repositories with many similarly named source files.
+    family_order = [family for family, _ in patterns if family in buckets]
+    ordered: list[dict] = []
+    depth = 0
+    while True:
+        added = False
+        for family in family_order:
+            bucket = buckets[family]
+            if depth < len(bucket):
+                ordered.append(bucket[depth][1])
+                added = True
+        if not added:
+            break
+        depth += 1
+
     required = REQUIRED_FAMILIES.get(role, ())
     missing = [family for family in required if family not in present]
     coverage = {
@@ -116,9 +142,13 @@ def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[lis
         "present_families": sorted(present),
         "missing_families": missing,
         "coverage_status": "complete" if not missing else "incomplete",
-        "policy": "role_family_priority_then_deterministic_path_order",
+        "policy": "round_robin_role_family_priority_then_deterministic_path_order",
+        "family_file_counts": {family: len(buckets[family]) for family in family_order},
+        "ordered_family_prefix": [
+            _family_for_path(role, item["path"])[1] for item in ordered
+        ],
     }
-    return [item[2] for item in ranked], coverage
+    return ordered, coverage
 
 
 def role_path_admissible(role: str, path: str) -> bool:
