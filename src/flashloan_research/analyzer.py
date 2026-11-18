@@ -60,6 +60,8 @@ def is_research_artifact(path: str) -> bool:
     parts = {part.casefold() for part in p.parts}
     if parts.intersection({"node_modules", "vendor", "lib", "out", "build", "target"}):
         return False
+    if parts.intersection(NON_PROTOCOL_CAPTURE_SEGMENTS):
+        return False
     name = p.name.casefold()
     if is_source_file(path) or name in RESEARCH_ARTIFACT_NAMES:
         return True
