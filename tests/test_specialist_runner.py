@@ -904,3 +904,27 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class R15FSemanticAnchorRegressionTests(unittest.TestCase):
+    def test_rejects_provenance_valid_but_semantically_unrelated_ownership_claim(self):
+        result = _assess_specialist_report_adequacy(
+            "economics_quant",
+            [{"claim": "The contract emits an event for a transfer of ownership.",
+              "evidence_refs": ["EV00100", "EV00101"]}],
+            [
+                {"evidence_id": "EV00100", "excerpt": "hardenedLiquidator true; Uniswap V3 SwapRouter02"},
+                {"evidence_id": "EV00101", "excerpt": "minProfit floor budgets gas and rejects unprofitable transactions"},
+            ],
+        )
+        self.assertEqual(result["status"], "insufficient")
+        self.assertTrue(any("distinctive claim-to-excerpt anchors" in x for x in result["reasons"]))
+
+    def test_accepts_specific_profit_floor_claim_with_matching_source_anchors(self):
+        result = _assess_specialist_report_adequacy(
+            "economics_quant",
+            [{"claim": "The minProfit floor budgets a gas safety multiple and callStatic rejects unprofitable transactions.",
+              "evidence_refs": ["EV00100"]}],
+            [{"evidence_id": "EV00100",
+              "excerpt": "minProfit floor budgets PROFIT_SAFETY_MULTIPLE times gas; callStatic gate reverts unprofitable transactions"}],
+        )
+        self.assertEqual(result["status"], "adequate_for_adversarial_challenge")
