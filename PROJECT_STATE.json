@@ -1430,9 +1430,9 @@
     "continuity_rule": "Every chat thread must reload this plan and PROJECT_STATE.json from canonical repository before continuing."
   },
   "current_execution_checkpoint": {
-    "verified_at_utc": "2026-11-18T16:45:00Z",
+    "verified_at_utc": "2026-11-18T17:00:00Z",
     "engineering_branch": "phase-a/r4b-balanced-source-family-context",
-    "engineering_head": "59c8ab5487725d669a231d54458fe1c67ad2de60",
+    "engineering_head": "d46c0f54e0fff83347a58a82aa0a35a9676273d0",
     "last_passed_ci": {
       "id": 44348100255,
       "sha": "b085079bfcdc1b4a3395fbdcdda528e3d8b71d54",
@@ -1470,30 +1470,52 @@
     "semantic_pilot": {
       "run_id": 44348572199,
       "mission_id": "r4b-r15f-semantic-pilot-20261118",
-      "status": "IN_PROGRESS",
-      "job_id": 134957602661,
-      "current_stage": "Run bounded local semantic agent swarm",
-      "last_polled_at_utc": "2026-11-18T16:45:00Z",
-      "completed_steps": [
-        "immutable R15E checkpoint validation",
-        "artifact download and SHA-256 verification",
-        "79 source blob restore",
-        "Agent Form runtime installation",
-        "fresh isolated mission bootstrap",
-        "local Ollama qwen2.5:3b installation"
+      "status": "FAILED_CLOSED",
+      "artifact_id": 14448757300,
+      "artifact_sha256": "45e12a0a0dea058c77d3eb692c760fcc95347445b850f48f2ee0ff2945f45fcf",
+      "elapsed_seconds": 1096.3,
+      "specialist_task_failures": 0,
+      "evidence_gates_passed": 2,
+      "reviewers_completed": 2,
+      "reviewer_decisions": [
+        "inconclusive",
+        "inconclusive"
       ],
-      "pending_steps": [
-        "semantic agent execution completion",
-        "durable task ledger summary",
-        "artifact upload"
+      "accepted_dossiers": 0,
+      "sqlite_integrity": "ok",
+      "candidate_code_executed": false,
+      "root_cause": "Provenance-valid evidence IDs were accepted even when claims were semantically unrelated to the cited excerpt. Reviewer adequacy preflight correctly rejected generic/unsupported claims and produced inconclusive verdicts.",
+      "diagnostic_findings": [
+        "Cobi candidate-purpose/security/execution/economics reports contain generic claims such as ownership transfer/environment-variable/oracle behavior cited against minProfit/router configuration excerpts.",
+        "Aave test and dependency roles returned no source-grounded findings; test evidence coverage remains explicitly incomplete.",
+        "R15F's evidence gate checks signal IDs and role categories but did not enforce sufficient distinctive claim-to-excerpt overlap."
       ],
-      "artifacts_available": false,
-      "semantic_acceptance": "NOT_YET_VERIFIED"
+      "artifact_audit": "ZIP SHA-256 independently matched GitHub artifact digest; database PRAGMA integrity_check=ok; 27 files present including all 14 specialist reports, 2 evidence reports, 2 reviewer reports and task ledger."
     },
     "audit_finding": "Upstream source cap starved dependencies/tests/licenses; family-aware capture and separate 1MB lockfile cap now implemented and verified by live recapture.",
     "main_code_changes": "NONE; only plan/state documentation",
     "readiness": "NOT_24x7_PRODUCTION_READY",
-    "next_action": "Continue polling R15F without duplicating the active mission; when terminal, audit complete task ledger, all specialist/evidence/reviewer reports and SQLite integrity. If execution exceeds the workflow's 360-minute limit, classify the exact failed step and optimize only measured bottleneck before a fresh run."
+    "next_action": "Audit R15F-R2 run 44353218082 and CI; inspect semantic reports and ensure unsupported claims are rejected while source-specific findings pass. Do not accept empty test/dependency reports without explicit source-coverage unknowns.",
+    "semantic_repair_replay": {
+      "run_id": 44353218082,
+      "mission_id": "r4b-r15f-semantic-pilot-20261118-r2",
+      "status": "QUEUED",
+      "code_commit": "6f9ec75f26a02ead22555ae2d97fe5b1ba48de74",
+      "tests_commit": "ad4c143a8d7b6d61e74edf8a7a04a6658e3f2712",
+      "workflow_commit": "e700c55e3c4f06fc1fc5ff0f8879971d6169d5fe",
+      "trigger_commit": "d46c0f54e0fff83347a58a82aa0a35a9676273d0",
+      "repair": "strict claim-to-excerpt distinctive-token anchoring plus role-specific source-grounding instructions",
+      "immutable_source_artifact_id": 14446333023,
+      "immutable_source_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8"
+    },
+    "ci_latest": {
+      "run_ids": [
+        44353127493,
+        44353192243,
+        44353217975
+      ],
+      "status": "IN_PROGRESS_OR_QUEUED"
+    }
   },
   "execution_objective": {
     "status": "ACTIVE",
