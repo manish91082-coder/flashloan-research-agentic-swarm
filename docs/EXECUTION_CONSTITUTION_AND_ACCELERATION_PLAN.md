@@ -249,3 +249,38 @@ Using public GitHub tree metadata at the exact R3 candidate commits (no candidat
 - R15F successfully validated the immutable R15E artifact ID/digest, downloaded and verified the ZIP, restored the 79 pinned source blobs into the loopback source vault, installed Agent Form runtime and bootstrapped the fresh two-candidate mission DAG. Local Ollama qwen2.5:3b installation/pull was in progress at checkpoint.
 - This pilot is the first test of both upstream acquisition repair and selected-context metadata persistence on newly captured blobs. It remains IN_PROGRESS; no dossier or audit acceptance claim is allowed until specialist, evidence and two independent reviewer gates finish.
 - Compatibility repair to initializer load_reports default argument is committed at 5f25e3096df6eeae24499b74c9b4a2b4f1ea7c5a after prior CI at 5fe64be exposed existing callers; latest CI run 44348707691 is pending. Earlier failures are preserved as regression evidence.
+
+
+## 15. Decision log: 2026-11-18 execution acceleration and 24x7 objective
+
+### Mission-level decision
+The governing objective for every continuation is measurable progress toward a zero-cost, evidence-driven, autonomous flash-loan repository research swarm that can operate continuously on GitHub-hosted infrastructure without laptop/WSL dependency. Every response must resume the first unfinished critical-path task, execute or verify concrete work where tools permit, persist material decisions, and avoid unrelated scope.
+
+### Execution priority (strict order)
+1. **Close R15F semantic pilot** from immutable R15E artifact. Do not wait passively: inspect job state/logs, preserve and audit the final artifact, reconcile task ledger/database/reports, and classify every failure.
+2. **Repair only evidence-backed blockers** on the isolated engineering branch. Parallelize independent code review, test design and static artifact checks; serialize database writes, branch updates and mission transitions.
+3. **Prove repeatability** with a second fresh mission from a pinned immutable input. It must complete from trigger to terminal task ledger without manual intervention and pass all semantic acceptance gates.
+4. **Prove autonomy and recovery**: self-dispatch next bounded batch, restart after interrupted runner/job, reclaim stale leases, avoid duplicate task execution, and reconcile database/artifacts after recovery.
+5. **Prove sustained operation** with a 72-hour soak, recording workflow cadence, task throughput, queue age, rate-limit waits, retry classes, model latency, runner failures, data-loss checks and artifact reconciliation.
+6. **Promote safely**: narrow PR, migration compatibility, full Python 3.11/3.12/3.13 CI, fresh replay, fresh semantic pilot, rollback plan. Main remains unchanged until all gates pass.
+
+### Acceleration policy
+- Do not use sequential chat turns as the execution scheduler. Encode eligible work as bounded workflow jobs and durable task DAG items.
+- Use deterministic acquisition and validation before model inference; run independent candidates/roles concurrently only after SQLite isolation, rate limits and runner memory headroom are measured.
+- Use one local CPU model initially; do not simulate or claim thousands of agents. Logical specialist roles may share a local model sequentially.
+- Add explicit timeouts, heartbeats, lease expiry/reclamation, idempotency keys, bounded retries with jitter, per-stage metrics and a watchdog/self-chain dispatch.
+- A failed candidate must not block independent candidates; a failed stage must block only its dependent tasks and must leave an auditable terminal state.
+- Cache immutable inputs by digest; never reuse semantic conclusions across changed source, context, model or schema.
+- Optimize measured bottlenecks only. No weakening of evidence, reviewer, safety or semantic gates to improve apparent speed.
+
+### 24x7 operational acceptance
+"24x7 ready" is prohibited until all of the following are evidenced:
+- fresh end-to-end mission completes without a human prompt after launch;
+- scheduled/self-chaining continuation launches the next eligible bounded mission;
+- crash/restart recovery resumes safely with no silent task loss or duplicate terminal output;
+- independent reconciliation shows database, task ledger, report set and uploaded artifacts agree;
+- 72 continuous hours complete with no unresolved integrity mismatch or silent failure;
+- safety invariants remain true: no candidate code execution, wallet/key access, signing, deployment, live trading or paid inference.
+
+### Current checkpoint and next action
+At this decision, R15E recapture is PASS (run 44347794422; artifact 14446333023; SHA-256 9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8; 79/79 Git blobs verified; SQLite integrity ok). R15F run 44348572199 remains IN_PROGRESS; its semantic-pilot job 134957602661 has completed immutable seed validation, artifact restore, Agent Form bootstrap and Ollama setup, while bounded semantic swarm execution is still running. Artifact list was empty while the job remained active. Next action is to re-poll R15F, inspect its terminal job logs/artifact and audit the complete semantic output. No semantic acceptance and no 24x7 readiness claim is authorized yet.
