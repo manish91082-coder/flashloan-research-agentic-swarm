@@ -358,6 +358,43 @@ def _validate_reviewer_packet_decision(packet: dict[str, Any],
             "specialist packet adequacy is insufficient; independent reviewer must return inconclusive"
         )
 
+def _build_inconclusive_reviewer_report(packet: dict[str, Any],
+                                        canonical_purpose_category: str) -> dict[str, Any]:
+    """Create a deterministic fail-closed review when the specialist packet is inadequate.
+
+    This is an automated workflow disposition, not a model-generated review or human
+    adjudication. It deliberately contains no findings and cannot approve a candidate.
+    """
+    if packet.get("status") != "insufficient":
+        raise SpecialistTaskError("deterministic reviewer preflight requires an insufficient packet")
+    inadequate = packet.get("inadequate_reports", [])
+    unknowns: list[str] = []
+    for report in inadequate:
+        role = str(report.get("role", report.get("task_type", "unknown role")))
+        reasons = report.get("reasons", [])
+        if not reasons:
+            unknowns.append(f"{role}: semantic adequacy was not established.")
+        for reason in reasons:
+            if len(unknowns) >= MAX_REPORT_UNKNOWNS:
+                break
+            unknowns.append(f"{role}: {str(reason)[:220]}")
+        if len(unknowns) >= MAX_REPORT_UNKNOWNS:
+            break
+    if not unknowns:
+        unknowns = ["The specialist packet did not pass the deterministic adequacy preflight."]
+    return {
+        "summary": "Independent review was not attempted because the specialist packet failed the adequacy preflight. No candidate approval or rejection is inferred.",
+        "purpose": "Purpose classification is inherited from the completed candidate-purpose task; implementation details remain unverified.",
+        "purpose_category": canonical_purpose_category or "unknown",
+        "implementation_status": "unknown",
+        "findings": [],
+        "evidence": [],
+        "unknowns": unknowns,
+        "confidence": "low",
+        "review_decision": "inconclusive",
+        "review_disagreements": [],
+    }
+
 
 def _specialist_packet_adequacy(reports: list[dict[str, Any]]) -> dict[str, Any]:
     inadequate = [
@@ -1259,31 +1296,40 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 }
                 required_keys = REVIEWER_REQUIRED_KEYS if role == "independent_reviewer" else REQUIRED_KEYS
                 exchange_path = None
-                try:
-                    validated = _generate_validated_output(
-                        provider, ROLE_PROMPTS[role], context, required_keys, inspection, role,
+                if role == "independent_reviewer" and packet_adequacy.get("status") == "insufficient":
+                    # Avoid asking a small model to manufacture a review from an inadequate
+                    # packet. This deterministic inconclusive disposition is not human review.
+                    validated = validate_specialist_output(
+                        _build_inconclusive_reviewer_report(packet_adequacy, canonical_purpose_category),
+                        inspection, role,
                         canonical_purpose_category=canonical_purpose_category,
                     )
-                finally:
-                    if role == "independent_reviewer":
-                        exchange = getattr(provider, "last_exchange", None)
-                        if isinstance(exchange, dict):
-                            exchange_dir = artifact_root / mission_id / "model_exchanges"
-                            exchange_dir.mkdir(parents=True, exist_ok=True)
-                            exchange_path = exchange_dir / (
-                                repository.replace("/", "__") + "__independent_review.json"
-                            )
-                            write_json(exchange_path, {
-                                "task_id": task["task_id"],
-                                "repository": repository,
-                                "inspection_commit_sha": inspection["commit_sha"],
-                                "inspection_tree_sha": inspection["tree_sha"],
-                                "model": provider.identity.model,
-                                "provider": provider.identity.provider,
-                                "prompt_template_version": provider.identity.prompt_template_version,
-                                "specialist_packet_adequacy": packet_adequacy,
-                                "exchange": exchange,
-                            })
+                else:
+                    try:
+                        validated = _generate_validated_output(
+                            provider, ROLE_PROMPTS[role], context, required_keys, inspection, role,
+                            canonical_purpose_category=canonical_purpose_category,
+                        )
+                    finally:
+                        if role == "independent_reviewer":
+                            exchange = getattr(provider, "last_exchange", None)
+                            if isinstance(exchange, dict):
+                                exchange_dir = artifact_root / mission_id / "model_exchanges"
+                                exchange_dir.mkdir(parents=True, exist_ok=True)
+                                exchange_path = exchange_dir / (
+                                    repository.replace("/", "__") + "__independent_review.json"
+                                )
+                                write_json(exchange_path, {
+                                    "task_id": task["task_id"],
+                                    "repository": repository,
+                                    "inspection_commit_sha": inspection["commit_sha"],
+                                    "inspection_tree_sha": inspection["tree_sha"],
+                                    "model": provider.identity.model,
+                                    "provider": provider.identity.provider,
+                                    "prompt_template_version": provider.identity.prompt_template_version,
+                                    "specialist_packet_adequacy": packet_adequacy,
+                                    "exchange": exchange,
+                                })
                 if role == "independent_reviewer":
                     _validate_reviewer_packet_decision(packet_adequacy, validated)
                     if exchange_path is not None:
