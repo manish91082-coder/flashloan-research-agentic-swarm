@@ -14,7 +14,7 @@ from .mission_runtime import MissionTaskStore
 from .model_provider import LocalOpenAICompatibleProvider, ModelProviderError
 from .storage import write_json
 from .solidity_review import deterministic_protocol_review
-from .role_source_policy import order_role_source_manifest, role_path_admissible
+from .role_source_policy import order_role_source_manifest, role_path_admissible, selected_role_source_coverage
 
 
 ROLE_PROMPTS = {
@@ -1258,6 +1258,13 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     inspection,
                     role=role,
                     **reviewer_source_limits,
+                )
+                # Manifest coverage alone can be misleading when max_files or the
+                # character budget truncates the actual context. Record coverage
+                # only from unique paths that produced verified excerpts.
+                role_source_coverage["selected_context"] = selected_role_source_coverage(
+                    role,
+                    [item.get("path") for item in verified_excerpts if isinstance(item, dict)],
                 )
                 deterministic_review = (
                     _deterministic_review_with_catalog(inspection, verified_excerpts)
