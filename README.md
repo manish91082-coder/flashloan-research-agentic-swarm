@@ -1,5 +1,7 @@
 # Flash Loan Research Agentic Swarm
 
+> **Authoritative execution policy:** [Execution Constitution & Acceleration Plan](docs/EXECUTION_CONSTITUTION_AND_ACCELERATION_PLAN.md). All chat threads and engineering sessions must resume from this plan and `PROJECT_STATE.json`; chat history is not the source of truth.
+
 Evidence-first, research-only GitHub intelligence for flash-loan arbitrage and liquidation systems. The project deliberately builds deterministic acquisition and provenance controls before enabling LLM agents.
 
 ## Safety boundary
