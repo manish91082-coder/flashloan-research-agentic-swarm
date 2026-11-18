@@ -128,6 +128,17 @@ def select_research_artifacts(items: list[dict[str, Any]], max_files: int) -> li
     return selected
 
 
+
+def max_research_artifact_bytes(path: str, settings: Settings = SETTINGS) -> int:
+    """Give dependency lockfiles a separate bounded cap without relaxing source-code limits."""
+    from pathlib import PurePosixPath
+    name = PurePosixPath(path).name.casefold()
+    lockfiles = {"package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock",
+                 "poetry.lock", "pipfile.lock", "cargo.lock", "go.sum", "composer.lock"}
+    if name in lockfiles:
+        return max(settings.max_blob_bytes, settings.max_dependency_blob_bytes)
+    return settings.max_blob_bytes
+
 def decode_blob(raw: dict[str, Any]) -> bytes:
     if raw.get("encoding") != "base64" or not isinstance(raw.get("content"), str):
         raise ValueError("GitHub blob response must contain base64 content")
@@ -247,11 +258,11 @@ class ResearchPipeline:
         source_items_all = [item for item in research_items_all if is_source_file(item["path"])]
         oversized_source_count = sum(
             1 for item in research_items_all
-            if not isinstance(item.get("size"), int) or item["size"] < 0 or item["size"] > self.settings.max_blob_bytes
+            if not isinstance(item.get("size"), int) or item["size"] < 0 or item["size"] > max_research_artifact_bytes(item["path"], self.settings)
         )
         eligible_research_items = [
             item for item in research_items_all
-            if isinstance(item.get("size"), int) and 0 <= item["size"] <= self.settings.max_blob_bytes
+            if isinstance(item.get("size"), int) and 0 <= item["size"] <= max_research_artifact_bytes(item["path"], self.settings)
         ]
         source_items = select_research_artifacts(eligible_research_items, self.settings.max_source_files)
         source_cap_hit = len(eligible_research_items) > len(source_items)
@@ -269,7 +280,7 @@ class ResearchPipeline:
         for item in source_items:
             raw_blob = self.client.blob(full_name, item["sha"])
             content = decode_blob(raw_blob)
-            if len(content) > self.settings.max_blob_bytes:
+            if len(content) > max_research_artifact_bytes(item["path"], self.settings):
                 raise ValueError(f"GitHub blob exceeded configured size cap for {item['path']}")
             actual_sha = git_blob_sha(content)
             if actual_sha != item["sha"]:
@@ -324,6 +335,7 @@ class ResearchPipeline:
             "captured_files": captured_manifest,
             "source_file_cap": self.settings.max_source_files,
             "blob_size_cap_bytes": self.settings.max_blob_bytes,
+            "dependency_blob_size_cap_bytes": self.settings.max_dependency_blob_bytes,
             "signals": all_signals,
             "limitations": limitations,
         }
