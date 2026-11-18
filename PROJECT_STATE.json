@@ -1430,9 +1430,9 @@
     "continuity_rule": "Every chat thread must reload this plan and PROJECT_STATE.json from canonical repository before continuing."
   },
   "current_execution_checkpoint": {
-    "verified_at_utc": "2026-11-18T16:34:00Z",
+    "verified_at_utc": "2026-11-18T16:42:00Z",
     "engineering_branch": "phase-a/r4b-balanced-source-family-context",
-    "engineering_head": "5f25e3096df6eeae24499b74c9b4a2b4f1ea7c5a",
+    "engineering_head": "9bc7dd038eab26085fd390b0038b45d45b8eee84",
     "last_passed_ci": {
       "id": 44348100255,
       "sha": "b085079bfcdc1b4a3395fbdcdda528e3d8b71d54",
@@ -1444,9 +1444,15 @@
       ]
     },
     "latest_ci": {
-      "id": 44348707691,
-      "sha": "5f25e3096df6eeae24499b74c9b4a2b4f1ea7c5a",
-      "status": "in_progress"
+      "id": 44348921843,
+      "sha": "9bc7dd038eab26085fd390b0038b45d45b8eee84",
+      "status": "completed",
+      "conclusion": "success",
+      "python_versions": [
+        "3.11",
+        "3.12",
+        "3.13"
+      ]
     },
     "source_context_replay": {
       "id": 44347731319,
@@ -1465,11 +1471,41 @@
       "run_id": 44348572199,
       "mission_id": "r4b-r15f-semantic-pilot-20261118",
       "status": "IN_PROGRESS",
-      "current_stage": "local Ollama qwen2.5:3b installation/pull"
+      "job_id": 134957602661,
+      "current_stage": "bounded local semantic agent swarm execution",
+      "completed_steps": [
+        "immutable R15E checkpoint validation",
+        "artifact download and SHA-256 verification",
+        "79 source blob restore",
+        "Agent Form runtime installation",
+        "fresh isolated mission bootstrap",
+        "local Ollama qwen2.5:3b installation"
+      ]
     },
     "audit_finding": "Upstream source cap starved dependencies/tests/licenses; family-aware capture and separate 1MB lockfile cap now implemented and verified by live recapture.",
     "main_code_changes": "NONE; only plan/state documentation",
     "readiness": "NOT_24x7_PRODUCTION_READY",
-    "next_action": "Finish R15F local-model semantic pilot; inspect every specialist/evidence/reviewer report and task ledger; require two unreserved independent ACCEPT decisions before dossier."
+    "next_action": "Poll R15F to terminal; download and independently audit task ledger, specialist/evidence/reviewer reports and SQLite; repair evidenced defects; then prove a fresh autonomous mission, restart recovery and 72-hour soak."
+  },
+  "execution_objective": {
+    "status": "ACTIVE",
+    "objective": "zero-cost evidence-driven autonomous flash-loan repository research swarm with independently verified 24x7 operation",
+    "response_rule": "Every continuation executes or verifies the next critical-path task and persists material state; no unrelated scope or unsupported completion claims.",
+    "acceptance_order": [
+      "R15F semantic pilot",
+      "fresh repeatability mission",
+      "autonomous continuation and restart recovery",
+      "database/task-ledger/artifact reconciliation",
+      "72-hour soak",
+      "narrow main promotion"
+    ],
+    "safety_invariants": {
+      "candidate_code_execution": false,
+      "wallet_or_key_access": false,
+      "transaction_signing": false,
+      "deployment": false,
+      "live_trading": false,
+      "paid_inference": false
+    }
   }
 }
