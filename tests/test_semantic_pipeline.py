@@ -211,8 +211,9 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
 
             self.assertEqual(result["status"], "executed_with_evidence_gate", json.dumps(result, indent=2, default=str))
             self.assertTrue(result["evidence_validation"]["completed"])
-            self.assertEqual(len(FakeLocalProvider.calls), 8)
-            self.assertEqual(FakeLocalProvider.reviewer_prior_count, 7)
+            # An inadequate specialist packet is dispositioned deterministically; the local model is not asked to fabricate a review.
+            self.assertEqual(len(FakeLocalProvider.calls), 7)
+            self.assertIsNone(FakeLocalProvider.reviewer_prior_count)
             self.assertTrue(all(
                 call["payload"].get("verified_source_excerpts")
                 for call in FakeLocalProvider.calls
