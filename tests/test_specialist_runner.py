@@ -10,7 +10,7 @@ from flashloan_research.specialist_runner import (
     _verified_source_context, _prior_specialist_reports, _validate_report_evidence_provenance,
     ROLE_PROMPTS, _canonical_purpose_category, _validate_reviewer_semantic_relevance,
     _assess_specialist_report_adequacy, _specialist_packet_adequacy,
-    _validate_reviewer_packet_decision,
+    _validate_reviewer_packet_decision, _build_inconclusive_reviewer_report,
 )
 from flashloan_research.storage import git_blob_sha
 
@@ -314,6 +314,31 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         _validate_reviewer_packet_decision(packet, {"review_decision": "inconclusive"})
         with self.assertRaisesRegex(SpecialistTaskError, "must return inconclusive"):
             _validate_reviewer_packet_decision(packet, {"review_decision": "accept"})
+
+    def test_inadequate_packet_gets_deterministic_inconclusive_report_without_findings(self):
+        packet = {
+            "status": "insufficient",
+            "inadequate_reports": [
+                {"role": "protocol_specialist", "reasons": ["finding lacks a role-relevant technical mechanism"]},
+                {"role": "economics_quant", "reasons": ["no source-grounded specialist findings were supplied"]},
+            ],
+        }
+        output = _build_inconclusive_reviewer_report(packet, "flash_loan_liquidation_bot")
+        self.assertEqual(output["review_decision"], "inconclusive")
+        self.assertEqual(output["findings"], [])
+        self.assertEqual(output["evidence"], [])
+        self.assertEqual(output["implementation_status"], "unknown")
+        self.assertEqual(output["confidence"], "low")
+        self.assertEqual(output["purpose_category"], "flash_loan_liquidation_bot")
+        self.assertTrue(output["unknowns"])
+        self.assertLessEqual(len(output["unknowns"]), 8)
+        _validate_reviewer_packet_decision(packet, output)
+
+    def test_deterministic_reviewer_preflight_refuses_adequate_packet(self):
+        with self.assertRaisesRegex(SpecialistTaskError, "requires an insufficient packet"):
+            _build_inconclusive_reviewer_report(
+                {"status": "adequate"}, "flash_loan_liquidation_bot"
+            )
 
     def test_inconclusive_reviewer_may_report_insufficient_topic_coverage_without_inventing_findings(self):
         inspection = sample_inspection()
