@@ -68,20 +68,23 @@ REQUIRED_FAMILIES = {
     "independent_reviewer": ("protocol_contract",),
 }
 
+NON_PROTOCOL_PATH_SEGMENTS = {
+    "monitor", "monitoring", "telemetry", "dashboard", "ui", "frontend",
+    "observability", "web", "public",
+}
+
 
 def _family_for_path(role: str, path: str) -> tuple[int, str | None]:
     normalized = PurePosixPath(path).as_posix().casefold()
     patterns = ROLE_FAMILY_PATTERNS.get(role, ROLE_FAMILY_PATTERNS["candidate_purpose"])
+    parts = set(PurePosixPath(normalized).parts)
+    # Monitoring and presentation layers are not candidate protocol/runtime
+    # evidence. Exclude them consistently across roles, not just reviewer tests.
+    if role != "dependency_license" and parts.intersection(NON_PROTOCOL_PATH_SEGMENTS):
+        return len(patterns), None
     for rank, (family, needles) in enumerate(patterns):
         if not any(needle in normalized for needle in needles):
             continue
-        # Test verification admits genuine test suites broadly, but excludes
-        # observability/UI-only tests that do not verify candidate behavior.
-        if role == "test_verification" and family == "test_source":
-            excluded_segments = {"monitor", "monitoring", "telemetry", "dashboard", "ui", "frontend"}
-            if excluded_segments.intersection(PurePosixPath(normalized).parts):
-                continue
-        # Protocol/security reviewers must not consume unrelated monitoring tests.
         if role in {"solidity_security", "independent_reviewer"} and family in {
             "security_test", "protocol_test"
         }:
