@@ -54,7 +54,7 @@ jobs:
               raise SystemExit("R15F must consume the exact successful R15E source run")
           if p.get("model") != "qwen2.5:3b" or p.get("batch_limit") != 2:
               raise SystemExit("R15F model/batch policy mismatch")
-          if p.get("mission_id") != "r4b-r15f-semantic-pilot-20261118":
+          if p.get("mission_id") != "r4b-r15f-semantic-pilot-20261118-r2":
               raise SystemExit("Unexpected mission identity")
           for key in ("database","artifact_root"):
               if not isinstance(p.get(key),str) or not p[key]:
