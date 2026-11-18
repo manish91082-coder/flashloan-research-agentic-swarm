@@ -235,7 +235,8 @@ class SemanticPipelineEndToEndTests(unittest.TestCase):
             reviewer = result["independent_review"]["completed"][0]
             reviewer_report = json.loads(Path(reviewer["report"]).read_text())
             self.assertEqual(reviewer_report["review_decision"], "inconclusive")
-            self.assertTrue(reviewer_report["review_disagreements"])
+            self.assertEqual(reviewer_report["review_disagreements"], [])
+            self.assertTrue(reviewer_report["unknowns"])
             self.assertEqual(reviewer_report["findings"], [])
             self.assertEqual(reviewer_report["implementation_status"], "unknown")
 
