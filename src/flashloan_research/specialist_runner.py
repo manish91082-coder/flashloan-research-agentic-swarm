@@ -10,6 +10,7 @@ from pathlib import PurePosixPath
 
 from .config import SETTINGS
 from .storage import git_blob_sha
+from .analyzer import max_research_artifact_bytes
 from .mission_runtime import MissionTaskStore
 from .model_provider import LocalOpenAICompatibleProvider, ModelProviderError
 from .storage import write_json
@@ -243,7 +244,7 @@ def _verified_source_context(inspection: dict[str, Any], snapshot_root: Path | N
         if root not in file_path.parents or not file_path.is_file():
             raise SpecialistTaskError(f"source blob missing or outside vault root: {source_path}")
         raw = file_path.read_bytes()
-        if len(raw) > SETTINGS.max_blob_bytes or git_blob_sha(raw) != blob_sha:
+        if len(raw) > max_research_artifact_bytes(source_path, SETTINGS) or git_blob_sha(raw) != blob_sha:
             raise SpecialistTaskError(f"source blob size/hash verification failed: {source_path}")
         lines = raw.decode("utf-8", errors="replace").splitlines()
         if not lines:
