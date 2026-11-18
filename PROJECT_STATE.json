@@ -1421,5 +1421,36 @@
     "evidence_validation": "pending",
     "independent_review": "pending"
   },
-  "latest_project_state_commit": "ea8bc4f81a1244e6c4bd4089a9edb5e9d3608d44"
+  "latest_project_state_commit": "ea8bc4f81a1244e6c4bd4089a9edb5e9d3608d44",
+  "authoritative_execution_plan": {
+    "path": "docs/EXECUTION_CONSTITUTION_AND_ACCELERATION_PLAN.md",
+    "version": "1.0",
+    "status": "AUTHORITATIVE",
+    "scope": "Flash Loan Research Agentic Swarm only",
+    "continuity_rule": "Every chat thread must reload this plan and PROJECT_STATE.json from canonical repository before continuing."
+  },
+  "current_execution_checkpoint": {
+    "verified_at_utc": "2026-11-18T16:00:00Z",
+    "engineering_branch": "phase-a/r4b-balanced-source-family-context",
+    "engineering_head": "4a04a6f4b77d4959ca6d5c6744615bebd6ee3efc",
+    "ci_run": {
+      "id": 44341842169,
+      "status": "completed",
+      "conclusion": "success",
+      "python_versions": [
+        "3.11",
+        "3.12",
+        "3.13"
+      ]
+    },
+    "source_context_replay_run": {
+      "id": 44341842158,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "semantic_pilot": "NOT_STARTED",
+    "main_code_changes": "NONE",
+    "readiness": "NOT_24x7_PRODUCTION_READY",
+    "next_action": "Inspect CI and replay artifacts, audit selected-prefix coverage and execute frozen R3 two-candidate eight-role replay."
+  }
 }
