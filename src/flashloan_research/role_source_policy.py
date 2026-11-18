@@ -3,8 +3,6 @@ from __future__ import annotations
 from pathlib import PurePosixPath
 from typing import Iterable
 
-# Ordered source families are intentionally role-specific. A path is ranked by
-# its strongest matching family, then by deterministic path order.
 ROLE_FAMILY_PATTERNS = {
     "candidate_purpose": (
         ("protocol_contract", ("contracts/", "contract/", ".sol")),
@@ -77,10 +75,9 @@ def _family_for_path(role: str, path: str) -> tuple[int, str | None]:
     for rank, (family, needles) in enumerate(patterns):
         if not any(needle in normalized for needle in needles):
             continue
-        # Protocol/security reviewers must not spend their bounded context on
-        # unrelated UI/monitoring tests merely because a directory is named test.
-        if role in {"solidity_security", "independent_reviewer"} and family in {
-            "security_test", "protocol_test"
+        # Exclude monitoring/UI test suites from protocol/security review context.
+        if role in {"solidity_security", "independent_reviewer", "test_verification"} and family in {
+            "security_test", "protocol_test", "test_source"
         }:
             protocol_markers = (
                 "liquidat", "flashloan", "flash_loan", "flash-loan", "aave",
@@ -95,14 +92,7 @@ def _family_for_path(role: str, path: str) -> tuple[int, str | None]:
 
 
 def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[list[dict], dict]:
-    """Order sources with deterministic family interleaving to prevent context starvation.
-
-    The previous rank-then-path ordering could fill max_files with many files from
-    one family. Since the caller applies a bounded prefix, runtime, tests, config
-    or license sources could be starved even when present in the manifest.
-    Round-robin family selection keeps the prefix representative without relaxing
-    role admissibility or changing source provenance.
-    """
+    """Interleave role-admissible source families to avoid bounded-context starvation."""
     patterns = ROLE_FAMILY_PATTERNS.get(role)
     if patterns is None:
         raise ValueError(f"unknown specialist source role: {role}")
@@ -110,16 +100,13 @@ def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[lis
     buckets: dict[str, list[tuple[str, dict]]] = {}
     present = set()
     for item in rows:
-        rank, family = _family_for_path(role, item["path"])
+        _, family = _family_for_path(role, item["path"])
         if family:
             present.add(family)
             buckets.setdefault(family, []).append((item["path"].casefold(), item))
     for family in buckets:
         buckets[family].sort(key=lambda pair: pair[0])
 
-    # Iterate families in declared policy order, taking one source from each
-    # family per pass. This preserves first-family priority while avoiding
-    # monopolization by repositories with many similarly named source files.
     family_order = [family for family, _ in patterns if family in buckets]
     ordered: list[dict] = []
     depth = 0
@@ -144,9 +131,7 @@ def order_role_source_manifest(role: str, manifest: Iterable[dict]) -> tuple[lis
         "coverage_status": "complete" if not missing else "incomplete",
         "policy": "round_robin_role_family_priority_then_deterministic_path_order",
         "family_file_counts": {family: len(buckets[family]) for family in family_order},
-        "ordered_family_prefix": [
-            _family_for_path(role, item["path"])[1] for item in ordered
-        ],
+        "ordered_family_prefix": [_family_for_path(role, item["path"])[1] for item in ordered],
     }
     return ordered, coverage
 
