@@ -75,9 +75,15 @@ def _family_for_path(role: str, path: str) -> tuple[int, str | None]:
     for rank, (family, needles) in enumerate(patterns):
         if not any(needle in normalized for needle in needles):
             continue
-        # Exclude monitoring/UI test suites from protocol/security review context.
-        if role in {"solidity_security", "independent_reviewer", "test_verification"} and family in {
-            "security_test", "protocol_test", "test_source"
+        # Test verification admits genuine test suites broadly, but excludes
+        # observability/UI-only tests that do not verify candidate behavior.
+        if role == "test_verification" and family == "test_source":
+            excluded_segments = {"monitor", "monitoring", "telemetry", "dashboard", "ui", "frontend"}
+            if excluded_segments.intersection(PurePosixPath(normalized).parts):
+                continue
+        # Protocol/security reviewers must not consume unrelated monitoring tests.
+        if role in {"solidity_security", "independent_reviewer"} and family in {
+            "security_test", "protocol_test"
         }:
             protocol_markers = (
                 "liquidat", "flashloan", "flash_loan", "flash-loan", "aave",
