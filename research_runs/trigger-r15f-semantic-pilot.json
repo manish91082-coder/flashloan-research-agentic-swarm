@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "record_type": "r15f_fresh_semantic_pilot_trigger",
+  "record_type": "r15f_semantic_repair_replay_trigger",
   "source_run_id": "44347794422",
   "artifact_id": 14446333023,
   "artifact_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8",
-  "mission_id": "r4b-r15f-semantic-pilot-20261118",
-  "database": "data/r4b-r15f-semantic-pilot.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/r4b-r15f-semantic-pilot-20261118",
+  "mission_id": "r4b-r15f-semantic-pilot-20261118-r2",
+  "database": "data/r4b-r15f-semantic-pilot-r2.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/r4b-r15f-semantic-pilot-20261118-r2",
   "model": "qwen2.5:3b",
   "batch_limit": 2,
   "model_timeout_seconds": 900,
@@ -25,5 +25,6 @@
     "live_trading": false,
     "cloud_model_inference": false,
     "paid_api": false
-  }
+  },
+  "repair_scope": "claim-to-excerpt distinctive token anchoring and strict role-specific source-grounding prompt"
 }
