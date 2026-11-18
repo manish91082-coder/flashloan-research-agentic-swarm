@@ -18,6 +18,21 @@ from .solidity_review import deterministic_protocol_review
 from .role_source_policy import order_role_source_manifest, role_path_admissible, selected_role_source_coverage
 
 
+SEMANTIC_SOURCE_GROUNDING_RULES = (
+    "STRICT CLAIM-TO-SOURCE RULES: Every finding must describe a concrete technical mechanism "
+    "actually visible in the exact cited excerpt, not merely a repository-level fact or a plausible "
+    "feature. Before emitting a finding, compare its key nouns/identifiers and action with the cited "
+    "excerpt. Never attach a broad set of unrelated evidence IDs to one claim. Prefer one or two "
+    "narrowly relevant evidence IDs. Do not invent ownership events, environment-variable checks, "
+    "oracle behavior, token transfers, tests, callbacks, or security controls unless the cited lines "
+    "show them. If the excerpt does not establish the mechanism, emit no finding for it and put the "
+    "dimension in unknowns. Zero findings with implementation_status=unknown and confidence=low is "
+    "better than an unsupported claim. For dependency/license, report only exact package/version, "
+    "compiler, and license facts visible in the supplied manifest/config/license excerpt. "
+    "For economics, cite actual formula/variable/guard evidence, not chain configuration comments. "
+    "For test verification, distinguish a test configuration from actual tests and assertions."
+)
+
 ROLE_PROMPTS = {
     "candidate_purpose": (
         "Classify the repository's actual primary product/function from its commit-pinned source. "
@@ -328,6 +343,13 @@ def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]]
     allowed_ids = set(evidence_by_id)
     topic_terms = tuple(_normalise_semantic_text(term) for term in _SPECIALIST_TOPIC_TERMS.get(role, ()))
     generic_markers = tuple(_normalise_semantic_text(term) for term in _GENERIC_SPECIALIST_CLAIM_MARKERS)
+    stopwords = {
+        "the", "and", "for", "with", "from", "that", "this", "into", "before", "after",
+        "when", "then", "than", "does", "uses", "used", "using", "based", "which",
+        "their", "there", "have", "has", "are", "was", "were", "will", "would",
+        "could", "should", "must", "can", "not", "only", "also", "part", "code",
+        "contract", "repository", "script", "function", "system", "specific",
+    }
     for index, finding in enumerate(findings, start=1):
         claim = _normalise_semantic_text(str(finding.get("claim", "")).strip())
         refs = finding.get("evidence_refs", [])
@@ -337,18 +359,26 @@ def _assess_specialist_report_adequacy(role: str, findings: list[dict[str, Any]]
             reasons.append(f"finding {index} is generic repository/language boilerplate")
         if not isinstance(refs, list) or not refs or any(ref not in allowed_ids for ref in refs):
             reasons.append(f"finding {index} does not resolve exclusively to accepted evidence IDs")
+            continue
         if topic_terms and not any(term in claim for term in topic_terms):
             reasons.append(f"finding {index} lacks a role-relevant technical mechanism")
-        elif topic_terms and isinstance(refs, list):
-            cited_text = " ".join(evidence_by_id.get(ref, "") for ref in refs)
-            if not any(term in claim and term in cited_text for term in topic_terms):
-                reasons.append(f"finding {index} has no shared role-specific technical anchor in its cited source excerpt")
+        cited_text = " ".join(evidence_by_id.get(ref, "") for ref in refs)
+        if topic_terms and not any(term in claim and term in cited_text for term in topic_terms):
+            reasons.append(f"finding {index} has no shared role-specific technical anchor in its cited source excerpt")
+        claim_tokens = {token for token in claim.split() if len(token) >= 4 and token not in stopwords}
+        source_tokens = {token for token in cited_text.split() if len(token) >= 4 and token not in stopwords}
+        shared_tokens = claim_tokens & source_tokens
+        if len(shared_tokens) < 2:
+            reasons.append(
+                f"finding {index} has fewer than two distinctive claim-to-excerpt anchors; "
+                "evidence IDs may be provenance-valid but semantically unrelated"
+            )
     return {
         "status": "adequate_for_adversarial_challenge" if not reasons else "insufficient",
         "finding_count": len(findings),
         "reason_count": len(reasons),
         "reasons": reasons[:12],
-        "method": "deterministic lexical and evidence-reference triage; not semantic proof",
+        "method": "deterministic role-topic, distinctive-token overlap and evidence-reference triage; not semantic proof",
     }
 
 
@@ -1315,7 +1345,7 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                 else:
                     try:
                         validated = _generate_validated_output(
-                            provider, ROLE_PROMPTS[role], context, required_keys, inspection, role,
+                            provider, SEMANTIC_SOURCE_GROUNDING_RULES + "\\n\\n" + ROLE_PROMPTS[role], context, required_keys, inspection, role,
                             canonical_purpose_category=canonical_purpose_category,
                         )
                     finally:
