@@ -134,6 +134,17 @@ class RoleSourcePolicyTests(unittest.TestCase):
             ["contracts/A.sol", "src/a_bot.py", "contracts/Z.sol", "src/z_bot.py"],
         )
 
+    def test_selected_context_coverage_uses_only_paths_that_produced_verified_excerpts(self):
+        from flashloan_research.role_source_policy import selected_role_source_coverage
+        coverage = selected_role_source_coverage("test_verification", [
+            "tests/test_liquidation.py", "monitor/test/apiLogs.test.js",
+        ])
+        self.assertEqual(coverage["selected_coverage_status"], "incomplete")
+        self.assertEqual(coverage["selected_present_families"], ["test_source"])
+        self.assertEqual(coverage["selected_missing_families"], ["ci_workflow", "test_config"])
+        self.assertEqual(coverage["selected_file_count"], 1)
+
+
 
 if __name__ == "__main__":
     unittest.main()
