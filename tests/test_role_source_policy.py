@@ -73,9 +73,11 @@ class RoleSourcePolicyTests(unittest.TestCase):
 
     def test_test_findings_require_test_ci_or_test_configuration_sources(self):
         self.assertTrue(role_path_admissible("test_verification", "tests/test_bot.py"))
+        self.assertTrue(role_path_admissible("test_verification", "tests/test_execution.py"))
         self.assertTrue(role_path_admissible("test_verification", ".github/workflows/ci.yml"))
         self.assertFalse(role_path_admissible("test_verification", "bot.js"))
         self.assertFalse(role_path_admissible("test_verification", "monitor/test/apiLogs.test.js"))
+        self.assertFalse(role_path_admissible("test_verification", "dashboard/tests/test_ui.py"))
 
     def test_bounded_prefix_interleaves_source_families_instead_of_starving_them(self):
         manifest = [
