@@ -151,19 +151,26 @@ def selected_role_source_coverage(role: str, selected_paths: Iterable[str]) -> d
     patterns = ROLE_FAMILY_PATTERNS.get(role)
     if patterns is None:
         raise ValueError(f"unknown specialist source role: {role}")
-    unique_paths = sorted({path for path in selected_paths if isinstance(path, str)})
+    excerpt_paths = sorted({path for path in selected_paths if isinstance(path, str)})
+    admissible_paths: list[str] = []
+    excluded_paths: list[str] = []
     counts: dict[str, int] = {}
-    for path in unique_paths:
+    for path in excerpt_paths:
         _, family = _family_for_path(role, path)
         if family:
+            admissible_paths.append(path)
             counts[family] = counts.get(family, 0) + 1
+        else:
+            excluded_paths.append(path)
     required = list(REQUIRED_FAMILIES.get(role, ()))
     present = sorted(counts)
     missing = [family for family in required if family not in counts]
     return {
         "role": role,
-        "selected_file_paths": unique_paths,
-        "selected_file_count": len(unique_paths),
+        "selected_file_paths": admissible_paths,
+        "selected_file_count": len(admissible_paths),
+        "selected_excerpt_paths": excerpt_paths,
+        "excluded_excerpt_paths": excluded_paths,
         "selected_family_file_counts": counts,
         "selected_present_families": present,
         "selected_required_families": required,
