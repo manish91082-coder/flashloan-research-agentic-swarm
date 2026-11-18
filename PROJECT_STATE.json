@@ -1432,7 +1432,7 @@
   "current_execution_checkpoint": {
     "verified_at_utc": "2026-11-18T17:00:00Z",
     "engineering_branch": "phase-a/r4b-balanced-source-family-context",
-    "engineering_head": "d46c0f54e0fff83347a58a82aa0a35a9676273d0",
+    "engineering_head": "2d1dfaf8cdd4dbb2336c035f9a51b5709837dc1a",
     "last_passed_ci": {
       "id": 44348100255,
       "sha": "b085079bfcdc1b4a3395fbdcdda528e3d8b71d54",
@@ -1495,18 +1495,31 @@
     "audit_finding": "Upstream source cap starved dependencies/tests/licenses; family-aware capture and separate 1MB lockfile cap now implemented and verified by live recapture.",
     "main_code_changes": "NONE; only plan/state documentation",
     "readiness": "NOT_24x7_PRODUCTION_READY",
-    "next_action": "Audit R15F-R2 run 44353218082 and CI; inspect semantic reports and ensure unsupported claims are rejected while source-specific findings pass. Do not accept empty test/dependency reports without explicit source-coverage unknowns.",
+    "next_action": "Audit R15F-R2 terminal artifact. Verify CI for semantic grounding changes, especially the adequacy regression and reviewer context budget. If R2 fails because the model still produces unsupported claims, improve role-specific source selection/prompt examples before a fresh R3 pilot.",
     "semantic_repair_replay": {
       "run_id": 44353218082,
       "mission_id": "r4b-r15f-semantic-pilot-20261118-r2",
-      "status": "QUEUED",
+      "status": "IN_PROGRESS",
       "code_commit": "6f9ec75f26a02ead22555ae2d97fe5b1ba48de74",
       "tests_commit": "ad4c143a8d7b6d61e74edf8a7a04a6658e3f2712",
       "workflow_commit": "e700c55e3c4f06fc1fc5ff0f8879971d6169d5fe",
       "trigger_commit": "d46c0f54e0fff83347a58a82aa0a35a9676273d0",
       "repair": "strict claim-to-excerpt distinctive-token anchoring plus role-specific source-grounding instructions",
       "immutable_source_artifact_id": 14446333023,
-      "immutable_source_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8"
+      "immutable_source_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8",
+      "latest_code_followup": {
+        "commit": "2d1dfaf8cdd4dbb2336c035f9a51b5709837dc1a",
+        "changes": [
+          "continue checking role relevance even when an evidence reference is invalid",
+          "compact adequacy diagnostics to preserve all seven specialist reports within reviewer context budget"
+        ],
+        "ci_run_ids": [
+          44353439614,
+          44353406796,
+          44353337803
+        ],
+        "status": "IN_PROGRESS"
+      }
     },
     "ci_latest": {
       "run_ids": [
