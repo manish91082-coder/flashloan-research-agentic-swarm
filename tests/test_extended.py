@@ -71,6 +71,11 @@ class ExtendedRegressionTests(unittest.TestCase):
         self.assertNotIn("monitor/test/apiLogs.test.js", paths)
 
 
+    def test_dependency_lockfiles_receive_a_separate_bounded_size_cap(self):
+        from flashloan_research.config import SETTINGS
+        self.assertGreater(max_research_artifact_bytes("package-lock.json"), SETTINGS.max_blob_bytes)
+        self.assertEqual(max_research_artifact_bytes("contracts/Liquidator.sol"), SETTINGS.max_blob_bytes)
+
     def test_signal_extraction_is_line_aware(self):
         source = b"contract X {\n function executeOperation() external {}\n}"
         signals = extract_signals("Executor.sol", source)
