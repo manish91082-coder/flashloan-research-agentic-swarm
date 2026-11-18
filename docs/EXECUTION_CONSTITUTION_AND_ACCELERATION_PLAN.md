@@ -241,3 +241,11 @@ Using public GitHub tree metadata at the exact R3 candidate commits (no candidat
 - Independent artifact audit: all 79/79 captured Git blobs recomputed against Git blob SHA-1 framing and matched their manifest blob_sha; SQLite PRAGMA integrity_check returned ok; no candidate code was executed. ZIP SHA-256 independently recomputed as 9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8.
 - CI at c4a3e97 exposed only a regression-test import NameError for max_research_artifact_bytes. Corrected in commit b085079bfcdc1b4a3395fbdcdda528e3d8b71d54; latest CI run 44348100255 was queued at log time. Do not infer CI success from the successful recapture workflow.
 - Next: verify CI at b085079; then build a fresh semantic pilot input from this R15E artifact (not the old R3 seed), with independent artifact/DB reconciliation before model execution.
+
+
+### R15F fresh semantic pilot: IN_PROGRESS
+
+- A fresh isolated semantic mission was created from the verified R15E artifact, not from the failed R3 pilot seed. Trigger commit 5fe64be8cada860a66fc92c7fb2425b02f8b1e6f; workflow run 44348572199; mission r4b-r15f-semantic-pilot-20261118.
+- R15F successfully validated the immutable R15E artifact ID/digest, downloaded and verified the ZIP, restored the 79 pinned source blobs into the loopback source vault, installed Agent Form runtime and bootstrapped the fresh two-candidate mission DAG. Local Ollama qwen2.5:3b installation/pull was in progress at checkpoint.
+- This pilot is the first test of both upstream acquisition repair and selected-context metadata persistence on newly captured blobs. It remains IN_PROGRESS; no dossier or audit acceptance claim is allowed until specialist, evidence and two independent reviewer gates finish.
+- Compatibility repair to initializer load_reports default argument is committed at 5f25e3096df6eeae24499b74c9b4a2b4f1ea7c5a after prior CI at 5fe64be exposed existing callers; latest CI run 44348707691 is pending. Earlier failures are preserved as regression evidence.
