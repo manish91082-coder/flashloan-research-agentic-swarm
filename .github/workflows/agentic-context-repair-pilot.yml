@@ -66,7 +66,7 @@ jobs:
             echo "Context-repair pilot must use the exact frozen, approved source-capture checkpoint and SHA-256." >&2
             exit 1
           fi
-          if [[ "$MISSION_ID" != "flashloan-agent-form-context-repair-r2-20261117" || "$DATABASE" != "data/agentic-mission-context-repair-r2-20261117.sqlite3" || "$ARTIFACT_ROOT" != "research_runs/mission-pilots/flashloan-agent-form-context-repair-r2-20261117" ]]; then
+          if [[ "$MISSION_ID" != "flashloan-agent-form-context-repair-r3-20261118" || "$DATABASE" != "data/agentic-mission-context-repair-r3-20261118.sqlite3" || "$ARTIFACT_ROOT" != "research_runs/mission-pilots/flashloan-agent-form-context-repair-r3-20261118" ]]; then
             echo "Fresh recovery pilot must use its new isolated mission identity, database and artifact root." >&2
             exit 1
           fi
