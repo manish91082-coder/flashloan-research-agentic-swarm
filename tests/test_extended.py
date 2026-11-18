@@ -13,7 +13,7 @@ from io import BytesIO
 from pathlib import Path
 from urllib.error import HTTPError
 
-from flashloan_research.analyzer import decode_blob, extract_signals, is_source_file
+from flashloan_research.analyzer import decode_blob, extract_signals, is_source_file, is_research_artifact, select_research_artifacts
 from flashloan_research.config import SETTINGS
 from flashloan_research.github_api import GitHubClient
 from flashloan_research.models import EvidenceRecord, RepositoryCandidate
@@ -45,6 +45,31 @@ class ExtendedRegressionTests(unittest.TestCase):
         self.assertTrue(is_source_file("contracts/Executor.sol"))
         self.assertFalse(is_source_file("vendor/Executor.sol"))
         self.assertFalse(is_source_file("README.md"))
+
+    def test_research_artifact_filter_includes_manifests_tests_ci_and_license(self):
+        self.assertTrue(is_research_artifact("contracts/Liquidator.sol"))
+        self.assertTrue(is_research_artifact("package-lock.json"))
+        self.assertTrue(is_research_artifact("tests/test_liquidation.py"))
+        self.assertTrue(is_research_artifact(".github/workflows/ci.yml"))
+        self.assertTrue(is_research_artifact("LICENSE"))
+        self.assertFalse(is_research_artifact("monitor/test/dashboard.test.js"))
+        self.assertFalse(is_research_artifact("node_modules/pkg/index.js"))
+
+    def test_capture_selector_round_robins_research_families_before_cap(self):
+        items = ([{"path": f"contracts/Liquidator{i:02d}.sol", "sha": str(i)} for i in range(20)]
+                 + [{"path": "bot.js", "sha": "runtime"},
+                    {"path": "tests/test_liquidation.py", "sha": "test"},
+                    {"path": "package.json", "sha": "deps"},
+                    {"path": "hardhat.config.ts", "sha": "build"},
+                    {"path": "LICENSE", "sha": "license"},
+                    {"path": ".github/workflows/ci.yml", "sha": "ci"},
+                    {"path": "monitor/test/apiLogs.test.js", "sha": "monitor"}])
+        selected = select_research_artifacts(items, 6)
+        paths = [item["path"] for item in selected]
+        self.assertEqual(paths, ["contracts/Liquidator00.sol", "bot.js", "tests/test_liquidation.py",
+                                 "package.json", "hardhat.config.ts", "LICENSE"])
+        self.assertNotIn("monitor/test/apiLogs.test.js", paths)
+
 
     def test_signal_extraction_is_line_aware(self):
         source = b"contract X {\n function executeOperation() external {}\n}"
