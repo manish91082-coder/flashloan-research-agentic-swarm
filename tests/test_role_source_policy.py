@@ -75,6 +75,51 @@ class RoleSourcePolicyTests(unittest.TestCase):
         self.assertTrue(role_path_admissible("test_verification", ".github/workflows/ci.yml"))
         self.assertFalse(role_path_admissible("test_verification", "bot.js"))
 
+    def test_bounded_prefix_interleaves_source_families_instead_of_starving_them(self):
+        manifest = [
+            {"path": f"contracts/Contract{i:02d}.sol"} for i in range(12)
+        ] + [
+            {"path": "src/bot.js"},
+            {"path": "tests/test_liquidation.py"},
+            {"path": "foundry.toml"},
+        ]
+        ordered, coverage = order_role_source_manifest("execution_engineer", manifest)
+        # The source-context loader takes a bounded prefix. A 4-file prefix
+        # must include the first contract plus runtime, test and build config.
+        prefix = ordered[:4]
+        prefix_families = [
+            next((family for family, _ in (
+                ("execution_contract", ("contracts/", ".sol")),
+                ("execution_runtime", ("src/", "bot.")),
+                ("execution_test", ("test/", "tests/", "spec/")),
+                ("execution_config", ("foundry.toml", "hardhat.config", "package.json")),
+            ) if any(needle in item["path"].casefold() for needle in _)),
+                 None)
+            for item in prefix
+        ]
+        self.assertEqual(
+            prefix_families,
+            ["execution_contract", "execution_runtime", "execution_test", "execution_config"],
+        )
+        self.assertEqual(
+            coverage["policy"],
+            "round_robin_role_family_priority_then_deterministic_path_order",
+        )
+        self.assertEqual(coverage["family_file_counts"]["execution_contract"], 12)
+
+    def test_round_robin_preserves_deterministic_order_within_each_family(self):
+        manifest = [
+            {"path": "contracts/Z.sol"},
+            {"path": "contracts/A.sol"},
+            {"path": "src/z_bot.py"},
+            {"path": "src/a_bot.py"},
+        ]
+        ordered, _ = order_role_source_manifest("protocol_specialist", manifest)
+        self.assertEqual(
+            [item["path"] for item in ordered],
+            ["contracts/A.sol", "src/a_bot.py", "contracts/Z.sol", "src/z_bot.py"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
