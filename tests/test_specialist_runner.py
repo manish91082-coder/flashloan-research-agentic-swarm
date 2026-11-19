@@ -957,3 +957,24 @@ class R15FR2PerReferenceGroundingTests(unittest.TestCase):
             ],
         )
         self.assertEqual(result["status"], "adequate_for_adversarial_challenge")
+
+
+class R15FR3RoleSpecificityRegressionTests(unittest.TestCase):
+    def test_role_specific_prompts_prohibit_cross_role_boilerplate(self):
+        from flashloan_research.specialist_runner import ROLE_PROMPTS, MAX_FINDING_EVIDENCE_REFS
+        self.assertEqual(MAX_FINDING_EVIDENCE_REFS, 2)
+        self.assertIn("ONLY primary-purpose classification", ROLE_PROMPTS["candidate_purpose"])
+        self.assertIn("ONLY security properties and trust boundaries", ROLE_PROMPTS["solidity_security"])
+        self.assertIn("ONLY quantitative/economic mechanisms", ROLE_PROMPTS["economics_quant"])
+        self.assertIn("not found in the captured/selected evidence", ROLE_PROMPTS["test_verification"])
+
+    def test_generic_library_fact_is_not_security_or_economics_mechanism(self):
+        from flashloan_research.specialist_runner import _assess_specialist_report_adequacy
+        evidence=[{"evidence_id":"EV00001","excerpt":"The contract imports OpenZeppelin SafeERC20 and implements IERC20 token operations."}]
+        for role, claim in [
+            ("solidity_security", "The contract uses OpenZeppelin SafeERC20 for ERC20 token operations."),
+            ("economics_quant", "The contract uses OpenZeppelin SafeERC20 for ERC20 token operations."),
+        ]:
+            result=_assess_specialist_report_adequacy(role,[{"claim":claim,"evidence_refs":["EV00001"]}],evidence)
+            self.assertEqual(result["status"],"insufficient")
+
