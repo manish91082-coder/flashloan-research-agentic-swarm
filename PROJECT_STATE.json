@@ -4,7 +4,7 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R14_REVIEWER_CORRECTION_5_5_0",
   "status": "DISCOVERY_7901; SOURCE_CAPTURE_4612_CHECKPOINT_393_VERIFIED; CI_456_457_458_SUCCESS; R14_RUN23_FAILED_ROLE_DRIFT; R14B_RUN24_SPECIALIST_EXECUTION_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-19T01:04:20Z",
+  "last_verified_at_utc": "2026-11-19T01:40:00Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "b4f092d4b1c2ce8ce7ddda9c0f65b15fe050d76b",
   "latest_ci_run": {
@@ -1584,11 +1584,11 @@
     }
   },
   "readiness": "NOT_24x7_PRODUCTION_READY",
-  "next_action": "Monitor R15F-R3 run 44434043556 and CI run 44434043581. Audit local model installation, semantic swarm stages, evidence gates, both reviewer decisions, task ledger and uploaded artifact. Do not claim acceptance unless both reviewers issue unreserved accept with evidence and no disagreements.",
+  "next_action": "Wait for CI run 44439044134 and R15E recapture run 44439044255. If all Python versions and recapture pass, update R15F trigger to a fresh R4 mission with new DB/artifact root and larger 5-file/12000-char/24-line context. Then audit all specialist reports, evidence gates and reviewers. Do not launch repeatability/restart/soak until both reviewers accept.",
   "r15f_r3": {
-    "status": "IN_PROGRESS",
+    "status": "FAILED_CLOSED",
     "workflow_run_id": 44434043556,
-    "ci_run_id": 44434043581,
+    "ci_run_id": 44439044134,
     "trigger_commit": "c8e7ea40f98bf75d45306c956e114fad4095774e",
     "workflow_commit": "621eed572a7751856b0a1c51d043e6952a2b904d",
     "mission_id": "r4b-r15f-semantic-pilot-20261119-r3",
@@ -1608,8 +1608,36 @@
     "deployment": false,
     "live_trading": false,
     "current_step": "Install local open-weight inference runtime",
-    "reviewer_decisions": null,
+    "reviewer_decisions": [
+      "inconclusive",
+      "inconclusive"
+    ],
     "accepted_dossiers": 0,
-    "readiness": "NOT_24x7_PRODUCTION_READY"
+    "readiness": "NOT_24x7_PRODUCTION_READY",
+    "artifact_id": 14489213684,
+    "artifact_sha256": "3f2f4f36430b8fa0a5e2f8f9a25c2787872bf74dc05ba8e82f474c77aa30d6f8",
+    "runtime_seconds": 1389.81,
+    "specialist_reports_completed": 14,
+    "evidence_gates_passed": 2,
+    "reviewers_completed": 2,
+    "sqlite_integrity": "ok",
+    "root_cause": [
+      "Candidate-purpose, protocol, execution, security and economics agents still repeated repository-level facts or generic setup claims instead of role-specific mechanisms.",
+      "Findings cited up to four evidence IDs although each claim needed narrow individual support; model ignored soft instruction to use one or two.",
+      "Source context was only 3 files/6000 chars/12 context lines, starving role-specific contract/runtime details.",
+      "Test/dependency reports used unsupported repository-wide absence language where selected evidence coverage was incomplete.",
+      "Both reviewers deterministically skipped model review because seven-role packet adequacy preflight was insufficient."
+    ],
+    "repair_commit": "53941c0748284ce8c16d53d8775c7930153fdaf3",
+    "regression_test_commit": "8e267186f5a03c84a61ff23fac7c9f9907386b3d",
+    "repair_changes": [
+      "Hard limit each finding to two evidence IDs.",
+      "Make specialist roles explicitly non-overlapping and prohibit repeated generic repository/library facts.",
+      "Require test coverage unknowns to be phrased as captured-evidence limitations, not repository-wide absence.",
+      "Increase default specialist context to 5 files, 12000 chars and 24 context lines.",
+      "Add regression tests for role ownership and generic SafeERC20 facts."
+    ],
+    "r15c_replay_run_id": 44439044087,
+    "r15e_recapture_run_id": 44439044255
   }
 }
