@@ -237,3 +237,22 @@ A fresh R15F-R3 has been launched from this newly verified R15E artifact, not th
 - At launch audit, immutable artifact validation, download/hash verification, runtime installation and fresh mission bootstrap had passed. Local model installation was in progress; semantic tasks had not yet started.
 
 R3 must pass all specialist adequacy checks, both evidence gates, and both independent reviewers with unreserved accept, nonempty source-linked evidence and zero unresolved disagreements. The pilot workflow enforces reviewer acceptance and fails closed otherwise. Keep main code unchanged. Readiness remains NOT_24x7_PRODUCTION_READY.
+
+
+## 19. R15F-R3 forensic outcome and R4 repair (2026-11-19)
+
+R15F-R3 workflow 44434043556 completed FAILED_CLOSED after 1,389.81 seconds. Artifact 14489213684, SHA-256 3f2f4f36430b8fa0a5e2f8f9a25c2787872bf74dc05ba8e82f474c77aa30d6f8; ZIP hash independently matched. SQLite PRAGMA integrity_check returned ok. Fourteen specialist reports completed; two evidence gates passed; both reviewer tasks completed as INCONCLUSIVE; zero accepted dossiers; no candidate code executed.
+
+Forensic cause from the persisted reports and reviewer preflight:
+- The same broad facts (Aave purpose, SafeERC20, interfaces, dotenv, environment variables, ABI and oracle statements) were recycled across candidate-purpose, protocol, security, execution and economics roles.
+- Some findings cited four evidence IDs, even though the claim-to-excerpt gate requires each cited ID independently to support a narrow claim. The earlier prompt said prefer one or two but schema still permitted four.
+- Specialist model context was configured at three files, 6,000 characters and 12 context lines. The source-context selector reported complete family coverage in some roles, but the small selected excerpt set did not supply enough implementation detail for the model to reconstruct distinct mechanisms.
+- Test specialist reported repository-wide absence (e.g. no tests/CI) despite incomplete selected test-family coverage. Correct language must be limited to not found in captured/selected evidence.
+- Both reviewers correctly skipped model review and deterministically returned inconclusive because the seven-role packet was inadequate. These are not actual independent model accept/reject decisions.
+
+R4 engineering repair committed:
+- Code commit 53941c0748284ce8c16d53d8775c7930153fdaf3: hard maximum two evidence IDs per finding; role ownership/non-overlap instructions; no generic purpose/library/compiler facts in unrelated roles; incomplete test evidence must not be stated as repository-wide absence; default specialist context raised to five files, 12,000 characters and 24 context lines.
+- Regression-test commit 8e267186f5a03c84a61ff23fac7c9f9907386b3d: checks role-specific prompt ownership and rejects generic SafeERC20 facts as security/economics mechanisms.
+- R15C byte replay run 44439044087 passed. Full three-version CI run 44439044134 was in progress at this checkpoint. R15E recapture run 44439044255 was in progress. Do not launch a new semantic mission until CI and frozen recapture both pass.
+
+Next: after CI and recapture pass, update the R15F trigger to mission R4 with a fresh SQLite database and artifact root, same immutable frozen candidates, expanded context and local-only inference. Audit all seven specialist roles, both evidence gates and reviewer reports. No repeatability, restart-recovery or 72-hour soak before two unreserved evidence-backed ACCEPT decisions and zero unresolved disagreements. Readiness remains NOT_24x7_PRODUCTION_READY; main branch code unchanged.
