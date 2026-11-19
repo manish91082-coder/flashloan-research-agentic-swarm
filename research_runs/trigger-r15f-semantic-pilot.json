@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "record_type": "r15f_semantic_repair_replay_trigger",
-  "source_run_id": "44347794422",
-  "artifact_id": 14446333023,
-  "artifact_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8",
-  "mission_id": "r4b-r15f-semantic-pilot-20261118-r2",
-  "database": "data/r4b-r15f-semantic-pilot-r2.sqlite3",
-  "artifact_root": "research_runs/mission-pilots/r4b-r15f-semantic-pilot-20261118-r2",
+  "record_type": "r15f_r3_semantic_pilot_trigger",
+  "source_run_id": "44431926608",
+  "artifact_id": 14486068980,
+  "artifact_sha256": "95a665bc3a8e086c9a913adeab5fdb0e51e6649bd5c0d5f56e62b3214d39d1ae",
+  "mission_id": "r4b-r15f-semantic-pilot-20261119-r3",
+  "database": "data/r4b-r15f-semantic-pilot-r3.sqlite3",
+  "artifact_root": "research_runs/mission-pilots/r4b-r15f-semantic-pilot-20261119-r3",
   "model": "qwen2.5:3b",
   "batch_limit": 2,
   "model_timeout_seconds": 900,
@@ -26,5 +26,5 @@
     "cloud_model_inference": false,
     "paid_api": false
   },
-  "repair_scope": "claim-to-excerpt distinctive token anchoring and strict role-specific source-grounding prompt"
+  "repair_scope": "per-reference distinctive claim-to-excerpt anchoring; fresh R3 semantic acceptance attempt from recapture run 44431926608"
 }
