@@ -928,3 +928,32 @@ class R15FSemanticAnchorRegressionTests(unittest.TestCase):
               "excerpt": "minProfit floor budgets PROFIT_SAFETY_MULTIPLE times gas; callStatic gate reverts unprofitable transactions"}],
         )
         self.assertEqual(result["status"], "adequate_for_adversarial_challenge")
+
+
+class R15FR2PerReferenceGroundingTests(unittest.TestCase):
+    def test_rejects_claim_with_broad_bundle_when_only_one_reference_matches(self):
+        result = _assess_specialist_report_adequacy(
+            "solidity_security",
+            [{"claim": "The executeOperation callback validates msg.sender and initiator.",
+              "evidence_refs": ["EV00100", "EV00101", "EV00102"]}],
+            [
+                {"evidence_id": "EV00100", "excerpt": "executeOperation validates msg.sender and initiator"},
+                {"evidence_id": "EV00101", "excerpt": "router fee tier configuration"},
+                {"evidence_id": "EV00102", "excerpt": "dotenv loads environment variables"},
+            ],
+        )
+        self.assertEqual(result["status"], "insufficient")
+        self.assertTrue(any("no individual claim-to-excerpt anchor" in x for x in result["reasons"]))
+        self.assertTrue(any("more than two evidence IDs" in x for x in result["reasons"]))
+
+    def test_accepts_narrow_claim_when_each_reference_independently_supports_it(self):
+        result = _assess_specialist_report_adequacy(
+            "solidity_security",
+            [{"claim": "executeOperation validates msg.sender and initiator.",
+              "evidence_refs": ["EV00100", "EV00101"]}],
+            [
+                {"evidence_id": "EV00100", "excerpt": "executeOperation validates msg.sender"},
+                {"evidence_id": "EV00101", "excerpt": "initiator must equal address(this)"},
+            ],
+        )
+        self.assertEqual(result["status"], "adequate_for_adversarial_challenge")
