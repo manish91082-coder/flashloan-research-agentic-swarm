@@ -460,7 +460,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
         with self.assertRaisesRegex(SpecialistTaskError, "invalid or missing purpose_category"):
             validate_specialist_output(output, self.inspection, "candidate_purpose")
 
-    def test_rejects_finding_with_more_than_four_evidence_references(self):
+    def test_rejects_finding_with_more_than_two_evidence_references(self):
         inspection = {
             "repository": "org/repo", "commit_sha": "a" * 40, "tree_sha": "b" * 40,
             "signals": [{"path": f"contracts/C{i}.sol", "line": i + 1,
@@ -476,7 +476,7 @@ class SpecialistEvidenceGateTests(unittest.TestCase):
                 "evidence_refs": [f"EV{i:05d}" for i in range(1, 6)],
             }],
         )
-        with self.assertRaisesRegex(SpecialistTaskError, "at most 4 narrowly relevant IDs"):
+        with self.assertRaisesRegex(SpecialistTaskError, "at most 2 narrowly relevant IDs"):
             validate_specialist_output(output, inspection, "candidate_purpose")
 
     def test_report_evidence_provenance_rechecks_exact_signal_and_commit_tree_pins(self):
