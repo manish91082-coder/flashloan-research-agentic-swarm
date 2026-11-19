@@ -50,11 +50,11 @@ jobs:
               raise SystemExit("Invalid R15E artifact id")
           if not re.fullmatch(r"[0-9a-f]{64}", str(p.get("artifact_sha256",""))):
               raise SystemExit("Invalid R15E artifact SHA-256")
-          if p.get("source_run_id") != "44347794422":
+          if p.get("source_run_id") != "44431926608":
               raise SystemExit("R15F must consume the exact successful R15E source run")
           if p.get("model") != "qwen2.5:3b" or p.get("batch_limit") != 2:
               raise SystemExit("R15F model/batch policy mismatch")
-          if p.get("mission_id") != "r4b-r15f-semantic-pilot-20261118-r2":
+          if p.get("mission_id") != "r4b-r15f-semantic-pilot-20261119-r3":
               raise SystemExit("Unexpected mission identity")
           for key in ("database","artifact_root"):
               if not isinstance(p.get(key),str) or not p[key]:
