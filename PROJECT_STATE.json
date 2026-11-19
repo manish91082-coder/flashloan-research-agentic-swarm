@@ -1430,9 +1430,9 @@
     "continuity_rule": "Every chat thread must reload this plan and PROJECT_STATE.json from canonical repository before continuing."
   },
   "current_execution_checkpoint": {
-    "verified_at_utc": "2026-11-18T17:04:00Z",
+    "verified_at_utc": "2026-11-19T00:50:00Z",
     "engineering_branch": "phase-a/r4b-balanced-source-family-context",
-    "engineering_head": "c252ff78009f5c96aac79e14fe783433bddcc0fe",
+    "engineering_head": "4bfed838f36ac22f47d8933db3547ba091bc3114",
     "last_passed_ci": {
       "id": 44348100255,
       "sha": "b085079bfcdc1b4a3395fbdcdda528e3d8b71d54",
@@ -1444,8 +1444,8 @@
       ]
     },
     "latest_ci": {
-      "id": 44353503484,
-      "sha": "c252ff78009f5c96aac79e14fe783433bddcc0fe",
+      "id": 44354547698,
+      "sha": "4bfed838f36ac22f47d8933db3547ba091bc3114",
       "status": "completed",
       "conclusion": "success",
       "python_versions": [
@@ -1509,27 +1509,31 @@
     "semantic_repair_replay": {
       "run_id": 44353218082,
       "mission_id": "r4b-r15f-semantic-pilot-20261118-r2",
-      "status": "IN_PROGRESS",
-      "code_commit": "6f9ec75f26a02ead22555ae2d97fe5b1ba48de74",
-      "tests_commit": "ad4c143a8d7b6d61e74edf8a7a04a6658e3f2712",
-      "workflow_commit": "e700c55e3c4f06fc1fc5ff0f8879971d6169d5fe",
-      "trigger_commit": "d46c0f54e0fff83347a58a82aa0a35a9676273d0",
-      "repair": "strict claim-to-excerpt distinctive-token anchoring plus role-specific source-grounding instructions",
+      "status": "FAILED_CLOSED",
+      "artifact_id": 14451765420,
+      "artifact_sha256": "372873a992d172a00206e9f0a6b3041fda8d83ad6f9c56d760768eadff250682",
+      "elapsed_seconds": 622.09,
+      "specialist_reports_completed": 14,
+      "evidence_gates_passed": 2,
+      "reviewers_completed": 2,
+      "reviewer_decisions": [
+        "inconclusive",
+        "inconclusive"
+      ],
+      "accepted_dossiers": 0,
+      "task_ledger_integrity": "ok",
+      "sqlite_integrity": "ok",
+      "candidate_code_executed": false,
       "immutable_source_artifact_id": 14446333023,
       "immutable_source_sha256": "9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8",
-      "latest_code_followup": {
-        "commit": "2d1dfaf8cdd4dbb2336c035f9a51b5709837dc1a",
-        "changes": [
-          "continue checking role relevance even when an evidence reference is invalid",
-          "compact adequacy diagnostics to preserve all seven specialist reports within reviewer context budget"
-        ],
-        "ci_run_ids": [
-          44353439614,
-          44353406796,
-          44353337803
-        ],
-        "status": "IN_PROGRESS"
-      }
+      "findings": [
+        "Both reviewers marked specialist packet adequacy insufficient across all seven roles.",
+        "Cobi reports repeated generic event/environment/ABI/oracle statements across purpose, security, protocol, economics and execution roles, frequently citing four broad evidence IDs.",
+        "Aave reports repeated repository-level facts (Aave purpose, SafeERC20, interfaces, Solidity version) in security, execution and economics roles rather than role-specific mechanisms.",
+        "Both candidates have zero source-grounded test and dependency findings; missing source families correctly remain unknown, not proof of absence.",
+        "Task ledger retains two pending dossier tasks and pending continuation/synthesis tasks because acceptance gate was not reached."
+      ],
+      "next_action": "Do not retry same prompt/model setup. Repair specialist source-to-claim generation structurally: provide compact role-specific evidence packets with exact source excerpts and per-ID provenance; require each finding to cite one or two individually matching IDs; reject cross-role boilerplate and generic event claims; retain explicit zero-finding unknown outputs for test/dependency gaps. Add fixtures from R2 failures, targeted tests, full CI, then fresh R15F-R3 mission on the same immutable R15E artifact."
     },
     "ci_latest": {
       "run_ids": [
@@ -1572,5 +1576,7 @@
       "live_trading": false,
       "paid_inference": false
     }
-  }
+  },
+  "readiness": "NOT_24x7_PRODUCTION_READY",
+  "next_action": "Do not retry same prompt/model setup. Repair specialist source-to-claim generation structurally: provide compact role-specific evidence packets with exact source excerpts and per-ID provenance; require each finding to cite one or two individually matching IDs; reject cross-role boilerplate and generic event claims; retain explicit zero-finding unknown outputs for test/dependency gaps. Add fixtures from R2 failures, targeted tests, full CI, then fresh R15F-R3 mission on the same immutable R15E artifact."
 }
