@@ -216,3 +216,24 @@ Decision:
 6. No repeatability, restart-recovery or 72-hour soak gate until R3 passes both independent reviewer acceptance requirements.
 
 Readiness remains `NOT_24x7_PRODUCTION_READY`. Main branch code remains untouched.
+
+
+## 18. R15F-R3 launch checkpoint (2026-11-19)
+
+The per-reference grounding repair and regression-test commits both passed the full three-version CI matrix:
+- 59031cef244c893866cb54ae3b266f387bf15af4, CI run 44431926592: PASS (Python 3.11, 3.12, 3.13).
+- 31570cb33ff17e2199dbd643c3d87e9cc10e329a, CI run 44431946513: PASS (Python 3.11, 3.12, 3.13).
+- R15C replay run 44431926599: PASS.
+- R15E recapture run 44431926608: PASS; artifact 14486068980, SHA-256 95a665bc3a8e086c9a913adeab5fdb0e51e6649bd5c0d5f56e62b3214d39d1ae. Downloaded ZIP hash independently matched; SQLite integrity check returned ok; both frozen candidate pins and 79 captured research artifacts (Cobi 67, Aave-Liquiditor 12) were present; no candidate code executed.
+
+A fresh R15F-R3 has been launched from this newly verified R15E artifact, not the prior R2 artifact:
+- Mission: r4b-r15f-semantic-pilot-20261119-r3
+- Workflow run: 44434043556
+- CI for trigger/workflow commits: 44434024730 and 44434043581 (both in progress at checkpoint)
+- Workflow/trigger commits: 621eed572a7751856b0a1c51d043e6952a2b904d and c8e7ea40f98bf75d45306c956e114fad4095774e
+- Fresh DB: data/r4b-r15f-semantic-pilot-r3.sqlite3
+- Fresh artifact root: research_runs/mission-pilots/r4b-r15f-semantic-pilot-20261119-r3
+- Model: local qwen2.5:3b, Ollama loopback CPU; batch limit 2; no cloud/paid inference.
+- At launch audit, immutable artifact validation, download/hash verification, runtime installation and fresh mission bootstrap had passed. Local model installation was in progress; semantic tasks had not yet started.
+
+R3 must pass all specialist adequacy checks, both evidence gates, and both independent reviewers with unreserved accept, nonempty source-linked evidence and zero unresolved disagreements. The pilot workflow enforces reviewer acceptance and fails closed otherwise. Keep main code unchanged. Readiness remains NOT_24x7_PRODUCTION_READY.
