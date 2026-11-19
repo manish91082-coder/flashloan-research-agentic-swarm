@@ -193,3 +193,26 @@ Use exactly these distinctions:
 - NOT_APPLICABLE
 
 A green CI run means code tests passed for that commit; it does not imply semantic correctness, accepted dossiers or 24x7 operation.
+
+
+## 17. R15F-R2 forensic outcome and next repair (2026-11-19)
+
+R15F-R2 run `44353218082` completed **FAILED_CLOSED**. Artifact `14451765420`, SHA-256 `372873a992d172a00206e9f0a6b3041fda8d83ad6f9c56d760768eadff250682`. It consumed the immutable R15E artifact `14446333023` (SHA-256 `9ff57cdc26962e1e9c62da6936cfac27435381e0c8fa9a0fb1b8d82049b536d8`). Runtime 622.09 seconds. All 14 specialist tasks and both evidence gates completed; both reviewers returned `inconclusive`; zero accepted dossiers. SQLite integrity and task-ledger integrity checks returned `ok`. Candidate code execution remained false.
+
+Forensic findings:
+- Both reviewer packets marked all seven specialist roles inadequate. This is the expected fail-closed outcome, not an independent acceptance.
+- Cobi reports repeated generic event/environment-variable/ABI/oracle statements across purpose, security, protocol, economics and execution roles, often citing four broad evidence IDs.
+- Aave reports repeated repository-level facts (Aave liquidation purpose, SafeERC20, interfaces, Solidity version) across security, execution and economics roles rather than role-specific technical mechanisms.
+- Both candidates produced zero source-grounded test and dependency findings. Source coverage gaps remain explicit unknowns and must not be treated as evidence that tests or dependencies do not exist.
+- Two candidate dossier tasks, continuation queue and mission synthesis remained pending because the acceptance gate was not reached.
+- Evidence gates passing establishes pinned signal provenance and current structural checks; it does not override reviewer semantic inadequacy.
+
+Decision:
+1. Do not repeat R2 unchanged. A third identical model run would add cost/time without addressing the observed failure mode.
+2. Repair specialist generation structurally, not by merely increasing lexical overlap thresholds. Build role-specific compact evidence packets that display each exact source excerpt beside its own evidence ID/path/line; require each finding to cite one or two individually matching IDs; prohibit cross-role boilerplate and generic repository facts in technical roles.
+3. Add deterministic checks that compare each cited evidence item independently with its claim, not only a concatenated evidence bundle. Add regression fixtures reproducing the R2 Cobi/Aave generic claims and valid narrow mechanism claims.
+4. Preserve zero-finding, low-confidence, unknown outputs for test/dependency roles when eligible source evidence is absent.
+5. Run targeted tests and full Python 3.11/3.12/3.13 CI, then launch a fresh R15F-R3 mission from the same immutable R15E source artifact, with a new database and artifact root.
+6. No repeatability, restart-recovery or 72-hour soak gate until R3 passes both independent reviewer acceptance requirements.
+
+Readiness remains `NOT_24x7_PRODUCTION_READY`. Main branch code remains untouched.
