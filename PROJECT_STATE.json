@@ -4,7 +4,7 @@
   "project_mode": "RESEARCH_ONLY",
   "phase": "B2_PERSISTENT_SOURCE_CAPTURE; B3_AGENT_FORM_SEMANTIC_PIPELINE; PHASE_27_STRICT_ACCEPTANCE_GATES; R14_REVIEWER_CORRECTION_5_5_0",
   "status": "DISCOVERY_7901; SOURCE_CAPTURE_4612_CHECKPOINT_393_VERIFIED; CI_456_457_458_SUCCESS; R14_RUN23_FAILED_ROLE_DRIFT; R14B_RUN24_SPECIALIST_EXECUTION_IN_PROGRESS; NO_SEMANTIC_AUDIT_ACCEPTANCE",
-  "last_verified_at_utc": "2026-11-16T04:34:00Z",
+  "last_verified_at_utc": "2026-11-19T01:04:20Z",
   "default_branch": "main",
   "latest_commit_at_checkpoint": "b4f092d4b1c2ce8ce7ddda9c0f65b15fe050d76b",
   "latest_ci_run": {
@@ -1584,5 +1584,32 @@
     }
   },
   "readiness": "NOT_24x7_PRODUCTION_READY",
-  "next_action": "Do not retry same prompt/model setup. Repair specialist source-to-claim generation structurally: provide compact role-specific evidence packets with exact source excerpts and per-ID provenance; require each finding to cite one or two individually matching IDs; reject cross-role boilerplate and generic event claims; retain explicit zero-finding unknown outputs for test/dependency gaps. Add fixtures from R2 failures, targeted tests, full CI, then fresh R15F-R3 mission on the same immutable R15E artifact."
+  "next_action": "Monitor R15F-R3 run 44434043556 and CI run 44434043581. Audit local model installation, semantic swarm stages, evidence gates, both reviewer decisions, task ledger and uploaded artifact. Do not claim acceptance unless both reviewers issue unreserved accept with evidence and no disagreements.",
+  "r15f_r3": {
+    "status": "IN_PROGRESS",
+    "workflow_run_id": 44434043556,
+    "ci_run_id": 44434043581,
+    "trigger_commit": "c8e7ea40f98bf75d45306c956e114fad4095774e",
+    "workflow_commit": "621eed572a7751856b0a1c51d043e6952a2b904d",
+    "mission_id": "r4b-r15f-semantic-pilot-20261119-r3",
+    "source_run_id": "44431926608",
+    "source_artifact_id": 14486068980,
+    "source_artifact_sha256": "95a665bc3a8e086c9a913adeab5fdb0e51e6649bd5c0d5f56e62b3214d39d1ae",
+    "database": "data/r4b-r15f-semantic-pilot-r3.sqlite3",
+    "artifact_root": "research_runs/mission-pilots/r4b-r15f-semantic-pilot-20261119-r3",
+    "model": "qwen2.5:3b",
+    "model_policy": "local Ollama loopback CPU; no cloud/paid inference",
+    "batch_limit": 2,
+    "bootstrap": "PASS",
+    "source_artifact_sha256_verified": true,
+    "candidate_code_executed": false,
+    "wallet_or_key_access": false,
+    "transaction_signing": false,
+    "deployment": false,
+    "live_trading": false,
+    "current_step": "Install local open-weight inference runtime",
+    "reviewer_decisions": null,
+    "accepted_dossiers": 0,
+    "readiness": "NOT_24x7_PRODUCTION_READY"
+  }
 }
