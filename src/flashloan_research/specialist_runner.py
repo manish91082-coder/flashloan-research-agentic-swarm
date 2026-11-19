@@ -48,6 +48,7 @@ ROLE_PROMPTS = {
         "or protecting other software, NOT a liquidation contract that happens to contain security "
         "issues or is being security-reviewed; unrelated means no substantive flash-loan/liquidation "
         "relationship; unknown means the supplied source cannot establish purpose. "
+        "This role owns ONLY primary-purpose classification. Do NOT report SafeERC20, compiler, language, library, interface, generic contract facts, or detailed security/economics observations as purpose findings. Prefer one concise finding that explains the primary product function and its flash-funded lifecycle; do not pad the report. "
         "Classify intended primary function even when implementation is partial or contains TODOs; "
         "describe incompleteness separately in implementation_status and unknowns. "
         "Do not classify by the current specialist role, risk profile, security posture, or a single "
@@ -62,22 +63,22 @@ ROLE_PROMPTS = {
         "Name only behavior visible in the supplied source excerpts. Mark omitted stages unknown."
     ),
     "solidity_security": (
-        "Use purpose_category consistently with the candidate-purpose report. Perform source-grounded Solidity security triage: callback caller authentication, "
+        "This role owns ONLY security properties and trust boundaries. Do NOT repeat purpose, library/compiler facts, generic dotenv/environment setup, or ordinary execution descriptions unless they create a specific trust-boundary risk. Perform source-grounded Solidity security triage: callback caller authentication, "
         "initiator binding, asset/amount binding, access control, reentrancy, token handling, "
         "oracle assumptions and repayment. A signal is not proof of exploitability. Cite evidence IDs."
     ),
     "execution_engineer": (
-        "Use purpose_category consistently with the candidate-purpose report. Assess executable transaction flow from source: contract entry points, provider callback, "
+        "This role owns ONLY executable transaction wiring and operational flow. Do NOT repeat repository purpose, library/compiler facts, or generic environment-variable statements. Assess executable transaction flow from source: contract entry points, provider callback, "
         "DEX route, atomicity, approvals, slippage bounds, revert handling and execution wiring. "
         "Do not infer runtime success from a function name or TODO."
     ),
     "test_verification": (
-        "Use purpose_category consistently with the candidate-purpose report. Assess actual test/CI files supplied: test cases, assertions, fixtures, mocks, fork tests, "
+        "This role owns ONLY test and CI evidence. If selected source coverage is incomplete, phrase absence as not found in the captured/selected evidence, NEVER as proof the repository contains no tests. Do not infer repository-wide absence from an empty excerpt set. Assess actual test/CI files supplied: test cases, assertions, fixtures, mocks, fork tests, "
         "coverage limitations and CI configuration. A test filename or dependency is not proof a "
         "behavior is tested. Missing test evidence must remain unknown."
     ),
     "economics_quant": (
-        "Use purpose_category consistently with the candidate-purpose report. Assess only source-visible economic formulas: liquidation eligibility, debt/collateral "
+        "This role owns ONLY quantitative/economic mechanisms. Do NOT repeat purpose, Solidity/library/interface/compiler facts, or general repository summaries. Assess only source-visible economic formulas: liquidation eligibility, debt/collateral "
         "arithmetic, bonus, flash premium, swap fees, gas inputs, slippage and net-profit gate. "
         "Never invent market prices, gas quotes or profitability. Missing inputs remain unknown."
     ),
@@ -133,7 +134,7 @@ ROLE_FINDING_CATEGORIES = {
     "dependency_license": {"dependency_license"},
     "independent_reviewer": {"review_challenge"},
 }
-MAX_FINDING_EVIDENCE_REFS = 4
+MAX_FINDING_EVIDENCE_REFS = 2
 MAX_REPORT_EVIDENCE_IDS = 8
 MAX_REPORT_FINDINGS = 6
 MAX_REPORT_UNKNOWNS = 8
@@ -1298,9 +1299,9 @@ def run_specialist_batch(mission_id: str, database_path: Path, artifact_root: Pa
                     reviewer_source_limits = {"max_files": 5, "max_chars": 12000, "context_lines": 10}
                 else:
                     reviewer_source_limits = {
-                        "max_files": int(os.getenv("FLR_MODEL_MAX_FILES", "3")),
-                        "max_chars": int(os.getenv("FLR_MODEL_MAX_CONTEXT_CHARS", "6000")),
-                        "context_lines": int(os.getenv("FLR_MODEL_CONTEXT_LINES", "12")),
+                        "max_files": int(os.getenv("FLR_MODEL_MAX_FILES", "5")),
+                        "max_chars": int(os.getenv("FLR_MODEL_MAX_CONTEXT_CHARS", "12000")),
+                        "context_lines": int(os.getenv("FLR_MODEL_CONTEXT_LINES", "24")),
                     }
                 role_source_order, role_source_coverage = order_role_source_manifest(
                     role, inspection.get("captured_files", [])
